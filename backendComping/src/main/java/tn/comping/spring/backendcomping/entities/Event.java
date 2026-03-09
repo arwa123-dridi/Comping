@@ -15,4 +15,10 @@ public class Event {
     @Id
     private String idEvent;
 
+    private String titre;
+    private String description;
+    private double prix;
+    private int capacite;
+    private StatutEvent statut;
+
 }
