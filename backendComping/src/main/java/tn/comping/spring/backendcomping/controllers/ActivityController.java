@@ -41,7 +41,7 @@ public class ActivityController {
 
         return activityService.updateActivity(id, request);
     }
-    
+
     @DeleteMapping(Constants.DELETE_ACTIVITY)
     public void deleteActivity(@PathVariable String id){
         activityService.deleteActivity(id);
