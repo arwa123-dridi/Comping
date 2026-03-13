@@ -1,4 +1,4 @@
-package tn.comping.spring.backendcomping.services.interfaces;
+package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import tn.comping.spring.backendcomping.dto.EquipeRequestDTO;
 import tn.comping.spring.backendcomping.dto.EquipeResponseDTO;
