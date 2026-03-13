@@ -1,10 +1,11 @@
 package tn.comping.spring.backendcomping.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import tn.comping.spring.backendcomping.entities.StatutEvent;
+
+
+@Getter
+@Setter
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
