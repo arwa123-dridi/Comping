@@ -23,4 +23,7 @@ public class SignupEntity {
     private String telephone;
     private String address;
     private Role role;
+
+    private String photo; // URL de la photo
+
 }

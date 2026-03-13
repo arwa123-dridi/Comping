@@ -8,8 +8,12 @@ import java.util.List;
 
 @Repository
 public interface EquipeRepository extends MongoRepository<Equipe, String> {
+
+    // ⚠️ MODIFIÉ : Recherche par ID de l'organisateur
+    @Query("{ 'organisateur.$id' : ?0 }")
     List<Equipe> findByOrganisateurId(String organisateurId);
 
-    @Query("{ $expr: { $lt: [ { $size: '$membreIds' }, '$nbMembresMax' ] } }")
+    // ⚠️ MODIFIÉ : Équipes avec places disponibles
+    @Query("{ $expr: { $lt: [ { $size: '$membres' }, '$nbMembresMax' ] } }")
     List<Equipe> findEquipesAvecPlace();
 }

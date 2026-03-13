@@ -15,10 +15,10 @@ public class EquipeRequestDTO {
     @Min(value = 2, message = "Une équipe doit avoir au moins 2 membres")
     @Max(value = 20, message = "Capacité maximum: 20")
     private Integer nbMembresMax;
-
     private String niveau;
 
     // Organisateur (celui qui crée l'équipe)
+    @NotBlank(message = "Organisateur obligatoire")
     private String organisateurId;
     private String organisateurNom;
 }

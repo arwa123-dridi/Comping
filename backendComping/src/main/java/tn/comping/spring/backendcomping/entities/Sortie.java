@@ -1,13 +1,13 @@
 package tn.comping.spring.backendcomping.entities;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.*;
-import tn.comping.spring.backendcomping.enums.Difficulte;
-import tn.comping.spring.backendcomping.enums.StatutSortie;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import tn.comping.spring.backendcomping.entities.SignupEntity;  // ✅
 
 @Document(collection = "sorties")
 @Data
@@ -33,17 +33,17 @@ public class Sortie {
     private Boolean assistanceMedicale;
     private StatutSortie statut;
 
-    // IDs simples de l'organisateur
-    private String organisateurId;
-    private String organisateurNom;
+    // ✅ REMPLACÉ : Référence à l'organisateur (au lieu des IDs simples)
+    @DBRef
+    private SignupEntity organisateur;
 
-    // Relation avec Equipe
-    private String equipeId;
-    private String equipeNom;
+    // ✅ RELATION : Référence à l'équipe
+    @DBRef
+    private Equipe equipe;
 
-    // Liste des IDs des participants
-    @Builder.Default
+    // ✅ GARDÉ : Liste des IDs des participants (simplifié)
     private List<String> participantIds = new ArrayList<>();
+
     private LocalDateTime dateCreation;
     private LocalDateTime dateModification;
 }

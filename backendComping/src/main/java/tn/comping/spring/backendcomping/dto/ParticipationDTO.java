@@ -1,5 +1,4 @@
 package tn.comping.spring.backendcomping.dto;
-
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -13,4 +12,8 @@ public class ParticipationDTO {
     private LocalDateTime dateInscription;
     private String statutPresence;
     private Boolean aValideChecklist;
+
+    public void setUtilisateurEmail(String email) {
+        
+    }
 }
