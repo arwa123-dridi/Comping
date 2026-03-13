@@ -1,4 +1,4 @@
-package tn.comping.spring.backendcomping.services.impl;
+package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import tn.comping.spring.backendcomping.dto.EquipeRequestDTO;
 import tn.comping.spring.backendcomping.dto.EquipeResponseDTO;
@@ -6,11 +6,11 @@ import tn.comping.spring.backendcomping.entities.Equipe;
 import tn.comping.spring.backendcomping.entities.Sortie;
 import tn.comping.spring.backendcomping.repositories.EquipeRepository;
 import tn.comping.spring.backendcomping.repositories.SortieRepository;
-import tn.comping.spring.backendcomping.services.interfaces.IEquipeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

@@ -2,12 +2,13 @@ package tn.comping.spring.backendcomping.controllers;
 
 import tn.comping.spring.backendcomping.dto.EquipeRequestDTO;
 import tn.comping.spring.backendcomping.dto.EquipeResponseDTO;
-import tn.comping.spring.backendcomping.services.interfaces.IEquipeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import tn.comping.spring.backendcomping.services.serviceImpl.IEquipeService;
+
 import java.util.List;
 
 @RestController
