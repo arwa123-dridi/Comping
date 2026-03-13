@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import tn.comping.spring.backendcomping.dto.ProduitDTO;
 import tn.comping.spring.backendcomping.entities.Produit;
 import tn.comping.spring.backendcomping.repositories.ProduitRepository;
+import tn.comping.spring.backendcomping.utils.mapper.ProduitMapper;
 
 import java.util.List;
 @Service
@@ -14,9 +15,9 @@ public class ProduitServiceImpl implements ProduitInter{
     private final ProduitRepository produitRepository;
 
          @Override
-         public Produit addProduit(ProduitDTO produitDTO) {
+    public Produit addProduit(ProduitDTO produitDTO) {
 
-        Produit produit = tn.comping.spring.backendcomping.mapper.ProduitMapper.toEntity(produitDTO);
+        Produit produit = ProduitMapper.toEntity(produitDTO);
 
         return produitRepository.save(produit);
     }
@@ -33,7 +34,7 @@ public class ProduitServiceImpl implements ProduitInter{
         Produit produit = produitRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produit not found"));
 
-        tn.comping.spring.backendcomping.mapper.ProduitMapper.updateEntityFromDTO(produitDTO, produit);
+        ProduitMapper.updateEntityFromDTO(produitDTO, produit);
 
         produitRepository.save(produit);
 
