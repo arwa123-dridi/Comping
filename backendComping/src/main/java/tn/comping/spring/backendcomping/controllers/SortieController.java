@@ -3,7 +3,7 @@ package tn.comping.spring.backendcomping.controllers;
 import tn.comping.spring.backendcomping.dto.SortieRequestDTO;
 import tn.comping.spring.backendcomping.dto.SortieResponseDTO;
 import tn.comping.spring.backendcomping.dto.ParticipationDTO;
-import tn.comping.spring.backendcomping.services.interfaces.ISortieService;
+import tn.comping.spring.backendcomping.services.serviceImpl.ISortieService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package tn.comping.spring.backendcomping.enums;
+package tn.comping.spring.backendcomping.entities;
 
 public enum Difficulte {
     FACILE,

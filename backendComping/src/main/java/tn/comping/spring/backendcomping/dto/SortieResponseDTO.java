@@ -1,8 +1,8 @@
 package tn.comping.spring.backendcomping.dto;
 
 import lombok.Data;
-import tn.comping.spring.backendcomping.enums.Difficulte;
-import tn.comping.spring.backendcomping.enums.StatutSortie;
+import tn.comping.spring.backendcomping.entities.Difficulte;
+import tn.comping.spring.backendcomping.entities.StatutSortie;
 import java.time.LocalDateTime;
 import java.util.List;
 

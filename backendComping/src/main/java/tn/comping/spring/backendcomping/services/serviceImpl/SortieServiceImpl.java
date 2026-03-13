@@ -3,19 +3,19 @@ package tn.comping.spring.backendcomping.services.serviceImpl;
 import tn.comping.spring.backendcomping.dto.SortieRequestDTO;
 import tn.comping.spring.backendcomping.dto.SortieResponseDTO;
 import tn.comping.spring.backendcomping.dto.ParticipationDTO;
-import tn.comping.spring.backendcomping.entities.Sortie;
-import tn.comping.spring.backendcomping.entities.Participation;
-import tn.comping.spring.backendcomping.entities.Equipe;
-import tn.comping.spring.backendcomping.enums.Difficulte;
-import tn.comping.spring.backendcomping.enums.StatutSortie;
+import tn.comping.spring.backendcomping.entities.*;
 import tn.comping.spring.backendcomping.repositories.SortieRepository;
 import tn.comping.spring.backendcomping.repositories.ParticipationRepository;
 import tn.comping.spring.backendcomping.repositories.EquipeRepository;
-import tn.comping.spring.backendcomping.services.interfaces.ISortieService;
+import tn.comping.spring.backendcomping.repositories.SignupRepository;
+import tn.comping.spring.backendcomping.services.serviceImpl.ISortieService;
+import tn.comping.spring.backendcomping.utils.mapper.SortieMapper;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,57 +30,76 @@ public class SortieServiceImpl implements ISortieService {
     private final SortieRepository sortieRepository;
     private final EquipeRepository equipeRepository;
     private final ParticipationRepository participationRepository;
+    private final SignupRepository signupRepository;
 
     @Override
     public SortieResponseDTO createSortie(SortieRequestDTO dto) {
         log.info("Création d'une sortie par l'organisateur: {}", dto.getOrganisateurId());
 
-        Sortie sortie = new Sortie();
-        sortie.setTitre(dto.getTitre());
-        sortie.setDescription(dto.getDescription());
-        sortie.setDateDebut(dto.getDateDebut());
-        sortie.setDateFin(dto.getDateFin());
-        sortie.setLieuDepart(dto.getLieuDepart());
-        sortie.setRegion(dto.getRegion());
-        sortie.setDifficulte(dto.getDifficulte());
-        sortie.setCapaciteMax(dto.getCapaciteMax());
-        sortie.setPrixParPersonne(dto.getPrixParPersonne());
-        sortie.setEquipementRequis(dto.getEquipementRequis());
-        sortie.setAssistanceMedicale(dto.getAssistanceMedicale());
-        sortie.setStatut(StatutSortie.PLANIFIEE);
+        // Récupérer et vérifier l'organisateur
+        SignupEntity organisateur = signupRepository.findById(dto.getOrganisateurId())
+                .orElseThrow(() -> new RuntimeException("Organisateur non trouvé"));
 
-        // IDs simples
-        sortie.setOrganisateurId(dto.getOrganisateurId());
-        sortie.setOrganisateurNom(dto.getOrganisateurNom());
+        if (organisateur.getRole() != Role.ORGANISATEUR && organisateur.getRole() != Role.ADMIN) {
+            throw new RuntimeException("Seuls les organisateurs peuvent créer des sorties");
+        }
+
+        // Créer la sortie avec le mapper
+        Sortie sortie = SortieMapper.toEntity(dto);
+        sortie.setOrganisateur(organisateur);
 
         // Lier à une équipe si spécifiée
         if (dto.getEquipeId() != null && !dto.getEquipeId().isEmpty()) {
             Equipe equipe = equipeRepository.findById(dto.getEquipeId())
                     .orElseThrow(() -> new RuntimeException("Équipe non trouvée"));
-            sortie.setEquipeId(equipe.getId());
-            sortie.setEquipeNom(equipe.getNom());
+            sortie.setEquipe(equipe);
         }
-
-        sortie.setDateCreation(LocalDateTime.now());
-        sortie.setParticipantIds(new ArrayList<>());
 
         Sortie saved = sortieRepository.save(sortie);
         log.info("Sortie créée avec ID: {}", saved.getId());
 
-        return mapToResponseDTO(saved);
+        return SortieMapper.toDto(saved);
     }
 
     @Override
     public SortieResponseDTO getSortieById(String id) {
         Sortie sortie = sortieRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sortie non trouvée avec l'id: " + id));
-        return mapToResponseDTO(sortie);
+
+        SortieResponseDTO dto = SortieMapper.toDto(sortie);
+
+        // Ajouter les informations supplémentaires
+        List<Participation> participations = participationRepository.findBySortieId(sortie.getId());
+        dto.setNombreParticipants(participations.size());
+        dto.setPlacesDisponibles(sortie.getCapaciteMax() - participations.size());
+
+        List<String> participantIds = participations.stream()
+                .map(p -> p.getUtilisateur().getId())
+                .collect(Collectors.toList());
+        dto.setParticipantIds(participantIds);
+
+        return dto;
     }
 
     @Override
     public List<SortieResponseDTO> getAllSorties() {
-        return sortieRepository.findAll().stream()
-                .map(this::mapToResponseDTO)
+        List<Sortie> sorties = sortieRepository.findAll();
+
+        return sorties.stream()
+                .map(sortie -> {
+                    SortieResponseDTO dto = SortieMapper.toDto(sortie);
+
+                    List<Participation> participations = participationRepository.findBySortieId(sortie.getId());
+                    dto.setNombreParticipants(participations.size());
+                    dto.setPlacesDisponibles(sortie.getCapaciteMax() - participations.size());
+
+                    List<String> participantIds = participations.stream()
+                            .map(p -> p.getUtilisateur().getId())
+                            .collect(Collectors.toList());
+                    dto.setParticipantIds(participantIds);
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -89,50 +108,41 @@ public class SortieServiceImpl implements ISortieService {
         Sortie sortie = sortieRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sortie non trouvée"));
 
-        sortie.setTitre(dto.getTitre());
-        sortie.setDescription(dto.getDescription());
-        sortie.setDateDebut(dto.getDateDebut());
-        sortie.setDateFin(dto.getDateFin());
-        sortie.setLieuDepart(dto.getLieuDepart());
-        sortie.setRegion(dto.getRegion());
-        sortie.setDifficulte(dto.getDifficulte());
-        sortie.setCapaciteMax(dto.getCapaciteMax());
-        sortie.setPrixParPersonne(dto.getPrixParPersonne());
-        sortie.setEquipementRequis(dto.getEquipementRequis());
-        sortie.setAssistanceMedicale(dto.getAssistanceMedicale());
+        SortieMapper.updateEntity(sortie, dto);
 
         if (dto.getEquipeId() != null && !dto.getEquipeId().isEmpty()) {
             Equipe equipe = equipeRepository.findById(dto.getEquipeId())
                     .orElseThrow(() -> new RuntimeException("Équipe non trouvée"));
-            sortie.setEquipeId(equipe.getId());
-            sortie.setEquipeNom(equipe.getNom());
+            sortie.setEquipe(equipe);
         }
 
-        sortie.setDateModification(LocalDateTime.now());
-
         Sortie updated = sortieRepository.save(sortie);
-        return mapToResponseDTO(updated);
+        return SortieMapper.toDto(updated);
     }
 
     @Override
     public void deleteSortie(String id) {
         log.info("Suppression de la sortie: {}", id);
 
-        // CASCADE: Supprimer toutes les participations liées
+        // Supprimer les participations associées
         participationRepository.deleteBySortieId(id);
 
-        // Puis supprimer la sortie
+        // Supprimer la sortie
         sortieRepository.deleteById(id);
 
         log.info("Sortie {} supprimée avec toutes ses participations", id);
     }
 
     @Override
-    public ParticipationDTO inscrireParticipant(String sortieId, String utilisateurId, String utilisateurNom, String utilisateurEmail) {
+    public ParticipationDTO inscrireParticipant(String sortieId, String utilisateurId,
+                                                String utilisateurNom, String utilisateurEmail) {
         log.info("Inscription de l'utilisateur {} à la sortie {}", utilisateurId, sortieId);
 
         Sortie sortie = sortieRepository.findById(sortieId)
                 .orElseThrow(() -> new RuntimeException("Sortie non trouvée"));
+
+        SignupEntity utilisateur = signupRepository.findById(utilisateurId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
         // Vérifier si déjà inscrit
         if (participationRepository.findByUtilisateurIdAndSortieId(utilisateurId, sortieId).isPresent()) {
@@ -147,11 +157,8 @@ public class SortieServiceImpl implements ISortieService {
 
         // Créer la participation
         Participation participation = Participation.builder()
-                .utilisateurId(utilisateurId)
-                .utilisateurNom(utilisateurNom)
-                .utilisateurEmail(utilisateurEmail)
-                .sortieId(sortieId)
-                .sortieTitre(sortie.getTitre())
+                .utilisateur(utilisateur)
+                .sortie(sortie)
                 .dateInscription(LocalDateTime.now())
                 .statutPresence("CONFIRME")
                 .aValideChecklist(false)
@@ -160,14 +167,14 @@ public class SortieServiceImpl implements ISortieService {
 
         Participation saved = participationRepository.save(participation);
 
-        // Ajouter l'utilisateur à la liste des participants de la sortie
-        if(sortie.getParticipantIds()==null){
+        // Ajouter l'ID à la liste des participants de la sortie
+        if (sortie.getParticipantIds() == null) {
             sortie.setParticipantIds(new ArrayList<>());
         }
         sortie.getParticipantIds().add(utilisateurId);
         sortieRepository.save(sortie);
 
-        return mapToParticipationDTO(saved);
+        return SortieMapper.toParticipationDto(saved);
     }
 
     @Override
@@ -188,78 +195,80 @@ public class SortieServiceImpl implements ISortieService {
 
     @Override
     public List<ParticipationDTO> getParticipantsBySortie(String sortieId) {
-        return participationRepository.findBySortieId(sortieId).stream()
-                .map(this::mapToParticipationDTO)
-                .collect(Collectors.toList());
+        List<Participation> participations = participationRepository.findBySortieId(sortieId);
+        return SortieMapper.toParticipationDtoList(participations);
     }
 
     @Override
     public List<SortieResponseDTO> getSortiesByOrganisateur(String organisateurId) {
-        return sortieRepository.findByOrganisateurId(organisateurId).stream()
-                .map(this::mapToResponseDTO)
+        List<Sortie> sorties = sortieRepository.findByOrganisateurId(organisateurId);
+
+        return sorties.stream()
+                .map(sortie -> {
+                    SortieResponseDTO dto = SortieMapper.toDto(sortie);
+
+                    List<Participation> participations = participationRepository.findBySortieId(sortie.getId());
+                    dto.setNombreParticipants(participations.size());
+                    dto.setPlacesDisponibles(sortie.getCapaciteMax() - participations.size());
+
+                    List<String> participantIds = participations.stream()
+                            .map(p -> p.getUtilisateur().getId())
+                            .collect(Collectors.toList());
+                    dto.setParticipantIds(participantIds);
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<SortieResponseDTO> getSortiesByDifficulte(Difficulte difficulte) {
+        log.info("Recherche des sorties par difficulté: {}", difficulte);
 
-        @Override
-        public List<SortieResponseDTO> getSortiesByDifficulte(Difficulte difficulte) {
-            log.info("Recherche des sorties par difficulté: {}", difficulte);
-            return sortieRepository.findAll().stream()
-                    .filter(s -> s.getDifficulte() == difficulte)
-                    .map(this::mapToResponseDTO)
-                    .collect(Collectors.toList());
-        }
+        List<Sortie> sorties = sortieRepository.findAll().stream()
+                .filter(s -> s.getDifficulte() == difficulte)
+                .collect(Collectors.toList());
+
+        return sorties.stream()
+                .map(sortie -> {
+                    SortieResponseDTO dto = SortieMapper.toDto(sortie);
+
+                    List<Participation> participations = participationRepository.findBySortieId(sortie.getId());
+                    dto.setNombreParticipants(participations.size());
+                    dto.setPlacesDisponibles(sortie.getCapaciteMax() - participations.size());
+
+                    List<String> participantIds = participations.stream()
+                            .map(p -> p.getUtilisateur().getId())
+                            .collect(Collectors.toList());
+                    dto.setParticipantIds(participantIds);
+
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
     @Override
     public List<SortieResponseDTO> getProchainesSorties() {
-        return sortieRepository.findBetweenDates(LocalDateTime.now(), LocalDateTime.now().plusMonths(3))
-                .stream()
-                .map(this::mapToResponseDTO)
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime troisMois = now.plusMonths(3);
+
+        List<Sortie> sorties = sortieRepository.findBetweenDates(now, troisMois);
+
+        return sorties.stream()
+                .map(sortie -> {
+                    SortieResponseDTO dto = SortieMapper.toDto(sortie);
+
+                    List<Participation> participations = participationRepository.findBySortieId(sortie.getId());
+                    dto.setNombreParticipants(participations.size());
+                    dto.setPlacesDisponibles(sortie.getCapaciteMax() - participations.size());
+
+                    List<String> participantIds = participations.stream()
+                            .map(p -> p.getUtilisateur().getId())
+                            .collect(Collectors.toList());
+                    dto.setParticipantIds(participantIds);
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
-    }
-
-    private SortieResponseDTO mapToResponseDTO(Sortie sortie) {
-        SortieResponseDTO dto = new SortieResponseDTO();
-        dto.setId(sortie.getId());
-        dto.setTitre(sortie.getTitre());
-        dto.setDescription(sortie.getDescription());
-        dto.setDateDebut(sortie.getDateDebut());
-        dto.setDateFin(sortie.getDateFin());
-        dto.setLieuDepart(sortie.getLieuDepart());
-        dto.setRegion(sortie.getRegion());
-        dto.setDifficulte(sortie.getDifficulte());
-        dto.setCapaciteMax(sortie.getCapaciteMax());
-        dto.setPrixParPersonne(sortie.getPrixParPersonne());
-        dto.setStatut(sortie.getStatut());
-
-        dto.setOrganisateurId(sortie.getOrganisateurId());
-        dto.setOrganisateurNom(sortie.getOrganisateurNom());
-        dto.setEquipeId(sortie.getEquipeId());
-        dto.setEquipeNom(sortie.getEquipeNom());
-
-        List<Participation> participations = participationRepository.findBySortieId(sortie.getId());
-        dto.setNombreParticipants(participations.size());
-        dto.setPlacesDisponibles(sortie.getCapaciteMax() - participations.size());
-
-        List<String> participantIds = participations.stream()
-                .map(p -> p.getUtilisateurId())  // ← Juste l'ID
-                .collect(Collectors.toList());
-        dto.setParticipantIds(participantIds);
-
-        dto.setDateCreation(sortie.getDateCreation());
-
-        return dto;
-    }
-
-    private ParticipationDTO mapToParticipationDTO(Participation participation) {
-        ParticipationDTO dto = new ParticipationDTO();
-        dto.setId(participation.getId());
-        dto.setUtilisateurId(participation.getUtilisateurId());
-        dto.setUtilisateurNom(participation.getUtilisateurNom());
-        dto.setSortieId(participation.getSortieId());
-        dto.setSortieTitre(participation.getSortieTitre());
-        dto.setDateInscription(participation.getDateInscription());
-        dto.setStatutPresence(participation.getStatutPresence());
-        dto.setAValideChecklist(participation.getAValideChecklist());
-        return dto;
     }
 }

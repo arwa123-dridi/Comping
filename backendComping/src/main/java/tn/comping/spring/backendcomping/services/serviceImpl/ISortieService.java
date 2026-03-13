@@ -1,9 +1,9 @@
-package tn.comping.spring.backendcomping.services.interfaces;
+package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import tn.comping.spring.backendcomping.dto.SortieRequestDTO;
 import tn.comping.spring.backendcomping.dto.SortieResponseDTO;
 import tn.comping.spring.backendcomping.dto.ParticipationDTO;
-import tn.comping.spring.backendcomping.enums.Difficulte;
+import tn.comping.spring.backendcomping.entities.Difficulte;
 import java.util.List;
 
 public interface ISortieService {

@@ -2,14 +2,18 @@ package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import tn.comping.spring.backendcomping.dto.EquipeRequestDTO;
 import tn.comping.spring.backendcomping.dto.EquipeResponseDTO;
+import tn.comping.spring.backendcomping.dto.MembreDTO;
 import tn.comping.spring.backendcomping.entities.Equipe;
+import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.entities.Sortie;
 import tn.comping.spring.backendcomping.repositories.EquipeRepository;
 import tn.comping.spring.backendcomping.repositories.SortieRepository;
+import tn.comping.spring.backendcomping.repositories.SignupRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tn.comping.spring.backendcomping.utils.mapper.EquipeMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,60 +28,56 @@ public class EquipeServiceImpl implements IEquipeService {
 
     private final EquipeRepository equipeRepository;
     private final SortieRepository sortieRepository;
+    private final SignupRepository signupRepository;
 
     @Override
     public EquipeResponseDTO createEquipe(EquipeRequestDTO dto) {
-        log.info("Création d'une équipe par l'organisateur: {}", dto.getOrganisateurId());
 
-        Equipe equipe = new Equipe();
-        equipe.setNom(dto.getNom());
-        equipe.setDescription(dto.getDescription());
-        equipe.setNbMembresMax(dto.getNbMembresMax() != null ? dto.getNbMembresMax() : 10);
-        equipe.setNiveau(dto.getNiveau());
-        equipe.setDateCreation(LocalDateTime.now());
+        SignupEntity organisateur = signupRepository.findById(dto.getOrganisateurId())
+                .orElseThrow(() -> new RuntimeException("Organisateur non trouvé"));
 
-        // L'organisateur est le premier membre
-        equipe.setOrganisateurId(dto.getOrganisateurId());
-        equipe.setOrganisateurNom(dto.getOrganisateurNom());
+        Equipe equipe = EquipeMapper.toEntity(dto);
 
-        List<String> membreIds = new ArrayList<>();
-        membreIds.add(dto.getOrganisateurId());
-        equipe.setMembreIds(membreIds);
+        equipe.setOrganisateur(organisateur);
+
+        List<SignupEntity> membres = new ArrayList<>();
+        membres.add(organisateur);
+
+        equipe.setMembres(membres);
 
         Equipe saved = equipeRepository.save(equipe);
 
-        return mapToResponseDTO(saved);
+        return EquipeMapper.toDto(saved);
     }
 
     @Override
     public EquipeResponseDTO getEquipeById(String id) {
+
         Equipe equipe = equipeRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Équipe non trouvée avec l'id: " + id));
-        return mapToResponseDTO(equipe);
+                .orElseThrow(() -> new RuntimeException("Équipe non trouvée"));
+
+        return EquipeMapper.toDto(equipe);
     }
 
     @Override
     public List<EquipeResponseDTO> getAllEquipes() {
-        return equipeRepository.findAll().stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+
+        return EquipeMapper.toDtoList(
+                equipeRepository.findAll()
+        );
     }
 
     @Override
     public EquipeResponseDTO updateEquipe(String id, EquipeRequestDTO dto) {
+
         Equipe equipe = equipeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Équipe non trouvée"));
 
-        equipe.setNom(dto.getNom());
-        equipe.setDescription(dto.getDescription());
-        if (dto.getNbMembresMax() != null) {
-            equipe.setNbMembresMax(dto.getNbMembresMax());
-        }
-        equipe.setNiveau(dto.getNiveau());
-        equipe.setDateModification(LocalDateTime.now());
+        EquipeMapper.updateEntity(equipe , dto);
 
         Equipe updated = equipeRepository.save(equipe);
-        return mapToResponseDTO(updated);
+
+        return EquipeMapper.toDto(updated);
     }
 
     @Override
@@ -85,10 +85,7 @@ public class EquipeServiceImpl implements IEquipeService {
         log.info("Suppression de l'équipe: {}", id);
 
         List<Sortie> sorties = sortieRepository.findByEquipeId(id);
-        sorties.forEach(s -> {
-            s.setEquipeId(null);
-            s.setEquipeNom(null);
-        });
+        sorties.forEach(s -> s.setEquipe(null));
         sortieRepository.saveAll(sorties);
 
         equipeRepository.deleteById(id);
@@ -97,21 +94,35 @@ public class EquipeServiceImpl implements IEquipeService {
 
     @Override
     public EquipeResponseDTO ajouterMembre(String equipeId, String utilisateurId, String utilisateurNom) {
+        return null;
+    }
+
+    @Override
+    public EquipeResponseDTO ajouterMembre(String equipeId, String utilisateurId) {
+
         Equipe equipe = equipeRepository.findById(equipeId)
                 .orElseThrow(() -> new RuntimeException("Équipe non trouvée"));
 
-        if (equipe.getMembreIds().contains(utilisateurId)) {
-            throw new RuntimeException("L'utilisateur est déjà membre de cette équipe");
+        SignupEntity utilisateur = signupRepository.findById(utilisateurId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        boolean dejaMembre = equipe.getMembres()
+                .stream()
+                .anyMatch(m -> m.getId().equals(utilisateurId));
+
+        if (dejaMembre) {
+            throw new RuntimeException("Utilisateur déjà membre");
         }
 
-        if (equipe.getMembreIds().size() >= equipe.getNbMembresMax()) {
-            throw new RuntimeException("Capacité maximale atteinte pour cette équipe");
+        if (equipe.getMembres().size() >= equipe.getNbMembresMax()) {
+            throw new RuntimeException("Capacité maximale atteinte");
         }
 
-        equipe.getMembreIds().add(utilisateurId);
+        equipe.getMembres().add(utilisateur);
+
         Equipe updated = equipeRepository.save(equipe);
 
-        return mapToResponseDTO(updated);
+        return EquipeMapper.toDto(updated);
     }
 
     @Override
@@ -119,18 +130,19 @@ public class EquipeServiceImpl implements IEquipeService {
         Equipe equipe = equipeRepository.findById(equipeId)
                 .orElseThrow(() -> new RuntimeException("Équipe non trouvée"));
 
-        if (!equipe.getMembreIds().contains(utilisateurId)) {
+        boolean estMembre = equipe.getMembres().stream()
+                .anyMatch(m -> m.getId().equals(utilisateurId));
+
+        if (!estMembre) {
             throw new RuntimeException("L'utilisateur n'est pas membre de cette équipe");
         }
 
-        // L'organisateur ne peut pas être retiré
-        if (utilisateurId.equals(equipe.getOrganisateurId())) {
+        if (equipe.getOrganisateur().getId().equals(utilisateurId)) {
             throw new RuntimeException("L'organisateur de l'équipe ne peut pas être retiré");
         }
 
-        equipe.getMembreIds().remove(utilisateurId);
+        equipe.getMembres().removeIf(m -> m.getId().equals(utilisateurId));
         Equipe updated = equipeRepository.save(equipe);
-
         return mapToResponseDTO(updated);
     }
 
@@ -138,7 +150,10 @@ public class EquipeServiceImpl implements IEquipeService {
     public List<String> getMembresByEquipe(String equipeId) {
         Equipe equipe = equipeRepository.findById(equipeId)
                 .orElseThrow(() -> new RuntimeException("Équipe non trouvée"));
-        return equipe.getMembreIds();
+
+        return equipe.getMembres().stream()
+                .map(SignupEntity::getId)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -155,11 +170,26 @@ public class EquipeServiceImpl implements IEquipeService {
         dto.setDescription(equipe.getDescription());
         dto.setDateCreation(equipe.getDateCreation());
         dto.setNbMembresMax(equipe.getNbMembresMax());
-        dto.setNbMembresActuels(equipe.getMembreIds() != null ? equipe.getMembreIds().size() : 0);
+        dto.setNbMembresActuels(equipe.getMembres().size());
         dto.setNiveau(equipe.getNiveau());
 
-        dto.setOrganisateurId(equipe.getOrganisateurId());
-        dto.setOrganisateurNom(equipe.getOrganisateurNom());
+        if (equipe.getOrganisateur() != null) {
+            dto.setOrganisateurId(equipe.getOrganisateur().getId());
+            dto.setOrganisateurNom(equipe.getOrganisateur().getName());
+        }
+
+        // Convertir les membres en MembreDTO
+        List<MembreDTO> membresDTO = equipe.getMembres().stream()
+                .map(user -> {
+                    MembreDTO membre = new MembreDTO();
+                    membre.setId(user.getId());
+                    membre.setNom(user.getName());
+                    membre.setEmail(user.getEmail());
+                    membre.setEstOrganisateur(user.getId().equals(equipe.getOrganisateur().getId()));
+                    return membre;
+                })
+                .collect(Collectors.toList());
+        dto.setMembres(membresDTO);
 
         return dto;
     }
