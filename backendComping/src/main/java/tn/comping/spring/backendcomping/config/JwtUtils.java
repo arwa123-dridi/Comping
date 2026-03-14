@@ -6,14 +6,18 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 import tn.comping.spring.backendcomping.entities.Role;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.security.Key;
 import java.util.Date;
+import java.util.Set;
 
 @Component
 public class JwtUtils {
     private final String jwtSecret="compingSecretKeyForJWTMustBe256BitsLongAtLeast!!";
 
-    private final long jwtExpirationMs = 86400000;
+    //token session duration in milliseconds (10 minutes)
+    private final long jwtExpirationMs = 600000;
+    private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
     private Key getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
@@ -41,6 +45,8 @@ public class JwtUtils {
     public boolean validateJwtToken(String token){
 
         try{
+            if (blacklistedTokens.contains(token)) return false;
+            
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
         }
@@ -55,5 +61,8 @@ public class JwtUtils {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("role", String.class);
+    }
+    public void blacklistToken(String token) {
+        blacklistedTokens.add(token);
     }
 }

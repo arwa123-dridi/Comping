@@ -1,17 +1,14 @@
-package  tn.comping.spring.backendcomping.services.serviceImpl;
+package tn.comping.spring.backendcomping.services.serviceImpl;
 
-import tn.comping.spring.backendcomping.entities.Reservation;
-
+import tn.comping.spring.backendcomping.dto.*;
+import tn.comping.spring.backendcomping.entities.StatutReservation;
 import java.util.List;
-import java.util.Optional;
 
 public interface ReservationService {
-
-    List<Reservation> getAllReservations();
-
-    Optional<Reservation> getReservationById(String  id);
-
-    Reservation saveReservation(Reservation reservation);
-
-    void deleteReservation(String  id);
+    List<ReservationResponse> getAllReservations();
+    ReservationResponse getReservationById(String id);
+    ReservationResponse createReservation(ReservationRequest request);
+    ReservationResponse updateStatut(String id, StatutReservation statut);
+    void deleteReservation(String id);
+    List<ReservationResponse> getHistoriqueUtilisateur(String utilisateurId);
 }

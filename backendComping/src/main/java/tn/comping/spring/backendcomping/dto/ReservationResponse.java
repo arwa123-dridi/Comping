@@ -1,14 +1,11 @@
-package tn.comping.spring.backendcomping.entities;
+package tn.comping.spring.backendcomping.dto;
 
 import lombok.*;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import tn.comping.spring.backendcomping.entities.StatutReservation;
 import java.util.Date;
 
 @Data @NoArgsConstructor @AllArgsConstructor
-@Document(collection = "Reservation")
-public class Reservation {
-    @Id
+public class ReservationResponse {
     private String id;
     private String siteCampingId;
     private String utilisateurId;
@@ -17,6 +14,4 @@ public class Reservation {
     private StatutReservation statut;
     private double montantTotal;
     private String modePaiement;
-    private Date datePaiement;
-    private String statutPaiement;
 }
