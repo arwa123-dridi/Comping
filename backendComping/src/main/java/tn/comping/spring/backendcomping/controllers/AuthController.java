@@ -13,6 +13,9 @@ import tn.comping.spring.backendcomping.dto.LoginDTOResponse;
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
 import tn.comping.spring.backendcomping.utils.Constants;
 
+import jakarta.servlet.http.HttpServletRequest;
+import tn.comping.spring.backendcomping.config.JwtUtils; 
+import java.util.Map;
 
 
 @RestController
@@ -21,6 +24,7 @@ import tn.comping.spring.backendcomping.utils.Constants;
 @Slf4j
 public class AuthController {
     private  final SignupService signupService;
+    private final JwtUtils jwtUtils;
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDTORequest dto) {
         try {
@@ -30,4 +34,23 @@ public class AuthController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PostMapping("/logout")
+public ResponseEntity<?> logout(HttpServletRequest request) {
+    String authHeader = request.getHeader("Authorization");
+
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        String token = authHeader.substring(7);
+        if (!jwtUtils.validateJwtToken(token)) {
+            return ResponseEntity.status(401)
+                .body(Map.of("error", "Token invalide ou déjà expiré"));
+        }
+
+        jwtUtils.blacklistToken(token);
+        return ResponseEntity.ok(Map.of("message", "Déconnecté avec succès"));
+    }
+
+    return ResponseEntity.badRequest().body(Map.of("error", "Token manquant"));
+}
+
 }

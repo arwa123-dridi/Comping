@@ -6,17 +6,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
 @Data @NoArgsConstructor @AllArgsConstructor
-@Document(collection = "Reservation")
-public class Reservation {
+@Document(collection = "Avis")
+public class Avis {
     @Id
     private String id;
     private String siteCampingId;
     private String utilisateurId;
-    private Date dateDebut;
-    private Date dateFin;
-    private StatutReservation statut;
-    private double montantTotal;
-    private String modePaiement;
-    private Date datePaiement;
-    private String statutPaiement;
+    private int note; // 1 à 5
+    private String commentaire;
+    private Date dateCreation;
+    private String itineraire;
+    private String convention;
+    private String statutModeration; // PUBLIE, SIGNALE, SUPPRIME
 }
