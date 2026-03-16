@@ -21,46 +21,39 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Routes publiques
                         .requestMatchers(
                                 "/",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
-
-                                "/api/auth/**",
-
                                 "/api/auth/**",
                                 "/api/demandes-transport/**",
                                 "/api/creneaux-livraison/**",
                                 "/api/incidents/**",
                                 "/api/conventions-partenaires/**"
-
                         ).permitAll()
+
+                        // Rôles spécifiques
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/moderateur/**").hasRole("MODERATEUR")
                         .requestMatchers("/api/organisateur/**").hasRole("ORGANISATEUR")
+
+                        // Avis – MODERATEUR ou ADMIN
+                        .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
+                        .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
+                        .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
+
+                        // Tout le reste nécessite authentification
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        http.csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/api/auth/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
-                .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
-                .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
-
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();

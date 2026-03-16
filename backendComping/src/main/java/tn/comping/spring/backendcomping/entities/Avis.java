@@ -5,22 +5,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
-<<<<<<< HEAD
-@Data @NoArgsConstructor @AllArgsConstructor
-@Document(collection = "Avis")
-public class Avis {
-    @Id
-    private String id;
-    private String siteCampingId;
-    private String utilisateurId;
-    private int note; // 1 à 5
-    private String commentaire;
-    private Date dateCreation;
-    private String itineraire;
-    private String convention;
-    private String statutModeration; // PUBLIE, SIGNALE, SUPPRIME
-}
-=======
 @Document(collection = "avis")
 @Data
 @NoArgsConstructor
@@ -46,4 +30,4 @@ public class Avis {
     private String moderateurId;
     private String motifRejet;
 }
->>>>>>> origin/mariem-sellami
+
