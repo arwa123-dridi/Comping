@@ -1,4 +1,4 @@
-package tn.comping.spring.backendcomping.mapper;
+package tn.comping.spring.backendcomping.utils.mapper;
 
 import tn.comping.spring.backendcomping.dto.ProduitDTO;
 import tn.comping.spring.backendcomping.entities.Produit;
