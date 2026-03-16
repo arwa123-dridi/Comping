@@ -1,0 +1,218 @@
+<!-- HEADER -->
+<header>
+  <a routerLink="/" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+        <rect width="46" height="46" rx="10" fill="#1b2a4a"/>
+        <circle cx="34" cy="9" r="5" fill="#F5C842"/><circle cx="37" cy="7" r="4" fill="#1b2a4a"/>
+        <polygon points="3,34 10,20 17,34" fill="#1b4d1b"/>
+        <polygon points="13,34 23,15 33,34" fill="#1b4d1b"/>
+        <polygon points="27,34 36,20 45,34" fill="#1b4d1b"/>
+        <polygon points="15,34 23,17 31,34" fill="#2e7d32"/>
+        <polygon points="20,34 23,25 26,34" fill="#e53935"/>
+        <rect x="0" y="34" width="46" height="4" fill="#2e7d32"/>
+        <rect x="0" y="40" width="12" height="6" fill="#e53935"/>
+        <rect x="12" y="40" width="11" height="6" fill="#F5C842"/>
+        <rect x="23" y="40" width="11" height="6" fill="#2e7d32"/>
+        <rect x="34" y="40" width="12" height="6" fill="#1b2a4a"/>
+      </svg>
+    </div>
+    <span class="logo-name">CAMPI<span>NO</span></span>
+  </a>
+  <nav>
+    <a routerLink="/emplacements">Emplacements</a>
+    <a routerLink="/materiel">Matériel</a>
+    <a routerLink="/experiences">Expériences</a>
+    <a routerLink="/blog">Blog</a>
+  </nav>
+  <div class="header-btns">
+    <a routerLink="/login" class="btn-ghost">Connexion</a>
+    <a routerLink="/signup" class="btn-fill">Inscription</a>
+  </div>
+</header>
+
+<!-- SPLIT HERO -->
+<section class="split-hero">
+
+  <!-- LEFT : Texte -->
+  <div class="split-left">
+    <h1 class="split-h1">
+      Votre prochaine<br>aventure<br>
+      <span class="accent">commence ici</span>
+    </h1>
+    <p class="split-desc">
+      Réservez des emplacements uniques, louez du matériel de qualité
+      et vivez des expériences inoubliables en pleine nature.
+    </p>
+    <div class="split-cta">
+      <a routerLink="/emplacements" class="cta-primary">Réserver maintenant</a>
+      <a routerLink="/materiel" class="cta-secondary">Voir le matériel</a>
+    </div>
+    <div class="split-stats">
+      <div class="sstat">
+        <div class="sstat-num">240+</div>
+        <div class="sstat-label">Emplacements</div>
+      </div>
+      <div class="sstat">
+        <div class="sstat-num">1.8K+</div>
+        <div class="sstat-label">Campeurs</div>
+      </div>
+      <div class="sstat">
+        <div class="sstat-num">4.9★</div>
+        <div class="sstat-label">Satisfaction</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT : Slideshow -->
+  <div class="split-right">
+    <div class="slideshow">
+      <div
+        *ngFor="let slide of slides; let i = index"
+        class="slide"
+        [class.active]="i === currentSlide"
+        [style.background-image]="'url(' + slide.url + ')'">
+      </div>
+    </div>
+
+    <!-- Label -->
+    <div class="slide-label">{{ currentLabel }}</div>
+
+    <!-- Dots -->
+    <div class="slide-dots">
+      <button
+        *ngFor="let slide of slides; let i = index"
+        class="slide-dot"
+        [class.active]="i === currentSlide"
+        (click)="goToSlide(i)">
+      </button>
+    </div>
+
+    <div class="split-right-overlay"></div>
+
+    <!-- Floating card 1 -->
+    <div class="float-card">
+      <div class="float-card-title">EMPLACEMENT POPULAIRE</div>
+      <div class="float-card-place">🏕️ Forêt de Ain Draham</div>
+      <div class="float-card-meta">⭐ 4.9 · 48 avis</div>
+      <div class="float-card-badge">Disponible ce week-end</div>
+    </div>
+
+    <!-- Floating card 2 -->
+    <div class="float-card2">
+      <div class="float-card2-num">50+</div>
+      <div class="float-card2-label">Types de matériel<br>disponibles</div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services-strip">
+  <div class="section-eyebrow">
+    <span class="eyebrow-tag">CE QUE NOUS OFFRONS</span>
+    <div class="eyebrow-title">Une expérience camping complète</div>
+  </div>
+  <div class="strip-grid">
+    <div class="strip-item" *ngFor="let service of services">
+      <div class="strip-icon">{{ service.icon }}</div>
+      <div class="strip-title">{{ service.title }}</div>
+      <div class="strip-desc">{{ service.desc }}</div>
+    </div>
+  </div>
+</section>
+
+<!-- DESTINATIONS MOSAIC -->
+<section class="destinations">
+  <div class="section-eyebrow">
+    <span class="eyebrow-tag">DESTINATIONS</span>
+    <div class="eyebrow-title">Explorez la Tunisie</div>
+  </div>
+  <div class="mosaic">
+    <div class="mosaic-item" *ngFor="let dest of destinations; let i = index">
+      <div class="mosaic-bg" [style.background]="dest.gradient"></div>
+      <div class="mosaic-overlay"></div>
+      <div class="mosaic-content">
+        <div class="mosaic-name">{{ dest.name }}</div>
+        <div class="mosaic-sub">{{ dest.sub }}</div>
+        <span class="mosaic-tag">{{ dest.tag }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="cta-banner">
+  <h2>Prêt pour l'aventure ?</h2>
+  <p>Rejoignez plus de 1800 campeurs qui ont découvert la nature avec CAMPINO</p>
+  <div class="cta-group">
+    <a routerLink="/signup" class="cta-big">Créer mon compte</a>
+    <a routerLink="/about" class="cta-big2">En savoir plus</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="fg-brand">
+      <a routerLink="/" class="logo" style="text-decoration:none;">
+        <div class="logo-icon" style="width:40px;height:40px;">
+          <svg viewBox="0 0 46 46">
+            <rect width="46" height="46" rx="10" fill="#1b2a4a"/>
+            <polygon points="3,34 10,20 17,34" fill="#1b4d1b"/>
+            <polygon points="13,34 23,15 33,34" fill="#1b4d1b"/>
+            <polygon points="15,34 23,17 31,34" fill="#2e7d32"/>
+            <polygon points="20,34 23,25 26,34" fill="#e53935"/>
+            <rect x="0" y="34" width="46" height="4" fill="#2e7d32"/>
+            <rect x="0" y="40" width="12" height="6" fill="#e53935"/>
+            <rect x="12" y="40" width="11" height="6" fill="#F5C842"/>
+            <rect x="23" y="40" width="11" height="6" fill="#2e7d32"/>
+            <rect x="34" y="40" width="12" height="6" fill="#1b2a4a"/>
+          </svg>
+        </div>
+        <span class="logo-name" style="color:#fff;">CAMPI<span style="color:#3da859;">NO</span></span>
+      </a>
+      <p>La première plateforme de camping en Tunisie. Réservez, louez, explorez.</p>
+      <div class="socials">
+        <a href="https://instagram.com" target="_blank" class="soc">📸</a>
+        <a href="https://facebook.com" target="_blank" class="soc">👥</a>
+        <a href="https://twitter.com" target="_blank" class="soc">🐦</a>
+        <a href="https://youtube.com" target="_blank" class="soc">▶️</a>
+      </div>
+    </div>
+    <div class="fg-col">
+      <h5>PLATEFORME</h5>
+      <a routerLink="/emplacements">Emplacements</a>
+      <a routerLink="/materiel">Location matériel</a>
+      <a routerLink="/experiences">Expériences</a>
+      <a routerLink="/blog">Blog</a>
+    </div>
+    <div class="fg-col">
+      <h5>COMPTE</h5>
+      <a routerLink="/profile">Mon espace</a>
+      <a routerLink="/reservations">Réservations</a>
+      <a routerLink="/become-host">Devenir hôte</a>
+      <a routerLink="/faq">FAQ</a>
+    </div>
+    <div class="fg-col fg-contact">
+      <h5>CONTACT</h5>
+      <p>📧 contact&#64;campino.tn</p>
+      <p>📞 +216 71 000 000</p>
+      <p>📍 Tunis, Tunisie</p>
+    </div>
+  </div>
+  <div class="footer-bar">
+    <p>© 2026 CAMPINO. Tous droits réservés.</p>
+    <div class="color-strip">
+      <div class="cs" style="background:#3da859;"></div>
+      <div class="cs" style="background:#1f73a3;"></div>
+      <div class="cs" style="background:#f5e642;"></div>
+      <div class="cs" style="background:#f29027;"></div>
+      <div class="cs" style="background:#e02f2f;"></div>
+    </div>
+    <p>
+      <a routerLink="/cgu" style="color:rgba(255,255,255,0.25);text-decoration:none;">CGU</a>
+      ·
+      <a routerLink="/privacy" style="color:rgba(255,255,255,0.25);text-decoration:none;">Confidentialité</a>
+    </p>
+  </div>
+</footer>
