@@ -14,8 +14,11 @@ import tn.comping.spring.backendcomping.dto.SignupDTO;
 
 public class SignupController {
 
-    @Autowired
-    private SignupService signupService;
+    private final SignupService signupService;
+
+    public SignupController(SignupService signupService) {
+        this.signupService = signupService;
+    }
 
     // Endpoint to register a new user
     @PostMapping("/registerUser")
