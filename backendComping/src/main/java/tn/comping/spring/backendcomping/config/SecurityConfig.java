@@ -47,6 +47,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
 
+                        // Interactions sociales (PHASE 1)
+                        .requestMatchers("/api/interactions/**").authenticated()
+
                         // Tout le reste nécessite authentification
                         .anyRequest().authenticated()
                 )
