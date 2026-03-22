@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, HttpClientModule, CommonModule], // ✅ Même imports que ta collègue
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
@@ -27,7 +27,7 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
+    private api: ApiService,
     private router: Router
   ) {
     // Formulaire d'informations personnelles
@@ -69,17 +69,16 @@ export class ProfileComponent implements OnInit {
       this.userEmail = payload.sub;
       
       // Récupérer l'utilisateur par email
-      this.http.get<any>(`http://localhost:8087/api/users/by-email/${this.userEmail}`)
-        .subscribe({
-          next: (user) => {
-            this.userId = user.id;
-            this.loadUserProfile();
-          },
-          error: (err) => {
-            console.error('Erreur récupération utilisateur', err);
-            this.router.navigate(['/login']);
-          }
-        });
+      this.api.get(`users/by-email/${this.userEmail}`).subscribe({
+        next: (user) => {
+          this.userId = user.id;
+          this.loadUserProfile();
+        },
+        error: (err) => {
+          console.error('Erreur récupération utilisateur', err);
+          this.router.navigate(['/login']);
+        }
+      });
     } catch (e) {
       console.error('Token invalide', e);
       this.router.navigate(['/login']);
@@ -87,33 +86,26 @@ export class ProfileComponent implements OnInit {
   }
 
   loadUserProfile(): void {
-  this.isLoading = true;
-  
-  this.http.get<any>(`http://localhost:8087/api/users/${this.userId}`)
-    .subscribe({
+    this.isLoading = true;
+    
+    this.api.get(`users/${this.userId}`).subscribe({
       next: (user) => {
-        console.log('Utilisateur reçu:', user); // ← GARDE
-        
         this.profileForm.patchValue({
           name: user.name,
           email: user.email,
-          telephone: user.telephone,
-          address: user.address
+          telephone: user.telephone || '',
+          address: user.address || ''
         });
-        
-        // ❌ SUPPRIME CETTE LIGNE
-        // this.userName = user.name; 
         
         this.userPhoto = user.photo || 'assets/default-avatar.png';
         this.isLoading = false;
       },
       error: (err) => {
-        this.errorMessage = 'Erreur lors du chargement du profil';
+        this.errorMessage = 'Erreur lors du chargement du profil: ' + err.message;
         this.isLoading = false;
-        console.error(err);
       }
     });
-}
+  }
 
   onSubmitProfile(): void {
     if (this.profileForm.invalid) {
@@ -127,7 +119,7 @@ export class ProfileComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.http.put(`http://localhost:8087/api/users/${this.userId}/profile`, this.profileForm.value)
+    this.api.put(`users/${this.userId}/profile`, this.profileForm.value)
       .subscribe({
         next: (user: any) => {
           this.successMessage = 'Profil mis à jour avec succès!';
@@ -135,22 +127,8 @@ export class ProfileComponent implements OnInit {
           this.isLoading = false;
           if (user.email) this.userEmail = user.email;
         },
-        error: (err: any) => {
-          console.error('Erreur mise à jour profil:', err);
-          
-          let errorMsg = 'Erreur de mise à jour du profil';
-          if (err.status === 0) {
-            errorMsg = 'Serveur indisponible. Vérifiez que le backend est démarré.';
-          } else if (err.status) {
-            errorMsg += ` (Status: ${err.status})`;
-          }
-          if (err.error && typeof err.error === 'string') {
-            errorMsg = err.error;
-          } else if (err.error && err.error.message) {
-            errorMsg = err.error.message;
-          }
-          
-          this.errorMessage = errorMsg;
+        error: (err) => {
+          this.errorMessage = 'Erreur mise à jour profil: ' + err.message;
           this.successMessage = '';
           this.isLoading = false;
         }
@@ -169,7 +147,7 @@ export class ProfileComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.http.put(`http://localhost:8087/api/users/${this.userId}/password`, this.passwordForm.value)
+    this.api.put(`users/${this.userId}/password`, this.passwordForm.value)
       .subscribe({
         next: (response: any) => {
           this.successMessage = typeof response === 'string' ? response : 'Mot de passe modifié';
@@ -177,22 +155,8 @@ export class ProfileComponent implements OnInit {
           this.errorMessage = '';
           this.isLoading = false;
         },
-        error: (err: any) => {
-          console.error('Erreur changement mot de passe:', err);
-          
-          let errorMsg = 'Erreur de changement de mot de passe';
-          if (err.status === 0) {
-            errorMsg = 'Serveur indisponible. Vérifiez que le backend est démarré.';
-          } else if (err.status) {
-            errorMsg += ` (Status: ${err.status})`;
-          }
-          if (err.error && typeof err.error === 'string') {
-            errorMsg = err.error;
-          } else if (err.error && err.error.message) {
-            errorMsg = err.error.message;
-          }
-          
-          this.errorMessage = errorMsg;
+        error: (err) => {
+          this.errorMessage = 'Erreur changement mot de passe: ' + err.message;
           this.successMessage = '';
           this.isLoading = false;
         }
@@ -233,7 +197,7 @@ export class ProfileComponent implements OnInit {
       photo: photoBase64 
     };
     
-    this.http.put(`http://localhost:8087/api/users/${this.userId}/photo`, body)
+    this.api.put(`users/${this.userId}/photo`, body)
       .subscribe({
         next: (response: any) => {
           this.successMessage = 'Photo mise à jour avec succès';
@@ -241,27 +205,8 @@ export class ProfileComponent implements OnInit {
           this.errorMessage = '';
           this.isLoading = false;
         },
-        error: (err: any) => {
-          console.error('ERREUR COMPLÈTE:', err);
-          console.error('STATUS:', err.status);
-          console.error('MESSAGE:', err.message);
-          console.error('ERROR BODY:', err.error);
-          
-          let errorMsg = 'Erreur lors de la mise à jour de la photo';
-          if (err.status === 0) {
-            errorMsg = 'Serveur indisponible. Vérifiez que le backend est démarré sur le port 8087.';
-          } else if (err.status) {
-            errorMsg += ` (Status: ${err.status})`;
-          }
-          if (err.error && typeof err.error === 'string') {
-            errorMsg = err.error;
-          } else if (err.error && err.error.message) {
-            errorMsg = err.error.message;
-          } else if (err.message) {
-            errorMsg = err.message;
-          }
-          
-          this.errorMessage = errorMsg;
+        error: (err) => {
+          this.errorMessage = 'Erreur photo: ' + err.message;
           this.successMessage = '';
           this.isLoading = false;
         }

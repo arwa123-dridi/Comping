@@ -1,1 +1,23 @@
-<p>reservations works!</p>
+<div class="reservations-page">
+  <header>
+    <h1>Mes Réservations</h1>
+  </header>
+
+  <div *ngIf="errorMessage" class="alert error">{{ errorMessage }}</div>
+  
+  <div *ngIf="isLoading" class="loading">Chargement des réservations...</div>
+
+  <div *ngIf="!isLoading && reservations.length === 0" class="no-reservations">
+    <p>Aucune réservation trouvée.</p>
+    <a routerLink="/home">Découvrir nos offres</a>
+  </div>
+
+  <div *ngIf="reservations.length > 0" class="reservations-list">
+    <div *ngFor="let reservation of reservations" class="reservation-card">
+      <h3>{{ reservation.siteName || 'Réservation' }}</h3>
+      <p>Date: {{ reservation.date | date }}</p>
+      <p>Statut: <span [class]="reservation.status">{{ reservation.status }}</span></p>
+      <button>Annuler</button>
+    </div>
+  </div>
+</div>

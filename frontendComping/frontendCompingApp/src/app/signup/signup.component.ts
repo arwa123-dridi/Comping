@@ -1,20 +1,21 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { CommonModule } from '@angular/common'; // ✅ add this
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [ReactiveFormsModule, HttpClientModule, CommonModule], // ✅ add CommonModule
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css']
 })
 export class SignupComponent {
   signupForm: FormGroup;
   successMessage: string = '';
-
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  errorMessage: string = '';
+  
+  constructor(private fb: FormBuilder, private api: ApiService) {
     this.signupForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -30,13 +31,20 @@ export class SignupComponent {
       const signupData = this.signupForm.value;
       console.log('Signup Data:', signupData);
 
-      this.http.post('http://localhost:8087/api/signup', signupData)
+      this.api.post('signup', signupData)
         .subscribe({
-          next: () => this.successMessage = 'Signup successful!',
-          error: (err) => console.error('Signup failed', err)
+          next: () => {
+            this.successMessage = 'Inscription réussie! Vous pouvez maintenant vous connecter.';
+            this.signupForm.reset({ role: 'USER' });
+          },
+          error: (err: any) => {
+            this.successMessage = '';
+            this.errorMessage = err.message || 'Erreur inscription';
+            console.error('Signup failed', err);
+          }
         });
-
-      this.signupForm.reset({ role: 'USER' });
+    } else {
+      this.errorMessage = 'Veuillez corriger les erreurs du formulaire.';
     }
   }
 }
