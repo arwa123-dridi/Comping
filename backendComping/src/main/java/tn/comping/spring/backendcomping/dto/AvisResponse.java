@@ -6,6 +6,7 @@ import java.util.Date;
 @Data 
 @NoArgsConstructor 
 @AllArgsConstructor
+@Builder   // ✅ REQUIRED for builder()
 public class AvisResponse {
     private String id;
     private String siteCampingId;

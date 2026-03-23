@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.comping.spring.backendcomping.dto.IncidentRequest;
 import tn.comping.spring.backendcomping.dto.IncidentResponse;
-import tn.comping.spring.backendcomping.services.IncidentService;
+import tn.comping.spring.backendcomping.services.serviceImpl.IncidentService;
 import tn.comping.spring.backendcomping.utils.Constants;
 
 import java.util.List;
