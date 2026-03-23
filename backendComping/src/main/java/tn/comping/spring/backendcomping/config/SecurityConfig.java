@@ -1,6 +1,9 @@
 package tn.comping.spring.backendcomping.config;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -22,47 +25,47 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http
+        http.cors(cors -> cors.configurationSource(request -> {
+            var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+            corsConfig.setAllowedOrigins(List.of("http://localhost:4200")); // Angular URL
+            corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            corsConfig.setAllowedHeaders(List.of("*"));
+            return corsConfig;
+        }))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Routes publiques
                         .requestMatchers(
                                 "/",
+                                "/api/auth/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
-
-                                "/api/auth/**",
-
-                                "/api/auth/**",
                                 "/api/demandes-transport/**",
                                 "/api/creneaux-livraison/**",
                                 "/api/incidents/**",
-                                "/api/conventions-partenaires/**"
+                                "/api/conventions-partenaires/**")
+                        .permitAll()
 
-                        ).permitAll()
+                        // Routes par rôle
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/moderateur/**").hasRole("MODERATEUR")
                         .requestMatchers("/api/organisateur/**").hasRole("ORGANISATEUR")
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-        http.csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/api/auth/**").permitAll()
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
-                .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
-                .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                        // Routes spécifiques
+                        .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
+                        .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
+                        .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
+
+                        // Tout le reste nécessite authentification
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.comping.spring.backendcomping.dto.ConventionPartenaireRequest;
 import tn.comping.spring.backendcomping.dto.ConventionPartenaireResponse;
-import tn.comping.spring.backendcomping.services.ConventionPartenaireService;
+import tn.comping.spring.backendcomping.services.serviceImpl.ConventionPartenaireService;
 import tn.comping.spring.backendcomping.utils.Constants;
 
 import java.util.List;

@@ -1,49 +1,7 @@
 package tn.comping.spring.backendcomping.controllers;
 
-<<<<<<< HEAD
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import tn.comping.spring.backendcomping.dto.*;
-import tn.comping.spring.backendcomping.services.serviceImpl.AvisService;
-import java.util.List;
 
-@RestController
-@RequestMapping("/api/avis")
-@CrossOrigin("*")
-@RequiredArgsConstructor
-public class AvisController {
-
-    private final AvisService service;
-
-    @GetMapping("/site/{siteCampingId}")
-    public List<AvisResponse> getBySite(@PathVariable String siteCampingId) {
-        return service.getAvisBySite(siteCampingId);
-    }
-
-    @GetMapping("/utilisateur/{utilisateurId}")
-    public List<AvisResponse> getByUtilisateur(@PathVariable String utilisateurId) {
-        return service.getAvisByUtilisateur(utilisateurId);
-    }
-
-    @PostMapping
-    public AvisResponse ajouter(@RequestBody AvisRequest request) {
-        return service.ajouterAvis(request);
-    }
-
-    @PatchMapping("/{id}/moderer")
-    public AvisResponse moderer(@PathVariable String id,
-                                @RequestParam String statut) {
-        return service.modererAvis(id, statut);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable String id) {
-        service.supprimerAvis(id);
-        return ResponseEntity.ok("Avis supprimé avec succès.");
-    }
-}
-=======
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -86,8 +44,7 @@ public class AvisController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AvisResponseDTO> getAvisById(@PathVariable
-String id) {
+    public ResponseEntity<AvisResponseDTO> getAvisById(@PathVariable String id) {
         return ResponseEntity.ok(avisService.getAvisById(id));
     }
 
@@ -95,21 +52,22 @@ String id) {
     public ResponseEntity<List<AvisResponseDTO>> getAvisByCible(
             @PathVariable String cibleId,
             @RequestParam String typeCible) {
-        return ResponseEntity.ok(avisService.getAvisByCible(cibleId,
-typeCible));
+
+        return ResponseEntity.ok(
+                avisService.getAvisByCible(cibleId, typeCible)
+        );
     }
 
     @GetMapping("/mes-avis")
-    public ResponseEntity<List<AvisResponseDTO>>
-getMesAvis(Authentication authentication) {
+    public ResponseEntity<List<AvisResponseDTO>> getMesAvis(Authentication authentication) {
+
         String email = authentication.getName();
         return ResponseEntity.ok(avisService.getMesAvis(email));
     }
 
     @GetMapping("/statut/{statut}")
     @PreAuthorize("hasRole('MODERATEUR') or hasRole('ADMIN')")
-    public ResponseEntity<List<AvisResponseDTO>>
-getAvisByStatut(@PathVariable StatutAvis statut) {
+    public ResponseEntity<List<AvisResponseDTO>> getAvisByStatut(@PathVariable StatutAvis statut) {
         return ResponseEntity.ok(avisService.getAvisByStatut(statut));
     }
 
@@ -118,6 +76,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
             @PathVariable String id,
             @RequestBody AvisRequestDTO dto,
             Authentication authentication) {
+
         String email = authentication.getName();
         return ResponseEntity.ok(avisService.updateAvis(id, dto, email));
     }
@@ -126,6 +85,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
     public ResponseEntity<Void> deleteAvis(
             @PathVariable String id,
             Authentication authentication) {
+
         String email = authentication.getName();
         avisService.deleteAvis(id, email);
         return ResponseEntity.noContent().build();
@@ -136,6 +96,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
     public ResponseEntity<AvisResponseDTO> validerAvis(
             @PathVariable String id,
             Authentication authentication) {
+
         String email = authentication.getName();
         return ResponseEntity.ok(avisService.validerAvis(id, email));
     }
@@ -146,6 +107,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
             @PathVariable String id,
             @RequestParam String motif,
             Authentication authentication) {
+
         String email = authentication.getName();
         return ResponseEntity.ok(avisService.rejeterAvis(id, motif, email));
     }
@@ -156,6 +118,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
             @PathVariable String avisId,
             @RequestBody ReponseAvisRequestDTO dto,
             Authentication authentication) {
+
         String email = authentication.getName();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(avisService.ajouterReponse(avisId, dto, email));
@@ -166,6 +129,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
     public ResponseEntity<Void> supprimerReponse(
             @PathVariable String avisId,
             Authentication authentication) {
+
         String email = authentication.getName();
         avisService.supprimerReponse(avisId, email);
         return ResponseEntity.noContent().build();
@@ -175,8 +139,9 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
     public ResponseEntity<StatistiquesAvisDTO> getStatistiquesAvis(
             @PathVariable String cibleId,
             @RequestParam String typeCible) {
-        return ResponseEntity.ok(avisService.getStatistiquesAvis(cibleId,
-typeCible));
+
+        return ResponseEntity.ok(
+                avisService.getStatistiquesAvis(cibleId, typeCible)
+        );
     }
 }
->>>>>>> origin/mariem-sellami

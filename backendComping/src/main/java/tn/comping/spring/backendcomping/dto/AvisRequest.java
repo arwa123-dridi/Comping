@@ -5,6 +5,7 @@ import lombok.*;
 @Data 
 @NoArgsConstructor 
 @AllArgsConstructor
+@Builder   // ✅ REQUIRED for builder()
 public class AvisRequest {
     private String siteCampingId;
     private String utilisateurId;

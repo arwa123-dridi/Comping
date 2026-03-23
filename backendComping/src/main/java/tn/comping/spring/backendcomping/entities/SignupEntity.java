@@ -17,7 +17,8 @@ public class SignupEntity {
     @Id
     private String id; // MongoDB ObjectId, String is typical
 
-    private String name;
+    private String FirstName;
+    private String LastName;
     private String email;
     private String password;
     private String telephone;
@@ -26,4 +27,11 @@ public class SignupEntity {
 
     private String photo; // URL de la photo
 
+  public String getLastName() {
+        return LastName;
+    }
+
+  
+
+   
 }

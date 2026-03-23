@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ActivityRequest {
 
-
-
     private String nom;
     private String description;
     private String type;
