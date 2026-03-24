@@ -3,10 +3,7 @@ package tn.comping.spring.backendcomping.controllers;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import tn.comping.spring.backendcomping.dto.LoginDTORequest;
 import tn.comping.spring.backendcomping.dto.LoginDTOResponse;
@@ -22,6 +19,7 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
     private  final SignupService signupService;
     private final JwtUtils jwtUtils;
