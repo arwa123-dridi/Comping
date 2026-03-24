@@ -57,4 +57,12 @@ public class Constants {
     public static final String UPDATE_CONVENTION_PARTENAIRE = "/{id}";
     public static final String DELETE_CONVENTION_PARTENAIRE = "/{id}";
 
+    // api produit
+    public static final String BASE_URL_PRODUIT = "/api/produits";
+
+    public static final String CREATE_PRODUIT = "/addProduct";
+    public static final String GET_ALL_PRODUITS = "/allProduct";
+    public static final String UPDATE_PRODUIT = "/updateProduct/{id}";
+    public static final String DELETE_PRODUIT = "/deleteProduct/{id}";
+
 }
