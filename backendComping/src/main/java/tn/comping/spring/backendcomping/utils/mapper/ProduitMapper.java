@@ -1,37 +1,42 @@
 package tn.comping.spring.backendcomping.utils.mapper;
 
-import tn.comping.spring.backendcomping.dto.ProduitDTO;
+import tn.comping.spring.backendcomping.dto.RequestProduitDTO;
+import tn.comping.spring.backendcomping.dto.ResponseProduitDTO;
 import tn.comping.spring.backendcomping.entities.Produit;
 
 public class ProduitMapper {
 
-    public static Produit toEntity(ProduitDTO dto) {
-
+    // Convert DTO to entity
+    public static Produit toEntity(RequestProduitDTO dto) {
         return Produit.builder()
                 .nomProduit(dto.getNomProduit())
                 .descriptionProduit(dto.getDescriptionProduit())
                 .prixProduit(dto.getPrixProduit())
-                .stockProduit(dto.getStockProduit())
+                .categorieProduit(dto.getCategorieProduit())
                 .typeProduit(dto.getTypeProduit())
+                .statut(dto.getStatut())
                 .build();
     }
 
-    public static ProduitDTO toDTO(Produit produit) {
-
-        return ProduitDTO.builder()
+    // Convert entity to Response DTO
+    public static ResponseProduitDTO toResponseDTO(Produit produit) {
+        return ResponseProduitDTO.builder()
                 .nomProduit(produit.getNomProduit())
                 .descriptionProduit(produit.getDescriptionProduit())
                 .prixProduit(produit.getPrixProduit())
-                .stockProduit(produit.getStockProduit())
+                .categorieProduit(produit.getCategorieProduit())
                 .typeProduit(produit.getTypeProduit())
+                .statut(produit.getStatut())
                 .build();
     }
 
-    public static void updateEntityFromDTO(ProduitDTO dto, Produit produit) {
+    // Update existing entity from DTO
+    public static void updateEntityFromDTO(RequestProduitDTO dto, Produit produit) {
         produit.setNomProduit(dto.getNomProduit());
         produit.setDescriptionProduit(dto.getDescriptionProduit());
         produit.setPrixProduit(dto.getPrixProduit());
-        produit.setStockProduit(dto.getStockProduit());
+        produit.setCategorieProduit(dto.getCategorieProduit());
         produit.setTypeProduit(dto.getTypeProduit());
+        produit.setStatut(dto.getStatut());
     }
 }

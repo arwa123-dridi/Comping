@@ -19,4 +19,14 @@ public class UpdateProfileDTO {
     private String address;
 
     private String photo; // nouvelle photo
+
+    public Object getLastName() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getLastName'");
+    }
+
+    public String getFirstName() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getFirstName'");
+    }
 }

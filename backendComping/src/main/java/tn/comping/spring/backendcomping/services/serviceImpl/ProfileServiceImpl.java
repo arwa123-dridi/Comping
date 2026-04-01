@@ -9,7 +9,7 @@ import tn.comping.spring.backendcomping.dto.UpdatePasswordDTO;
 import tn.comping.spring.backendcomping.dto.UpdateProfileDTO;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.repositories.SignupRepository;
-import tn.comping.spring.backendcomping.services.interfaces.IProfileService; // ✅ AJOUTÉ
+//import tn.comping.spring.backendcomping.services.serviceImpl.IProfileService; // ✅ AJOUTÉ
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +31,16 @@ public class ProfileServiceImpl implements IProfileService { // ✅ IMPLEMENTS l
         SignupEntity user = signupRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        // Mise à jour du nom
-        if (dto.getName() != null && !dto.getName().isEmpty()) {
-            user.setName(dto.getName());
+        // Mise à jour du prenom
+        if (dto.getFirstName() != null && !dto.getFirstName().isEmpty()) {
+            user.setFirstName(dto.getFirstName());
+           
+        }
+
+          // Mise à jour du nom
+        if (dto.getLastName() != null && !((String) dto.getLastName()).isEmpty()) {
+            user.setLastName((String) dto.getLastName());
+           
         }
 
         // Mise à jour de l'email (avec vérification d'unicité)
