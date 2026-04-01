@@ -6,7 +6,7 @@ import tn.comping.spring.backendcomping.dto.IncidentRequest;
 import tn.comping.spring.backendcomping.dto.IncidentResponse;
 import tn.comping.spring.backendcomping.entities.Incident;
 import tn.comping.spring.backendcomping.repositories.IncidentRepository;
-import tn.comping.spring.backendcomping.services.IncidentService;
+//import tn.comping.spring.backendcomping.services.IncidentService;
 import tn.comping.spring.backendcomping.utils.mapper.IncidentMapper;
 
 import java.util.Date;

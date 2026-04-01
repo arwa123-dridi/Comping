@@ -23,8 +23,9 @@ public class Produit {
         private String nomProduit;
         private String descriptionProduit;
         private Double prixProduit;
-        private Integer stockProduit;
+        private Integer categorieProduit;
         private String typeProduit;
+        private String statut;
 
     }
 

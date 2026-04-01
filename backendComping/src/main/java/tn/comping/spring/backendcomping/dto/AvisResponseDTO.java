@@ -1,6 +1,7 @@
 package tn.comping.spring.backendcomping.dto;
 
 import lombok.*;
+import tn.comping.spring.backendcomping.entities.Avis;
 import tn.comping.spring.backendcomping.entities.StatutAvis;
 import tn.comping.spring.backendcomping.entities.TypeCible;
 import java.util.Date;
@@ -8,7 +9,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder   // ✅ REQUIRED for builder()
 public class AvisResponseDTO {
 
     private String id;
@@ -25,4 +26,5 @@ public class AvisResponseDTO {
 
     private ReponseAvisDTO reponse;
     private Date dateModification;
+    
 }
