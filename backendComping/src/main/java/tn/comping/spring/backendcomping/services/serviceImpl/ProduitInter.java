@@ -1,16 +1,16 @@
 package tn.comping.spring.backendcomping.services.serviceImpl;
 
-import tn.comping.spring.backendcomping.dto.ProduitDTO;
-import tn.comping.spring.backendcomping.entities.Produit;
-
+import tn.comping.spring.backendcomping.dto.RequestProduitDTO;
+import tn.comping.spring.backendcomping.dto.ResponseProduitDTO;
 import java.util.List;
 
 public interface ProduitInter {
-    Produit addProduit(ProduitDTO produitDTO);
 
-    List<Produit> getAllProduits();
+    ResponseProduitDTO addProduit(RequestProduitDTO produitDTO);
 
-    String updateProduit(String id, ProduitDTO produitDTO);
+    List<ResponseProduitDTO> getAllProduits();
+
+    ResponseProduitDTO updateProduit(String id, RequestProduitDTO produitDTO);
 
     String deleteProduit(String id);
 }

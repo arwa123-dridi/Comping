@@ -7,7 +7,7 @@ import tn.comping.spring.backendcomping.dto.UpdatePasswordDTO;
 import tn.comping.spring.backendcomping.dto.UpdateProfileDTO;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.repositories.SignupRepository;
-import tn.comping.spring.backendcomping.services.interfaces.IProfileService;
+import tn.comping.spring.backendcomping.services.serviceImpl.IProfileService;
 import jakarta.validation.Valid;
 import java.util.Map;
 
