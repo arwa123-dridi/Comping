@@ -36,28 +36,4 @@ public class EmailService {
             System.err.println("⚠️ Email non envoyé : " + e.getMessage());
         }
     }
-
-    public void sendPasswordResetEmail(String to, String token, String resetUrl) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-
-            helper.setTo(to);
-            helper.setSubject("🔑 Réinitialisation de mot de passe TuniCamp");
-            helper.setText(
-                "<h2>Réinitialisation de mot de passe</h2>" +
-                "<p>Vous avez demandé à réinitialiser votre mot de passe.</p>" +
-                "<p><a href=\"" + resetUrl + "\" style=\"background-color: #4CAF50; color: white; padding: 14px 20px; text-decoration: none; display: inline-block;\">Réinitialiser le mot de passe</a></p>" +
-                "<p>Le lien expire dans 1 heure.</p>" +
-                "<p>Si vous n'avez pas fait cette demande, ignorez cet email.</p>",
-                true
-            );
-
-            mailSender.send(message);
-            System.out.println("✅ Email de réinitialisation envoyé à " + to);
-
-        } catch (Exception e) {
-            System.err.println("⚠️ Email de réinitialisation non envoyé : " + e.getMessage());
-        }
-    }
 }

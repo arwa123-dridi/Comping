@@ -6,23 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import tn.comping.spring.backendcomping.dto.AvisRequestDTO;
-import tn.comping.spring.backendcomping.dto.AvisResponseDTO;
-import tn.comping.spring.backendcomping.dto.ReponseAvisDTO;
-import tn.comping.spring.backendcomping.dto.ReponseAvisRequestDTO;
-import tn.comping.spring.backendcomping.dto.StatistiquesAvisDTO;
-import tn.comping.spring.backendcomping.entities.Avis;
-import tn.comping.spring.backendcomping.entities.ReponseAvis;
-import tn.comping.spring.backendcomping.entities.SignupEntity;
-import tn.comping.spring.backendcomping.entities.StatutAvis;
-import tn.comping.spring.backendcomping.entities.TypeCible;
-import tn.comping.spring.backendcomping.repositories.AvisRepository;
-import tn.comping.spring.backendcomping.repositories.ReponseAvisRepository;
-import tn.comping.spring.backendcomping.repositories.SignupRepository;
-import tn.comping.spring.backendcomping.services.serviceImpl.AvisService;
-import tn.comping.spring.backendcomping.utils.mapper.AvisMapper;
-import tn.comping.spring.backendcomping.utils.mapper.ReponseAvisMapper;
-import tn.comping.spring.backendcomping.utils.mapper.StatistiquesAvisMapper;
+import tn.comping.spring.backendcomping.dto.*;
+import tn.comping.spring.backendcomping.entities.*;
+import tn.comping.spring.backendcomping.repositories.*;
+import tn.comping.spring.backendcomping.utils.mapper.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,12 +34,13 @@ public class AvisServiceImpl implements AvisService {
         if (dto.getNote() < 1 || dto.getNote() > 5) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "La note doit etre entre 1 et 5");
+
         }
 
         Avis avis = AvisMapper.toEntity(dto, utilisateur.getId());
         avis = avisRepository.save(avis);
 
-        log.info("Avis cree avec succes - ID: {}", avis.getId());
+        log.info("Avis créé - ID: {}", avis.getId());
 
         return mapToResponseDTO(avis);
     }
@@ -60,6 +48,7 @@ public class AvisServiceImpl implements AvisService {
     @Override
     public AvisResponseDTO getAvisById(String id) {
         Avis avis = avisRepository.findById(id)
+
                 .orElseThrow(() -> new
                         ResponseStatusException(HttpStatus.NOT_FOUND, "Avis non trouve"));
 
@@ -67,8 +56,7 @@ public class AvisServiceImpl implements AvisService {
     }
 
     @Override
-    public List<AvisResponseDTO> getAvisByCible(String cibleId, String
-            typeCibleStr) {
+    public List<AvisResponseDTO> getAvisByCible(String cibleId, String typeCibleStr) {
         TypeCible typeCible = TypeCible.valueOf(typeCibleStr);
 
         return avisRepository.findByCibleIdAndTypeCibleAndValideOrderByDatePublicationDesc(cibleId,
@@ -84,6 +72,7 @@ public class AvisServiceImpl implements AvisService {
                 signupRepository.findByEmail(utilisateurEmail)
                         .orElseThrow(() -> new
                                 ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouve"));
+
 
         return avisRepository.findByUtilisateurIdOrderByDatePublicationDesc(utilisateur.getId())
                 .stream()
@@ -147,13 +136,13 @@ public class AvisServiceImpl implements AvisService {
 
         reponseAvisRepository.deleteByAvisId(id);
         avisRepository.deleteById(id);
-
-        log.info("Avis supprime - ID: {}", id);
     }
 
     @Override
     public AvisResponseDTO validerAvis(String id, String moderateurEmail) {
+
         Avis avis = avisRepository.findById(id)
+
                 .orElseThrow(() -> new
                         ResponseStatusException(HttpStatus.NOT_FOUND, "Avis non trouve"));
 
@@ -161,15 +150,12 @@ public class AvisServiceImpl implements AvisService {
                 .orElseThrow(() -> new
                         ResponseStatusException(HttpStatus.NOT_FOUND, "Moderateur non trouve"));
 
+
         avis.setStatut(StatutAvis.VALIDE);
         avis.setValide(true);
         avis.setModerateurId(moderateur.getId());
 
-        avis = avisRepository.save(avis);
-
-        log.info("Avis valide - ID: {}", id);
-
-        return mapToResponseDTO(avis);
+        return mapToResponseDTO(avisRepository.save(avis));
     }
 
     @Override
@@ -183,16 +169,13 @@ public class AvisServiceImpl implements AvisService {
                 .orElseThrow(() -> new
                         ResponseStatusException(HttpStatus.NOT_FOUND, "Moderateur non trouve"));
 
+
         avis.setStatut(StatutAvis.REJETE);
         avis.setValide(false);
-        avis.setModerateurId(moderateur.getId());
         avis.setMotifRejet(motif);
+        avis.setModerateurId(moderateur.getId());
 
-        avis = avisRepository.save(avis);
-
-        log.info("Avis rejete - ID: {}, Motif: {}", id, motif);
-
-        return mapToResponseDTO(avis);
+        return mapToResponseDTO(avisRepository.save(avis));
     }
 
     @Override
@@ -250,14 +233,16 @@ public class AvisServiceImpl implements AvisService {
         List<Avis> avisList =
                 avisRepository.findByCibleIdAndTypeCible(cibleId, typeCible);
 
+
         return StatistiquesAvisMapper.toDTO(avisList);
     }
 
     private AvisResponseDTO mapToResponseDTO(Avis avis) {
+
         SignupEntity utilisateur =
                 signupRepository.findById(avis.getUtilisateurId()).orElse(null);
         String utilisateurNom = utilisateur != null ?
-                utilisateur.getName() : "Inconnu";
+                utilisateur.getFirstName() : "Inconnu";
 
         AvisResponseDTO responseDTO = AvisMapper.toResponseDTO(avis,
                 utilisateurNom);
@@ -268,7 +253,7 @@ public class AvisServiceImpl implements AvisService {
             SignupEntity auteurReponse =
                     signupRepository.findById(reponse.getAuteurId()).orElse(null);
             String auteurNom = auteurReponse != null ?
-                    auteurReponse.getName() : "Inconnu";
+                    auteurReponse.getFirstName() : "Inconnu";
 
             ReponseAvisDTO reponseDTO =
                     ReponseAvisMapper.toDTO(reponse, auteurNom);
@@ -276,5 +261,11 @@ public class AvisServiceImpl implements AvisService {
         }
 
         return responseDTO;
+
+
+
     }
+
+
+
 }

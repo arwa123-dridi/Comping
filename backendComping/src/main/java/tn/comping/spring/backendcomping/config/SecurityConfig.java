@@ -1,6 +1,9 @@
 package tn.comping.spring.backendcomping.config;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -21,16 +24,25 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+
+
+
+        http.cors(cors -> cors.configurationSource(request -> {
+                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfig.setAllowedOrigins(List.of("http://localhost:4200"));
+                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfig.setAllowedHeaders(List.of("*"));
+                    return corsConfig;
+                }))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Routes publiques
                         .requestMatchers(
                                 "/",
+                                "/api/auth/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
-                                "/api/auth/**",
                                 "/api/demandes-transport/**",
                                 "/api/creneaux-livraison/**",
                                 "/api/incidents/**",
@@ -47,9 +59,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
 
-                        // Interactions sociales (PHASE 1)
-                        .requestMatchers("/api/interactions/**").authenticated()
-
                         // Tout le reste nécessite authentification
                         .anyRequest().authenticated()
                 )
@@ -57,8 +66,9 @@ public class SecurityConfig {
 
         return http.build();
     }
+
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

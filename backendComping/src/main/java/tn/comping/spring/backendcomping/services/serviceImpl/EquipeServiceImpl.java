@@ -175,7 +175,8 @@ public class EquipeServiceImpl implements IEquipeService {
 
         if (equipe.getOrganisateur() != null) {
             dto.setOrganisateurId(equipe.getOrganisateur().getId());
-            dto.setOrganisateurNom(equipe.getOrganisateur().getName());
+            dto.setOrganisateurPrenom(equipe.getOrganisateur().getFirstName());
+            dto.setOrganisateurNom(equipe.getOrganisateur().getLastName());
         }
 
         // Convertir les membres en MembreDTO
@@ -183,7 +184,7 @@ public class EquipeServiceImpl implements IEquipeService {
                 .map(user -> {
                     MembreDTO membre = new MembreDTO();
                     membre.setId(user.getId());
-                    membre.setNom(user.getName());
+                    membre.setNom(user.getFirstName());
                     membre.setEmail(user.getEmail());
                     membre.setEstOrganisateur(user.getId().equals(equipe.getOrganisateur().getId()));
                     return membre;

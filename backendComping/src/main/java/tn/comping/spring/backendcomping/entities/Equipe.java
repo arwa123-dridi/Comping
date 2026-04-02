@@ -30,12 +30,10 @@ public class Equipe {
     private SignupEntity organisateur;
 
     // ✅ Liste des références des membres
-@DBRef
-    @Builder.Default
+    @DBRef
     private List<SignupEntity> membres = new ArrayList<>();
 
     //  Garder pour compatibilité avec les anciennes requêtes
-    @Builder.Default
     private List<String> membreIds = new ArrayList<>();
 
     private LocalDateTime dateModification;

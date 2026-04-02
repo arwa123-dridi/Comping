@@ -1,5 +1,9 @@
 package tn.comping.spring.backendcomping.controllers;
 
+
+import lombok.RequiredArgsConstructor;
+
+
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -42,8 +46,7 @@ public class AvisController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AvisResponseDTO> getAvisById(@PathVariable
-String id) {
+    public ResponseEntity<AvisResponseDTO> getAvisById(@PathVariable String id) {
         return ResponseEntity.ok(avisService.getAvisById(id));
     }
 
@@ -51,21 +54,22 @@ String id) {
     public ResponseEntity<List<AvisResponseDTO>> getAvisByCible(
             @PathVariable String cibleId,
             @RequestParam String typeCible) {
-        return ResponseEntity.ok(avisService.getAvisByCible(cibleId,
-typeCible));
+
+        return ResponseEntity.ok(
+                avisService.getAvisByCible(cibleId, typeCible)
+        );
     }
 
     @GetMapping("/mes-avis")
-    public ResponseEntity<List<AvisResponseDTO>>
-getMesAvis(Authentication authentication) {
+    public ResponseEntity<List<AvisResponseDTO>> getMesAvis(Authentication authentication) {
+
         String email = authentication.getName();
         return ResponseEntity.ok(avisService.getMesAvis(email));
     }
 
     @GetMapping("/statut/{statut}")
     @PreAuthorize("hasRole('MODERATEUR') or hasRole('ADMIN')")
-    public ResponseEntity<List<AvisResponseDTO>>
-getAvisByStatut(@PathVariable StatutAvis statut) {
+    public ResponseEntity<List<AvisResponseDTO>> getAvisByStatut(@PathVariable StatutAvis statut) {
         return ResponseEntity.ok(avisService.getAvisByStatut(statut));
     }
 
@@ -74,6 +78,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
             @PathVariable String id,
             @RequestBody AvisRequestDTO dto,
             Authentication authentication) {
+
         String email = authentication.getName();
         return ResponseEntity.ok(avisService.updateAvis(id, dto, email));
     }
@@ -82,6 +87,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
     public ResponseEntity<Void> deleteAvis(
             @PathVariable String id,
             Authentication authentication) {
+
         String email = authentication.getName();
         avisService.deleteAvis(id, email);
         return ResponseEntity.noContent().build();
@@ -92,6 +98,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
     public ResponseEntity<AvisResponseDTO> validerAvis(
             @PathVariable String id,
             Authentication authentication) {
+
         String email = authentication.getName();
         return ResponseEntity.ok(avisService.validerAvis(id, email));
     }
@@ -102,6 +109,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
             @PathVariable String id,
             @RequestParam String motif,
             Authentication authentication) {
+
         String email = authentication.getName();
         return ResponseEntity.ok(avisService.rejeterAvis(id, motif, email));
     }
@@ -112,6 +120,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
             @PathVariable String avisId,
             @RequestBody ReponseAvisRequestDTO dto,
             Authentication authentication) {
+
         String email = authentication.getName();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(avisService.ajouterReponse(avisId, dto, email));
@@ -122,6 +131,7 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
     public ResponseEntity<Void> supprimerReponse(
             @PathVariable String avisId,
             Authentication authentication) {
+
         String email = authentication.getName();
         avisService.supprimerReponse(avisId, email);
         return ResponseEntity.noContent().build();
@@ -131,7 +141,14 @@ getAvisByStatut(@PathVariable StatutAvis statut) {
     public ResponseEntity<StatistiquesAvisDTO> getStatistiquesAvis(
             @PathVariable String cibleId,
             @RequestParam String typeCible) {
-        return ResponseEntity.ok(avisService.getStatistiquesAvis(cibleId,
-typeCible));
+
+        return ResponseEntity.ok(
+                avisService.getStatistiquesAvis(cibleId, typeCible)
+        );
     }
+
 }
+
+
+
+

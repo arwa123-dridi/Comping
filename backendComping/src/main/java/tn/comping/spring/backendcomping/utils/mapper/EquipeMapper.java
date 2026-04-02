@@ -44,7 +44,8 @@ public class EquipeMapper {
 
         if(entity.getOrganisateur() != null){
             dto.setOrganisateurId(entity.getOrganisateur().getId());
-            dto.setOrganisateurNom(entity.getOrganisateur().getName());
+            dto.setOrganisateurPrenom(entity.getOrganisateur().getFirstName());
+            dto.setOrganisateurNom(entity.getOrganisateur().getLastName());
         }
 
         if(entity.getMembres() != null){
@@ -55,7 +56,8 @@ public class EquipeMapper {
 
                         MembreDTO m = new MembreDTO();
                         m.setId(user.getId());
-                        m.setNom(user.getName());
+                        m.setPrenom(user.getFirstName());
+                        m.setNom(user.getLastName());
                         m.setEmail(user.getEmail());
 
                         if(entity.getOrganisateur() != null){
