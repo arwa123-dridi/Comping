@@ -1,0 +1,108 @@
+<!-- src/app/sortie/sortie-form/sortie-form.component.html -->
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">{{ isEdit ? '✏️ Modifier' : '➕ Créer' }} une randonnée</h3>
+                </div>
+                <div class="card-body">
+                    <form (ngSubmit)="onSubmit()" #sortieForm="ngForm">
+                        <!-- Titre -->
+                        <div class="mb-3">
+                            <label class="form-label">Titre *</label>
+                            <input type="text" class="form-control" [(ngModel)]="sortie.titre" 
+                                   name="titre" required minlength="3">
+                            <small class="text-danger" *ngIf="!sortie.titre && sortieForm.submitted">
+                                Titre obligatoire
+                            </small>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label">Description *</label>
+                            <textarea class="form-control" rows="3" [(ngModel)]="sortie.description" 
+                                      name="description" required></textarea>
+                        </div>
+
+                        <div class="row">
+                            <!-- Date début -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date et heure *</label>
+                                <input type="datetime-local" class="form-control" 
+                                       [(ngModel)]="sortie.dateDebut" name="dateDebut" required>
+                            </div>
+
+                            <!-- Difficulté -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Difficulté *</label>
+                                <select class="form-select" [(ngModel)]="sortie.difficulte" name="difficulte">
+                                    <option *ngFor="let opt of difficulteOptions" [value]="opt">{{ opt }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Lieu départ -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Lieu de départ *</label>
+                                <input type="text" class="form-control" [(ngModel)]="sortie.lieuDepart" 
+                                       name="lieuDepart" required>
+                            </div>
+
+                            <!-- Distance -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Distance (km)</label>
+                                <input type="number" class="form-control" [(ngModel)]="sortie.distanceKm" 
+                                       name="distanceKm">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Capacité -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Capacité max *</label>
+                                <input type="number" class="form-control" [(ngModel)]="sortie.capaciteMax" 
+                                       name="capaciteMax" required min="1" max="50">
+                            </div>
+
+                            <!-- Prix -->
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Prix (TND)</label>
+                                <input type="number" class="form-control" [(ngModel)]="sortie.prixParPersonne" 
+                                       name="prix">
+                            </div>
+                        </div>
+
+                        <!-- Équipement requis -->
+                        <div class="mb-3">
+                            <label class="form-label">Équipement requis</label>
+                            <input type="text" class="form-control" [(ngModel)]="sortie.equipementRequis" 
+                                   name="equipement" placeholder="Ex: chaussures, bâtons, ...">
+                        </div>
+
+                        <!-- Assistance médicale -->
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="sortie.assistanceMedicale" 
+                                   name="assistanceMedicale">
+                            <label class="form-check-label">Assistance médicale sur place</label>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success" [disabled]="loading">
+                                {{ loading ? 'Enregistrement...' : (isEdit ? 'Mettre à jour' : 'Créer') }}
+                            </button>
+                            <button type="button" class="btn btn-secondary" routerLink="/sorties">
+                                Annuler
+                            </button>
+                        </div>
+
+                        <div *ngIf="error" class="alert alert-danger mt-3">{{ error }}</div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

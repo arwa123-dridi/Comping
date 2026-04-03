@@ -1,0 +1,133 @@
+<!-- src/app/dashboard/dashboard-admin/dashboard-admin.component.html -->
+<div class="dashboard-admin">
+    <div class="admin-header">
+        <div class="container">
+            <h1>📊 Administration</h1>
+            <p>Gestion des randonnées et équipes</p>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <!-- Statistiques -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body text-center">
+                        <h2 class="text-primary">{{ stats.totalSorties }}</h2>
+                        <p>Randonnées</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body text-center">
+                        <h2 class="text-success">{{ stats.totalParticipants }}</h2>
+                        <p>Participants</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body text-center">
+                        <h2 class="text-info">{{ stats.totalEquipes }}</h2>
+                        <p>Équipes</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card">
+                    <div class="card-body text-center">
+                        <h2 class="text-warning">{{ stats.sortiesValidees }}</h2>
+                        <p>Validées</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toutes les sorties -->
+        <div class="card section-card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4>📋 Toutes les sorties</h4>
+                    <button class="btn btn-sm btn-success" routerLink="/sorties/create">
+                        + Nouvelle sortie
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Sortie</th>
+                                <th>Organisateur</th>
+                                <th>Date</th>
+                                <th>Participants</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let s of sorties">
+                                <td><strong>{{ s.titre }}</strong><br><small>{{ s.distanceKm }}km</small></td>
+                                <td>{{ s.organisateurNom }}</td>
+                                <td>{{ s.dateDebut | date:'dd/MM/yy' }}</td>
+                                <td>{{ s.nombreParticipants }}/{{ s.capaciteMax }}</td>
+                                <td>
+                                    <span class="badge" [ngClass]="{
+                                        'bg-success': s.statut === 'PLANIFIEE',
+                                        'bg-warning': s.statut === 'EN_COURS',
+                                        'bg-secondary': s.statut === 'TERMINEE'
+                                    }">{{ s.statut || 'Planifiée' }}</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-outline-primary" [routerLink]="['/sorties', s.id]">👁️</button>
+                                        <button class="btn btn-outline-warning" [routerLink]="['/sorties/edit', s.id]">✏️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="text-end mt-2">
+                    <a routerLink="/sorties" class="text-success">Voir tout →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top organisateurs -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card section-card">
+                    <div class="card-body">
+                        <h4>🏆 Top organisateurs</h4>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr><th>Organisateur</th><th>Sorties</th><th>Participants</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let org of getTopOrganisateurs()">
+                                        <td>{{ org.nom }}</td><td>{{ org.nbSorties }}</td><td>{{ org.nbParticipants }}</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card section-card">
+                    <div class="card-body">
+                        <h4>⚠️ Alertes récentes</h4>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">🔴 SOS déclenché — Selja</li>
+                            <li class="mb-2">🟡 Météo défavorable prévue — Chélia</li>
+                            <li class="mb-2">🟢 Sortie Ichkeul complète</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

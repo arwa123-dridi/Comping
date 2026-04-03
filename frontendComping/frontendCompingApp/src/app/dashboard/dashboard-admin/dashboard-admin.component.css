@@ -1,0 +1,70 @@
+/* Styles simples et propres */
+.admin-simple, .user-simple {
+    max-width: 1200px;
+    margin: 80px auto 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #4CAF50;
+    color: white;
+    font-size: 12px;
+}
+
+.carte {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+    background: white;
+}
+
+.categorie {
+    margin-bottom: 30px;
+}
+
+.places {
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.places.complet {
+    color: #f44336;
+}
+
+.checklist li {
+    list-style: none;
+    padding: 5px 0;
+}
+
+.checklist li.checked {
+    color: #4CAF50;
+    text-decoration: line-through;
+}
+
+button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #45a049;
+}

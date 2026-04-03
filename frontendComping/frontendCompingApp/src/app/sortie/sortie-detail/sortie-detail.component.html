@@ -1,0 +1,108 @@
+<!-- src/app/sortie/sortie-detail/sortie-detail.component.html -->
+<div class="container py-4" *ngIf="!loading && sortie">
+    <!-- En-tête -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1>{{ sortie.titre }}</h1>
+            <p class="text-muted">
+                📍 {{ sortie.lieuDepart }}
+                <span *ngIf="sortie.region"> · {{ sortie.region }}</span>
+            </p>
+        </div>
+        <div *ngIf="isOrganisateur">
+            <button class="btn btn-outline-primary me-2" (click)="modifier()">✏️ Modifier</button>
+            <button class="btn btn-outline-danger" (click)="supprimer()">🗑️ Supprimer</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Infos principales -->
+        <div class="col-md-8">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Description</h5>
+                    <p>{{ sortie.description }}</p>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>📅 Date</strong>
+                            <p>{{ sortie.dateDebut | date:'dd/MM/yyyy à HH:mm' }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>⏱️ Durée</strong>
+                            <p>{{ getDuree() }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>📏 Distance</strong>
+                            <p>{{ sortie.distanceKm || '?' }} km</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>🏔️ Difficulté</strong>
+                            <p>{{ sortie.difficulte }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checklist sécurité -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">✅ Check-list sécurité</h5>
+                    <ul class="list-unstyled">
+                        <li><input type="checkbox" disabled> Chaussures de randonnée</li>
+                        <li><input type="checkbox" disabled> Kit premiers secours</li>
+                        <li><input type="checkbox" disabled> 2L d'eau minimum</li>
+                        <li><input type="checkbox" disabled> Veste imperméable</li>
+                        <li><input type="checkbox" disabled> Lampe frontale</li>
+                    </ul>
+                    <small class="text-muted">Équipement requis: {{ sortie.equipementRequis || 'Standard' }}</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body text-center">
+                    <h3 class="text-success">{{ sortie.nombreParticipants }}/{{ sortie.capaciteMax }}</h3>
+                    <p class="text-muted">Participants</p>
+                    
+                    <button *ngIf="!isParticipant && !isOrganisateur && sortie.placesDisponibles > 0" 
+                            class="btn btn-success w-100" 
+                            (click)="inscrire()" 
+                            [disabled]="inscriptionEnCours">
+                        {{ inscriptionEnCours ? 'Inscription...' : '📝 Participer' }}
+                    </button>
+                    
+                    <button *ngIf="isParticipant && !isOrganisateur" 
+                            class="btn btn-outline-danger w-100" 
+                            (click)="desinscrire()">
+                        ❌ Se désinscrire
+                    </button>
+                    
+                    <button *ngIf="sortie.placesDisponibles === 0" class="btn btn-secondary w-100" disabled>
+                        Complet
+                    </button>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">👥 Équipe</h5>
+                    <p><strong>{{ sortie.equipeNom || 'Sans équipe' }}</strong></p>
+                    <hr>
+                    <h6>Organisateur</h6>
+                    <p>{{ sortie.organisateurNom }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-success"></div>
+</div>
+
+<div *ngIf="error" class="alert alert-danger">{{ error }}</div>

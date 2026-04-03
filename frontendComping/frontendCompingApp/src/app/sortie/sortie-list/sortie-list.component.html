@@ -1,0 +1,129 @@
+<!-- src/app/sortie/sortie-list/sortie-list.component.html -->
+<div class="sorties-container">
+  
+  <!-- Hero Section -->
+  <div class="hero-section text-center py-5" style="background: linear-gradient(135deg, #1b2a4a 0%, #1f73a3 100%);">
+    <div class="container">
+      <h1 class="display-4 fw-bold text-white">🏔️ Randonnées en Tunisie</h1>
+      <p class="lead text-white-50">Découvrez les plus beaux sentiers et vivez des aventures inoubliables</p>
+      <button class="btn btn-success btn-lg px-4 mt-3" routerLink="/sorties/create">
+        ✨ Proposer une sortie
+      </button>
+    </div>
+  </div>
+
+  <div class="container py-4">
+    <!-- Tabs -->
+    <div class="tabs-container mb-4">
+      <div class="tabs">
+        <button class="tab active">🏔️ Toutes les sorties</button>
+        <button class="tab">⭐ Mes sorties</button>
+        <button class="tab">👥 Mes équipes</button>
+        <button class="tab">✨ Proposer une sortie</button>
+        <button class="tab">🗺️ Carte interactive</button>
+        <button class="tab">❤️ Favoris</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="text-center py-5">
+      <div class="spinner-border text-success"></div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+    <!-- Sorties par difficulté -->
+    <div *ngIf="!loading && sorties.length > 0">
+      
+      <!-- Difficulté -->
+      <div class="difficulte-section mb-5">
+        <h3 class="section-title"><span class="badge-difficile">🔴</span> Difficile</h3>
+        <div class="row">
+          <div class="col-md-4 mb-4" *ngFor="let s of sortiesByDifficulte('DIFFICILE')">
+            <div class="sortie-card">
+              <div class="sortie-card-body">
+                <h4>{{ s.titre }}</h4>
+                <div class="sortie-infos">
+                  <span>📏 {{ s.distanceKm || '?' }} km</span>
+                  <span>⏱️ 7h</span>
+                  <span>⛰️ 1200m</span>
+                </div>
+                <div class="sortie-organisateur">
+                  Org. {{ s.organisateurNom }} · {{ s.dateDebut | date:'dd/MM/yyyy' }}
+                </div>
+                <div class="sortie-places">
+                  {{ s.nombreParticipants }}/{{ s.capaciteMax }} places
+                  <span *ngIf="s.nombreParticipants === s.capaciteMax" class="complet">Complet</span>
+                </div>
+                <button class="btn-detail" (click)="viewDetail(s.id)">Voir détails →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Facile -->
+      <div class="difficulte-section mb-5">
+        <h3 class="section-title"><span class="badge-facile">🟢</span> Facile</h3>
+        <div class="row">
+          <div class="col-md-4 mb-4" *ngFor="let s of sortiesByDifficulte('FACILE')">
+            <div class="sortie-card">
+              <div class="sortie-card-body">
+                <h4>{{ s.titre }}</h4>
+                <div class="sortie-infos">
+                  <span>📏 {{ s.distanceKm || '?' }} km</span>
+                  <span>⏱️ 3h</span>
+                  <span>⛰️ 280m</span>
+                </div>
+                <div class="sortie-organisateur">
+                  Org. {{ s.organisateurNom }} · {{ s.dateDebut | date:'dd/MM/yyyy' }}
+                </div>
+                <div class="sortie-places">
+                  {{ s.nombreParticipants }}/{{ s.capaciteMax }} places
+                </div>
+                <button class="btn-detail" (click)="viewDetail(s.id)">Voir détails →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modéré -->
+      <div class="difficulte-section mb-5">
+        <h3 class="section-title"><span class="badge-moyen">🟡</span> Modéré</h3>
+        <div class="row">
+          <div class="col-md-4 mb-4" *ngFor="let s of sortiesByDifficulte('MOYEN')">
+            <div class="sortie-card">
+              <div class="sortie-card-body">
+                <h4>{{ s.titre }}</h4>
+                <div class="sortie-infos">
+                  <span>📏 {{ s.distanceKm || '?' }} km</span>
+                  <span>⏱️ 5h</span>
+                  <span>⛰️ 350m</span>
+                </div>
+                <div class="sortie-organisateur">
+                  Org. {{ s.organisateurNom }} · {{ s.dateDebut | date:'dd/MM/yyyy' }}
+                </div>
+                <div class="sortie-places">
+                  {{ s.nombreParticipants }}/{{ s.capaciteMax }} places
+                  <span *ngIf="s.nombreParticipants === s.capaciteMax" class="complet">Complet</span>
+                </div>
+                <button class="btn-detail" (click)="viewDetail(s.id)">Voir détails →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && sorties.length === 0" class="text-center py-5">
+      <i class="bi bi-map fs-1 text-muted"></i>
+      <h4 class="mt-3">Aucune randonnée disponible</h4>
+      <button class="btn btn-success mt-2" routerLink="/sorties/create">Créer la première randonnée</button>
+    </div>
+
+  </div>
+</div>

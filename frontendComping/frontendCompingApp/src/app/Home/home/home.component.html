@@ -22,6 +22,10 @@
   <nav>
     <a routerLink="/emplacements">Emplacements</a>
     <a routerLink="/materiel">Matériel</a>
+    <!-- ========== AJOUT 1 : RANDONNÉES ========== -->
+    <a routerLink="/sorties"> Randonnées</a>
+    <!-- ========== AJOUT 2 : ÉQUIPES ========== -->
+    <a routerLink="/equipes"> Équipes</a>
     <a routerLink="/experiences">Expériences</a>
     <a routerLink="/blog">Blog</a>
   </nav>
@@ -117,6 +121,7 @@
       <div class="strip-icon">{{ service.icon }}</div>
       <div class="strip-title">{{ service.title }}</div>
       <div class="strip-desc">{{ service.desc }}</div>
+          <a *ngIf="service.link" [routerLink]="service.link" class="service-link">Découvrir →</a>
     </div>
   </div>
 </section>
@@ -139,6 +144,7 @@
     </div>
   </div>
 </section>
+
 
 <!-- CTA BANNER -->
 <section class="cta-banner">
@@ -183,6 +189,9 @@
       <h5>PLATEFORME</h5>
       <a routerLink="/emplacements">Emplacements</a>
       <a routerLink="/materiel">Location matériel</a>
+      <!-- ========== AJOUT 4 : LIENS DANS FOOTER ========== -->
+      <a routerLink="/sorties"> Randonnées</a>
+      <a routerLink="/equipes"> Équipes</a>
       <a routerLink="/experiences">Expériences</a>
       <a routerLink="/blog">Blog</a>
     </div>

@@ -5,84 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b3907f9-91f9-4d9e-b8ea-5dbe6a1a3e52" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/backend.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/backend.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/config/SecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/controllers/AvisController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/controllers/AvisController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/controllers/ConventionPartenaireController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/controllers/ConventionPartenaireController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/controllers/CreneauLivraisonController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/controllers/CreneauLivraisonController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/controllers/IncidentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/controllers/IncidentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/controllers/ProfileController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/controllers/ProfileController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/dto/AvisResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/dto/AvisResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/dto/EquipeResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/dto/EquipeResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/dto/MembreDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/dto/MembreDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/dto/SignupDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/dto/SignupDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/dto/UpdateProfileDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/dto/UpdateProfileDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/entities/Avis.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/entities/Avis.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/entities/SignupEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/entities/SignupEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/repositories/AvisRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/repositories/AvisRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/AvisService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/AvisService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/AvisServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/AvisServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/ConventionPartenaireService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/ConventionPartenaireService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/ConventionPartenaireServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/ConventionPartenaireServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/CreneauLivraisonService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/CreneauLivraisonService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/CreneauLivraisonServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/CreneauLivraisonServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/EquipeServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/EquipeServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/IProfileService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/IProfileService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/IncidentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/IncidentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/IncidentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/IncidentServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/ProfileServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/services/serviceImpl/ProfileServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/utils/mapper/AvisMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/utils/mapper/AvisMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/utils/mapper/EquipeMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/utils/mapper/EquipeMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/utils/mapper/SignupMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/utils/mapper/SignupMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/utils/mapper/StatistiquesAvisMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/utils/mapper/StatistiquesAvisMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/BackendCompingApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/BackendCompingApplication.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/config/JwtFilter.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/config/JwtFilter.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/config/JwtUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/config/JwtUtils.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/config/SecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/config/SecurityConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/config/SwaggerConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/config/SwaggerConfig.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/controllers/ActivityController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/controllers/ActivityController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/controllers/AuthController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/controllers/AuthController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/controllers/EventController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/controllers/EventController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/controllers/SignupController.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/controllers/SignupController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/ActivityRequest$ActivityRequestBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/ActivityRequest$ActivityRequestBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/ActivityRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/ActivityRequest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/ActivityResponse$ActivityResponseBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/ActivityResponse$ActivityResponseBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/ActivityResponse.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/ActivityResponse.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/EventRequestDTO$EventRequestDTOBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/EventRequestDTO$EventRequestDTOBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/EventRequestDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/EventRequestDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/EventResponseDTO$EventResponseDTOBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/EventResponseDTO$EventResponseDTOBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/EventResponseDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/EventResponseDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/LoginDTORequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/LoginDTORequest.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/LoginDTOResponse.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/LoginDTOResponse.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/SignupDTO$SignupDTOBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/SignupDTO$SignupDTOBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/SignupDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/dto/SignupDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/Activity$ActivityBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/Activity$ActivityBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/Activity.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/Activity.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/Event$EventBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/Event$EventBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/Event.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/Event.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/Role.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/Role.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/SignupEntity$SignupEntityBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/SignupEntity$SignupEntityBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/SignupEntity.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/SignupEntity.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/StatutEvent.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/entities/StatutEvent.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/repositories/ActivityRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/repositories/ActivityRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/repositories/EventRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/repositories/EventRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/repositories/SignupRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/repositories/SignupRepository.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/ActivityService.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/ActivityService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/ActivityServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/ActivityServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/EventService.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/EventService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/EventServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/EventServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/SignupService.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/SignupService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/SignupServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/services/serviceImpl/SignupServiceImpl.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/utils/Constants.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/utils/Constants.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/utils/mapper/ActivityMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/utils/mapper/ActivityMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/utils/mapper/EventMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/utils/mapper/EventMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/utils/mapper/SignupMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/classes/tn/comping/spring/backendcomping/utils/mapper/SignupMapper.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backendComping/target/test-classes/tn/comping/spring/backendcomping/BackendCompingApplicationTests.class" beforeDir="false" afterPath="$PROJECT_DIR$/backendComping/target/test-classes/tn/comping/spring/backendcomping/BackendCompingApplicationTests.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontendComping/frontendCompingApp/src/app/signup/signup.component.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontendComping/frontendCompingApp/src/app/signup/signup.component.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontendComping/frontendCompingApp/src/app/signup/signup.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontendComping/frontendCompingApp/src/app/signup/signup.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontendComping/frontendCompingApp/src/app/signup/signup.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontendComping/frontendCompingApp/src/app/signup/signup.component.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,18 +17,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;Fatma-Barrani&quot;
-  }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/arwa123-dridi/Comping.git&quot;,
-    &quot;accountId&quot;: &quot;418a0d0d-eb49-4add-a6e4-dd0ca8ba12ba&quot;
-  }
-}</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/backendComping/src/main/java/tn/comping/spring/backendcomping/entities/Difficulte.java" root0="SKIP_INSPECTION" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 6
 }</component>
@@ -112,31 +28,60 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Projet_PI/backend",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Maven. [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven. [compile].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;Spring Boot.Camping.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.Comping.executor&quot;: &quot;Run&quot;,
+    &quot;Spring Boot.Unnamed.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;amal-melki&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/aamal/Desktop/PI_Projects/Comping&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mongo&quot;
+    ]
   }
-}]]></component>
+}</component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn compile" />
+      <command value="mvn clean" />
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="Comping" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+      <module name="backend" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="tn.comping.spring.backendcomping.BackendCompingApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.21565.193" />
-        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-IU-243.21565.193" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-IU-252.26830.84" />
       </set>
     </attachedChunks>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="5b3907f9-91f9-4d9e-b8ea-5dbe6a1a3e52" name="Changes" comment="" />
@@ -145,17 +90,45 @@
       <option name="presentableId" value="Default" />
       <updated>1772964759893</updated>
       <workItem from="1772964761521" duration="377000" />
-      <workItem from="1774287511908" duration="587000" />
-      <workItem from="1774288118807" duration="13000" />
-      <workItem from="1774289188831" duration="17000" />
-      <workItem from="1774301547996" duration="45000" />
+      <workItem from="1773228890687" duration="14372000" />
+      <workItem from="1773320597989" duration="8960000" />
+      <workItem from="1773329602527" duration="276000" />
+      <workItem from="1773329900359" duration="2849000" />
+      <workItem from="1773334539518" duration="5000" />
+      <workItem from="1773444173329" duration="2230000" />
+      <workItem from="1773490070618" duration="10000" />
+      <workItem from="1773490138175" duration="45000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
-  <component name="ai.zencoder.plugin.mcp">
-    <option name="internalToolsState" value="{&quot;file_search&quot;:true,&quot;fulltext_search&quot;:true}" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="amal-melki" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

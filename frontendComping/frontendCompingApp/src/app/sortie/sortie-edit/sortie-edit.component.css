@@ -1,0 +1,29 @@
+/* src/app/sortie/sortie-edit/sortie-edit.component.css */
+.container {
+  max-width: 900px;
+}
+
+.card {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.card-header {
+  border-bottom: none;
+}
+
+.btn-warning {
+  background-color: #f29027;
+  border-color: #f29027;
+  color: white;
+}
+
+.btn-warning:hover {
+  background-color: #e07d1a;
+  border-color: #e07d1a;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #f29027;
+  box-shadow: 0 0 0 0.2rem rgba(242, 144, 39, 0.25);
+}

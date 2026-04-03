@@ -1,0 +1,56 @@
+<!-- src/app/equipe/equipe-list/equipe-list.component.html -->
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>👥 Équipes de randonnée</h2>
+        <button class="btn btn-success" routerLink="/equipes/create">
+            + Créer une équipe
+        </button>
+    </div>
+
+    <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-success"></div>
+    </div>
+
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+    <div class="row g-4" *ngIf="!loading && equipes.length > 0">
+        <div class="col-md-6 col-lg-4" *ngFor="let e of equipes">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h5 class="card-title">{{ e.nom }}</h5>
+                        <span class="badge bg-secondary">{{ e.niveau || 'Tous niveaux' }}</span>
+                    </div>
+                    
+                    <p class="card-text text-muted small">{{ e.description || 'Aucune description' }}</p>
+                    
+                    <div class="mb-2">
+                        <div><i class="bi bi-people"></i> {{ e.nbMembresActuels }}/{{ e.nbMembresMax }} membres</div>
+                        <div><i class="bi bi-person-badge"></i> Organisateur: {{ e.organisateurNom }}</div>
+                    </div>
+                    
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-outline-primary btn-sm" (click)="voirDetail(e.id)">
+                            Voir détails
+                        </button>
+                        <button *ngIf="!isMembre(e) && !isOrganisateur(e)" 
+                                class="btn btn-success btn-sm" 
+                                (click)="rejoindre(e.id)">
+                            Rejoindre
+                        </button>
+                        <span *ngIf="isMembre(e)" class="badge bg-success align-self-center">
+                            Membre
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="!loading && equipes.length === 0" class="text-center py-5">
+        <p class="text-muted">Aucune équipe disponible</p>
+        <button class="btn btn-success" routerLink="/equipes/create">
+            Créer la première équipe
+        </button>
+    </div>
+</div>

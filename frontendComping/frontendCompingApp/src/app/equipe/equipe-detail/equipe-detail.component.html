@@ -1,0 +1,25 @@
+<div class="container py-4" *ngIf="equipe">
+    <div class="d-flex justify-content-between mb-3">
+        <h2>{{ equipe.nom }}</h2>
+        <div>
+            <button class="btn btn-outline-primary me-2" routerLink="/equipes/edit/{{ equipe.id }}">Modifier</button>
+            <button class="btn btn-secondary" routerLink="/equipes">Retour</button>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <p>{{ equipe.description }}</p>
+            <p>Membres: {{ equipe.nbMembresActuels }}/{{ equipe.nbMembresMax }}</p>
+            <p>Organisateur: {{ equipe.organisateurNom }}</p>
+            <button *ngIf="!isMembre()" class="btn btn-success" (click)="rejoindre()">Rejoindre</button>
+            <span *ngIf="isMembre()" class="badge bg-success">Membre</span>
+        </div>
+    </div>
+
+    <h4>Randonnées associées</h4>
+    <div *ngIf="sorties.length === 0">Pas encore de randonnées.</div>
+    <ul class="list-group" *ngIf="sorties.length > 0">
+        <li class="list-group-item" *ngFor="let sortie of sorties">{{ sortie.titre }}</li>
+    </ul>
+</div>

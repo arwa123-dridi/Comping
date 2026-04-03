@@ -1,0 +1,54 @@
+<!-- src/app/equipe/equipe-form/equipe-form.component.html -->
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4>{{ isEdit ? 'Modifier' : 'Créer' }} une équipe</h4>
+                </div>
+                <div class="card-body">
+                    <form (ngSubmit)="onSubmit()">
+                        <div class="mb-3">
+                            <label class="form-label">Nom *</label>
+                            <input type="text" class="form-control" [(ngModel)]="equipe.nom" 
+                                   name="nom" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" rows="2" [(ngModel)]="equipe.description" 
+                                      name="description"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Capacité max</label>
+                            <input type="number" class="form-control" [(ngModel)]="equipe.nbMembresMax" 
+                                   name="nbMembresMax" min="2" max="20">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Niveau requis</label>
+                            <select class="form-select" [(ngModel)]="equipe.niveau" name="niveau">
+                                <option>Tous niveaux</option>
+                                <option>Débutant</option>
+                                <option>Intermédiaire</option>
+                                <option>Avancé</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success" [disabled]="loading">
+                                {{ loading ? 'Enregistrement...' : 'Valider' }}
+                            </button>
+                            <button type="button" class="btn btn-secondary" routerLink="/equipes">
+                                Annuler
+                            </button>
+                        </div>
+                        
+                        <div *ngIf="error" class="alert alert-danger mt-3">{{ error }}</div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

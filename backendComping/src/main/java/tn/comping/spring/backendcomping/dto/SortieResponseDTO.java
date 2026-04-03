@@ -21,16 +21,22 @@ public class SortieResponseDTO {
     private Double prixParPersonne;
     private StatutSortie statut;
 
+    // Champs manquants
+    private String equipementRequis;
+    private Boolean assistanceMedicale;
+    private Double distanceKm;
+    private String lieuArrivee;
+
     private String organisateurId;
     private String organisateurNom;
+    private String organisateurPrenom;
     private String equipeId;
     private String equipeNom;
 
     private Integer nombreParticipants;
     private List<String> participantIds;
     private LocalDateTime dateCreation;
-    public void setOrganisateurPrenom(String firstName) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setOrganisateurPrenom'");
-    }
+
+    private String utilisateurPrenom;
+
 }
