@@ -1,0 +1,110 @@
+<div class="page">
+
+  <!-- SIDEBAR -->
+  <app-sidebar></app-sidebar>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+
+    <!-- TOP HEADER -->
+    <div class="page-header">
+      <div>
+        <h1>Gestion des Produits</h1>
+        <p>Admin Dashboard / Catalogue produits</p>
+      </div>
+
+      <button class="add-btn" (click)="addProduct()">
+        + Ajouter un produit
+      </button>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="table-card">
+
+      <div class="table-header">
+        <h2>Liste des produits</h2>
+        <input class="search" placeholder="Rechercher produit..." />
+      </div>
+
+      <table class="product-table">
+
+        <!-- TABLE HEAD -->
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Description</th>
+            <th>Prix</th>
+            <th>Catégorie</th>
+            <th>Type</th>
+            <th>Statut</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+
+        <!-- TABLE BODY -->
+        <tbody>
+
+          <tr *ngFor="let p of products">
+
+            <td class="id">#{{ p.id }}</td>
+
+            <td class="name">
+              <div class="product-info">
+                <div class="product-avatar">
+                  {{ p.nomProduit.charAt(0) }}
+                </div>
+                <span>{{ p.nomProduit }}</span>
+              </div>
+            </td>
+
+            <td class="desc">{{ p.descriptionProduit }}</td>
+
+            <td class="price">
+              {{ p.prixProduit | currency:'TND ':'symbol' }}
+            </td>
+
+            <td>
+              <span class="category">Cat {{ p.categorieProduit }}</span>
+            </td>
+
+            <td>
+              <span class="type-badge">
+                {{ p.typeProduit }}
+              </span>
+            </td>
+
+            <td>
+              <span 
+                class="status"
+                [ngClass]="{
+                  'available': p.statut === 'Disponible',
+                  'unavailable': p.statut !== 'Disponible'
+                }">
+                {{ p.statut }}
+              </span>
+            </td>
+
+            <td class="actions">
+
+              <button class="icon-btn edit" (click)="editProduct(p.id)">
+                ✏️ Modifier
+              </button>
+
+              <button class="icon-btn delete" (click)="deleteProduct(p.id)">
+                🗑 Supprimer
+              </button>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>

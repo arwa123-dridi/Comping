@@ -6,6 +6,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { SigninComponent } from './signin/signin.component';
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { DashboardComponent } from './admin/dashboard/dashboard.component';
+import { ProductListComponent } from './product-list/product-list.component';
 
 export const routes: Routes = [
   { path: 'Campino', component: HomeComponent },
@@ -20,4 +21,5 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent }
     ]
   },
+  { path: 'productTable', component: ProductListComponent},
 ];
