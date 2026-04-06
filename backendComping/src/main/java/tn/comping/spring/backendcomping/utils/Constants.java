@@ -31,7 +31,9 @@ public class Constants {
     public static final String UPDATE_DEMANDE_TRANSPORT = "/{id}";
     public static final String DELETE_DEMANDE_TRANSPORT = "/{id}";
 
-    //api creneau livraison
+    //api Users
+    public static final String GET_ALL_USERS = "";
+    public static final String DELETE_USER = "/{userId}";
     // api creneaux livraison
     public static final String BASE_URL_CRENEAU_LIVRAISON = "/api/creneaux-livraison";
 
