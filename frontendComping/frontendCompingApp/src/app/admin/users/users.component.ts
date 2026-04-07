@@ -96,4 +96,18 @@ export class UsersComponent implements OnInit {
   cancelDelete(): void {
     this.userToDelete = null;
   }
+
+
+  toggleStatus(user: User): void {
+  const updatedStatus = !user.statut;
+
+  this.userService.updateUserStatus(user.id, updatedStatus).subscribe({
+    next: () => {
+      user.statut = updatedStatus;
+    },
+    error: (err) => {
+      console.error('Erreur lors du changement de statut', err);
+    }
+  });
+}
 }

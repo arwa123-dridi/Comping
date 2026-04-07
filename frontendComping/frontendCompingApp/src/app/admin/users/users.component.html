@@ -6,12 +6,6 @@
       <h2>Liste des utilisateurs</h2>
       <p class="subtitle">{{ filteredUsers.length }} utilisateur(s) trouvé(s)</p>
     </div>
-    <button class="btn-add">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-      Nouvel utilisateur
-    </button>
   </div>
 
   <!-- FILTRES -->
@@ -84,6 +78,7 @@
           <th>Email</th>
           <th>Téléphone</th>
           <th>Rôle</th>
+          <th>Statut</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -102,13 +97,16 @@
 </span>
           </td>
           <td>
+  <span class="status-pill" [class.active]="user.statut" [class.inactive]="!user.statut">
+    {{ user.statut ? 'Actif' : 'Inactif' }}
+  </span>
+</td>
+          <td>
             <div class="actions">
-              <button class="btn-edit" title="Modifier">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
-              </button>
+             <label class="switch">
+               <input type="checkbox" [checked]="user.statut" (change)="toggleStatus(user)"/>
+              <span class="slider"></span>
+             </label>  
               <button class="btn-delete" (click)="deleteUser(user)" title="Supprimer">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="3 6 5 6 21 6"/>
