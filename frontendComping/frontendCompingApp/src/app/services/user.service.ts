@@ -29,4 +29,19 @@ export class UserService {
     },
     responseType: 'text' as 'json'
   });
- }}
+ }
+updateUserStatus(id: string, statut: boolean) {
+  const token = localStorage.getItem('token');
+
+  return this.http.patch(
+    `${this.apiUrl}/${id}/status`,
+    { statut },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+}
+
+}
