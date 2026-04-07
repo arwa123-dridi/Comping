@@ -52,6 +52,8 @@ public class SignupServiceImpl implements SignupService {
 
             return new LoginDTOResponse(token);
     }
+
+
 }
 
 
