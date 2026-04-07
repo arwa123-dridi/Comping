@@ -5,8 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import tn.comping.spring.backendcomping.dto.ForgotPasswordRequestDTO;
 import tn.comping.spring.backendcomping.dto.LoginDTORequest;
 import tn.comping.spring.backendcomping.dto.LoginDTOResponse;
+import tn.comping.spring.backendcomping.dto.ResetPasswordRequestDTO;
+import tn.comping.spring.backendcomping.services.PasswordResetService;
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
 import tn.comping.spring.backendcomping.utils.Constants;
 
@@ -23,6 +31,7 @@ import java.util.Map;
 public class AuthController {
     private  final SignupService signupService;
     private final JwtUtils jwtUtils;
+    private final PasswordResetService passwordResetService;
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginDTORequest dto) {
         try {
@@ -33,7 +42,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/logout")
+@PostMapping("/logout")
 public ResponseEntity<?> logout(HttpServletRequest request) {
     String authHeader = request.getHeader("Authorization");
 
@@ -49,6 +58,26 @@ public ResponseEntity<?> logout(HttpServletRequest request) {
     }
 
     return ResponseEntity.badRequest().body(Map.of("error", "Token manquant"));
+}
+
+@PostMapping("/forgot-password")
+public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequestDTO dto) {
+    try {
+        String result = passwordResetService.requestPasswordReset(dto);
+        return ResponseEntity.ok(Map.of("message", "Email de réinitialisation envoyé", "debug", result));
+    } catch (RuntimeException e) {
+        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+    }
+}
+
+@PostMapping("/reset-password")
+public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequestDTO dto) {
+    try {
+        String result = passwordResetService.resetPassword(dto);
+        return ResponseEntity.ok(Map.of("message", result));
+    } catch (RuntimeException e) {
+        return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+    }
 }
 
 }

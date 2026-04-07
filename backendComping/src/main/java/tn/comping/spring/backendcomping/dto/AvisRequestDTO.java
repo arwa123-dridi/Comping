@@ -10,7 +10,8 @@ import tn.comping.spring.backendcomping.entities.TypeCible;
 public class AvisRequestDTO {
 
     private int note;
-    private String commentaire;
+    private String titre;
+    private String contenu;
     private String cibleId;
     private TypeCible typeCible;
 }

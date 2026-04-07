@@ -1,17 +1,30 @@
-# TODO.md - Plan pour corriger le code et rendre l'app exécutable
+# TODO: Mise à jour modules Avis/Chat/Social
 
-## Étapes du plan (cocher au fur et à mesure):
+## Plan approuvé - Étapes à suivre:
 
-- [ ] 1. Créer/mettre à jour ce TODO.md ✅ **(EN COURS)**
-- [x] 2. Fix SignupRepository.java - Ajouter méthode Spring Data findByEmail(String email) ✅
-- [x] 3. Fix SignupServiceImpl.java - Injecter deps (@RequiredArgsConstructor SignupRepository, PasswordEncoder, JwtUtils), corriger registerUser/login logic, supprimer static refs/logs console ✅
-- [x] 4. Fix GlobalExceptionHandler.java - Corriger signatures méthodes @ExceptionHandler (retour type sur 1 ligne), supprimer duplicatas ✅
-- [x] 5. Fix SignupController.java - Remplacer @Autowired par constructor injection ✅
-- [x] 6. Fix AvisServiceImpl.java - Ajouter imports ResponseStatusException/HttpStatus, ajouter méthode private mapToResponseDTO(Avis), corriger accents/apostrophes français ✅
-- [x] 7. Vérifier repositories (AvisRepository, ReponseAvisRepository) pour méthodes custom ✅ (compile success)
-- [x] 8. mvn clean compile - Vérifier compilation ✅ BUILD SUCCESS
-- [ ] 9. mvn spring-boot:run - Lancer app, tester Swagger http://localhost:8087/swagger-ui.html
-- [ ] 10. Tests fonctionnels (signup, avis, etc.) avec MongoDB local
+### Phase 1: Mises à jour mineures Avis (✅ Complet)
+- [x] 1. Ajouter champ `titre` à AvisRequestDTO.java
+- [x] 2. Mapper titre+contenu → commentaire dans AvisServiceImpl.java (via AvisMapper)
+- [ ] 3. (Optionnel) Ajouter `titre` field à Avis entity si persistance needed
 
-**Prochaine étape: 2. SignupRepository.java**
+### Phase 2: Module Chat (✅ Complet)
+- [ ] 4. Créer entities: Conversation.java, Message.java
+- [ ] 5. Créer DTOs: ConversationRequest/ResponseDTO.java, MessageRequest/ResponseDTO.java
+- [ ] 6. Créer repositories: ConversationRepository.java, MessageRepository.java
+- [x] 7. Créer ChatService interface + impl (+ ChatMapper)
+- [x] 8. Créer ChatController.java (/api/chat/...)
+
+### Phase 3: Module Réseau Social (À créer)
+- [ ] 9. Créer entities: Post.java, Interaction.java, Abonnement.java
+- [ ] 10. Créer DTOs pour Post/Interaction/Abonnement
+- [ ] 11. Créer repositories
+- [ ] 12. Créer SocialService + impl
+- [ ] 13. Créer SocialController.java (/api/social/...)
+
+### Phase 4: Tests & Validation
+- [ ] 14. Lancer serveur: cd backendComping && mvn spring-boot:run
+- [ ] 15. Tester endpoints via Swagger /swagger-ui.html
+- [ ] 16. Vérifier interconnexions (avisId in Post/Conversation)
+
+Progression: Mise à jour après chaque étape.
 
