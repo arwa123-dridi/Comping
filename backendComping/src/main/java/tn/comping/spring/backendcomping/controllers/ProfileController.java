@@ -60,4 +60,15 @@ public class ProfileController {
         profileService.deleteUser(userId);
         return ResponseEntity.ok("Utilisateur supprimé");
     }
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<SignupEntity> updateStatus(
+            @PathVariable String id,
+            @RequestBody Map<String, Boolean> body) {
+
+        boolean statut = body.get("statut");
+
+        SignupEntity updatedUser = profileService.updateStatus(id, statut);
+
+        return ResponseEntity.ok(updatedUser);
+    }
 }

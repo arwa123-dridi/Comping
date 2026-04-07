@@ -124,4 +124,14 @@ public class ProfileServiceImpl implements IProfileService { // ✅ IMPLEMENTS l
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé : " + userId));
         signupRepository.delete(user);
     }
+
+    @Override
+    public SignupEntity updateStatus(String id, boolean statut) {
+        SignupEntity user = signupRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setStatut(statut);
+
+        return signupRepository.save(user);
+    }
 }

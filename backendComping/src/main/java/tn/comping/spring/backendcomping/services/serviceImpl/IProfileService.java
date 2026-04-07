@@ -21,4 +21,5 @@ public interface IProfileService {
     List<SignupEntity> getAllUsers();
 
     void deleteUser(String userId);
+    SignupEntity updateStatus(String id, boolean statut);
 }

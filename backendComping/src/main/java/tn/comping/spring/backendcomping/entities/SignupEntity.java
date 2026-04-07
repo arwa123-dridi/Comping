@@ -25,7 +25,8 @@ public class SignupEntity {
     private String address;
     private Role role;
 
-    private String photo; // URL de la photo
+    private String photo;// URL de la photo
+    private boolean statut = true;
 
   public String getLastName() {
         return LastName;
