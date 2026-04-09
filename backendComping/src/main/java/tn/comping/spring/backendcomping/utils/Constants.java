@@ -7,7 +7,7 @@ public class Constants {
 //api event
     public static final String BASE_URL_EVENT = "/api/events";
 
-    public static final String CREATE_EVENT = "";
+    public static final String CREATE_EVENT = "/CREATE/EVENT";
     public static final String GET_ALL_EVENTS = "";
     public static final String GET_EVENT_BY_ID = "/{id}";
     public static final String UPDATE_EVENT = "/{id}";
