@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { SigninService, LoginDTORequest, LoginDTOResponse } from '../services/signin.service';
 
 @Component({
@@ -21,7 +21,8 @@ export class SigninComponent {
   errorMsg     = '';
 
 
-  constructor(private signinService: SigninService) {}
+  constructor(private signinService: SigninService
+  ) {}
 
   togglePassword(): void {
     this.showPassword = !this.showPassword;
@@ -43,6 +44,7 @@ export class SigninComponent {
         this.isLoading = false;
         console.log('Login réussi', res);
         this.signinService.saveToken(res.token);
+        console.log("TOKEN IN LOCALSTORAGE:", localStorage.getItem('authToken'));
       },
       error: (err) => {
         this.isLoading = false;

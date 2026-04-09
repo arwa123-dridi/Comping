@@ -1,0 +1,45 @@
+<div class="page">
+  <div class="card">
+
+    <h2 class="title">⛺ Créer un événement camping</h2>
+
+    <form (ngSubmit)="onSubmit()" class="form">
+
+      <div class="form-group">
+        <label>Titre</label>
+        <input type="text" [(ngModel)]="event.titre" name="titre" placeholder="Ex: Nuit sous les étoiles" required />
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="event.description" name="description" placeholder="Décrire l'activité (randonnée, feu de camp, etc.)"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prix (TND)</label>
+          <input type="number" [(ngModel)]="event.prix" name="prix" placeholder="Ex: 50" />
+        </div>
+
+        <div class="form-group">
+          <label>Capacité</label>
+          <input type="number" [(ngModel)]="event.capacite" name="capacite" placeholder="Ex: 20 personnes" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Statut</label>
+        <select [(ngModel)]="event.statut" name="statut">
+          <option value="VALIDE">Validé</option>
+          <option value="TERMINE">Terminé</option>
+          <option value="ANNULE">annulé</option>
+        </select>
+      </div>
+
+    
+
+      <button type="submit" class="btn">Créer l'événement</button>
+
+    </form>
+  </div>
+</div>

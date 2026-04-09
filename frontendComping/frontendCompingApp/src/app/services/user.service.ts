@@ -12,7 +12,7 @@ export class UserService {
    constructor(private http: HttpClient) {}
 
   getAllUsers(): Observable<User[]> {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
 
   return this.http.get<User[]>(this.apiUrl, {
     headers: {
@@ -21,7 +21,7 @@ export class UserService {
   });
   }
  deleteUser(id: string): Observable<any> {
-   const token = localStorage.getItem('token');
+   const token = localStorage.getItem('authToken');
 
   return this.http.delete(`${this.apiUrl}/${id}`, {
     headers: {
@@ -31,7 +31,7 @@ export class UserService {
   });
  }
 updateUserStatus(id: string, statut: boolean) {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
 
   return this.http.patch(
     `${this.apiUrl}/${id}/status`,
