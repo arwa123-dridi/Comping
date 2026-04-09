@@ -46,8 +46,7 @@ public class SecurityConfig {
                                 "/api/demandes-transport/**",
                                 "/api/creneaux-livraison/**",
                                 "/api/incidents/**",
-                                "/api/conventions-partenaires/**",
-                                "/api/users/**"
+                                "/api/conventions-partenaires/**"
                         ).permitAll()
 
                         // Rôles spécifiques
@@ -60,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/events/**").authenticated()
                         // Tout le reste nécessite authentification
                         .anyRequest().authenticated()
                 )
