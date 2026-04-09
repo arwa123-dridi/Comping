@@ -7,22 +7,21 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule], 
+  imports: [ReactiveFormsModule, CommonModule, HttpClientModule], // ✅ Bug 3 fix
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
-  
+
   profileForm: FormGroup;
   passwordForm: FormGroup;
-  
+
   successMessage: string = '';
   errorMessage: string = '';
-  
+
   userId: string = '';
   userEmail: string = '';
   userPhoto: string = 'assets/default-avatar.png';
-  
   isLoading: boolean = false;
 
   constructor(
@@ -30,18 +29,17 @@ export class ProfileComponent implements OnInit {
     private http: HttpClient,
     private router: Router
   ) {
-    // Formulaire d'informations personnelles
     this.profileForm = this.fb.group({
-      name: ['', [Validators.minLength(3)]],
-      email: ['', [Validators.email]],
-      telephone: [''],
-      address: ['']
+      firstName: ['', [Validators.minLength(2), Validators.maxLength(50)]],
+      lastName:  ['', [Validators.minLength(2), Validators.maxLength(50)]],
+      email:     ['', [Validators.email]],
+      telephone: ['', [Validators.minLength(8), Validators.maxLength(15)]],
+      address:   ['']
     });
 
-    // Formulaire de changement de mot de passe
     this.passwordForm = this.fb.group({
-      oldPassword: ['', [Validators.required, Validators.minLength(6)]],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
+      oldPassword:     ['', [Validators.required, Validators.minLength(6)]],
+      newPassword:     ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(6)]]
     }, { validators: this.passwordMatchValidator });
   }
@@ -51,12 +49,11 @@ export class ProfileComponent implements OnInit {
   }
 
   passwordMatchValidator(g: FormGroup) {
-    const newPassword = g.get('newPassword')?.value;
-    const confirmPassword = g.get('confirmPassword')?.value;
-    return newPassword === confirmPassword ? null : { mismatch: true };
+    const newPwd = g.get('newPassword')?.value;
+    const confirm = g.get('confirmPassword')?.value;
+    return newPwd === confirm ? null : { mismatch: true };
   }
 
-  //  Méthode utilitaire pour les headers avec token
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('authToken');
     return new HttpHeaders({
@@ -65,56 +62,51 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  // ✅ CORRECTION 1: Utiliser 'authToken' au lieu de 'token'
   loadUserFromToken(): void {
-    const token = localStorage.getItem('authToken');  // ← CHANGÉ: token → authToken
+    const token = localStorage.getItem('authToken');
     if (!token) {
-      this.router.navigate(['/signup']);  // ← CHANGÉ: /login → /signup
+      this.router.navigate(['/login']); // ✅ Bug 5 fix
       return;
     }
 
     try {
-      // Décoder le token JWT
       const payload = JSON.parse(atob(token.split('.')[1]));
-      // ✅ Adapte selon ton backend (peut être payload.sub, payload.email, etc.)
       this.userEmail = payload.sub || payload.email;
-      
-      // Récupérer l'utilisateur par email AVEC headers
-      this.http.get<any>(`http://localhost:8087/api/users/by-email/${this.userEmail}`, {
-        headers: this.getHeaders()
-      }).subscribe({
+
+      this.http.get<any>(
+        `http://localhost:8087/api/users/by-email/${this.userEmail}`,
+        { headers: this.getHeaders() }
+      ).subscribe({
         next: (user) => {
           this.userId = user.id;
           this.loadUserProfile();
         },
         error: (err) => {
           console.error('Erreur récupération utilisateur', err);
-          this.router.navigate(['/signup']);  // ← CHANGÉ: /login → /signup
+          this.router.navigate(['/login']); // ✅ Bug 5 fix
         }
       });
     } catch (e) {
       console.error('Token invalide', e);
-      this.router.navigate(['/signup']);  // ← CHANGÉ: /login → /signup
+      this.router.navigate(['/login']); // ✅ Bug 5 fix
     }
   }
 
-  // ✅ CORRECTION 2: Ajouter headers dans loadUserProfile
   loadUserProfile(): void {
     this.isLoading = true;
-    
-    this.http.get<any>(`http://localhost:8087/api/users/${this.userId}`, {
-      headers: this.getHeaders()
-    }).subscribe({
+
+    this.http.get<any>(
+      `http://localhost:8087/api/users/${this.userId}`,
+      { headers: this.getHeaders() }
+    ).subscribe({
       next: (user) => {
-        console.log('Utilisateur reçu:', user);
-        
         this.profileForm.patchValue({
-          name: user.name,
-          email: user.email,
+          firstName: user.firstName || user.FirstName || '',  
+          lastName:  user.lastName  || user.LastName  || '',
+          email:     user.email,
           telephone: user.telephone,
-          address: user.address
+          address:   user.address
         });
-        
         this.userPhoto = user.photo || 'assets/default-avatar.png';
         this.isLoading = false;
       },
@@ -126,9 +118,9 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  // ✅ CORRECTION 3: Ajouter headers dans onSubmitProfile
   onSubmitProfile(): void {
     if (this.profileForm.invalid) {
+      this.profileForm.markAllAsTouched();
       this.errorMessage = 'Veuillez corriger les erreurs';
       return;
     }
@@ -139,52 +131,39 @@ export class ProfileComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.http.put(`http://localhost:8087/api/users/${this.userId}/profile`, this.profileForm.value, {
-      headers: this.getHeaders()
-    }).subscribe({
+
+    // ✅ Bug 1 fix — envoie firstName/lastName au lieu de name
+    const body = {
+      firstName: this.profileForm.get('firstName')?.value,
+      lastName:  this.profileForm.get('lastName')?.value,
+      email:     this.profileForm.get('email')?.value,
+      telephone: this.profileForm.get('telephone')?.value,
+      address:   this.profileForm.get('address')?.value
+    };
+
+    this.http.put(
+      `http://localhost:8087/api/users/${this.userId}/profile`,
+      body,
+      { headers: this.getHeaders() }
+    ).subscribe({
       next: (user: any) => {
         this.successMessage = 'Profil mis à jour avec succès!';
         this.errorMessage = '';
         this.isLoading = false;
         if (user.email) this.userEmail = user.email;
-        
-        // ✅ Mettre à jour localStorage si le nom a changé
-        if (user.name) {
-          localStorage.setItem('userNom', user.name);
-        }
-        if (user.email) {
-          localStorage.setItem('userEmail', user.email);
-        }
       },
       error: (err: any) => {
-        console.error('Erreur mise à jour profil:', err);
-        
-        let errorMsg = 'Erreur de mise à jour du profil';
-        if (err.status === 0) {
-          errorMsg = 'Serveur indisponible. Vérifiez que le backend est démarré.';
-        } else if (err.status === 401) {
-          errorMsg = 'Session expirée. Veuillez vous reconnecter.';
-          this.router.navigate(['/signup']);
-        } else if (err.status) {
-          errorMsg += ` (Status: ${err.status})`;
-        }
-        if (err.error && typeof err.error === 'string') {
-          errorMsg = err.error;
-        } else if (err.error && err.error.message) {
-          errorMsg = err.error.message;
-        }
-        
-        this.errorMessage = errorMsg;
+        this.errorMessage = err.error?.message || `Erreur (${err.status})`;
         this.successMessage = '';
         this.isLoading = false;
       }
     });
   }
 
-  // ✅ CORRECTION 4: Ajouter headers dans onSubmitPassword
   onSubmitPassword(): void {
     if (this.passwordForm.invalid) {
-      this.errorMessage = 'Veuillez remplir tous les champs';
+      this.passwordForm.markAllAsTouched();
+      this.errorMessage = 'Veuillez remplir tous les champs correctement';
       return;
     }
 
@@ -194,33 +173,20 @@ export class ProfileComponent implements OnInit {
     }
 
     this.isLoading = true;
-    this.http.put(`http://localhost:8087/api/users/${this.userId}/password`, this.passwordForm.value, {
-      headers: this.getHeaders()
-    }).subscribe({
-      next: (response: any) => {
-        this.successMessage = typeof response === 'string' ? response : 'Mot de passe modifié';
+
+    this.http.put(
+      `http://localhost:8087/api/users/${this.userId}/password`,
+      this.passwordForm.value,
+      { headers: this.getHeaders(), responseType: 'text' }  // ✅ Bug 2 fix
+    ).subscribe({
+      next: (response: string) => {
+        this.successMessage = response || 'Mot de passe modifié avec succès';
         this.passwordForm.reset();
         this.errorMessage = '';
         this.isLoading = false;
       },
       error: (err: any) => {
-        console.error('Erreur changement mot de passe:', err);
-        
-        let errorMsg = 'Erreur de changement de mot de passe';
-        if (err.status === 0) {
-          errorMsg = 'Serveur indisponible. Vérifiez que le backend est démarré.';
-        } else if (err.status === 401) {
-          errorMsg = 'Ancien mot de passe incorrect ou session expirée.';
-        } else if (err.status) {
-          errorMsg += ` (Status: ${err.status})`;
-        }
-        if (err.error && typeof err.error === 'string') {
-          errorMsg = err.error;
-        } else if (err.error && err.error.message) {
-          errorMsg = err.error.message;
-        }
-        
-        this.errorMessage = errorMsg;
+        this.errorMessage = err.error || `Erreur (${err.status})`;
         this.successMessage = '';
         this.isLoading = false;
       }
@@ -232,7 +198,7 @@ export class ProfileComponent implements OnInit {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      this.errorMessage = 'Sélectionnez une image';
+      this.errorMessage = 'Sélectionnez une image valide';
       return;
     }
 
@@ -243,72 +209,44 @@ export class ProfileComponent implements OnInit {
 
     const reader = new FileReader();
     reader.onload = () => {
-      const base64 = reader.result as string;
-      this.updatePhoto(base64);
+      this.updatePhoto(reader.result as string);
     };
     reader.readAsDataURL(file);
   }
 
-  // ✅ CORRECTION 5: Ajouter headers dans updatePhoto
   updatePhoto(photoBase64: string): void {
     if (!this.userId) {
       this.errorMessage = 'Utilisateur non identifié. Veuillez vous reconnecter.';
       return;
     }
-    
+
     this.isLoading = true;
-    
-    const body = { 
-      photo: photoBase64 
-    };
-    
-    this.http.put(`http://localhost:8087/api/users/${this.userId}/photo`, body, {
-      headers: this.getHeaders()
-    }).subscribe({
-      next: (response: any) => {
-        this.successMessage = 'Photo mise à jour avec succès';
+
+    this.http.put(
+      `http://localhost:8087/api/users/${this.userId}/photo`,
+      { photo: photoBase64 },
+      { headers: this.getHeaders(), responseType: 'text' }  // ✅ Bug 2 fix
+    ).subscribe({
+      next: (response: string) => {
+        this.successMessage = response || 'Photo mise à jour avec succès';
         this.userPhoto = photoBase64;
         this.errorMessage = '';
         this.isLoading = false;
       },
       error: (err: any) => {
-        console.error('ERREUR COMPLÈTE:', err);
-        console.error('STATUS:', err.status);
-        console.error('MESSAGE:', err.message);
-        console.error('ERROR BODY:', err.error);
-        
-        let errorMsg = 'Erreur lors de la mise à jour de la photo';
-        if (err.status === 0) {
-          errorMsg = 'Serveur indisponible. Vérifiez que le backend est démarré sur le port 8087.';
-        } else if (err.status === 401) {
-          errorMsg = 'Session expirée. Veuillez vous reconnecter.';
-          this.router.navigate(['/signup']);
-        } else if (err.status) {
-          errorMsg += ` (Status: ${err.status})`;
-        }
-        if (err.error && typeof err.error === 'string') {
-          errorMsg = err.error;
-        } else if (err.error && err.error.message) {
-          errorMsg = err.error.message;
-        } else if (err.message) {
-          errorMsg = err.message;
-        }
-        
-        this.errorMessage = errorMsg;
+        this.errorMessage = err.error || `Erreur (${err.status})`;
         this.successMessage = '';
         this.isLoading = false;
       }
     });
   }
 
-  // ✅ CORRECTION 6: Nettoyer TOUTES les clés localStorage
   logout(): void {
-    // Supprimer toutes les clés utilisées par l'auth
     localStorage.removeItem('authToken');
     localStorage.removeItem('userId');
     localStorage.removeItem('userNom');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userRole');
-    this.router.navigate(['/signup']);  // ← CHANGÉ: /login → /signup
+    this.router.navigate(['/login']); // ✅ Bug 5 fix
   }
 }

@@ -93,11 +93,6 @@ public class EquipeServiceImpl implements IEquipeService {
     }
 
     @Override
-    public EquipeResponseDTO ajouterMembre(String equipeId, String utilisateurId, String utilisateurNom) {
-        return null;
-    }
-
-    @Override
     public EquipeResponseDTO ajouterMembre(String equipeId, String utilisateurId) {
 
         Equipe equipe = equipeRepository.findById(equipeId)
@@ -175,7 +170,6 @@ public class EquipeServiceImpl implements IEquipeService {
 
         if (equipe.getOrganisateur() != null) {
             dto.setOrganisateurId(equipe.getOrganisateur().getId());
-            dto.setOrganisateurPrenom(equipe.getOrganisateur().getFirstName());
             dto.setOrganisateurNom(equipe.getOrganisateur().getLastName());
         }
 

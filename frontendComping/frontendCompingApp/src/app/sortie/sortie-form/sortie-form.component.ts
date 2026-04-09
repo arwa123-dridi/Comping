@@ -1,123 +1,160 @@
-// src/app/sortie/sortie-form/sortie-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { SortieService } from '../../services/sortie.service';
-import { SortieRequest } from '../../models/sortie.model';
+import { EquipeService } from '../../services/equipe.service';
+import { SortieRequest, SortieResponse } from '../../models/sortie.model';
+import { EquipeResponse } from '../../models/equipe.model';
 
 @Component({
-    selector: 'app-sortie-form',
-    standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule],
-    templateUrl: './sortie-form.component.html',
-    styleUrls: ['./sortie-form.component.css']
+  selector: 'app-sortie-form',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  templateUrl: './sortie-form.component.html',
+  styleUrls: ['./sortie-form.component.css']
 })
 export class SortieFormComponent implements OnInit {
-    sortie: SortieRequest = {
-        titre: '',
-        description: '',
-        dateDebut: new Date(),
-        dateFin: undefined,
-        lieuDepart: '',
-        lieuArrivee: '',
-        region: '',
-        difficulte: 'MOYEN',
-        capaciteMax: 10,
-        prixParPersonne: 0,
-        equipementRequis: '',
-        assistanceMedicale: false,
-        organisateurId: localStorage.getItem('userId') || '',
-        organisateurNom: localStorage.getItem('userNom') || 'Organisateur',
-        equipeId: '',
-        distanceKm: 0
-    };
-    
-    isEdit = false;
-    sortieId: string | null = null;
-    loading = false;
-    error: string | null = null;
-    difficulteOptions = ['FACILE', 'MOYEN', 'DIFFICILE'];
+  sortieForm: FormGroup;
+  isEdit = false;
+  sortieId: string | null = null;
+  isLoading = false;
+  error: string | null = null;
 
-    constructor(
-        private sortieService: SortieService,
-        private router: Router,
-        private route: ActivatedRoute
-    ) {}
+  equipes: EquipeResponse[] = [];
+  equipesLoading = false;
 
-    ngOnInit(): void {
-        this.sortieId = this.route.snapshot.paramMap.get('id');
-        if (this.sortieId) {
-            this.isEdit = true;
-            this.loadSortie();
-        }
+  constructor(
+    private fb: FormBuilder,
+    private sortieService: SortieService,
+    private equipeService: EquipeService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
+    this.sortieForm = this.fb.group({
+      titre:             ['', [Validators.required, Validators.minLength(3)]],
+      description:       ['', [Validators.required, Validators.minLength(10)]],
+      dateDebut:         ['', Validators.required],
+      dateFin:           [''],
+      lieuDepart:        ['', Validators.required],
+      lieuArrivee:       [''],
+      region:            [''],
+      difficulte:        ['MOYEN', Validators.required],
+      capaciteMax:       [10,  [Validators.required, Validators.min(1), Validators.max(50)]],
+      prixParPersonne:   [0,   Validators.min(0)],
+      equipementRequis:  [''],
+      assistanceMedicale:[false],
+      equipeId:          ['', Validators.required],
+      distanceKm:        [0,   Validators.min(0)],
+      organisateurId:    [localStorage.getItem('userId') || ''],
+      organisateurNom:   [localStorage.getItem('userNom') || 'Organisateur']
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadEquipes();
+    this.sortieId = this.route.snapshot.paramMap.get('id');
+    if (this.sortieId) {
+      this.isEdit = true;
+      this.loadSortie();
     }
+  }
 
-    loadSortie(): void {
-        this.loading = true;
-        this.sortieService.getSortieById(this.sortieId!).subscribe({
-            next: (data) => {
-                this.sortie = {
-                    titre: data.titre,
-                    description: data.description,
-                    dateDebut: new Date(data.dateDebut),
-                    dateFin: data.dateFin ? new Date(data.dateFin) : undefined,
-                    lieuDepart: data.lieuDepart,
-                    lieuArrivee: data.lieuArrivee || '',
-                    region: data.region || '',
-                    difficulte: data.difficulte,
-                    capaciteMax: data.capaciteMax,
-                    prixParPersonne: data.prixParPersonne,
-                    equipementRequis: data.equipementRequis || '',
-                    assistanceMedicale: data.assistanceMedicale || false,
-                    organisateurId: data.organisateurId,
-                    organisateurNom: data.organisateurNom,
-                    equipeId: data.equipeId || '',
-                    distanceKm: data.distanceKm || 0
-                };
-                this.loading = false;
-            },
-            error: (err) => {
-                this.error = 'Erreur chargement';
-                this.loading = false;
-            }
+  get f() { return this.sortieForm.controls; }
+
+  // ── Sélection équipe (depuis la grille visuelle) ──────────
+  selectEquipe(equipeId: string): void {
+    this.sortieForm.patchValue({ equipeId });
+    this.sortieForm.get('equipeId')?.markAsTouched();
+  }
+
+  // ── Chargement des équipes ────────────────────────────────
+  loadEquipes(): void {
+    this.equipesLoading = true;
+    this.equipeService.getAllEquipes().subscribe({
+      next: (data) => { this.equipes = data || []; this.equipesLoading = false; },
+      error: () => { this.equipesLoading = false; }
+    });
+  }
+
+  // ── Chargement sortie en mode édition ────────────────────
+  loadSortie(): void {
+    this.isLoading = true;
+    this.sortieService.getSortieById(this.sortieId!).subscribe({
+      next: (data: SortieResponse) => {
+        const fmt = (d: any): string => {
+          if (!d) return '';
+          return new Date(d).toISOString().slice(0, 16);
+        };
+        this.sortieForm.patchValue({
+          titre:             data.titre,
+          description:       data.description,
+          dateDebut:         fmt(data.dateDebut),
+          dateFin:           fmt(data.dateFin),
+          lieuDepart:        data.lieuDepart,
+          lieuArrivee:       data.lieuArrivee || '',
+          region:            data.region || '',
+          difficulte:        data.difficulte,
+          capaciteMax:       data.capaciteMax,
+          prixParPersonne:   data.prixParPersonne || 0,
+          equipementRequis:  data.equipementRequis || '',
+          assistanceMedicale:data.assistanceMedicale || false,
+          equipeId:          data.equipeId || '',
+          distanceKm:        data.distanceKm || 0,
+          organisateurId:    data.organisateurId,
+          organisateurNom:   data.organisateurNom
         });
+        this.isLoading = false;
+      },
+      error: () => { this.error = 'Impossible de charger la randonnée.'; this.isLoading = false; }
+    });
+  }
+
+  // ── Soumission ────────────────────────────────────────────
+  onSubmit(): void {
+    if (this.sortieForm.invalid) {
+      this.sortieForm.markAllAsTouched();
+      this.error = 'Veuillez corriger les erreurs avant de continuer.';
+      return;
     }
 
-    onSubmit(): void {
-        if (!this.isValid()) return;
-        
-        this.loading = true;
-        
-        if (this.isEdit && this.sortieId) {
-            this.sortieService.updateSortie(this.sortieId, this.sortie).subscribe({
-                next: () => {
-                    this.router.navigate(['/sorties', this.sortieId]);
-                },
-                error: (err) => {
-                    this.error = 'Erreur mise à jour';
-                    this.loading = false;
-                }
-            });
-        } else {
-            this.sortieService.createSortie(this.sortie).subscribe({
-                next: (created) => {
-                    this.router.navigate(['/sorties', created.id]);
-                },
-                error: (err) => {
-                    this.error = 'Erreur création';
-                    this.loading = false;
-                }
-            });
-        }
-    }
+    this.isLoading = true;
+    this.error = null;
 
-    isValid(): boolean {
-        if (!this.sortie.titre?.trim()) return false;
-        if (!this.sortie.description?.trim()) return false;
-        if (!this.sortie.lieuDepart?.trim()) return false;
-        if (!this.sortie.dateDebut) return false;
-        if (!this.sortie.capaciteMax || this.sortie.capaciteMax < 1) return false;
-        return true;
-    }
+    const v = this.sortieForm.value;
+    const sortieData: SortieRequest = {
+      titre:             v.titre,
+      description:       v.description,
+      dateDebut:         new Date(v.dateDebut),
+      dateFin:           v.dateFin ? new Date(v.dateFin) : undefined,
+      lieuDepart:        v.lieuDepart,
+      lieuArrivee:       v.lieuArrivee,
+      region:            v.region,
+      difficulte:        v.difficulte,
+      capaciteMax:       Number(v.capaciteMax),
+      prixParPersonne:   Number(v.prixParPersonne),
+      equipementRequis:  v.equipementRequis,
+      assistanceMedicale:v.assistanceMedicale,
+      equipeId:          v.equipeId,
+      distanceKm:        Number(v.distanceKm),
+      organisateurId:    localStorage.getItem('userId') || '',
+      organisateurNom:   localStorage.getItem('userNom') || 'Organisateur'
+    };
+
+    const request$ = this.isEdit && this.sortieId
+      ? this.sortieService.updateSortie(this.sortieId, sortieData)
+      : this.sortieService.createSortie(sortieData);
+
+    request$.subscribe({
+      next: (result) => {
+        this.isLoading = false;
+        const id = result.id || this.sortieId;
+        this.router.navigate(['/sorties', id]);
+      },
+      error: (err) => {
+        this.error = err.error?.message || (this.isEdit ? 'Erreur mise à jour.' : 'Erreur création.');
+        this.isLoading = false;
+      }
+    });
+  }
 }

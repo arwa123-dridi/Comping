@@ -1,56 +1,156 @@
-<!-- src/app/equipe/equipe-list/equipe-list.component.html -->
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>👥 Équipes de randonnée</h2>
-        <button class="btn btn-success" routerLink="/equipes/create">
-            + Créer une équipe
+<!-- ============================================================
+     EQUIPE LIST — CAMPINO
+     ============================================================ -->
+<div class="equipes-page">
+
+  <!-- ══ HERO ══ -->
+  <div class="equipes-hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">👥 CAMPINO · Équipes</div>
+      <h1 class="hero-title">Rejoignez une<br><span class="hero-accent">aventure collective</span></h1>
+      <p class="hero-sub">Créez ou rejoignez des équipes de randonnée partageant les mêmes passions</p>
+      <div class="hero-actions">
+        <button class="btn-hero-primary" routerLink="/equipes/create">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Créer une équipe
         </button>
-    </div>
-
-    <div *ngIf="loading" class="text-center py-5">
-        <div class="spinner-border text-success"></div>
-    </div>
-
-    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-
-    <div class="row g-4" *ngIf="!loading && equipes.length > 0">
-        <div class="col-md-6 col-lg-4" *ngFor="let e of equipes">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <h5 class="card-title">{{ e.nom }}</h5>
-                        <span class="badge bg-secondary">{{ e.niveau || 'Tous niveaux' }}</span>
-                    </div>
-                    
-                    <p class="card-text text-muted small">{{ e.description || 'Aucune description' }}</p>
-                    
-                    <div class="mb-2">
-                        <div><i class="bi bi-people"></i> {{ e.nbMembresActuels }}/{{ e.nbMembresMax }} membres</div>
-                        <div><i class="bi bi-person-badge"></i> Organisateur: {{ e.organisateurNom }}</div>
-                    </div>
-                    
-                    <div class="d-flex gap-2 mt-3">
-                        <button class="btn btn-outline-primary btn-sm" (click)="voirDetail(e.id)">
-                            Voir détails
-                        </button>
-                        <button *ngIf="!isMembre(e) && !isOrganisateur(e)" 
-                                class="btn btn-success btn-sm" 
-                                (click)="rejoindre(e.id)">
-                            Rejoindre
-                        </button>
-                        <span *ngIf="isMembre(e)" class="badge bg-success align-self-center">
-                            Membre
-                        </span>
-                    </div>
-                </div>
-            </div>
+        <button class="btn-hero-ghost" routerLink="/sorties">🏔️ Voir les randonnées</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat">
+          <span class="hstat-n">{{ equipes.length }}</span>
+          <span class="hstat-l">Équipes</span>
         </div>
+        <div class="hstat-div"></div>
+        <div class="hstat">
+          <span class="hstat-n">{{ getTotalMembres() }}</span>
+          <span class="hstat-l">Membres</span>
+        </div>
+        <div class="hstat-div"></div>
+        <div class="hstat">
+          <span class="hstat-n">{{ getMesEquipes().length }}</span>
+          <span class="hstat-l">Mes équipes</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FILTRES ══ -->
+  <div class="filters-bar">
+    <div class="filters-inner">
+      <button class="filter-pill" [class.active]="activeFilter === 'ALL'" (click)="setFilter('ALL')">
+        Toutes <span class="pill-count">{{ equipes.length }}</span>
+      </button>
+      <button class="filter-pill" [class.active]="activeFilter === 'MIENNE'" (click)="setFilter('MIENNE')">
+        👑 Mes créations <span class="pill-count">{{ getMesEquipes().length }}</span>
+      </button>
+      <button class="filter-pill" [class.active]="activeFilter === 'MEMBRE'" (click)="setFilter('MEMBRE')">
+        ✓ Membre <span class="pill-count">{{ getEquipesMembre().length }}</span>
+      </button>
+      <button class="filter-pill" [class.active]="activeFilter === 'DISPO'" (click)="setFilter('DISPO')">
+        🔓 Disponibles <span class="pill-count">{{ getEquipesDisponibles().length }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ CORPS ══ -->
+  <div class="equipes-body">
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="state-center">
+      <div class="campino-spinner"></div>
+      <p>Chargement des équipes…</p>
     </div>
 
-    <div *ngIf="!loading && equipes.length === 0" class="text-center py-5">
-        <p class="text-muted">Aucune équipe disponible</p>
-        <button class="btn btn-success" routerLink="/equipes/create">
-            Créer la première équipe
-        </button>
+    <!-- Erreur -->
+    <div *ngIf="error && !loading" class="state-center state-error">
+      <span>⚠️</span><p>{{ error }}</p>
+      <button (click)="loadEquipes()">Réessayer</button>
     </div>
+
+    <!-- Grille -->
+    <div *ngIf="!loading && !error && getFilteredEquipes().length > 0" class="equipes-grid">
+      <div *ngFor="let eq of getFilteredEquipes(); trackBy: trackById" class="equipe-card">
+
+        <!-- En-tête colorée -->
+        <div class="eq-header" [style.backgroundImage]="'url(' + getEquipeImage(eq) + ')'">
+          <div class="eq-header-overlay"></div>
+          <span class="niveau-badge">{{ eq.niveau || 'Tous niveaux' }}</span>
+          <span class="membres-badge">
+            👥 {{ getMembreCount(eq) }}/{{ eq.nbMembresMax || 10 }}
+          </span>
+          <span *ngIf="isOrganisateur(eq)" class="org-badge-eq">👑 Vous</span>
+        </div>
+
+        <!-- Corps -->
+        <div class="eq-body">
+          <div class="eq-top">
+            <h3 class="eq-title">{{ eq.nom }}</h3>
+            <div class="eq-badges">
+              <span class="badge-membre" *ngIf="isMembre(eq)">✓ Membre</span>
+              <span class="badge-org"    *ngIf="isOrganisateur(eq)">👑 Organisateur</span>
+              <span class="badge-libre"  *ngIf="!isMembre(eq) && !isOrganisateur(eq) && getMembreCount(eq) < (eq.nbMembresMax || 10)">
+                🔓 Ouvert
+              </span>
+              <span class="badge-complet" *ngIf="!isMembre(eq) && getMembreCount(eq) >= (eq.nbMembresMax || 10)">
+                🔒 Complet
+              </span>
+            </div>
+          </div>
+
+          <p class="eq-desc">{{ (eq.description || 'Aucune description fournie.') | slice:0:100 }}{{ (eq.description?.length || 0) > 100 ? '…' : '' }}</p>
+
+          <div class="eq-meta">
+            <span>🧭 {{ eq.organisateurNom || 'Organisateur' }}</span>
+            <span *ngIf="(eq.sortiesTitres?.length || 0) > 0">
+              🏔️ {{ eq.sortiesTitres?.length }} sortie(s)
+            </span>
+          </div>
+
+          <!-- Barre capacité -->
+          <div class="eq-bar-wrap">
+            <div class="eq-bar-fill"
+                 [style.width.%]="(getMembreCount(eq) / (eq.nbMembresMax || 10)) * 100"
+                 [class.bar-full]="getMembreCount(eq) >= (eq.nbMembresMax || 10)">
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="eq-actions">
+            <button class="btn-detail-eq" (click)="voirDetail(eq.id)">Détails →</button>
+
+            <button *ngIf="!isMembre(eq) && !isOrganisateur(eq) && getMembreCount(eq) < (eq.nbMembresMax || 10)"
+                    class="btn-rejoindre"
+                    (click)="rejoindre(eq.id)">
+              Rejoindre
+            </button>
+
+            <button *ngIf="isMembre(eq) && !isOrganisateur(eq)"
+                    class="btn-quitter"
+                    (click)="quitter(eq.id)">
+              Quitter
+            </button>
+
+            <span *ngIf="isOrganisateur(eq)" class="eq-owner-actions">
+              <button class="btn-edit-eq" [routerLink]="['/equipes/edit', eq.id]">✏️</button>
+              <button class="btn-delete-eq" (click)="deleteEquipe(eq.id)">🗑️</button>
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="!loading && !error && getFilteredEquipes().length === 0" class="state-center state-empty">
+      <div class="empty-icon">👥</div>
+      <h3>Aucune équipe {{ activeFilter !== 'ALL' ? 'dans cette catégorie' : 'disponible' }}</h3>
+      <p>Créez une équipe et invitez vos amis !</p>
+      <button routerLink="/equipes/create" class="btn-empty">✨ Créer une équipe</button>
+    </div>
+
+  </div>
 </div>

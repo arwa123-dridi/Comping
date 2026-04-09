@@ -1,25 +1,153 @@
-<div class="container py-4" *ngIf="equipe">
-    <div class="d-flex justify-content-between mb-3">
-        <h2>{{ equipe.nom }}</h2>
-        <div>
-            <button class="btn btn-outline-primary me-2" routerLink="/equipes/edit/{{ equipe.id }}">Modifier</button>
-            <button class="btn btn-secondary" routerLink="/equipes">Retour</button>
+<!-- ============================================================
+     EQUIPE DETAIL — CAMPINO
+     ============================================================ -->
+
+<!-- Loading -->
+<div *ngIf="loading" class="detail-loading">
+  <div class="campino-spinner"></div>
+  <p>Chargement de l'équipe…</p>
+</div>
+
+<!-- Erreur -->
+<div *ngIf="error && !loading" class="detail-error">
+  <span>⚠️</span>
+  <p>{{ error }}</p>
+  <button routerLink="/equipes">← Retour aux équipes</button>
+</div>
+
+<!-- CONTENU -->
+<div *ngIf="!loading && equipe" class="equipe-detail">
+
+  <!-- HERO -->
+  <div class="eq-detail-hero" [style.backgroundImage]="'url(' + getHeroImage() + ')'">
+    <div class="eq-hero-overlay"></div>
+    <div class="eq-hero-content">
+      <div class="breadcrumb">
+        <a routerLink="/equipes">Équipes</a>
+        <span>›</span>
+        <span>{{ equipe.nom }}</span>
+      </div>
+      <h1 class="eq-detail-title">{{ equipe.nom }}</h1>
+      <div class="eq-meta-row">
+        <span class="meta-chip">📏 {{ equipe.niveau || 'Tous niveaux' }}</span>
+        <span class="meta-chip">👥 {{ equipe.nbMembresActuels || 0 }}/{{ equipe.nbMembresMax }} membres</span>
+        <span class="meta-chip">🧭 {{ equipe.organisateurNom }}</span>
+      </div>
+    </div>
+    <!-- Boutons organisateur -->
+    <div *ngIf="isOrganisateur()" class="org-actions">
+      <button class="btn-edit-hero" [routerLink]="['/equipes/edit', equipe.id]">✏️ Modifier</button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="eq-detail-body">
+
+    <!-- Colonne principale -->
+    <div class="eq-detail-main">
+
+      <!-- Description -->
+      <div class="info-card">
+        <h3 class="info-card-title">📝 À propos de cette équipe</h3>
+        <p class="info-card-text">{{ equipe.description || 'Aucune description fournie pour cette équipe.' }}</p>
+      </div>
+
+      <!-- Membres -->
+      <div class="info-card">
+        <h3 class="info-card-title">👥 Membres ({{ equipe.membres?.length || 0 }})</h3>
+        <div *ngIf="!equipe.membres || equipe.membres.length === 0" class="empty-membres">
+          <p>Aucun membre pour l'instant. Soyez le premier !</p>
         </div>
+        <div class="membres-grid" *ngIf="equipe.membres && equipe.membres.length > 0">
+          <div *ngFor="let m of equipe.membres" class="membre-chip">
+            <div class="membre-avatar">{{ getInitiales(m.nom) }}</div>
+            <div class="membre-nom">{{ m.nom }}</div>
+            <span *ngIf="m.id === equipe.organisateurId" class="membre-org-badge">👑</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Randonnées associées -->
+      <div class="info-card">
+        <h3 class="info-card-title">🏔️ Randonnées de cette équipe</h3>
+        <div *ngIf="sorties.length === 0" class="empty-membres">
+          <p>Aucune randonnée associée à cette équipe.</p>
+          <button *ngIf="isOrganisateur()" routerLink="/sorties/create" class="btn-add-sortie">
+            + Créer une randonnée
+          </button>
+        </div>
+        <div class="sorties-list" *ngIf="sorties.length > 0">
+          <div *ngFor="let s of sorties" class="sortie-item" [routerLink]="['/sorties', s.id]">
+            <div class="si-icon">🏔️</div>
+            <div class="si-info">
+              <div class="si-titre">{{ s.titre }}</div>
+              <div class="si-meta">{{ s.dateDebut | date:'dd MMM yyyy' }} · {{ s.lieuDepart }}</div>
+            </div>
+            <span class="si-diff"
+                  [class.diff-f]="s.difficulte==='FACILE'"
+                  [class.diff-m]="s.difficulte==='MOYEN'"
+                  [class.diff-d]="s.difficulte==='DIFFICILE'">
+              {{ s.difficulte }}
+            </span>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="card mb-3">
-        <div class="card-body">
-            <p>{{ equipe.description }}</p>
-            <p>Membres: {{ equipe.nbMembresActuels }}/{{ equipe.nbMembresMax }}</p>
-            <p>Organisateur: {{ equipe.organisateurNom }}</p>
-            <button *ngIf="!isMembre()" class="btn btn-success" (click)="rejoindre()">Rejoindre</button>
-            <span *ngIf="isMembre()" class="badge bg-success">Membre</span>
+    <!-- Sidebar -->
+    <div class="eq-detail-sidebar">
+
+      <!-- Actions -->
+      <div class="side-card action-card">
+        <h4 class="sc-title">🎯 Actions</h4>
+
+        <div *ngIf="isOrganisateur()" class="org-msg">
+          👑 Vous organisez cette équipe
         </div>
+
+        <button *ngIf="!isMembre() && !isOrganisateur()"
+                class="btn-rejoindre-big"
+                (click)="rejoindre()">
+          Rejoindre l'équipe
+        </button>
+
+        <button *ngIf="isMembre() && !isOrganisateur()"
+                class="btn-quitter-big"
+                (click)="quitter()">
+          Quitter l'équipe
+        </button>
+
+        <button routerLink="/equipes" class="btn-back">
+          ← Retour aux équipes
+        </button>
+      </div>
+
+      <!-- Infos -->
+      <div class="side-card info-side-card">
+        <h4 class="sc-title">ℹ️ Informations</h4>
+        <div class="info-row-side">
+          <span class="irs-label">Niveau</span>
+          <span class="irs-val">{{ equipe.niveau || 'Tous niveaux' }}</span>
+        </div>
+        <div class="info-row-side">
+          <span class="irs-label">Capacité</span>
+          <span class="irs-val">{{ equipe.nbMembresMax }} max</span>
+        </div>
+        <div class="info-row-side">
+          <span class="irs-label">Membres</span>
+          <span class="irs-val">{{ equipe.membres?.length || 0 }}</span>
+        </div>
+        <div class="info-row-side">
+          <span class="irs-label">Places libres</span>
+          <span class="irs-val" [class.val-libre]="(equipe.nbMembresMax - (equipe.membres?.length || 0)) > 0"
+                                 [class.val-complet]="(equipe.nbMembresMax - (equipe.membres?.length || 0)) <= 0">
+            {{ equipe.nbMembresMax - (equipe.membres?.length || 0) }}
+          </span>
+        </div>
+      </div>
+
     </div>
 
-    <h4>Randonnées associées</h4>
-    <div *ngIf="sorties.length === 0">Pas encore de randonnées.</div>
-    <ul class="list-group" *ngIf="sorties.length > 0">
-        <li class="list-group-item" *ngFor="let sortie of sorties">{{ sortie.titre }}</li>
-    </ul>
+  </div>
 </div>

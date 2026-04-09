@@ -1,165 +1,93 @@
-<!-- src/app/dashboard/dashboard-user/dashboard-user.component.html -->
+<!DOCTYPE html>
+<!-- ============================================================
+     DASHBOARD USER — CAMPINO · Mes activités
+     ============================================================ -->
+<div class="dash-user">
 
-<div class="dashboard-user">
-    <!-- Header avec bienvenue -->
-    <div class="welcome-header mb-4">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h1 class="display-5 fw-bold">
-                        👋 Bonjour, {{ userName }}
-                    </h1>
-                    <p class="text-muted">Bienvenue sur votre espace personnel CAMPINO</p>
-                </div>
-                <div class="col-auto">
-                    <span class="badge bg-success fs-6 px-3 py-2">
-                        {{ userRole === 'ADMIN' ? '👑 Administrateur' : '🏕️ Campeur' }}
-                    </span>
-                </div>
-            </div>
+  <!-- ══ HEADER ══ -->
+  <div class="dash-header">
+    <div class="dash-header-content">
+<div class="user-hero">
+        <div class="user-avatar" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+          {{ getInitiales() }}
         </div>
+        <div>
+          <h1 class="dash-title">Bonjour, {{ userName }}!</h1>
+          <div class="user-role">{{ userRole }}</div>
+        </div>
+      </div>
+      <button class="btn-new-sortie" (click)="creerSortie()">+ Créer sortie</button>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- ══ STATISTIQUES ══ -->
+    <div class="stats-grid">
+      <div class="stat-card stat-blue">
+        <div class="stat-icon">📋</div>
+        <div class="stat-info">
+          <div class="stat-num">{{ totalSortiesInscrites }}</div>
+          <div class="stat-label">Inscrits</div>
+        </div>
+      </div>
+      <div class="stat-card stat-green">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+          <div class="stat-num">{{ totalEquipesMembre }}</div>
+          <div class="stat-label">Équipes</div>
+        </div>
+      </div>
+      <div class="stat-card stat-orange">
+        <div class="stat-icon">👑</div>
+        <div class="stat-info">
+          <div class="stat-num">{{ totalSortiesCreees }}</div>
+          <div class="stat-label">Créées</div>
+        </div>
+      </div>
     </div>
 
-    <div class="container">
-        <!-- Cartes de statistiques -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="stat-card text-center p-4 rounded-4 shadow-sm bg-white">
-                    <div class="stat-icon mb-3">
-                        <i class="bi bi-person-walking display-1 text-success"></i>
-                    </div>
-                    <div class="stat-number display-4 fw-bold text-success">
-                        {{ totalSortiesInscrites }}
-                    </div>
-                    <div class="stat-label text-muted">Randonnées inscrites</div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card text-center p-4 rounded-4 shadow-sm bg-white">
-                    <div class="stat-icon mb-3">
-                        <i class="bi bi-people display-1 text-primary"></i>
-                    </div>
-                    <div class="stat-number display-4 fw-bold text-primary">
-                        {{ totalEquipesMembre }}
-                    </div>
-                    <div class="stat-label text-muted">Équipes rejointes</div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stat-card text-center p-4 rounded-4 shadow-sm bg-white">
-                    <div class="stat-icon mb-3">
-                        <i class="bi bi-calendar-plus display-1 text-warning"></i>
-                    </div>
-                    <div class="stat-number display-4 fw-bold text-warning">
-                        {{ totalSortiesCreees }}
-                    </div>
-                    <div class="stat-label text-muted">Randonnées organisées</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mes randonnées inscrites -->
-        <div class="section-card mb-5 p-4 rounded-4 shadow-sm bg-white">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h3 mb-0">
-                    <i class="bi bi-calendar-check text-success me-2"></i>
-                    Mes randonnées à venir
-                </h2>
-                <button class="btn btn-outline-success btn-sm" routerLink="/sorties">
-                    Voir toutes <i class="bi bi-arrow-right ms-1"></i>
-                </button>
-            </div>
-
-            <div *ngIf="loading.sorties" class="text-center py-4">
-                <div class="spinner-border text-success"></div>
-            </div>
-
-            <div *ngIf="!loading.sorties && mesSortiesInscrites.length === 0" class="text-center py-4">
-                <i class="bi bi-calendar-x fs-1 text-muted"></i>
-                <p class="mt-2 text-muted">Vous n'êtes inscrit à aucune randonnée</p>
-                <button class="btn btn-success mt-2" routerLink="/sorties">
-                    Découvrir les randonnées
-                </button>
-            </div>
-
-            <div class="row g-3" *ngIf="!loading.sorties && mesSortiesInscrites.length > 0">
-                <div class="col-md-6 col-lg-4" *ngFor="let sortie of mesSortiesInscrites.slice(0, 3)">
-                    <div class="sortie-card border rounded-3 p-3 h-100">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="fw-bold mb-0">{{ sortie.titre }}</h5>
-                            <span class="badge" [ngClass]="getStatutClass(sortie.statut)">
-                                {{ sortie.statut }}
-                            </span>
-                        </div>
-                        <p class="small text-muted mb-2">{{ sortie.dateDebut | date:'dd/MM/yyyy' }} • {{ sortie.lieuDepart }}</p>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span class="badge bg-light" [ngClass]="getDifficulteClass(sortie.difficulte)">
-                                {{ sortie.difficulte }}
-                            </span>
-                            <button class="btn btn-sm btn-primary" (click)="voirSortie(sortie.id)">
-                                Voir détails
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mes équipes -->
-        <div class="section-card mb-5 p-4 rounded-4 shadow-sm bg-white">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="h3 mb-0">
-                    <i class="bi bi-people-fill text-primary me-2"></i>
-                    Mes équipes
-                </h2>
-                <button class="btn btn-outline-primary btn-sm" routerLink="/equipes">
-                    Voir toutes <i class="bi bi-arrow-right ms-1"></i>
-                </button>
-            </div>
-
-            <div *ngIf="loading.equipes" class="text-center py-4">
-                <div class="spinner-border text-primary"></div>
-            </div>
-
-            <div *ngIf="!loading.equipes && mesEquipes.length === 0" class="text-center py-4">
-                <i class="bi bi-people fs-1 text-muted"></i>
-                <p class="mt-2 text-muted">Vous n'avez rejoint aucune équipe</p>
-                <button class="btn btn-primary mt-2" routerLink="/equipes">
-                    Explorer les équipes
-                </button>
-            </div>
-
-            <div class="row g-3" *ngIf="!loading.equipes && mesEquipes.length > 0">
-                <div class="col-md-6 col-lg-4" *ngFor="let equipe of mesEquipes.slice(0, 3)">
-                    <div class="equipe-card border rounded-3 p-3 h-100">
-                        <h5 class="fw-bold mb-1">{{ equipe.nom }}</h5>
-                        <p class="small text-muted mb-2">{{ equipe.description || 'Pas de description' }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                <i class="bi bi-person"></i> {{ equipe.nbMembresActuels }}/{{ equipe.nbMembresMax }}
-                            </small>
-                            <button class="btn btn-sm btn-outline-primary" (click)="voirEquipe(equipe.id)">
-                                Voir
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Actions rapides -->
-        <div class="quick-actions p-4 rounded-4 shadow-sm bg-success bg-opacity-10">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h3 class="h4 mb-1">Prêt pour une nouvelle aventure ?</h3>
-                    <p class="text-muted mb-0">Organisez votre propre randonnée et partagez-la avec la communauté</p>
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-success btn-lg px-4" (click)="creerSortie()">
-                        <i class="bi bi-plus-circle me-2"></i>Créer une randonnée
-                    </button>
-                </div>
-            </div>
-        </div>
+    <!-- LOADING -->
+    <div *ngIf="loading.stats || loading.sorties || loading.equipes" class="dash-loading">
+      <div class="campino-spinner"></div>
     </div>
+
+    <!-- CONTENU -->
+    <div *ngIf="!loading.stats && !loading.sorties && !loading.equipes" class="dash-content">
+
+      <!-- MES SORTIES INSCRITES -->
+      <div class="dash-card">
+        <h3 class="dash-card-title">📋 Mes sorties ({{ mesSortiesInscrites.length }})</h3>
+        <div *ngIf="mesSortiesInscrites.length === 0" class="td-empty">Aucune sortie</div>
+        <div *ngFor="let s of mesSortiesInscrites.slice(0,5)" class="sortie-mini">
+          <div class="mini-icon">🏔️</div>
+          <div class="mini-info">
+            <span class="mini-nom">{{ s.titre }}</span>
+            <span class="mini-meta">{{ s.dateDebut | date:'dd/MM' }} · {{ s.lieuDepart }}</span>
+          </div>
+          <button class="td-btn-view" (click)="voirSortie(s.id)">👁️</button>
+        </div>
+      </div>
+
+      <!-- MES ÉQUIPES -->
+      <div class="dash-card">
+        <h3 class="dash-card-title">👥 Mes équipes ({{ mesEquipes.length }})</h3>
+        <div *ngIf="mesEquipes.length === 0" class="td-empty">Aucune équipe</div>
+        <div *ngFor="let e of mesEquipes.slice(0,5)" class="equipe-mini">
+  <div class="mini-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+            {{ getInitialesEquipe(e.nom) }}
+          </div>
+          <div class="mini-info">
+            <span class="mini-nom">{{ e.nom }}</span>
+            <span class="mini-meta">{{ e.membres?.length }} membres</span>
+          </div>
+          <button class="td-btn-view" (click)="voirEquipe(e.id)">👁️</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
 </div>
+
+

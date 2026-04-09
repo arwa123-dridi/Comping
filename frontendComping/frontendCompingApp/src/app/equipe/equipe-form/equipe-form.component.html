@@ -1,54 +1,171 @@
-<!-- src/app/equipe/equipe-form/equipe-form.component.html -->
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h4>{{ isEdit ? 'Modifier' : 'Créer' }} une équipe</h4>
-                </div>
-                <div class="card-body">
-                    <form (ngSubmit)="onSubmit()">
-                        <div class="mb-3">
-                            <label class="form-label">Nom *</label>
-                            <input type="text" class="form-control" [(ngModel)]="equipe.nom" 
-                                   name="nom" required>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" rows="2" [(ngModel)]="equipe.description" 
-                                      name="description"></textarea>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Capacité max</label>
-                            <input type="number" class="form-control" [(ngModel)]="equipe.nbMembresMax" 
-                                   name="nbMembresMax" min="2" max="20">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Niveau requis</label>
-                            <select class="form-select" [(ngModel)]="equipe.niveau" name="niveau">
-                                <option>Tous niveaux</option>
-                                <option>Débutant</option>
-                                <option>Intermédiaire</option>
-                                <option>Avancé</option>
-                            </select>
-                        </div>
-                        
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-success" [disabled]="loading">
-                                {{ loading ? 'Enregistrement...' : 'Valider' }}
-                            </button>
-                            <button type="button" class="btn btn-secondary" routerLink="/equipes">
-                                Annuler
-                            </button>
-                        </div>
-                        
-                        <div *ngIf="error" class="alert alert-danger mt-3">{{ error }}</div>
-                    </form>
-                </div>
-            </div>
-        </div>
+<!-- ============================================================
+     EQUIPE FORM — CAMPINO   (Créer / Modifier Équipe)
+     ============================================================ -->
+<div class="equipe-form-page">
+
+  <!-- ══ HERO ══ -->
+  <div class="form-hero">
+    <div class="form-hero-content">
+      <div class="hero-badge">{{ isEdit ? '✏️ Modification' : '➕ Création' }} · Équipes CAMPINO</div>
+      <h1 class="hero-title">
+        {{ isEdit ? 'Modifier' : 'Créer' }} une
+        <span class="hero-accent">équipe</span>
+      </h1>
+      <p class="hero-sub">Rassemblez des aventuriers partageant votre passion de la randonnée</p>
     </div>
+  </div>
+
+  <!-- ══ FORMULAIRE ══ -->
+  <div class="form-body">
+    <form [formGroup]="equipeForm" (ngSubmit)="onSubmit()" class="campino-form">
+
+      <!-- Erreur globale -->
+      <div *ngIf="error" class="form-error-banner">
+        <span>⚠️</span> {{ error }}
+      </div>
+
+      <!-- ────────────────────────────────────────────
+           SECTION 1 · Identité de l'équipe
+      ──────────────────────────────────────────── -->
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon green">👥</div>
+          <div>
+            <h2 class="section-title">Identité de l'équipe</h2>
+            <p class="section-sub">Choisissez un nom mémorable et décrivez votre groupe</p>
+          </div>
+        </div>
+
+        <!-- Nom -->
+        <div class="field-group">
+          <label class="field-label">Nom de l'équipe *</label>
+          <input type="text"
+                 class="campino-input"
+                 formControlName="nom"
+                 placeholder="Ex : Les Aigles du Zaghouan…"
+                 [class.input-error]="equipeForm.get('nom')?.invalid && equipeForm.get('nom')?.touched">
+          <div *ngIf="equipeForm.get('nom')?.invalid && equipeForm.get('nom')?.touched" class="field-error">
+            <span *ngIf="equipeForm.get('nom')?.errors?.['required']">Nom obligatoire</span>
+            <span *ngIf="equipeForm.get('nom')?.errors?.['minlength']">Minimum 3 caractères</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="field-group">
+          <label class="field-label">Description</label>
+          <textarea class="campino-input campino-textarea"
+                    formControlName="description"
+                    rows="4"
+                    placeholder="Présentez votre équipe : votre style de randonnée, vos objectifs, votre esprit…">
+          </textarea>
+        </div>
+      </div>
+
+      <!-- ────────────────────────────────────────────
+           SECTION 2 · Niveau & Capacité
+      ──────────────────────────────────────────── -->
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon blue">⚙️</div>
+          <div>
+            <h2 class="section-title">Niveau & Capacité</h2>
+            <p class="section-sub">Définissez qui peut rejoindre votre équipe</p>
+          </div>
+        </div>
+
+        <!-- Niveau (cards radio) -->
+        <div class="field-group">
+          <label class="field-label">🏔️ Niveau requis</label>
+          <div class="niveau-cards">
+            <label class="niveau-card"
+                   [class.niveau-card-selected]="equipeForm.get('niveau')?.value === 'Tous niveaux'"
+                   (click)="equipeForm.patchValue({niveau: 'Tous niveaux'})">
+              <input type="radio" formControlName="niveau" value="Tous niveaux">
+              <span class="niv-icon">🌿</span>
+              <span class="niv-label">Tous niveaux</span>
+              <span class="niv-sub">Ouvert à tous</span>
+            </label>
+            <label class="niveau-card"
+                   [class.niveau-card-selected]="equipeForm.get('niveau')?.value === 'Débutant'"
+                   (click)="equipeForm.patchValue({niveau: 'Débutant'})">
+              <input type="radio" formControlName="niveau" value="Débutant">
+              <span class="niv-icon">🥾</span>
+              <span class="niv-label">Débutant</span>
+              <span class="niv-sub">Premiers pas</span>
+            </label>
+            <label class="niveau-card"
+                   [class.niveau-card-selected]="equipeForm.get('niveau')?.value === 'Intermédiaire'"
+                   (click)="equipeForm.patchValue({niveau: 'Intermédiaire'})">
+              <input type="radio" formControlName="niveau" value="Intermédiaire">
+              <span class="niv-icon">🧗</span>
+              <span class="niv-label">Intermédiaire</span>
+              <span class="niv-sub">Bonne condition</span>
+            </label>
+            <label class="niveau-card"
+                   [class.niveau-card-selected]="equipeForm.get('niveau')?.value === 'Avancé'"
+                   (click)="equipeForm.patchValue({niveau: 'Avancé'})">
+              <input type="radio" formControlName="niveau" value="Avancé">
+              <span class="niv-icon">⛰️</span>
+              <span class="niv-label">Avancé</span>
+              <span class="niv-sub">Expérimentés</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Capacité -->
+        <div class="field-group">
+          <label class="field-label">👥 Capacité maximale *</label>
+          <div class="capacite-row">
+            <input type="range"
+                   class="campino-range"
+                   formControlName="nbMembresMax"
+                   min="2" max="30">
+            <div class="capacite-display">
+              <span class="cap-num">{{ equipeForm.get('nbMembresMax')?.value }}</span>
+              <span class="cap-label">membres max</span>
+            </div>
+          </div>
+          <div class="cap-hints">
+            <span>2</span>
+            <span>30</span>
+          </div>
+          <div *ngIf="equipeForm.get('nbMembresMax')?.invalid && equipeForm.get('nbMembresMax')?.touched" class="field-error">
+            <span *ngIf="equipeForm.get('nbMembresMax')?.errors?.['min'] || equipeForm.get('nbMembresMax')?.errors?.['max']">Capacité entre 2 et 30</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ════ BOUTONS ════════════════════════════════════════ -->
+      <div class="form-actions">
+
+        <div class="form-status"
+             [class.status-valid]="equipeForm.valid"
+             [class.status-invalid]="equipeForm.invalid && equipeForm.touched">
+          <span *ngIf="equipeForm.valid">✅ Prêt à enregistrer</span>
+          <span *ngIf="equipeForm.invalid && equipeForm.touched">⚠️ Veuillez corriger les erreurs</span>
+        </div>
+
+        <div class="form-btns">
+          <button type="button" routerLink="/equipes" class="btn-cancel">
+            ← Annuler
+          </button>
+          <button type="submit"
+                  class="btn-submit"
+                  [disabled]="loading || equipeForm.invalid">
+            <span *ngIf="!loading">
+              {{ isEdit ? '✏️ Enregistrer' : '✨ Créer l\'équipe' }}
+            </span>
+            <span *ngIf="loading" class="btn-loading">
+              <div class="mini-spinner white"></div>
+              Enregistrement…
+            </span>
+          </button>
+        </div>
+
+      </div>
+
+    </form>
+  </div>
 </div>
+

@@ -61,6 +61,33 @@ export class DashboardAdminComponent implements OnInit {
         });
     }
 
+    getNombreParticipants(s: SortieResponse): number {
+  return (s as any).participantIds?.length || (s as any).participants?.length || 0;
+}
+
+getSortieStatut(s: SortieResponse): string {
+  const today = new Date();
+  const debut = new Date(s.dateDebut);
+  const fin = s.dateFin ? new Date(s.dateFin) : null;
+  if (debut > today) return 'PLANIFIEE';
+  if (fin && fin < today) return 'TERMINEE';
+  if (debut <= today && (!fin || fin >= today)) return 'EN_COURS';
+  return 'PLANIFIEE';
+}
+
+
+    deleteSortie(id: string): void {
+        if (confirm('Confirmer la suppression de cette sortie?')) {
+            this.sortieService.deleteSortie(id).subscribe({
+                next: () => {
+                    this.loadData(); // Reload
+                    alert('Sortie supprimée');
+                },
+                error: (err) => alert('Erreur: ' + err.error.message)
+            });
+        }
+    }
+
     // ✅ Méthode pour calculer le top organisateurs
     getTopOrganisateurs(): any[] {
         const organisateursMap = new Map<string, { nom: string; nbSorties: number; nbParticipants: number }>();
@@ -85,4 +112,8 @@ export class DashboardAdminComponent implements OnInit {
             .sort((a, b) => b.nbSorties - a.nbSorties)
             .slice(0, 5);
     }
+
+  refresh(): void {
+    this.loadData();
+  }
 }

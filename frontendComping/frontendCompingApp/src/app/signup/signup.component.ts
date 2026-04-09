@@ -1,16 +1,17 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-signup',
-  //standalone: true,
-  imports: [ReactiveFormsModule, HttpClientModule, CommonModule, NgIf],
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css']
 })
-export class SignupComponent implements AfterViewInit {
+export class SignupComponent implements AfterViewInit, OnInit {
   @ViewChild('slidesWrapper') slidesWrapper!: ElementRef<HTMLDivElement>;
   slides = [
     { url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470' },
@@ -39,8 +40,7 @@ export class SignupComponent implements AfterViewInit {
   ];
 
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
-
+constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
     this.signupForm = this.fb.group({
       FirstName: ['', Validators.required],
       LastName: ['', Validators.required],
@@ -114,7 +114,7 @@ export class SignupComponent implements AfterViewInit {
     this.errorMessage = '';
     this.successMessage = '';
 
-    // Clean optional fields (avoid sending empty strings)
+// Clean optional fields (avoid sending empty strings)
     const formValue = this.signupForm.value;
 
     const signupData = {
@@ -132,6 +132,7 @@ export class SignupComponent implements AfterViewInit {
           this.successMessage = '🎉 Inscription réussie ! Vous pouvez maintenant vous connecter.';
           this.signupForm.reset({ role: 'USER' });
           this.isLoading = false;
+          setTimeout(() => this.router.navigate(['/login']), 1500);
         },
         error: (err) => {
           console.error('Signup failed', err); // <-- already logging errors

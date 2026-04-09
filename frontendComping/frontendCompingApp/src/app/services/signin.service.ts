@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface LoginDTORequest {
-  username: string;
+  email: string;
   password: string;
 }
 

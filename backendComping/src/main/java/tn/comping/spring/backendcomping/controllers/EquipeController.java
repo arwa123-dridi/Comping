@@ -50,9 +50,11 @@ public class EquipeController {
     @PostMapping("/{equipeId}/membres/{utilisateurId}")
     public ResponseEntity<EquipeResponseDTO> ajouterMembre(
             @PathVariable String equipeId,
-            @PathVariable String utilisateurId,
-            @RequestParam String utilisateurNom) {
-        return ResponseEntity.ok(equipeService.ajouterMembre(equipeId, utilisateurId, utilisateurNom));
+            @PathVariable String utilisateurId) {
+
+        return ResponseEntity.ok(
+                equipeService.ajouterMembre(equipeId, utilisateurId)
+        );
     }
 
     @DeleteMapping("/{equipeId}/membres/{utilisateurId}")

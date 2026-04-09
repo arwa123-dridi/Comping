@@ -36,8 +36,11 @@
     <div class="profile-hero">
       <div class="hero-left">
         <div class="hero-tag">🌿 Mon espace personnel</div>
-<h1 class="hero-title">Bonjour, <span class="accent">{{ profileForm.get('name')?.value || 'Campeur' }}</span></h1>        <p class="hero-desc">Gérez vos informations personnelles, modifiez votre mot de passe et personnalisez votre expérience CAMPINO.</p>
-        
+<h1 class="hero-title">Bonjour, 
+  <span class="accent">
+    {{ (profileForm.get('firstName')?.value || '') + ' ' + (profileForm.get('lastName')?.value || '') || 'Campeur' }}
+  </span>
+</h1>        
         <!-- Stats du profil -->
         <div class="profile-stats">
           <div class="stat-item">
@@ -82,13 +85,21 @@
         </div>
         <form [formGroup]="profileForm" (ngSubmit)="onSubmitProfile()">
           
-          <div class="form-group">
-            <label>Nom complet</label>
-            <input type="text" formControlName="name" placeholder="Votre nom">
-            <div *ngIf="profileForm.get('name')?.invalid && profileForm.get('name')?.touched" class="error-text">
-              Le nom doit contenir au moins 3 caractères
-            </div>
-          </div>
+<div class="form-group">
+  <label>Prénom</label>
+  <input type="text" formControlName="firstName" placeholder="Votre prénom">
+  <div *ngIf="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched" class="error-text">
+    Le prénom doit contenir entre 2 et 50 caractères
+  </div>
+</div>
+
+<div class="form-group">
+  <label>Nom</label>
+  <input type="text" formControlName="lastName" placeholder="Votre nom">
+  <div *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched" class="error-text">
+    Le nom doit contenir entre 2 et 50 caractères
+  </div>
+</div>
 
           <div class="form-group">
             <label>Email</label>
