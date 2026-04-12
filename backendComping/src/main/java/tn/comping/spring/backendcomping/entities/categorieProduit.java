@@ -1,0 +1,21 @@
+package tn.comping.spring.backendcomping.entities;
+
+public enum categorieProduit {
+    TENTES,
+    SACS_DE_COUCHAGE,
+    MATELAS_ET_TAPIS_DE_SOL,
+    CUISINE_DE_CAMPING,
+    GLACIERES,
+    STOCKAGE_EAU,
+    ECLAIRAGE,
+    ENERGIE_PORTABLE,
+    SACS_A_DOS,
+    EQUIPEMENT_DE_RANDONNEE,
+    SURVIE_ET_SECOURS,
+    MOBILIER_DE_CAMPING,
+    ABRIS_ET_TARP,
+    VETEMENTS_DE_CAMPING,
+    CHAUSSURES_DE_RANDONNEE,
+    AUTRE
+
+}

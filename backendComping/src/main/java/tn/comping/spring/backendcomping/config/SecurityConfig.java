@@ -46,7 +46,9 @@ public class SecurityConfig {
                                 "/api/demandes-transport/**",
                                 "/api/creneaux-livraison/**",
                                 "/api/incidents/**",
-                                "/api/conventions-partenaires/**"
+                                "/api/conventions-partenaires/**",
+                                 "/api/produits/**",
+                                  "/uploads/**" 
                         ).permitAll()
 
                         // Rôles spécifiques
