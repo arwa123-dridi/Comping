@@ -1,0 +1,164 @@
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
+
+interface Product {
+  id: string;
+  nomProduit: string;
+  descriptionProduit: string;
+  prixProduit: number;
+  categorieProduit: string | null; // ⭐ STRING now
+  typeProduit: string;
+  statut: string;
+  imageUrl?: string;
+}
+
+@Component({
+  selector: 'app-edit-product',
+  standalone: true,
+  imports: [CommonModule, FormsModule, HttpClientModule],
+  templateUrl: './edit-product.component.html',
+  styleUrls: ['./edit-product.component.css']
+})
+export class EditProductComponent implements OnInit, OnChanges {
+
+  @Input() productId!: string;
+  @Output() close = new EventEmitter<void>();
+  @Output() productUpdated = new EventEmitter<void>();
+
+  private baseUrl = 'http://localhost:8087/api/produits';
+  private defaultImage = 'assets/default-product.png';
+
+  // ⭐ same categories list as Add component
+  categories = [
+    { label: 'Tentes', value: 'TENTES' },
+    { label: 'Sacs de couchage', value: 'SACS_DE_COUCHAGE' },
+    { label: 'Matelas & tapis de sol', value: 'MATELAS_ET_TAPIS_DE_SOL' },
+    { label: 'Cuisine de camping', value: 'CUISINE_DE_CAMPING' },
+    { label: 'Glacières', value: 'GLACIERES' },
+    { label: 'Stockage eau', value: 'STOCKAGE_EAU' },
+    { label: 'Éclairage', value: 'ECLAIRAGE' },
+    { label: 'Énergie portable', value: 'ENERGIE_PORTABLE' },
+    { label: 'Sacs à dos', value: 'SACS_A_DOS' },
+    { label: 'Équipement randonnée', value: 'EQUIPEMENT_DE_RANDONNEE' },
+    { label: 'Survie & secours', value: 'SURVIE_ET_SECOURS' },
+    { label: 'Mobilier camping', value: 'MOBILIER_DE_CAMPING' },
+    { label: 'Abris & tarp', value: 'ABRIS_ET_TARP' },
+    { label: 'Vêtements camping', value: 'VETEMENTS_DE_CAMPING' },
+    { label: 'Chaussures randonnée', value: 'CHAUSSURES_DE_RANDONNEE' },
+    { label: 'Autre', value: 'AUTRE' }
+  ];
+
+  product: Product = {
+    id: '',
+    nomProduit: '',
+    descriptionProduit: '',
+    prixProduit: 0,
+    categorieProduit: null,
+    typeProduit: '',
+    statut: 'Disponible',
+    imageUrl: ''
+  };
+
+  selectedFile!: File;
+
+  constructor(private http: HttpClient, private toastr: ToastrService) {}
+
+  ngOnInit(): void {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['productId'] && this.productId) {
+      this.loadProduct();
+    }
+  }
+
+  // 🔵 LOAD PRODUCT
+  loadProduct() {
+    this.http.get<any>(`${this.baseUrl}/${this.productId}`).subscribe({
+      next: (data) => {
+        this.product = {
+          id: data.id,
+          nomProduit: data.nomProduit,
+          descriptionProduit: data.descriptionProduit,
+          prixProduit: data.prixProduit,
+          categorieProduit: data.categorieProduit, // ⭐ already string from backend
+          typeProduit: data.typeProduit,
+          statut: data.statut ?? 'Disponible',
+          imageUrl: data.imageUrl
+            ? `http://localhost:8087${data.imageUrl}`
+            : this.defaultImage
+        };
+      },
+      error: () => {
+        alert('Impossible de charger le produit.');
+        this.close.emit();
+      }
+    });
+  }
+
+  // 📷 SELECT IMAGE + PREVIEW
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    this.selectedFile = file;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.product.imageUrl = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // 🚀 UPDATE PRODUCT
+  saveProduct() {
+
+    if (!this.product.nomProduit || this.product.prixProduit <= 0) {
+      this.toastr.warning('Veuillez remplir le nom et le prix correctement.');
+      return;
+    }
+
+    if (!this.product.categorieProduit) {
+      this.toastr.warning('Veuillez choisir une catégorie.');
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append('produit', JSON.stringify({
+      nomProduit: this.product.nomProduit,
+      descriptionProduit: this.product.descriptionProduit,
+      prixProduit: this.product.prixProduit,
+      categorieProduit: this.product.categorieProduit, // ⭐ STRING ENUM
+      typeProduit: this.product.typeProduit,
+      statut: this.product.statut
+    }));
+
+    if (this.selectedFile) {
+      formData.append('image', this.selectedFile);
+    }
+
+    this.http.put(`${this.baseUrl}/updateProduct/${this.product.id}`, formData)
+      .subscribe({
+        next: () => {
+          this.productUpdated.emit();
+          this.toastr.info('Produit modifié avec succès ✏️');
+          this.close.emit();
+        },
+        error: () => {
+          alert('Erreur lors de la mise à jour du produit.');
+        }
+      });
+  }
+
+  cancel() {
+    this.close.emit();
+  }
+
+  removeImage(event: Event) {
+    event.stopPropagation();
+    this.product.imageUrl = '';
+  }
+}

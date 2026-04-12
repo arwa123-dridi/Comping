@@ -217,3 +217,101 @@
 .icon-btn.delete:hover {
   background: #fecaca;
 }
+
+.product-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.product-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.product-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.product-img {
+  max-width: 50px !important;
+  max-height: 50px !important;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  width: 350px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+/* HEADER LAYOUT */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* RIGHT SIDE CONTROLS */
+.right-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* INPUT + SELECT SAME STYLE */
+.right-controls input,
+.right-controls select {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  background-color: #f9fafb;
+  font-size: 14px;
+  color: #333;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+/* SEARCH WIDTH */
+.right-controls input {
+  width: 220px;
+}
+
+/* SELECT WIDTH */
+.right-controls select {
+  min-width: 160px;
+  cursor: pointer;
+}
+
+/* HOVER EFFECT */
+.right-controls input:hover,
+.right-controls select:hover {
+  border-color: #b5b5b5;
+}
+
+/* FOCUS EFFECT */
+.right-controls input:focus,
+.right-controls select:focus {
+  border-color: #4caf50;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.15);
+}

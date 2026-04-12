@@ -13,25 +13,53 @@
         <p>Admin Dashboard / Catalogue produits</p>
       </div>
 
-      <button class="add-btn" (click)="addProduct()">
-        + Ajouter un produit
-      </button>
+      <button class="add-btn" (click)="addProduct()">+ Ajouter un produit</button>
+
+      <!-- Add Product Modal -->
+      <app-add-product *ngIf="showAddModal" 
+        (close)="showAddModal = false" 
+        (productAdded)="loadProducts()">
+      </app-add-product>
     </div>
 
     <!-- TABLE CARD -->
     <div class="table-card">
 
       <div class="table-header">
-        <h2>Liste des produits</h2>
-        <input class="search" placeholder="Rechercher produit..." />
-      </div>
+  <h2>Liste des produits</h2>
+
+  <div class="right-controls">
+
+    <!-- CATEGORY -->
+    <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+      <option value="">Toutes catégories</option>
+      <option *ngFor="let c of categories" [value]="c">
+        {{ c }}
+      </option>
+    </select>
+
+    <!-- STATUS -->
+    <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+      <option value="">Tous statuts</option>
+      <option value="Disponible">Disponible</option>
+      <option value="Indisponible">Indisponible</option>
+    </select>
+
+    <!-- SEARCH -->
+    <input
+      type="text"
+      placeholder="Rechercher produit..."
+      [(ngModel)]="searchTerm"
+      (input)="applyFilters()"
+    />
+
+  </div>
+</div>
 
       <table class="product-table">
 
-        <!-- TABLE HEAD -->
         <thead>
           <tr>
-            <th>ID</th>
             <th>Nom</th>
             <th>Description</th>
             <th>Prix</th>
@@ -42,69 +70,80 @@
           </tr>
         </thead>
 
-        <!-- TABLE BODY -->
         <tbody>
+          <tr *ngFor="let p of filteredProducts">
 
-          <tr *ngFor="let p of products">
-
-            <td class="id">#{{ p.id }}</td>
-
+            <!-- NAME + IMAGE -->
             <td class="name">
               <div class="product-info">
                 <div class="product-avatar">
-                  {{ p.nomProduit.charAt(0) }}
+                  <img [src]="p.imageUrl" alt="{{p.nomProduit}}" class="product-img">
                 </div>
                 <span>{{ p.nomProduit }}</span>
               </div>
             </td>
 
             <td class="desc">{{ p.descriptionProduit }}</td>
-
-            <td class="price">
-              {{ p.prixProduit | currency:'TND ':'symbol' }}
-            </td>
-
-            <td>
-              <span class="category">Cat {{ p.categorieProduit }}</span>
-            </td>
+            <td class="price"> {{ p.prixProduit | number:'1.2-2' }} TND </td>
+            <td><span class="category">{{ p.categorieProduit }}</span></td>
+            <td><span class="type-badge">{{ p.typeProduit }}</span></td>
 
             <td>
-              <span class="type-badge">
-                {{ p.typeProduit }}
-              </span>
-            </td>
-
-            <td>
-              <span 
-                class="status"
-                [ngClass]="{
-                  'available': p.statut === 'Disponible',
-                  'unavailable': p.statut !== 'Disponible'
-                }">
+              <span class="status" [ngClass]="{
+                'available': p.statut === 'Disponible',
+                'unavailable': p.statut !== 'Disponible'
+              }">
                 {{ p.statut }}
               </span>
             </td>
 
+            <!-- ✅ ACTIONS -->
             <td class="actions">
-
               <button class="icon-btn edit" (click)="editProduct(p.id)">
                 ✏️ Modifier
               </button>
 
-              <button class="icon-btn delete" (click)="deleteProduct(p.id)">
+              <!-- ✅ UPDATED DELETE BUTTON -->
+              <button class="icon-btn delete" (click)="confirmDelete(p.id)">
                 🗑 Supprimer
               </button>
-
             </td>
 
           </tr>
-
         </tbody>
 
       </table>
 
+      <!-- Edit Product Modal -->
+      <app-edit-product 
+        *ngIf="showEditModal && selectedProductId" 
+        [productId]="selectedProductId"
+        (close)="showEditModal = false; selectedProductId = null"
+        (productUpdated)="loadProducts()">
+      </app-edit-product>
+
+    </div>
+  </div>
+</div>
+
+<!-- ========================= -->
+<!-- ✅ DELETE CONFIRM POPUP -->
+<!-- ========================= -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    
+    <h3>Confirmation</h3>
+    <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
+
+    <div class="actions" style="justify-content:center; margin-top:15px;">
+      <button class="icon-btn delete" (click)="deleteConfirmed()">
+        Oui, supprimer
+      </button>
+
+      <button class="icon-btn" (click)="cancelDelete()">
+        Annuler
+      </button>
     </div>
 
   </div>
-
 </div>

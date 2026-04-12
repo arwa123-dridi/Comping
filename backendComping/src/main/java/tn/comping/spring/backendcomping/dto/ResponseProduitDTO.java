@@ -1,5 +1,6 @@
 package tn.comping.spring.backendcomping.dto;
-
+import tn.comping.spring.backendcomping.entities.categorieProduit;
+import tn.comping.spring.backendcomping.entities.statutProduit;
 import lombok.*;
 
 @Data
@@ -7,12 +8,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ResponseProduitDTO {
-      
-        private String nomProduit;
-        private String descriptionProduit;
-        private Double prixProduit;
-        private Integer categorieProduit;
-        private String typeProduit;
-        private String statut;
-
+       private String id; private String nomProduit; 
+       private String descriptionProduit; 
+       private Double prixProduit;
+        private categorieProduit categorieProduit; 
+        private String typeProduit; 
+        private statutProduit  statut; 
+        private String imageUrl;
 }

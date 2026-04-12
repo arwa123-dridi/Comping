@@ -23,9 +23,11 @@ public class Produit {
         private String nomProduit;
         private String descriptionProduit;
         private Double prixProduit;
-        private Integer categorieProduit;
+        private categorieProduit categorieProduit;
         private String typeProduit;
-        private String statut;
+        private statutProduit  statut;
+
+        private String imageUrl;
 
     }
 
