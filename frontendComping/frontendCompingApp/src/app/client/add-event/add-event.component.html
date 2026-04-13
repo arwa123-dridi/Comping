@@ -35,7 +35,20 @@
           <option value="ANNULE">annulé</option>
         </select>
       </div>
+<div class="form-group">
+  <label>Activités</label>
 
+  <div class="activities-box">
+    <label class="activity-item" *ngFor="let act of activities">
+      <input
+        type="checkbox"
+        [value]="act.idActivity"
+        (change)="onActivityChange($event)"
+      />
+      {{ act.nom }}
+    </label>
+  </div>
+</div>
     
 
       <button type="submit" class="btn">Créer l'événement</button>

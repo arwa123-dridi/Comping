@@ -9,6 +9,7 @@ import { DashboardComponent } from './admin/dashboard/dashboard.component';
 import { UsersComponent } from './admin/users/users.component';
 import { EventComponent } from './admin/event/event.component';
 import { AddEventComponent } from './client/add-event/add-event.component';
+import { ListEventComponent } from './client/list-event/list-event.component';
 
 export const routes: Routes = [
   { path: 'Campino', component: HomeComponent },
@@ -17,6 +18,7 @@ export const routes: Routes = [
   { path: '', redirectTo: 'Campino', pathMatch: 'full' },
   { path: 'login', component: SigninComponent },
    { path: 'events/add', component: AddEventComponent },
+     { path: 'events/list', component: ListEventComponent },
    {
     path: 'admin',
     component: AdminLayoutComponent,
