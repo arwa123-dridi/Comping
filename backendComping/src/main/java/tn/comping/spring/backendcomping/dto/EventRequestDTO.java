@@ -4,7 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import tn.comping.spring.backendcomping.entities.Activity;
 import tn.comping.spring.backendcomping.entities.StatutEvent;
+
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,5 +20,6 @@ public class EventRequestDTO {
     private double prix;
     private int capacite;
     private StatutEvent statut;
+    private List<String> activityIds;
 
 }

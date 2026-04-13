@@ -15,6 +15,7 @@ public class EventMapper {
                 .prix(dto.getPrix())
                 .capacite(dto.getCapacite())
                 .statut(dto.getStatut() != null ? dto.getStatut() : StatutEvent.VALIDE)
+                .activityIds(dto.getActivityIds())
                 .build();
     }
 
