@@ -16,7 +16,7 @@ public class Constants {
     public static final String BASE_URL_ACTIVITY = "/api/activities";
 
     public static final String CREATE_ACTIVITY = "";
-    public static final String GET_ALL_ACTIVITIES = "";
+    public static final String GET_ALL_ACTIVITIES = "/GetAllActivities";
     public static final String GET_ACTIVITY_BY_ID = "/{id}";
     public static final String UPDATE_ACTIVITY = "/{id}";
     public static final String DELETE_ACTIVITY = "/{id}";

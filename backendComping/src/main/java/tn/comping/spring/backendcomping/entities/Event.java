@@ -1,8 +1,11 @@
 package tn.comping.spring.backendcomping.entities;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.*;
+
+import java.util.List;
 
 @Document(collection = "events")
 @Data
@@ -20,5 +23,8 @@ public class Event {
     private double prix;
     private int capacite;
     private StatutEvent statut;
+
+
+    private List<String> activityIds;
 
 }

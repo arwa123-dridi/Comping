@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import tn.comping.spring.backendcomping.dto.EventRequestDTO;
 import tn.comping.spring.backendcomping.dto.EventResponseDTO;
 import tn.comping.spring.backendcomping.entities.Event;
+import tn.comping.spring.backendcomping.repositories.ActivityRepository;
 import tn.comping.spring.backendcomping.repositories.EventRepository;
+import tn.comping.spring.backendcomping.utils.mapper.ActivityMapper;
 import tn.comping.spring.backendcomping.utils.mapper.EventMapper;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventServiceImpl implements  EventService{
     private final EventRepository eventRepository;
+    private final ActivityRepository activityRepository;
     @Override
     public EventResponseDTO createEvent(EventRequestDTO dto) {
         Event event = EventMapper.toEntity(dto);
@@ -32,8 +35,20 @@ public class EventServiceImpl implements  EventService{
     public List<EventResponseDTO> getAllEvents() {
         return eventRepository.findAll()
                 .stream()
-                .map(EventMapper::toDto)
-                .collect(Collectors.toList());
+                .map(event -> {
+
+                    EventResponseDTO dto = EventMapper.toDto(event);
+
+                    dto.setActivities(
+                            activityRepository.findAllById(event.getActivityIds())
+                                    .stream()
+                                    .map(ActivityMapper::toResponse)
+                                    .toList()
+                    );
+
+                    return dto;
+                })
+                .toList();
     }
 
     @Override

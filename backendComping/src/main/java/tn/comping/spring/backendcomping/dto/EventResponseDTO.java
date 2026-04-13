@@ -3,6 +3,8 @@ package tn.comping.spring.backendcomping.dto;
 import lombok.*;
 import tn.comping.spring.backendcomping.entities.StatutEvent;
 
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -18,4 +20,5 @@ public class EventResponseDTO {
     private double prix;
     private int capacite;
     private StatutEvent statut;
+    private List<ActivityResponse> activities;
 }
