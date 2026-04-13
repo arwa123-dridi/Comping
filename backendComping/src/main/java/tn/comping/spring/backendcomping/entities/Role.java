@@ -9,4 +9,3 @@ public enum Role {
     MODERATEUR,
     USER
 }
-
