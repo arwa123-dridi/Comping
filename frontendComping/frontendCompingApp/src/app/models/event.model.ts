@@ -7,4 +7,8 @@ export interface Event {
   prix: number;
   capacite: number;
   statut: string;
+  activities?: {
+  idActivity: string;
+  nom: string;
+}[];
 }
