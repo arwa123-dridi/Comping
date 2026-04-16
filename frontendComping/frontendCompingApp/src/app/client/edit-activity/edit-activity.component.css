@@ -1,0 +1,117 @@
+/* Conteneur principal pour centrer comme une carte */
+.container {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: #f8fafc; /* Fond léger pour faire ressortir la carte */
+  min-height: 100vh;
+}
+
+.content-box {
+  width: 100%;
+  max-width: 550px;
+  background: white;
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+}
+
+.header-box {
+  margin-bottom: 25px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 15px;
+}
+
+.title {
+  color: #1b4332; /* Vert foncé de l'événement */
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0;
+  text-align: center;
+}
+
+/* Formulaire */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-family: inherit;
+  transition: all 0.2s;
+  box-sizing: border-box; /* Important pour le padding */
+}
+
+input:focus, textarea:focus {
+  border-color: #2d6a4f;
+  outline: none;
+  background-color: #f0fdf4; /* Un très léger fond vert au focus */
+}
+
+textarea {
+  resize: none;
+  height: 100px;
+}
+
+/* Ligne double (Durée / Capacité) */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* Boutons */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.btn-save {
+  flex: 2;
+  background: #2d6a4f;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-save:hover {
+  background: #1b4332;
+}
+
+.btn-cancel {
+  flex: 1;
+  background: #f1f5f9;
+  color: #64748b;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #e2e8f0;
+}
+
+.loading-text {
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+}

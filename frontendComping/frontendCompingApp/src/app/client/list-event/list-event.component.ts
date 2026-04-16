@@ -2,18 +2,20 @@ import { Component, OnInit } from '@angular/core';
 import { EventService } from '../../services/event.service';
 import { CommonModule } from '@angular/common';
 import { Event as AppEvent } from '../../models/event.model';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { EditeEventComponent } from '../edite-event/edite-event.component';
 
 
 @Component({
   selector: 'app-list-event',
    standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, EditeEventComponent,RouterLink],
   templateUrl: './list-event.component.html',
   styleUrl: './list-event.component.css'
 })
 export class ListEventComponent implements OnInit  {
    events: AppEvent[] = [];
+   selectedEvent: any = null;
   StatutEvent = String;
   validCount = 12;
 termineCount = 5;
@@ -48,7 +50,7 @@ getTopBarClass(statut: string): string {
   }
 }
 editEvent(event: any): void {
-  this.router.navigate(['/edit-event', event.idEvent]);
+  this.router.navigate(['events/edit', event.idEvent]);
 }
 deleteEvent(id: string | undefined): void {
   if (!id) return;
@@ -60,12 +62,12 @@ deleteEvent(id: string | undefined): void {
   });
 }
 onCreateEvent() {
-    console.log('Bouton Créer Événement cliqué');
+  this.router.navigate(['/events/add']);
     // Ici, tu peux ouvrir un modal ou rediriger vers une page de création
     // Exemple : this.router.navigate(['/creer-evenement']);
   }
   onCreateActivity() {
-    console.log('Bouton Créer Activité cliqué');
+    this.router.navigate(['/activities/add']);
     // Ici, ton code pour créer une activité
   }
 }
