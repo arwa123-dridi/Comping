@@ -73,4 +73,9 @@ public class EventServiceImpl implements  EventService{
             eventRepository.deleteById(id);
 
     }
+
+    @Override
+    public long countByStatut(String statut) {
+        return eventRepository.countByStatut(statut);
+    }
 }
