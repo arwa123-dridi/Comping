@@ -50,4 +50,18 @@ public class EventController {
         eventService.deleteEvent(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/count/valide")
+    public ResponseEntity<Long> countValide() {
+        return ResponseEntity.ok(eventService.countByStatut("VALIDE"));
+    }
+
+    @GetMapping("/count/termine")
+    public ResponseEntity<Long> countTermine() {
+        return ResponseEntity.ok(eventService.countByStatut("TERMINE"));
+    }
+
+    @GetMapping("/count/annule")
+    public ResponseEntity<Long> countAnnule() {
+        return ResponseEntity.ok(eventService.countByStatut("ANNULE"));
+    }
 }

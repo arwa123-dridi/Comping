@@ -9,17 +9,17 @@ public class Constants {
 
     public static final String CREATE_EVENT = "/CREATE/EVENT";
     public static final String GET_ALL_EVENTS = "";
-    public static final String GET_EVENT_BY_ID = "/{id}";
-    public static final String UPDATE_EVENT = "/{id}";
+    public static final String GET_EVENT_BY_ID = "EVENTBYID/{id}";
+    public static final String UPDATE_EVENT = "/UPDATE/{id}";
     public static final String DELETE_EVENT = "/{id}";
     //api activity
     public static final String BASE_URL_ACTIVITY = "/api/activities";
 
-    public static final String CREATE_ACTIVITY = "";
+    public static final String CREATE_ACTIVITY = "/add";
     public static final String GET_ALL_ACTIVITIES = "/GetAllActivities";
     public static final String GET_ACTIVITY_BY_ID = "/{id}";
-    public static final String UPDATE_ACTIVITY = "/{id}";
-    public static final String DELETE_ACTIVITY = "/{id}";
+    public static final String UPDATE_ACTIVITY = "updateactivity/{id}";
+    public static final String DELETE_ACTIVITY = "deleteactivity/{id}";
 
 
     //api demande transport
