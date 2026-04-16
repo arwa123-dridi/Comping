@@ -49,4 +49,29 @@ createEvent(event: EventModel): Observable<EventModel> {
     }
   );
 }
+updateEvent(id: string, event: EventModel): Observable<EventModel> {
+  const token = localStorage.getItem('authToken');
+
+  return this.http.put<EventModel>(
+    `${this.apiUrl}/UPDATE/${id}`, 
+    event,
+    {
+      headers: token
+        ? { Authorization: `Bearer ${token}` }
+        : {}
+    }
+  );
+}
+getEventById(id: string): Observable<EventModel> {
+  const token = localStorage.getItem('authToken');
+
+  return this.http.get<EventModel>(
+    `${this.apiUrl}/EVENTBYID/${id}`,
+    {
+      headers: token
+        ? { Authorization: `Bearer ${token}` }
+        : {}
+    }
+  );
+}
 }
