@@ -1,0 +1,127 @@
+<div class="header">
+
+  <!-- LEFT: Toggle + Search -->
+  <div class="header-left">
+
+    <button class="menu-toggle" (click)="toggleSidebar()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="search-bar">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" placeholder="Rechercher ou taper une commande..." />
+      <span class="search-shortcut">⌘K</span>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Actions + User -->
+  <div class="header-right">
+
+    <!-- Dark mode toggle -->
+    <button class="icon-btn" (click)="toggleTheme()" [title]="isDark ? 'Mode clair' : 'Mode sombre'">
+      <svg *ngIf="!isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="5"/>
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+      </svg>
+      <svg *ngIf="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+
+    <!-- Notifications -->
+    <div class="dropdown-wrapper">
+      <button class="icon-btn" (click)="toggleNotif()" title="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="badge" *ngIf="notifCount > 0">{{ notifCount }}</span>
+      </button>
+
+      <!-- Dropdown notifications -->
+      <div class="dropdown notif-dropdown" *ngIf="showNotif">
+        <div class="dropdown-header">
+          <span>Notifications</span>
+          <button class="mark-all" (click)="clearNotifs()">Tout lire</button>
+        </div>
+        <div class="notif-item unread">
+          <div class="notif-dot"></div>
+          <div class="notif-content">
+            <p>Nouvel emplacement ajouté</p>
+            <span>Il y a 5 min</span>
+          </div>
+        </div>
+        <div class="notif-item unread">
+          <div class="notif-dot"></div>
+          <div class="notif-content">
+            <p>Réservation confirmée #142</p>
+            <span>Il y a 22 min</span>
+          </div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-dot read"></div>
+          <div class="notif-content">
+            <p>Mise à jour du matériel</p>
+            <span>Hier</span>
+          </div>
+        </div>
+        <div class="dropdown-footer" routerLink="/admin/notifications">
+          Voir toutes les notifications
+        </div>
+      </div>
+    </div>
+
+    <!-- User menu -->
+    <div class="dropdown-wrapper">
+      <div class="user-menu" (click)="toggleUserMenu()">
+        <div class="avatar">
+          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin&backgroundColor=b6e3f4" alt="Admin" />
+        </div>
+        <div class="user-info">
+          <span class="user-name">Admin</span>
+          <span class="user-role">Super Admin</span>
+        </div>
+        <svg class="chevron" [class.open]="showUserMenu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+
+      <!-- Dropdown user -->
+      <div class="dropdown user-dropdown" *ngIf="showUserMenu">
+        <div class="user-dropdown-header">
+          <div class="avatar-lg">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin&backgroundColor=b6e3f4" alt="Admin" />
+          </div>
+          <div>
+            <p class="ud-name">Admin</p>
+            <p class="ud-email">admin&#64;campino.com</p>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" routerLink="/admin/profil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Mon profil
+        </a>
+        <a class="dropdown-item" routerLink="/admin/parametres">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Paramètres
+        </a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item logout" (click)="logout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Se déconnecter
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Overlay pour fermer les dropdowns -->
+<div class="overlay" *ngIf="showNotif || showUserMenu" (click)="closeAll()"></div>

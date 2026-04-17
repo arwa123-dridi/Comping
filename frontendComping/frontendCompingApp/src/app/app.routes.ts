@@ -5,6 +5,8 @@ import { HomeComponent } from './Home/home/home.component';
 import { ProfileComponent } from './profile/profile.component'; 
 import { SigninComponent } from './signin/signin.component';
 import { ReservationsComponent } from './reservations/reservations.component';
+import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
+import { DashboardComponent } from './admin/dashboard/dashboard.component';
 
 export const routes: Routes = [
   { path: 'Campino', component: HomeComponent },
@@ -12,5 +14,12 @@ export const routes: Routes = [
   { path: 'profile', component: ProfileComponent }, 
   {path: 'reservations', component: ReservationsComponent},  
   { path: '', redirectTo: 'Campino', pathMatch: 'full' },
-  { path: 'login', component: SigninComponent }
+  { path: 'login', component: SigninComponent },
+   {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    children: [
+      { path: 'dashboard', component: DashboardComponent }
+    ]
+  },
 ];
