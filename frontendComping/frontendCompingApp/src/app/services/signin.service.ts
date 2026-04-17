@@ -27,6 +27,21 @@ login(dto: { email: string, password: string }): Observable<LoginDTOResponse> {
     headers: { 'Content-Type': 'application/json' }
   });
 }
+
+logout(): Observable<any> {
+    const token = this.getToken();
+
+    return this.http.post(
+      `${this.apiUrl}/logout`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+  }
+
   saveToken(token: string) {
     localStorage.setItem('authToken', token);
   }
@@ -35,4 +50,7 @@ login(dto: { email: string, password: string }): Observable<LoginDTOResponse> {
     return localStorage.getItem('authToken');
   }
 
+  clearToken() {
+    localStorage.removeItem('authToken');
+  }
 }

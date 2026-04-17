@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { SigninService, LoginDTORequest, LoginDTOResponse } from '../services/signin.service';
 
 @Component({
@@ -21,7 +21,7 @@ export class SigninComponent {
   errorMsg     = '';
 
 
-  constructor(private signinService: SigninService) {}
+  constructor(private signinService: SigninService,private router: Router) {}
 
   togglePassword(): void {
     this.showPassword = !this.showPassword;
@@ -43,6 +43,7 @@ export class SigninComponent {
         this.isLoading = false;
         console.log('Login réussi', res);
         this.signinService.saveToken(res.token);
+         this.router.navigate(['/Campino']);
       },
       error: (err) => {
         this.isLoading = false;

@@ -1,6 +1,7 @@
 import {Component, OnInit, OnDestroy, ViewEncapsulation} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { SigninService } from '../../services/signin.service';
 
 @Component({
   selector: 'app-home',
@@ -14,6 +15,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   currentSlide = 0;
   private timer: any;
+
+  constructor(private signinService: SigninService) {}
 
   slides = [
     { url: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1200&q=80', label: '🏕️ Forêt · Ain Draham' },
@@ -62,5 +65,23 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   get currentLabel(): string {
     return this.slides[this.currentSlide].label;
+  }
+
+   isLoggedIn(): boolean {
+    return !!this.signinService.getToken();
+  }
+
+  
+  logout(): void {
+    this.signinService.logout().subscribe({
+      next: () => {
+        this.signinService.clearToken();
+        window.location.href = '/login';
+      },
+      error: () => {
+        this.signinService.clearToken();
+        window.location.href = '/login';
+      }
+    });
   }
 }
