@@ -1,0 +1,49 @@
+<div class="detail-page" *ngIf="product">
+
+  <!-- LEFT: IMAGE -->
+  <div class="image-section">
+    <img [src]="product.imageUrl" alt="product image" />
+  </div>
+
+  <!-- RIGHT: INFO -->
+  <div class="info-section">
+
+    <div class="header">
+      <h1>{{ product.nomProduit }}</h1>
+      <span class="status" [ngClass]="product.statut">
+        {{ product.statut }}
+      </span>
+    </div>
+
+    <p class="description">
+      {{ product.descriptionProduit }}
+    </p>
+
+    <div class="price">
+      {{ product.prixProduit }} TND
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h4>Catégorie</h4>
+        <p>{{ product.categorieProduit }}</p>
+      </div>
+
+      <div class="card">
+        <h4>Quantité stock</h4>
+        <p>{{ product.quantiteStock }}</p>
+      </div>
+
+      <div class="card">
+        <h4>Seuil d’alerte</h4>
+        <p>{{ product.seuilAlerteStock }}</p>
+      </div>
+    </div>
+
+<button class="btn secondary" (click)="goBack()">
+  Retour
+</button>
+
+  </div>
+
+</div>

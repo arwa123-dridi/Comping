@@ -29,14 +29,12 @@
         </option>
       </select>
 
-      <label>Type</label>
-      <input type="text" [(ngModel)]="product.typeProduit" name="typeProduit" placeholder="Type du produit" />
-
-      <label>Statut</label>
-      <select [(ngModel)]="product.statut" name="statut">
-        <option value="Disponible">Disponible</option>
-        <option value="Indisponible">Indisponible</option>
-      </select>
+      <label>Quantité en stock</label>
+      <input type="number" [(ngModel)]="product.quantiteStock" name="quantiteStock" placeholder="Quantité disponible"
+        required />
+      <label>Seuil d'alerte stock</label>
+      <input type="number" [(ngModel)]="product.seuilAlerteStock" name="seuilAlerteStock" placeholder="Ex: 5"
+        required />
 
       <!-- IMAGE UPLOAD -->
       <label>Image du produit</label>

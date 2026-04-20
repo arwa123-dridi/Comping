@@ -2,6 +2,8 @@ package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import tn.comping.spring.backendcomping.dto.RequestProduitDTO;
 import tn.comping.spring.backendcomping.dto.ResponseProduitDTO;
+import tn.comping.spring.backendcomping.entities.Produit;
+
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;

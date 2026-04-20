@@ -2,5 +2,6 @@ package tn.comping.spring.backendcomping.entities;
 
 public enum statutProduit {
     Disponible,
-    Indisponible
+    STOCK_FAIBLE,      // stock <= seuil d’alerte
+    RUPTURE_STOCK      // stock = 0
 }

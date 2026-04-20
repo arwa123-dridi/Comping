@@ -6,6 +6,7 @@ import { SidebarComponent } from '../layouts/sidebar/sidebar.component';
 import { AddProductComponent } from '../add-product/add-product.component';
 import { EditProductComponent } from '../edit-product/edit-product.component';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 
 interface Product {
   id: string;
@@ -13,9 +14,10 @@ interface Product {
   descriptionProduit: string;
   prixProduit: number;
   categorieProduit: string;
-  typeProduit: string;
   statut: string;
   imageUrl?: string;
+   quantiteStock?: number;
+  seuilAlerteStock?: number;
 }
 
 @Component({
@@ -72,7 +74,8 @@ categories: string[] = [
 
   constructor(
     private http: HttpClient,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+      private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -89,7 +92,8 @@ categories: string[] = [
           descriptionProduit: p.descriptionProduit,
           prixProduit: p.prixProduit,
           categorieProduit: p.categorieProduit,
-          typeProduit: p.typeProduit,
+          quantiteStock: p.quantiteStock,
+          seuilAlerteStock: p.seuilAlerteStock,
           statut: p.statut,
           imageUrl: p.imageUrl
             ? `http://localhost:8087${p.imageUrl}`
@@ -183,5 +187,8 @@ categories: string[] = [
 
     return matchSearch && matchCategory && matchStatus;
   });
+}
+viewProduct(id: string) {
+  this.router.navigate(['/products', id]);
 }
 }

@@ -16,9 +16,7 @@
       <button class="add-btn" (click)="addProduct()">+ Ajouter un produit</button>
 
       <!-- Add Product Modal -->
-      <app-add-product *ngIf="showAddModal" 
-        (close)="showAddModal = false" 
-        (productAdded)="loadProducts()">
+      <app-add-product *ngIf="showAddModal" (close)="showAddModal = false" (productAdded)="loadProducts()">
       </app-add-product>
     </div>
 
@@ -26,35 +24,31 @@
     <div class="table-card">
 
       <div class="table-header">
-  <h2>Liste des produits</h2>
+        <h2>Liste des produits</h2>
 
-  <div class="right-controls">
+        <div class="right-controls">
 
-    <!-- CATEGORY -->
-    <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
-      <option value="">Toutes catégories</option>
-      <option *ngFor="let c of categories" [value]="c">
-        {{ c }}
-      </option>
-    </select>
+          <!-- CATEGORY -->
+          <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+            <option value="">Toutes catégories</option>
+            <option *ngFor="let c of categories" [value]="c">
+              {{ c }}
+            </option>
+          </select>
 
-    <!-- STATUS -->
-    <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
-      <option value="">Tous statuts</option>
-      <option value="Disponible">Disponible</option>
-      <option value="Indisponible">Indisponible</option>
-    </select>
+          <!-- STATUS -->
+          <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+            <option value="">Tous statuts</option>
+            <option value="Disponible">Disponible</option>
+            <option value="STOCK_FAIBLE">Stock faible</option>
+            <option value="RUPTURE_STOCK">Rupture de stock</option>
+          </select>
 
-    <!-- SEARCH -->
-    <input
-      type="text"
-      placeholder="Rechercher produit..."
-      [(ngModel)]="searchTerm"
-      (input)="applyFilters()"
-    />
+          <!-- SEARCH -->
+          <input type="text" placeholder="Rechercher produit..." [(ngModel)]="searchTerm" (input)="applyFilters()" />
 
-  </div>
-</div>
+        </div>
+      </div>
 
       <table class="product-table">
 
@@ -64,7 +58,8 @@
             <th>Description</th>
             <th>Prix</th>
             <th>Catégorie</th>
-            <th>Type</th>
+            <th>Quantité Stock</th>
+            <th>Seuil Stock</th>
             <th>Statut</th>
             <th class="text-right">Actions</th>
           </tr>
@@ -83,27 +78,54 @@
               </div>
             </td>
 
+            <!-- DESCRIPTION -->
             <td class="desc">{{ p.descriptionProduit }}</td>
-            <td class="price"> {{ p.prixProduit | number:'1.2-2' }} TND </td>
-            <td><span class="category">{{ p.categorieProduit }}</span></td>
-            <td><span class="type-badge">{{ p.typeProduit }}</span></td>
 
+            <!-- PRICE -->
+            <td class="price">
+              {{ p.prixProduit | number:'1.2-2' }} TND
+            </td>
+
+            <!-- CATEGORY -->
+            <td>
+              <span class="category">{{ p.categorieProduit }}</span>
+            </td>
+
+            <!-- STOCK QUANTITY -->
+            <td>
+              <span class="stock">
+                {{ p.quantiteStock }}
+              </span>
+            </td>
+
+            <!-- STOCK THRESHOLD -->
+            <td>
+              <span class="threshold">
+                {{ p.seuilAlerteStock }}
+              </span>
+            </td>
+
+            <!-- STATUS (FIXED LOGIC) -->
             <td>
               <span class="status" [ngClass]="{
-                'available': p.statut === 'Disponible',
-                'unavailable': p.statut !== 'Disponible'
-              }">
+          'available': p.statut === 'Disponible',
+          'low-stock': p.statut === 'STOCK_FAIBLE',
+          'out-stock': p.statut === 'RUPTURE_STOCK'
+        }">
                 {{ p.statut }}
               </span>
             </td>
 
-            <!-- ✅ ACTIONS -->
+            <!-- ACTIONS -->
             <td class="actions">
+              <button class="icon-btn view" (click)="viewProduct(p.id)">
+                👁 Voir
+              </button>
+
               <button class="icon-btn edit" (click)="editProduct(p.id)">
                 ✏️ Modifier
               </button>
 
-              <!-- ✅ UPDATED DELETE BUTTON -->
               <button class="icon-btn delete" (click)="confirmDelete(p.id)">
                 🗑 Supprimer
               </button>
@@ -115,11 +137,8 @@
       </table>
 
       <!-- Edit Product Modal -->
-      <app-edit-product 
-        *ngIf="showEditModal && selectedProductId" 
-        [productId]="selectedProductId"
-        (close)="showEditModal = false; selectedProductId = null"
-        (productUpdated)="loadProducts()">
+      <app-edit-product *ngIf="showEditModal && selectedProductId" [productId]="selectedProductId"
+        (close)="showEditModal = false; selectedProductId = null" (productUpdated)="loadProducts()">
       </app-edit-product>
 
     </div>
@@ -131,7 +150,7 @@
 <!-- ========================= -->
 <div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
   <div class="modal-content" (click)="$event.stopPropagation()">
-    
+
     <h3>Confirmation</h3>
     <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
 

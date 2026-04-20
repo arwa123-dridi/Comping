@@ -172,15 +172,24 @@
   font-weight: 500;
 }
 
+/* DISPONIBLE */
 .status.available {
   background: #dcfce7;
   color: #16a34a;
 }
 
-.status.unavailable {
+/* STOCK FAIBLE */
+.status.low-stock {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+/* RUPTURE STOCK */
+.status.out-stock {
   background: #fee2e2;
   color: #dc2626;
 }
+
 
 /* ACTIONS */
 .actions {

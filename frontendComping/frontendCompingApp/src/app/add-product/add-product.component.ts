@@ -9,8 +9,9 @@ interface Product {
   descriptionProduit: string;
   prixProduit: number;
   categorieProduit: string | null; // ⭐ string instead of number
-  typeProduit: string;
   statut: string;
+  quantiteStock?: number;
+  seuilAlerteStock?: number;
   imageUrl?: string;
 }
 
@@ -53,14 +54,15 @@ export class AddProductComponent {
     descriptionProduit: '',
     prixProduit: 0,
     categorieProduit: null,
-    typeProduit: '',
+    quantiteStock: 0,        // ✅ AJOUT
+    seuilAlerteStock: 0,
     statut: 'Disponible',
     imageUrl: undefined
   };
 
   selectedFile: File | null = null;
 
-  constructor(private http: HttpClient, private toastr: ToastrService) {}
+  constructor(private http: HttpClient, private toastr: ToastrService) { }
 
   // 📷 Select image + preview
   onFileSelected(event: Event) {
@@ -91,6 +93,16 @@ export class AddProductComponent {
       return;
     }
 
+    if (this.product.quantiteStock! < 0) {
+    this.toastr.warning("La quantité ne peut pas être négative");
+    return;
+  }
+
+  if (this.product.seuilAlerteStock! < 0) {
+    this.toastr.warning("Le seuil d'alerte ne peut pas être négatif");
+    return;
+  }
+
     const formData = new FormData();
 
     formData.append('produit', JSON.stringify({
@@ -98,7 +110,8 @@ export class AddProductComponent {
       descriptionProduit: this.product.descriptionProduit,
       prixProduit: this.product.prixProduit,
       categorieProduit: this.product.categorieProduit, // ⭐ STRING ENUM
-      typeProduit: this.product.typeProduit,
+      quantiteStock: this.product.quantiteStock,         // ✅ AJOUT
+      seuilAlerteStock: this.product.seuilAlerteStock,
       statut: this.product.statut
     }));
 

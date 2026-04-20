@@ -10,8 +10,9 @@ interface Product {
   descriptionProduit: string;
   prixProduit: number;
   categorieProduit: string | null; // ⭐ STRING now
-  typeProduit: string;
   statut: string;
+  quantiteStock?: number;
+  seuilAlerteStock?: number;
   imageUrl?: string;
 }
 
@@ -57,16 +58,17 @@ export class EditProductComponent implements OnInit, OnChanges {
     descriptionProduit: '',
     prixProduit: 0,
     categorieProduit: null,
-    typeProduit: '',
     statut: 'Disponible',
+    quantiteStock: 0,        // ✅ AJOUT
+    seuilAlerteStock: 0,
     imageUrl: ''
   };
 
   selectedFile!: File;
 
-  constructor(private http: HttpClient, private toastr: ToastrService) {}
+  constructor(private http: HttpClient, private toastr: ToastrService) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['productId'] && this.productId) {
@@ -84,7 +86,8 @@ export class EditProductComponent implements OnInit, OnChanges {
           descriptionProduit: data.descriptionProduit,
           prixProduit: data.prixProduit,
           categorieProduit: data.categorieProduit, // ⭐ already string from backend
-          typeProduit: data.typeProduit,
+          quantiteStock: data.quantiteStock ?? 0,        // ✅ AJOUT
+          seuilAlerteStock: data.seuilAlerteStock ?? 0,
           statut: data.statut ?? 'Disponible',
           imageUrl: data.imageUrl
             ? `http://localhost:8087${data.imageUrl}`
@@ -125,6 +128,16 @@ export class EditProductComponent implements OnInit, OnChanges {
       return;
     }
 
+    if ((this.product.quantiteStock ?? 0) < 0) {
+      this.toastr.warning("La quantité ne peut pas être négative");
+      return;
+    }
+
+    if ((this.product.seuilAlerteStock ?? 0) < 0) {
+      this.toastr.warning("Le seuil ne peut pas être négatif");
+      return;
+    }
+
     const formData = new FormData();
 
     formData.append('produit', JSON.stringify({
@@ -132,7 +145,8 @@ export class EditProductComponent implements OnInit, OnChanges {
       descriptionProduit: this.product.descriptionProduit,
       prixProduit: this.product.prixProduit,
       categorieProduit: this.product.categorieProduit, // ⭐ STRING ENUM
-      typeProduit: this.product.typeProduit,
+      quantiteStock: this.product.quantiteStock,         // ✅ AJOUT
+      seuilAlerteStock: this.product.seuilAlerteStock,
       statut: this.product.statut
     }));
 
