@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import tn.comping.spring.backendcomping.dto.RequestProduitDTO;
 import tn.comping.spring.backendcomping.dto.ResponseProduitDTO;
 import tn.comping.spring.backendcomping.entities.Produit;
+import tn.comping.spring.backendcomping.entities.statutProduit;
 import tn.comping.spring.backendcomping.repositories.ProduitRepository;
 import tn.comping.spring.backendcomping.utils.mapper.ProduitMapper;
 
@@ -26,21 +27,24 @@ public class ProduitServiceImpl implements ProduitInter {
     private final String UPLOAD_DIR = "uploads/products/";
 
     // ================= ADD PRODUIT WITH IMAGE =================
-    @Override
-    public ResponseProduitDTO addProduit(RequestProduitDTO produitDTO, MultipartFile image) {
+   @Override
+public ResponseProduitDTO addProduit(RequestProduitDTO produitDTO, MultipartFile image) {
 
-        Produit produit = ProduitMapper.toEntity(produitDTO);
+    Produit produit = ProduitMapper.toEntity(produitDTO);
 
-        // upload image if exists
-        if (image != null && !image.isEmpty()) {
-            String imageUrl = uploadImage(image);
-            produit.setImageUrl(imageUrl);
-        }
-
-        Produit savedProduit = produitRepository.save(produit);
-        return ProduitMapper.toResponseDTO(savedProduit);
+    // upload image
+    if (image != null && !image.isEmpty()) {
+        String imageUrl = uploadImage(image);
+        produit.setImageUrl(imageUrl);
     }
 
+    // 🆕 calculate stock status BEFORE saving
+    updateStatutProduit(produit);
+
+    Produit savedProduit = produitRepository.save(produit);
+
+    return ProduitMapper.toResponseDTO(savedProduit);
+}
     // ================= GET ALL =================
     @Override
     public List<ResponseProduitDTO> getAllProduits() {
@@ -60,22 +64,26 @@ public class ProduitServiceImpl implements ProduitInter {
 
     // ================= UPDATE WITH IMAGE =================
     @Override
-    public ResponseProduitDTO updateProduit(String id, RequestProduitDTO produitDTO, MultipartFile image) {
+public ResponseProduitDTO updateProduit(String id, RequestProduitDTO produitDTO, MultipartFile image) {
 
-        Produit produit = produitRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produit not found"));
+    Produit produit = produitRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Produit not found"));
 
-        ProduitMapper.updateEntityFromDTO(produitDTO, produit);
+    ProduitMapper.updateEntityFromDTO(produitDTO, produit);
 
-        // replace image if new uploaded
-        if (image != null && !image.isEmpty()) {
-            String imageUrl = uploadImage(image);
-            produit.setImageUrl(imageUrl);
-        }
-
-        Produit updatedProduit = produitRepository.save(produit);
-        return ProduitMapper.toResponseDTO(updatedProduit);
+    // replace image if needed
+    if (image != null && !image.isEmpty()) {
+        String imageUrl = uploadImage(image);
+        produit.setImageUrl(imageUrl);
     }
+
+    // 🆕 recalculate status after update
+    updateStatutProduit(produit);
+
+    Produit updatedProduit = produitRepository.save(produit);
+
+    return ProduitMapper.toResponseDTO(updatedProduit);
+}
 
     // ================= DELETE =================
     @Override
@@ -110,4 +118,19 @@ public class ProduitServiceImpl implements ProduitInter {
                 .map(ProduitMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
+    //updatestatutProduit
+    private void updateStatutProduit(Produit produit) {
+
+    if (produit.getQuantiteStock() == null) return;
+
+    if (produit.getQuantiteStock() == 0) {
+        produit.setStatut(statutProduit.RUPTURE_STOCK);
+    }
+    else if (produit.getQuantiteStock() <= produit.getSeuilAlerteStock()) {
+        produit.setStatut(statutProduit.STOCK_FAIBLE);
+    }
+    else {
+        produit.setStatut(statutProduit.Disponible);
+    }
+}
 }

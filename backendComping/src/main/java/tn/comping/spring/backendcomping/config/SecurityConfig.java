@@ -55,7 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/moderateur/**").hasRole("MODERATEUR")
                         .requestMatchers("/api/organisateur/**").hasRole("ORGANISATEUR")
-
+                        .requestMatchers("/api/produits/**").authenticated()
                         // Avis – MODERATEUR ou ADMIN
                         .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
