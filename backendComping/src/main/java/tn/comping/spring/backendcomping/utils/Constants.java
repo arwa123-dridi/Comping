@@ -12,6 +12,14 @@ public class Constants {
     public static final String GET_EVENT_BY_ID = "EVENTBYID/{id}";
     public static final String UPDATE_EVENT = "/UPDATE/{id}";
     public static final String DELETE_EVENT = "/{id}";
+
+    public static final String COUNT_VALID = "/count/valide";
+    public static final String COUNT_DONE = "/count/termine";
+    public static final String COUNT_CANCELLED = "/count/annule";
+
+    // ================= PARTICIPATION =================
+    public static final String PARTICIPATE = "/{eventId}/participate";
+    public static final String CANCEL_PARTICIPATION = "/{eventId}/cancel";
     //api activity
     public static final String BASE_URL_ACTIVITY = "/api/activities";
 

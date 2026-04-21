@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(collection = "events")
@@ -22,9 +23,15 @@ public class Event {
     private String description;
     private double prix;
     private int capacite;
+    private LocalDateTime dateDebut;
+    private LocalDateTime dateFin;
     private StatutEvent statut;
-
-
+    private String lieu;
+    private String organisateurId;
+    private List<String> participantIds;
+    private String imageUrl;
+    private String categorie;
+    private LocalDateTime createdAt;
     private List<String> activityIds;
 
 }
