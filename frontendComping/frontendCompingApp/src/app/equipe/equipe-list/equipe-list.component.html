@@ -153,4 +153,11 @@
     </div>
 
   </div>
+  
+  <!-- Section recommandations équipes -->
+<app-equipe-recommandations
+  *ngIf="!loading && equipes.length > 0"
+  [allEquipes]="equipes">
+</app-equipe-recommandations>
+  
 </div>

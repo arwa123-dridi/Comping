@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { SortieService } from '../../services/sortie.service';
 import { SortieResponse } from '../../models/sortie.model';
-import { HttpErrorResponse } from '@angular/common/http';
+import { SortieRecommandationsComponent } from '../sortie-recommandations/sortie-recommandations-module';
 
 @Component({
   selector: 'app-sortie-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, SortieRecommandationsComponent],
   templateUrl: './sortie-list.component.html',
   styleUrls: ['./sortie-list.component.css']
 })
@@ -45,8 +45,8 @@ export class SortieListComponent implements OnInit {
         this.sorties = data || [];
         this.loading = false;
       },
-      error: (err: HttpErrorResponse) => {
-        if (err.status === 401) {
+      error: (err: any) => {
+        if ((err as any).status === 401) {
           this.router.navigate(['/login']);
         } else {
           this.error = 'Erreur lors du chargement des randonnées.';
@@ -124,13 +124,13 @@ export class SortieListComponent implements OnInit {
         this.loadSorties();
         alert('✅ Inscription réussie !');
       },
-      error: (err: HttpErrorResponse) => {
-        if (err.status === 401) {
+      error: (err: any) => {
+        if ((err as any).status === 401) {
           this.router.navigate(['/login']);
-        } else if (err.status === 409) {
+        } else if ((err as any).status === 409) {
           alert('Vous êtes déjà inscrit à cette sortie.');
         } else {
-          alert(err.error?.message || 'Erreur lors de l\'inscription');
+          alert((err as any).error?.message || "Erreur lors de l'inscription");
         }
       }
     });

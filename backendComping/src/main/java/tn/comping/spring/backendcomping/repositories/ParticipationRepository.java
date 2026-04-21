@@ -14,10 +14,6 @@ public interface ParticipationRepository extends MongoRepository<Participation, 
     @Query("{ 'sortie.$id' : ?0 }")
     List<Participation> findBySortieId(String sortieId);
 
-    //  Utilise l'ID de l'utilisateur depuis la référence
-    @Query("{ 'utilisateur.$id' : ?0 }")
-    List<Participation> findByUtilisateurId(String utilisateurId);
-
     // = Recherche par les deux IDs
     @Query("{ 'utilisateur.$id' : ?0, 'sortie.$id' : ?1 }")
     Optional<Participation> findByUtilisateurIdAndSortieId(String utilisateurId, String sortieId);
@@ -28,4 +24,22 @@ public interface ParticipationRepository extends MongoRepository<Participation, 
 
     // Comptage par ID de sortie
     long countBySortieId(String sortieId);
+
+    // Compter les participations d'un user (pour seuil historique)
+    @Query(value = "{ 'utilisateur.$id' : ?0 }", count = true)
+    long countByUtilisateurId(String utilisateurId);
+
+    // Toutes les participations triées par date DESC
+    @Query("{ 'utilisateur.$id' : ?0 }")
+    List<Participation> findByUtilisateurIdOrderByDateInscriptionDesc(String utilisateurId);
+
+
+    // Vérifier si un utilisateur est déjà inscrit à une sortie
+    @Query(value = "{ 'utilisateur.$id' : ?0, 'sortie.$id' : ?1 }", exists = true)
+    boolean existsByUtilisateurIdAndSortieId(String utilisateurId, String sortieId);
+
+    // Récupérer toutes les participations d’un user (pour l’historique)
+    @Query("{ 'utilisateur.$id' : ?0 }")
+    List<Participation> findByUtilisateurId(String utilisateurId);
+
 }

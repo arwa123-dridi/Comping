@@ -4,11 +4,14 @@ import { RouterModule, Router } from '@angular/router';
 import { EquipeService } from '../../services/equipe.service';
 import { EquipeResponse } from '../../models/equipe.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { EquipeRecommandationsComponent } from '../equipe-recommandations/equipe-recommandations-module';
+
+
 
 @Component({
   selector: 'app-equipe-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule ,EquipeRecommandationsComponent],
   templateUrl: './equipe-list.component.html',
   styleUrls: ['./equipe-list.component.css']
 })
@@ -145,4 +148,5 @@ export class EquipeListComponent implements OnInit {
   }
 
   trackById(_: number, eq: EquipeResponse): string { return eq.id; }
+  
 }

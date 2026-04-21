@@ -177,7 +177,7 @@ export class ProfileComponent implements OnInit {
     this.http.put(
       `http://localhost:8087/api/users/${this.userId}/password`,
       this.passwordForm.value,
-      { headers: this.getHeaders(), responseType: 'text' }  // ✅ Bug 2 fix
+      { headers: this.getHeaders(), responseType: 'text' } 
     ).subscribe({
       next: (response: string) => {
         this.successMessage = response || 'Mot de passe modifié avec succès';

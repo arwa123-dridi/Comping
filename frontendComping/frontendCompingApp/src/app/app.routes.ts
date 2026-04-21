@@ -45,7 +45,7 @@ export const routes: Routes = [
     
     // Dashboards randonner/equipe (protected)
     { path: 'dashboard', component: DashboardUserComponent, canActivate: [AuthGuard] },
-    { path: 'dashboard/admin', component: DashboardAdminComponent, canActivate: [AdminGuard] },
+    { path: 'admin/dashboard', component: DashboardAdminComponent, canActivate: [AdminGuard] },
     
     // Redirection
     { path: '**', redirectTo: 'Campino' }

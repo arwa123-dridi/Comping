@@ -1,7 +1,5 @@
 <!-- ============================================================
      SORTIE LIST — CAMPINO   (Randonnées)
-     Couleurs : vert #3da859 · bleu #1b2a4a · ciel #1f73a3
-                jaune #f5e642 · orange #f29027 · rose #e02f2f
      ============================================================ -->
 <div class="sorties-page">
 
@@ -138,4 +136,11 @@
     </div>
 
   </div>
+
+  <!-- ══ SECTION RECOMMANDATIONS (Workflow 1) ══════════════════ -->
+  <app-sortie-recommandations
+    *ngIf="!loading && sorties.length > 0"
+    [allSorties]="sorties">
+  </app-sortie-recommandations>
+
 </div>

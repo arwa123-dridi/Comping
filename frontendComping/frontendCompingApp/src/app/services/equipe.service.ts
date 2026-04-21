@@ -1,8 +1,9 @@
-// ✅ Version corrigée avec headers
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { EquipeRequest, EquipeResponse } from '../models/equipe.model';
+import { EquipeScoreDTO } from '../models/equipe-score.model';
+
 
 @Injectable({
     providedIn: 'root'
@@ -63,4 +64,13 @@ export class EquipeService {
             headers: this.getHeaders()
         });
     }
+
+    private recommandationsUrl = 'http://localhost:8087/api/recommandations';
+
+getRecommandationsEquipes(userId: string): Observable<EquipeScoreDTO[]> {
+    return this.http.get<EquipeScoreDTO[]>(
+        `${this.recommandationsUrl}/equipes?userId=${userId}`,
+        { headers: this.getHeaders() }
+    );
+}
 }
