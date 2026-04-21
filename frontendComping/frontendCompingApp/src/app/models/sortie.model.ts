@@ -42,4 +42,5 @@ export interface SortieRequest {
     organisateurNom: string;
     equipeId?: string;
     distanceKm?: number;
+  imageUrl?: string;
 }

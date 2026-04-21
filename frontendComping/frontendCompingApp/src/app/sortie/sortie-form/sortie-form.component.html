@@ -63,7 +63,23 @@
             La description est obligatoire (minimum 10 caractères)
           </div>
         </div>
-      </div>
+
+        <!-- Image principale (CORRIGÉ : pas de formControlName, preview gérée) -->
+        <div class="field-group">
+          <label class="field-label">🖼️ Image principale (optionnel)</label>
+          <div class="image-upload-wrapper">
+            <input type="file" 
+                   class="campino-input image-upload-input"
+                   accept="image/*" 
+                   (change)="onFileSelected($event)">
+            <div *ngIf="getImagePreview()" class="image-preview">
+              <img [src]="getImagePreview()" alt="Aperçu">
+              <button type="button" (click)="clearImage()" class="clear-preview-btn">✕</button>
+            </div>
+          </div>
+          <div *ngIf="imageUploading" class="upload-spinner">Upload en cours...</div>
+        </div>
+      </div> <!-- fin section 1 -->
 
       <!-- ────────────────────────────────────────────
            SECTION 2 · Détails techniques
@@ -78,7 +94,6 @@
         </div>
 
         <div class="fields-grid">
-
           <!-- Date début -->
           <div class="field-group">
             <label class="field-label">📅 Date & Heure de départ *</label>
@@ -162,10 +177,9 @@
                    min="0"
                    placeholder="0 = gratuit">
           </div>
-
         </div>
 
-        <!-- Difficulté (radio visuel) -->
+        <!-- Difficulté -->
         <div class="field-group mt-4">
           <label class="field-label">🏔️ Niveau de difficulté *</label>
           <div class="diff-radio-group">
@@ -237,7 +251,6 @@
             <span>Chargement des équipes…</span>
           </div>
 
-          <!-- Grille de sélection d'équipes -->
           <div *ngIf="!equipesLoading && equipes.length > 0" class="equipes-select-grid">
             <div *ngFor="let eq of equipes"
                  class="equipe-option"
@@ -252,7 +265,6 @@
             </div>
           </div>
 
-          <!-- Fallback select si pas d'équipes -->
           <div *ngIf="!equipesLoading && equipes.length === 0" class="no-equipes">
             <p>Vous n'avez pas encore d'équipe.</p>
             <a routerLink="/equipes/create" class="btn-create-equipe">
@@ -264,13 +276,10 @@
             Veuillez sélectionner une équipe
           </div>
         </div>
-
       </div>
 
       <!-- ════ BOUTONS ════════════════════════════════════════ -->
       <div class="form-actions">
-
-        <!-- Indicateur de statut -->
         <div class="form-status"
              [class.status-valid]="sortieForm.valid"
              [class.status-invalid]="sortieForm.invalid && sortieForm.touched">
@@ -287,7 +296,7 @@
           </button>
           <button type="submit"
                   class="btn-submit"
-                  [disabled]="sortieForm.invalid || isLoading">
+                  [disabled]="sortieForm.invalid || isLoading || imageUploading">
             <span *ngIf="!isLoading">
               {{ isEdit ? '✏️ Enregistrer les modifications' : '🚀 Créer la randonnée' }}
             </span>
@@ -297,7 +306,6 @@
             </span>
           </button>
         </div>
-
       </div>
 
     </form>
