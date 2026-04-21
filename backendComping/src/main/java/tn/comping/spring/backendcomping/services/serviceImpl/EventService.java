@@ -13,4 +13,7 @@ public interface EventService {
     EventResponseDTO updateEvent(String id, EventRequestDTO dto);
     void deleteEvent(String id);
     long countByStatut(String statut);
+    EventResponseDTO participate(String eventId);
+    EventResponseDTO cancelParticipation(String eventId);
+
 }

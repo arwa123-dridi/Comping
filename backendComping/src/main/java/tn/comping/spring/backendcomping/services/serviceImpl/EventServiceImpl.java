@@ -1,6 +1,7 @@
 package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import tn.comping.spring.backendcomping.dto.EventRequestDTO;
 import tn.comping.spring.backendcomping.dto.EventResponseDTO;
@@ -20,7 +21,11 @@ public class EventServiceImpl implements  EventService{
     private final ActivityRepository activityRepository;
     @Override
     public EventResponseDTO createEvent(EventRequestDTO dto) {
+        String userId = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
         Event event = EventMapper.toEntity(dto);
+        event.setOrganisateurId(userId);
         return EventMapper.toDto(eventRepository.save(event));
     }
 
@@ -77,5 +82,47 @@ public class EventServiceImpl implements  EventService{
     @Override
     public long countByStatut(String statut) {
         return eventRepository.countByStatut(statut);
+    }
+
+    @Override
+    public EventResponseDTO participate(String eventId) {
+        // 1. Récupérer user connecté
+        String userId = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+
+        if (event.getParticipantIds() == null) {
+            event.setParticipantIds(new java.util.ArrayList<>());
+        }
+        if (event.getParticipantIds().size() >= event.getCapacite()) {
+            throw new RuntimeException("Event complet");
+        }
+
+        if (event.getParticipantIds().contains(userId)) {
+            throw new RuntimeException("Déjà inscrit à cet event");
+        }
+
+        event.getParticipantIds().add(userId);
+
+        Event saved = eventRepository.save(event);
+        return EventMapper.toDto(saved);
+    }
+
+    @Override
+    public EventResponseDTO cancelParticipation(String eventId) {
+        String userId = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+
+        if (event.getParticipantIds() != null) {
+            event.getParticipantIds().remove(userId);
+        }
+
+        return EventMapper.toDto(eventRepository.save(event));
     }
 }

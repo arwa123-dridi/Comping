@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import tn.comping.spring.backendcomping.entities.Activity;
 import tn.comping.spring.backendcomping.entities.StatutEvent;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -21,5 +22,10 @@ public class EventRequestDTO {
     private int capacite;
     private StatutEvent statut;
     private List<String> activityIds;
+    private LocalDateTime dateDebut;
+    private LocalDateTime dateFin;
+    private String lieu;
+    private String categorie;
+
 
 }
