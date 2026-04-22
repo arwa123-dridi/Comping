@@ -118,24 +118,35 @@ constructor(private fb: FormBuilder, private http: HttpClient, private router: R
     const formValue = this.signupForm.value;
 
     const signupData = {
-      ...formValue,
+      firstName: formValue.FirstName,
+      lastName: formValue.LastName,
+      email: formValue.email,
+      password: formValue.password,
       telephone: formValue.telephone || null,
-      address: formValue.address || null
+      address: formValue.address || null,
+      role: formValue.role
     };
 
     console.log('Signup data being sent to backend:', signupData); // <-- log cleaned data
 
-    this.http.post('http://localhost:8087/api/auth/registerUser', signupData)
+    const headers = { 'Content-Type': 'application/json' };
+    this.http.post<{ id: string, email: string, role: string }>('http://localhost:8087/api/auth/registerUser', signupData, { headers })
       .subscribe({
         next: (res) => {
-          console.log('Backend response:', res); // <-- log backend response
+          console.log('Backend response:', res);
+          localStorage.setItem('userId', res.id);
+          localStorage.setItem('userEmail', res.email);
+          localStorage.setItem('userRole', res.role || 'USER');
+          localStorage.setItem('userNom', `${formValue.FirstName} ${formValue.LastName}`);
+          
           this.successMessage = '🎉 Inscription réussie ! Vous pouvez maintenant vous connecter.';
-          this.signupForm.reset({ role: 'USER' });
+          this.signupForm.reset({ role: null });
           this.isLoading = false;
-          setTimeout(() => this.router.navigate(['/login']), 1500);
+          setTimeout(() => this.router.navigate(['/signin']), 2000);
         },
         error: (err) => {
-          console.error('Signup failed', err); // <-- already logging errors
+          console.error('Signup failed', err);
+          this.errorMessage = err.error || 'Erreur inscription. Email existe peut-être déjà.';
           this.isLoading = false;
         }
       });

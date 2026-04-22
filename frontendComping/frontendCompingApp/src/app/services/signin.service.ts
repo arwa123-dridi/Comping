@@ -8,6 +8,12 @@ export interface LoginDTORequest {
 }
 
 export interface LoginDTOResponse {
+  id: any;
+  role: string;
+  email: string;
+  userId: any;
+  lastName: string;
+  firstName: string;
   token: string;
   username: string;
   roles: string[];

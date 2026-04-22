@@ -44,7 +44,7 @@ export class AuthGuard implements CanActivate {
     
     // Non connecté - rediriger vers la page de connexion
     // Sauvegarder l'URL pour rediriger après connexion
-    this.router.navigate(['/signup'], { 
+    this.router.navigate(['/Campino'], { 
       queryParams: { returnUrl: state.url }
     });
     return false;

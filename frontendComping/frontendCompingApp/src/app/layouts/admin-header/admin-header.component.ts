@@ -1,12 +1,14 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule} from '@angular/common';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-admin-header',
     standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule , RouterModule],
   templateUrl: './admin-header.component.html',
   styleUrl: './admin-header.component.css'
+  
 })
 export class AdminHeaderComponent {
    @Output() sidebarToggle = new EventEmitter<void>();

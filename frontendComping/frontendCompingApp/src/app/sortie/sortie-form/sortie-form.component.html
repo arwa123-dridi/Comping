@@ -72,8 +72,8 @@
                    class="campino-input image-upload-input"
                    accept="image/*" 
                    (change)="onFileSelected($event)">
-            <div *ngIf="getImagePreview()" class="image-preview">
-              <img [src]="getImagePreview()" alt="Aperçu">
+          <div *ngIf="imagePreviewUrl" class="image-preview">
+  <img [src]="imagePreviewUrl" alt="Aperçu">
               <button type="button" (click)="clearImage()" class="clear-preview-btn">✕</button>
             </div>
           </div>

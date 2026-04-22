@@ -21,7 +21,7 @@ export class SidebarComponent {
   }
 
   isUser(): boolean {
-    return this.userRole === 'USER';
+    return this.userRole === 'USER' || this.userRole === 'ORGANISATEUR';
   }
 
   toggleSidebar() {

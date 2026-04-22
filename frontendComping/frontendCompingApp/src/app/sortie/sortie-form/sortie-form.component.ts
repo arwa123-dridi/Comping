@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { finalize } from 'rxjs/operators';
 import { SortieService } from '../../services/sortie.service';
 import { EquipeService } from '../../services/equipe.service';
@@ -119,29 +119,30 @@ export class SortieFormComponent implements OnInit {
   }
 
   // ========== GESTION IMAGE ==========
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length) {
-      this.selectedImage = input.files[0];
-    }
-  }
+ 
+  imagePreviewUrl: string | null = null;
 
-  getImagePreview(): string | null {
-    if (this.selectedImage) {
-      return URL.createObjectURL(this.selectedImage);
+onFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files.length) {
+    this.selectedImage = input.files[0];
+    if (this.imagePreviewUrl) {
+      URL.revokeObjectURL(this.imagePreviewUrl);
     }
-    if (this.existingImageUrl) {
-      return this.existingImageUrl;
-    }
-    return null;
+    this.imagePreviewUrl = URL.createObjectURL(this.selectedImage);
   }
+}
 
-  clearImage(): void {
-    this.selectedImage = null;
-    this.existingImageUrl = null;
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
+clearImage(): void {
+  if (this.imagePreviewUrl) {
+    URL.revokeObjectURL(this.imagePreviewUrl);
+    this.imagePreviewUrl = null;
   }
+  this.selectedImage = null;
+  this.existingImageUrl = null;
+  const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+  if (fileInput) fileInput.value = '';
+}
 
   uploadImage(): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -153,7 +154,8 @@ export class SortieFormComponent implements OnInit {
       const formData = new FormData();
       formData.append('file', this.selectedImage);
 
-      this.http.post<{ url: string }>('http://localhost:8087/api/upload/image', formData)
+      const headers = new HttpHeaders({ 'Authorization': `Bearer ${localStorage.getItem('authToken')}` });
+      this.http.post<{ url: string }>('http://localhost:8087/api/upload/image', formData, { headers })
         .pipe(finalize(() => this.imageUploading = false))
         .subscribe({
           next: (res) => resolve(res.url),

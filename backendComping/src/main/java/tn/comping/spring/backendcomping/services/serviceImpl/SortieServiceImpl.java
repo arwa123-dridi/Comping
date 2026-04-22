@@ -94,9 +94,9 @@ public class SortieServiceImpl implements ISortieService {
                     dto.setPlacesDisponibles(sortie.getCapaciteMax() - participations.size());
 
                     List<String> participantIds = participations.stream()
+                            .filter(p -> p != null && p.getUtilisateur() != null)
                             .map(p -> p.getUtilisateur().getId())
                             .collect(Collectors.toList());
-                    dto.setParticipantIds(participantIds);
 
                     return dto;
                 })

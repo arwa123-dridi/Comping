@@ -42,6 +42,7 @@ public class Sortie {
     private Equipe equipe;
 
     // ✅ GARDÉ : Liste des IDs des participants (simplifié)
+    @Builder.Default
     private List<String> participantIds = new ArrayList<>();
 
     private LocalDateTime dateCreation;

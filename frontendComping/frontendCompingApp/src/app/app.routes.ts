@@ -10,6 +10,7 @@ import { EquipeListComponent } from './equipe/equipe-list/equipe-list.component'
 import { EquipeFormComponent } from './equipe/equipe-form/equipe-form.component';
 import { EquipeDetailComponent } from './equipe/equipe-detail/equipe-detail.component';
 import { DashboardUserComponent } from './dashboard/dashboard-user/dashboard-user.component';
+import { DashboardOrganizerComponent } from './dashboard/dashboard-organizer/dashboard-organizer.component';
 import { DashboardAdminComponent } from './dashboard/dashboard-admin/dashboard-admin.component';
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 import { DashboardComponent } from './admin/dashboard/dashboard.component';
@@ -17,6 +18,7 @@ import { SigninComponent } from './signin/signin.component';
 
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
+import { OrganizerGuard } from './guards/organizer.guard';
 
 export const routes: Routes = [
   { path: 'Campino', component: HomeComponent },
@@ -25,25 +27,27 @@ export const routes: Routes = [
   { path: '', redirectTo: 'Campino', pathMatch: 'full' },
   { path: 'login', component: SigninComponent },
    {
-    path: 'admin',
+path: 'admin',
     component: AdminLayoutComponent,
     children: [
-      { path: 'dashboard', component: DashboardComponent }
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'profil', component: ProfileComponent, canActivate: [AdminGuard] }
     ]
   },
-    // Routes pour les randonnées (dynamic CRUD)
+    // Routes pour les randonnées
     { path: 'sorties', component: SortieListComponent },
-    { path: 'sorties/create', component: SortieFormComponent },  
-    { path: 'sorties/edit/:id', component: SortieFormComponent }, 
+    { path: 'sorties/create', component: SortieFormComponent, canActivate: [OrganizerGuard] },  
+    { path: 'sorties/edit/:id', component: SortieFormComponent, canActivate: [OrganizerGuard] }, 
     { path: 'sorties/:id', component: SortieDetailComponent },
     
-    // Routes pour les équipes (dynamic CRUD)
+    // Routes pour les équipes 
     { path: 'equipes', component: EquipeListComponent },
-    { path: 'equipes/create', component: EquipeFormComponent },  
-    { path: 'equipes/edit/:id', component: EquipeFormComponent },  
+    { path: 'equipes/create', component: EquipeFormComponent, canActivate: [OrganizerGuard] },  
+    { path: 'equipes/edit/:id', component: EquipeFormComponent, canActivate: [OrganizerGuard] },  
     { path: 'equipes/:id', component: EquipeDetailComponent },
     
     // Dashboards randonner/equipe (protected)
+    { path: 'dashboard/organizer', component: DashboardOrganizerComponent, canActivate: [OrganizerGuard] },
     { path: 'dashboard', component: DashboardUserComponent, canActivate: [AuthGuard] },
     { path: 'admin/dashboard', component: DashboardAdminComponent, canActivate: [AdminGuard] },
     
