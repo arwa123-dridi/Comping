@@ -3,6 +3,8 @@ package tn.comping.spring.backendcomping.services.serviceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import tn.comping.spring.backendcomping.config.JwtUtils;
+import tn.comping.spring.backendcomping.config.SecurityUtils;
 import tn.comping.spring.backendcomping.dto.EventRequestDTO;
 import tn.comping.spring.backendcomping.dto.EventResponseDTO;
 import tn.comping.spring.backendcomping.entities.Event;
@@ -19,11 +21,10 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements  EventService{
     private final EventRepository eventRepository;
     private final ActivityRepository activityRepository;
+    private final SecurityUtils securityUtils;
     @Override
     public EventResponseDTO createEvent(EventRequestDTO dto) {
-        String userId = SecurityContextHolder.getContext()
-                .getAuthentication()
-                .getName();
+        String userId = securityUtils.getCurrentUserId();
         Event event = EventMapper.toEntity(dto);
         event.setOrganisateurId(userId);
         return EventMapper.toDto(eventRepository.save(event));
