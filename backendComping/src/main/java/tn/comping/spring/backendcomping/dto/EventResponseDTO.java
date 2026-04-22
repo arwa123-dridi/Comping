@@ -31,4 +31,12 @@ public class EventResponseDTO {
     private String categorie;
     private LocalDateTime createdAt;
     private String organisateurId;
+
+    private List<String> tags;
+    private String niveauDifficulte;
+    private String trancheAge;
+    private double latitude;
+    private double longitude;
+    private String saison;
+    private int dureeEnHeures;
 }

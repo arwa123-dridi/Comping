@@ -48,7 +48,7 @@ public class SignupServiceImpl implements SignupService {
                 throw new RuntimeException("Invalid password");
             }
 
-            String token = jwtUtils.generateToken(user.getEmail(),user.getRole());
+            String token = jwtUtils.generateToken(user.getEmail(),user.getId(),user.getRole());
 
             return new LoginDTOResponse(token);
     }

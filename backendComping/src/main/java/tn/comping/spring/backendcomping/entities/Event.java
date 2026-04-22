@@ -33,5 +33,13 @@ public class Event {
     private String categorie;
     private LocalDateTime createdAt;
     private List<String> activityIds;
+    // ✅ AJOUTS POUR L'IA
+    private List<String> tags;              // ex: ["outdoor", "famille", "sport"]
+    private String niveauDifficulte;        // "debutant" | "intermediaire" | "expert"
+    private String trancheAge;             // "enfant" | "ado" | "adulte" | "senior" | "tous"
+    private double latitude;               // pour distance GPS
+    private double longitude;
+    private String saison;                 // "ete" | "hiver" | "printemps" | "automne" | "toutes"
+    private int dureeEnHeures;             // durée estimée de l'event
 
 }
