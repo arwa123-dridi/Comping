@@ -292,3 +292,45 @@
   display: inline-flex;
   align-items: center;
 }
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  background: var(--white);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 30px;
+  box-shadow: var(--shadow);
+  border: 1px solid #e2e8f0;
+}
+
+.filter-bar select,
+.filter-bar input {
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--text-main);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.filter-bar select:focus,
+.filter-bar input:focus {
+  border-color: var(--primary-light);
+}
+
+/* Adapter btn-outline hors du header (fond sombre → fond clair) */
+.filter-bar .btn-outline {
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid #e2e8f0;
+  backdrop-filter: none;
+}
+
+.filter-bar .btn-outline:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
