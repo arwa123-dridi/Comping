@@ -74,4 +74,23 @@ getEventById(id: string): Observable<EventModel> {
     }
   );
 }
+ countValide(): Observable<number> {
+  const token = localStorage.getItem('authToken');
+    return this.http.get<number>(`${this.apiUrl}/count/valide`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
+  }
+
+  countTermine(): Observable<number> {
+    const token = localStorage.getItem('authToken');
+    return this.http.get<number>(`${this.apiUrl}/count/termine`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
+  }
+   countAnnule(): Observable<number> {
+    const token = localStorage.getItem('authToken');
+    return this.http.get<number>(`${this.apiUrl}/count/annule`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    });
+  }
 }

@@ -287,3 +287,21 @@
   width: 18px;
   height: 18px;
 }
+.badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-actif {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.nav-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}

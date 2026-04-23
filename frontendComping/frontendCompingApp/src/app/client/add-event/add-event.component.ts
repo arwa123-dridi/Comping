@@ -12,14 +12,42 @@ import { CommonModule } from '@angular/common';
   styleUrl: './add-event.component.css'
 })
 export class AddEventComponent {
- event = {
+showSuccess = false;
+  tagsInput: string = '';
+  event = {
     titre: '',
     description: '',
     prix: 0,
     capacite: 0,
+
+    dateDebut: '',
+    dateFin: '',
+
     statut: 'VALIDE',
-    activityIds: [] as string[]
+    lieu: '',
+
+    organisateurId: '',
+    participantIds: [] as string[],
+
+    imageUrl: '',
+    categorie: '',
+
+    createdAt: '',
+
+    activityIds: [] as string[],
+
+    // Attributs IA
+    tags: [] as string[],
+    niveauDifficulte: '',
+    trancheAge: '',
+
+    latitude: 0,
+    longitude: 0,
+
+    saison: '',
+    dureeEnHeures: 0
   };
+
 activities: any[] = [];
 selectedActivities: string[] = [];
   constructor(
@@ -41,10 +69,26 @@ loadActivities(): void {
   });
 }
   onSubmit(): void {
+     // 🔥 conversion tagsInput -> tags[]
+  this.event.tags = this.tagsInput
+    .split(',')
+    .map(tag => tag.trim())
+    .filter(tag => tag !== '');
+
+  // 🔥 date création automatique
+  this.event.createdAt = new Date().toISOString();
+  // 🔥 debug important
+  console.log("EVENT SENT =>", this.event);
     this.eventService.createEvent(this.event).subscribe({
-      next: () => {
-        alert('Événement ajouté avec succès ✅');
-      },
+    
+        next: () => {
+  this.showSuccess = true;
+
+  setTimeout(() => {
+    this.showSuccess = false;
+  }, 2000);
+},
+      
       error: (err) => console.error(err)
     });
   }
@@ -61,4 +105,5 @@ loadActivities(): void {
 
   this.event.activityIds = [...this.selectedActivities];
 }
+
 }

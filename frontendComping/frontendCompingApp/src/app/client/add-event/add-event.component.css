@@ -1,8 +1,9 @@
 .page {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding: 40px 20px;
   background: linear-gradient(to right, #e8f5e9, #f1f8e9);
   font-family: 'Segoe UI', sans-serif;
 }
@@ -106,4 +107,46 @@ select[multiple] {
   font-weight: 500;
   color: #333;
   cursor: pointer;
+}
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.success-box {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  text-align: center;
+  width: 300px;
+  animation: pop 0.3s ease;
+}
+
+.success-box .icon {
+  font-size: 40px;
+  color: green;
+  margin-bottom: 10px;
+}
+
+.success-box button {
+  margin-top: 10px;
+  padding: 8px 20px;
+  background: green;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+@keyframes pop {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
