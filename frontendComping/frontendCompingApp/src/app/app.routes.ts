@@ -15,6 +15,12 @@ import { ActivityCreateComponent } from './client/activity-create/activity-creat
 import { ListActivityComponent } from './client/list-activity/list-activity.component';
 import { EditActivityComponent } from './client/edit-activity/edit-activity.component';
 
+import { ProductListComponent } from './product-list/product-list.component';
+import { ProductCardComponent } from './product-card/product-card.component';
+import { ProductFrontComponent } from './product-front/product-front.component';
+import { ProductDetailComponent } from './product-detail/product-detail.component';
+
+
 export const routes: Routes = [
   { path: 'Campino', component: HomeComponent },
   { path: 'signup', component: SignupComponent },
@@ -36,4 +42,10 @@ export const routes: Routes = [
       { path: 'events', component: EventComponent }
     ]
   },
+  { path: 'productTable', component: ProductListComponent},
+    { path: 'marketplace', component: ProductFrontComponent},
+{
+    path: 'products/:id',
+    component: ProductDetailComponent
+  }
 ];

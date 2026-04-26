@@ -30,6 +30,14 @@ public class EventMapper {
                 .categorie(dto.getCategorie())
 
                 .createdAt(LocalDateTime.now())
+                .latitude(dto.getLatitude())
+                .longitude(dto.getLongitude())
+                .dureeEnHeures(dto.getDureeEnHeures())
+
+                .tags(dto.getTags())
+                .niveauDifficulte(dto.getNiveauDifficulte())
+                .trancheAge(dto.getTrancheAge())
+                .saison(dto.getSaison())
                 .build();
     }
 

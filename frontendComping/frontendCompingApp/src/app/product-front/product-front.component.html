@@ -1,0 +1,63 @@
+<nav class="market-navbar">
+  <div class="nav-left">
+    <h2>🏕 Campino</h2>
+  </div>
+
+  <div class="nav-links">
+    <a href="#">Accueil</a>
+    <a href="#">Marketplace</a>
+    <a href="#">Matériel</a>
+    <a href="#">Expériences</a>
+  </div>
+
+  <div class="nav-actions">
+    <button class="btn-login">Connexion</button>
+    <button class="btn-signup">Inscription</button>
+    <!-- CART -->
+    <div class="cart-icon">
+      <span class="material-icons">shopping_cart</span>
+      <span class="cart-count">2</span>
+      <!--<span class="cart-count">{{ cartItems.length }}</span>-->
+    </div>
+  </div>
+</nav>
+
+<div class="marketplace">
+
+
+
+
+  <!-- FILTER BAR -->
+  <div class="filters">
+
+    <!-- SEARCH -->
+    <div class="search-box">
+      <span>🔍</span>
+      <input type="text" placeholder="Rechercher un produit..." [(ngModel)]="searchTerm" (input)="applyFilters()" />
+    </div>
+
+    <!-- CATEGORY -->
+    <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+      <option value="">Toutes catégories</option>
+      <option *ngFor="let c of categories" [value]="c">
+        {{ c }}
+      </option>
+    </select>
+
+    <!-- STATUS -->
+    <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+      <option value="">Tous statuts</option>
+      <option value="Disponible">Disponible</option>
+      <option value="STOCK_FAIBLE">Stock faible</option>
+      <option value="RUPTURE_STOCK">Rupture de stock</option>
+    </select>
+
+  </div>
+
+  <!-- GRID -->
+  <div class="grid">
+    <app-product-card *ngFor="let p of filteredProduits" [produit]="p">
+    </app-product-card>
+  </div>
+
+</div>

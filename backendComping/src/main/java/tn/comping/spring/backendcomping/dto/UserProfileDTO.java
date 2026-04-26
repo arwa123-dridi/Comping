@@ -13,9 +13,9 @@ import java.util.List;
 public class UserProfileDTO {
     private String userId;
     private int age;
-    private List<String> interests;      // ["sport", "culture", "nature"]
-    private String niveauExperience;     // "debutant" | "intermediaire" | "expert"
-    private String localisation;         // "Tunis"
+    private List<String> interests;
+    private String niveauExperience;
+    private String localisation;
     private double budget;
-    private String meteo;                // "ensoleille" | "nuageux" | "interieur"
+    private String meteo;
 }

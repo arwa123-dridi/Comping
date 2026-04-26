@@ -6,8 +6,8 @@
       <div class="slideshow-container">
         <div class="slides-wrapper" #slidesWrapper>
           <div class="slide-left" *ngFor="let slide of slides" [style.backgroundImage]="'url(' + slide.url + ')'"></div>
+        </div>
       </div>
-    </div>
 
       <div class="overlay">
         <h1>Welcome</h1>
@@ -26,27 +26,39 @@
       <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
 
         <div class="row">
-          <input type="text" placeholder="Prénom" formControlName="FirstName" />
-          <input type="text" placeholder="Nom" formControlName="LastName" />
-    </div>
+          <input type="text" placeholder="Prénom" formControlName="firstName" />
+          <input type="text" placeholder="Nom" formControlName="lastName" />
+        </div>
 
-        <input type="email" placeholder="Email" formControlName="email" />
-        <input type="tel" placeholder="Téléphone" formControlName="telephone" />
-        <input type="tel" placeholder="Adresse" formControlName="address" />
+        <input type="email" placeholder="Email (@gmail.com)" formControlName="email" (input)="onEmailInput($event)" />
+        <div class="error" *ngIf="f['email'].touched && f['email'].invalid">
+          Email must be a valid Gmail address (example&#64;gmail.com)
+        </div>
+        <input type="tel" placeholder="+216XXXXXXXX" formControlName="telephone" (input)="onPhoneInput($event)" />
+
+        <div class="error" *ngIf="f['telephone'].touched && f['telephone'].invalid">
+          Phone must be in format +216XXXXXXXX
+        </div>
+
+        <input type="text" placeholder="Adresse" formControlName="address" />
         <input type="password" placeholder="Password" formControlName="password" />
         <input type="password" placeholder="Confirm Password" formControlName="confirmPassword" />
 
+        <div class="error" *ngIf="f['confirmPassword'].touched && f['confirmPassword'].errors?.['mismatch']">
+          Passwords do not match
+        </div>
 
-       
+
+
 
         <label class="checkbox">
-      <select formControlName="role">
+          <select formControlName="role">
             <!-- Placeholder -->
-            <option value="" disabled selected>Select Role</option>
+            <option [ngValue]="null" disabled>Select Role</option>
 
             <!-- Actual roles -->
             <option *ngFor="let role of roles.slice(1)" [value]="role">{{ role }}</option>
-      </select>
+          </select>
         </label>
 
         <button type="submit" class="btn-register" [disabled]="isLoading">
@@ -58,5 +70,17 @@
       </form>
     </div>
 
-     </div>
+  </div>
+
+  <!-- SUCCESS POPUP -->
+  <div class="popup-overlay" *ngIf="showSuccessPopup">
+    <div class="popup">
+      <div class="popup-icon">✓</div>
+
+      <h2>Registration Successful 🎉</h2>
+      <p>Your account has been created successfully.</p>
+
+      <button class="btn-popup" (click)="closePopup()">OK</button>
+    </div>
+  </div>
 </div>
