@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CartService } from '../services/cart.service';
 
 @Component({
   selector: 'app-product-card',
@@ -11,8 +12,9 @@ import { CommonModule } from '@angular/common';
 export class ProductCardComponent {
 
   @Input() produit: any;
-
   defaultImage: string = 'assets/default-product.png';
+
+  constructor(private cartService: CartService) {}
 
   // ✅ Safe image
   get image(): string {
@@ -24,13 +26,13 @@ export class ProductCardComponent {
   }
 
   // ✅ Status check
- getStatusClass(status: string) {
-  return {
-    'available': status === 'DISPONIBLE',
-    'low-stock': status === 'STOCK_FAIBLE',
-    'out-stock': status === 'RUPTURE_STOCK'
-  };
-}
+  getStatusClass(status: string) {
+    return {
+      'available': status === 'DISPONIBLE',
+      'low-stock': status === 'STOCK_FAIBLE',
+      'out-stock': status === 'RUPTURE_STOCK'
+    };
+  }
 
   // ✅ Short description
   getShortDescription(): string {
@@ -40,5 +42,20 @@ export class ProductCardComponent {
       ? this.produit.descriptionProduit.substring(0, 60) + '...'
       : this.produit.descriptionProduit;
   }
+
+  // 🛒 ADD TO CART FUNCTION
+  addToCart() {
+
+  const userId = "USER_TEST_ID"; // later we replace with logged user
+
+  this.cartService.addToCart(userId, this.produit.id, 1)
+    .subscribe({
+      next: () => {
+        alert("Produit ajouté au panier 🛒");
+        this.cartService.increaseCartCount(); // 🔥 update navbar counter
+      },
+      error: err => console.error(err)
+    });
+}
 
 }

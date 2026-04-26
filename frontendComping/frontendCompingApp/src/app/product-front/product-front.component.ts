@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { ProductCardComponent } from '../product-card/product-card.component';
+import { CartService } from '../services/cart.service';
 
 @Component({
   selector: 'app-product-front',
@@ -25,6 +26,8 @@ export class ProductFrontComponent implements OnInit {
   selectedCategory: string = '';
   selectedStatus: string = '';
 
+  cartCount = 0;
+
   categories: string[] = [
     'TENTES',
     'SACS_DE_COUCHAGE',
@@ -37,10 +40,20 @@ export class ProductFrontComponent implements OnInit {
   private baseUrl = 'http://localhost:8087/api/produits';
   private defaultImage = 'assets/default-product.png';
 
-  constructor(private http: HttpClient) {}
+  // ✅ ONE constructor (merge services here)
+  constructor(
+    private http: HttpClient,
+    private cartService: CartService
+  ) {}
 
+  // ✅ ONE ngOnInit
   ngOnInit(): void {
     this.loadProducts();
+
+    // cart counter listener
+    this.cartService.cartCount$.subscribe(count => {
+      this.cartCount = count;
+    });
   }
 
   // ✅ LOAD ALL PRODUCTS
@@ -56,10 +69,7 @@ export class ProductFrontComponent implements OnInit {
           statut: p.statut?.toUpperCase()
         }));
 
-        // ✅ IMPORTANT: show all products initially
         this.filteredProduits = this.produits;
-
-        console.log("ALL PRODUCTS LOADED:", this.produits);
       },
       error: (err) => console.error(err)
     });
@@ -87,5 +97,4 @@ export class ProductFrontComponent implements OnInit {
       return matchSearch && matchCategory && matchStatus;
     });
   }
-
 }

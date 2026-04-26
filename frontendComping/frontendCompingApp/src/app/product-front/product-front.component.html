@@ -16,7 +16,7 @@
     <!-- CART -->
     <div class="cart-icon">
       <span class="material-icons">shopping_cart</span>
-      <span class="cart-count">2</span>
+     <span class="cart-count">{{ cartCount }}</span>
       <!--<span class="cart-count">{{ cartItems.length }}</span>-->
     </div>
   </div>
@@ -47,7 +47,7 @@
     <!-- STATUS -->
     <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
       <option value="">Tous statuts</option>
-      <option value="Disponible">Disponible</option>
+      <option value="DISPONIBLE">Disponible</option>
       <option value="STOCK_FAIBLE">Stock faible</option>
       <option value="RUPTURE_STOCK">Rupture de stock</option>
     </select>

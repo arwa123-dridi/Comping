@@ -25,15 +25,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-
-
         http.cors(cors -> cors.configurationSource(request -> {
-                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("http://localhost:4200"));
-                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    corsConfig.setAllowedHeaders(List.of("*"));
-                    return corsConfig;
-                }))
+            var corsConfig = new org.springframework.web.cors.CorsConfiguration();
+            corsConfig.setAllowedOrigins(List.of("http://localhost:4200"));
+            corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+            corsConfig.setAllowedHeaders(List.of("*"));
+            return corsConfig;
+        }))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Routes publiques
@@ -47,9 +45,9 @@ public class SecurityConfig {
                                 "/api/creneaux-livraison/**",
                                 "/api/incidents/**",
                                 "/api/conventions-partenaires/**",
-                                 "/api/produits/**",
-                                  "/uploads/**" 
-                        ).permitAll()
+                                "/api/produits/**",
+                                "/uploads/**")
+                        .permitAll()
 
                         // Rôles spécifiques
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -60,10 +58,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
-
+                        // panier
+                        .requestMatchers("/api/panier/**").permitAll()
                         // Tout le reste nécessite authentification
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

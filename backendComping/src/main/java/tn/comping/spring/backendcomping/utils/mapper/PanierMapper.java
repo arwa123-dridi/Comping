@@ -1,0 +1,52 @@
+package tn.comping.spring.backendcomping.utils.mapper;
+
+import org.springframework.stereotype.Component;
+import tn.comping.spring.backendcomping.dto.PanierRequestDTO;
+import tn.comping.spring.backendcomping.dto.PanierResponseDTO;
+import tn.comping.spring.backendcomping.dto.PanierLigneRequestDTO;
+import tn.comping.spring.backendcomping.dto.PanierLigneResponseDTO;
+
+
+import tn.comping.spring.backendcomping.entities.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component
+public class PanierMapper {
+
+    // ENTITY → RESPONSE DTO
+    public PanierResponseDTO toDto(Panier panier) {
+
+        if (panier == null) return null;
+
+        return PanierResponseDTO.builder()
+                .id(panier.getId())
+                .userId(panier.getUserId())
+                .statut(panier.getStatut())
+                .totalPrice(panier.getTotalPrice())
+                .lignes(toLigneDtoList(panier.getLignes()))
+                .build();
+    }
+
+    private List<PanierLigneResponseDTO> toLigneDtoList(List<PanierLigne> lignes) {
+
+        if (lignes == null) return null;
+
+        return lignes.stream()
+                .map(this::toLigneDto)
+                .collect(Collectors.toList());
+    }
+
+    private PanierLigneResponseDTO toLigneDto(PanierLigne l) {
+
+        return PanierLigneResponseDTO.builder()
+                .produitId(l.getProduitId())
+                .nomProduit(l.getNomProduit())
+                .prixUnitaire(l.getPrixUnitaire())
+                .quantite(l.getQuantite())
+                .imageUrl(l.getImageUrl())
+                .sousTotal(l.getSousTotal())
+                .build();
+    }
+}

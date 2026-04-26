@@ -46,6 +46,15 @@
 
     </div>
 
+    <!-- 🛒 ADD TO CART BUTTON -->
+    <button 
+      class="btn-cart"
+      (click)="addToCart()"
+      [disabled]="produit?.statut === 'RUPTURE_STOCK'">
+
+      🛒 Ajouter au panier
+    </button>
+
   </div>
 
 </div>
