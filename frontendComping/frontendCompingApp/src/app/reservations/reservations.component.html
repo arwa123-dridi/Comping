@@ -182,8 +182,8 @@
  
 
 <!-- MODAL -->
+<!-- MODAL -->
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
-  <!-- Ajout de camp- pour éviter les conflits -->
   <div class="camp-modal" (click)="$event.stopPropagation()">
 
     <div class="camp-modal-header">
@@ -192,49 +192,53 @@
     </div>
 
     <div class="camp-modal-body">
-      <div class="form-group">
-  <label>Utilisateur</label>
-  <select [(ngModel)]="newReservation.utilisateurId">
-    <option value="" disabled>Choisir un campeur...</option>
-    <option *ngFor="let u of users" [value]="u.id">{{ u.nom }} {{ u.prenom }}</option>
-  </select>
-</div>
 
       <div class="form-group">
-  <label>Site de Camping</label>
-  <select [(ngModel)]="newReservation.siteCampingId">
-    <option value="" disabled>Choisir un emplacement...</option>
-    <option *ngFor="let s of sites" [value]="s.id">{{ s.nom }}</option>
-  </select>
-</div>
-
-      <div class="form-group">
-        <label>Date début</label>
-        <input [(ngModel)]="newReservation.dateDebut" type="date">
+        <label>Réservation pour :</label>
+        <div class="user-box">👤 {{ currentUser?.name || 'Utilisateur' }}</div>
       </div>
 
       <div class="form-group">
-        <label>Date fin</label>
-        <input [(ngModel)]="newReservation.dateFin" type="date">
-      </div>
-
-      <div class="form-group">
-        <label>Montant (DT)</label>
-        <input [(ngModel)]="newReservation.montantTotal" type="number">
-      </div>
-
-      <div class="form-group">
-        <label>Paiement</label>
-        <select [(ngModel)]="newReservation.modePaiement">
-          <option value="CARTE">Carte</option>
-          <option value="ESPECE">Espèce</option>
+        <label>Site de Camping</label>
+        <select [(ngModel)]="newReservation.siteCampingId">
+          <option value="" disabled>Choisir un emplacement...</option>
+          <option *ngFor="let s of sites" [value]="s.id">{{ s.nom }}</option>
         </select>
       </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date début</label>
+          <input [(ngModel)]="newReservation.dateDebut" type="date">
+        </div>
+        <div class="form-group">
+          <label>Date fin</label>
+          <input [(ngModel)]="newReservation.dateFin" type="date">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Montant (DT)</label>
+          <input [(ngModel)]="newReservation.montantTotal" type="number">
+        </div>
+        <div class="form-group">
+          <label>Paiement</label>
+          <select [(ngModel)]="newReservation.modePaiement">
+            <option value="CARTE">Carte</option>
+            <option value="ESPECE">Espèce</option>
+          </select>
+        </div>
+      </div>
+
     </div>
 
     <div class="camp-modal-footer">
       <button class="btn-cancel" (click)="closeModal()">Annuler</button>
       <button class="btn-save" (click)="addReservation()">Enregistrer</button>
     </div>
+
   </div>
+</div>
+
 </div>

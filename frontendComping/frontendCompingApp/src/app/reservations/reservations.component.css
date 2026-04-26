@@ -391,6 +391,14 @@ tbody td:last-child  { padding-right: 28px; }
   border: 1px solid rgba(255,255,255,0.1);
   animation: modalIn 0.3s ease-out;
 }
+.user-box {
+  background: rgba(61, 168, 89, 0.1);
+  padding: 12px;
+  border-radius: 8px;
+  color: #3da859;
+  font-weight: bold;
+  border: 1px solid rgba(61, 168, 89, 0.2);
+}
 
 .camp-modal-header {
   padding: 20px;
@@ -464,6 +472,8 @@ tbody td:last-child  { padding-right: 28px; }
   font-weight: 600;
   cursor: pointer;
 }
+
+
 
 @keyframes modalIn {
   from { opacity: 0; transform: translateY(-30px); }

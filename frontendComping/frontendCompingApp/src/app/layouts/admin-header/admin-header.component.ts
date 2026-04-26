@@ -1,8 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-admin-header',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './admin-header.component.html',
   styleUrl: './admin-header.component.css'
 })
