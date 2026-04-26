@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule, NgIf } from '@angular/common';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-signup',
@@ -26,43 +27,61 @@ export class SignupComponent implements AfterViewInit {
   errorMessage: string = '';
   isLoading: boolean = false;
   showPassword: boolean = false;
-
+  showSuccessPopup: boolean = false;
   roles = [
-   // 'Select role',
+    // 'Select role',
     'ADMIN',
     'PROPRIETAIRE_SITE',
     'BOUTIQUE',
     'ORGANISATEUR',
     'PARTENAIRE_logistique',
-    'MODERATEUR',
     'USER'
   ];
 
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(private fb: FormBuilder, private http: HttpClient, private cd: ChangeDetectorRef) {
 
     this.signupForm = this.fb.group({
-      FirstName: ['', Validators.required],
-      LastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: [
+        '',
+        [
+          Validators.required,
+          Validators.pattern(/^[a-zA-Z0-9._%+-]+@gmail\.com$/)
+        ]
+      ], password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required],
-      telephone: [''],
+      telephone: [
+        '+216',
+        [
+          Validators.pattern(/^\+216\d{8}$/)
+        ]
+      ],
       address: [''],
       role: [null, Validators.required]   // <-- initialize as null
-    });
+    },
+  { validators: this.passwordMatchValidator } );
   }
 
   passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password')?.value;
-    const confirmPassword = form.get('confirmPassword')?.value;
+  const password = form.get('password')?.value;
+  const confirmPassword = form.get('confirmPassword')?.value;
 
-    if (password && confirmPassword && password !== confirmPassword) {
-      form.get('confirmPassword')?.setErrors({ mismatch: true });
-    } else {
-      form.get('confirmPassword')?.setErrors(null);
+  if (!password || !confirmPassword) return;
+
+  if (password !== confirmPassword) {
+    form.get('confirmPassword')?.setErrors({ mismatch: true });
+  } else {
+    const errors = form.get('confirmPassword')?.errors;
+    if (errors) {
+      delete errors['mismatch'];
+      if (Object.keys(errors).length === 0) {
+        form.get('confirmPassword')?.setErrors(null);
+      }
     }
   }
+}
 
   ngAfterViewInit() {
     this.startSlideshow();
@@ -83,11 +102,7 @@ export class SignupComponent implements AfterViewInit {
     }, 4000);
   }
 
-  ngOnInit() {
-    this.signupForm.valueChanges.subscribe(() => {
-      this.passwordMatchValidator(this.signupForm);
-    });
-  }
+
 
   get f() {
     return this.signupForm.controls;
@@ -128,15 +143,42 @@ export class SignupComponent implements AfterViewInit {
     this.http.post('http://localhost:8087/api/auth/registerUser', signupData)
       .subscribe({
         next: (res) => {
-          console.log('Backend response:', res); // <-- log backend response
-          this.successMessage = '🎉 Inscription réussie ! Vous pouvez maintenant vous connecter.';
-          this.signupForm.reset({ role: 'USER' });
+          console.log('Backend response:', res);
+
           this.isLoading = false;
+          this.signupForm.reset({ role: 'USER' });
+
+          // 👉 open popup
+          this.showSuccessPopup = true;
+          this.cd.detectChanges();
         },
+
         error: (err) => {
           console.error('Signup failed', err); // <-- already logging errors
           this.isLoading = false;
         }
       });
+
+
+  }
+  onPhoneInput(event: any) {
+    let value = event.target.value;
+
+    // Always keep +216 prefix
+    if (!value.startsWith('+216')) {
+      value = '+216' + value.replace(/\D/g, '');
+    }
+
+    // Keep only digits after +216 and max 8 digits
+    const digits = value.replace('+216', '').replace(/\D/g, '').slice(0, 8);
+    this.signupForm.get('telephone')?.setValue('+216' + digits, { emitEvent: false });
+  }
+
+  onEmailInput(event: any) {
+  const value = event.target.value.toLowerCase();
+  this.signupForm.get('email')?.setValue(value, { emitEvent: false });
+}
+  closePopup() {
+    this.showSuccessPopup = false;
   }
 }

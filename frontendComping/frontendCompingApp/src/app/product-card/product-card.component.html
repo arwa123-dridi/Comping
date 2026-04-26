@@ -1,0 +1,51 @@
+<div class="card">
+
+  <!-- IMAGE -->
+  <div class="image-container">
+
+    <img [src]="image" [alt]="produit?.nomProduit" loading="lazy" />
+
+    <!-- CATEGORY -->
+    <span class="badge">
+      {{ produit?.categorieProduit }}
+    </span>
+
+    <!-- PRICE -->
+    <span class="price-tag">
+      {{ produit?.prixProduit }} TND
+    </span>
+
+    <!-- STATUS OVERLAY -->
+    <span class="status-overlay" [ngClass]="getStatusClass(produit?.statut)">
+      {{ produit?.statut }}
+    </span>
+
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <h3 class="title">
+      {{ produit?.nomProduit }}
+    </h3>
+
+    <p class="desc">
+      {{ getShortDescription() }}
+    </p>
+
+    <!-- FOOTER -->
+    <div class="footer">
+
+      <span class="availability" [ngClass]="getStatusClass(produit?.statut)">
+        {{ produit?.statut }}
+      </span>
+
+      <span class="rating">
+        ⭐ 4.8
+      </span>
+
+    </div>
+
+  </div>
+
+</div>

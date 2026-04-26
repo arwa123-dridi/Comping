@@ -1,0 +1,72 @@
+<div class="modal-backdrop">
+
+  <div class="modal-card">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+      <h2>Ajouter un produit</h2>
+      <button class="close-btn" (click)="cancel()">✖</button>
+    </div>
+
+    <!-- FORM -->
+    <form (ngSubmit)="saveProduct()" class="modal-form">
+
+      <label>Nom du produit</label>
+      <input type="text" [(ngModel)]="product.nomProduit" name="nomProduit" placeholder="Nom du produit" required />
+
+      <label>Description</label>
+      <input type="text" [(ngModel)]="product.descriptionProduit" name="descriptionProduit"
+        placeholder="Description du produit" />
+
+      <label>Prix</label>
+      <input type="number" [(ngModel)]="product.prixProduit" name="prixProduit" placeholder="Prix en TND" required />
+
+      <label>Catégorie</label>
+      <select [(ngModel)]="product.categorieProduit" name="categorieProduit" required>
+        <option [ngValue]="null" disabled>Choisir une catégorie</option>
+        <option *ngFor="let cat of categories" [ngValue]="cat.value">
+          {{ cat.label }}
+        </option>
+      </select>
+
+      <label>Quantité en stock</label>
+      <input type="number" [(ngModel)]="product.quantiteStock" name="quantiteStock" placeholder="Quantité disponible"
+        required />
+      <label>Seuil d'alerte stock</label>
+      <input type="number" [(ngModel)]="product.seuilAlerteStock" name="seuilAlerteStock" placeholder="Ex: 5"
+        required />
+
+      <!-- IMAGE UPLOAD -->
+      <label>Image du produit</label>
+
+      <div class="upload-box" (click)="fileInput.click()">
+        <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" hidden />
+
+        <div *ngIf="!product.imageUrl" class="upload-placeholder">
+
+          <!-- Upload SVG Icon -->
+          <svg width="40" height="40" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 16V4"></path>
+            <path d="M8 8l4-4 4 4"></path>
+            <path d="M4 20h16"></path>
+          </svg>
+
+          <p>Cliquer ou glisser une image</p>
+        </div>
+
+        <div *ngIf="product.imageUrl" class="image-preview">
+          <img [src]="product.imageUrl" alt="Preview" />
+          <button type="button" class="remove-btn" (click)="removeImage($event)">✖</button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="submit" class="save-btn">Enregistrer</button>
+        <button type="button" class="cancel-btn" (click)="cancel()">Annuler</button>
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

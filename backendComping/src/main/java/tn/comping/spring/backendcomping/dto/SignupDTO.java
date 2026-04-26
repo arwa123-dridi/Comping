@@ -11,8 +11,8 @@ import tn.comping.spring.backendcomping.entities.Role;
 @Builder
 public class SignupDTO {
 
-    private String FirstName;
-    private String LastName;
+    private String firstName;
+    private String lastName;
     private String email;
     private String password;
     private String telephone;
@@ -22,8 +22,8 @@ public class SignupDTO {
 
     //public SignupDTO() {}
 
-    public String getLastName() {
-       return LastName;
+    public String getlastName() {
+       return lastName;
    }
 
     //public String getEmail() {

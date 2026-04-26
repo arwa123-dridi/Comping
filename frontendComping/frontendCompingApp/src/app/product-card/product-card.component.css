@@ -1,0 +1,137 @@
+/* CARD */
+.card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+}
+
+/* IMAGE */
+.image-container {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: 0.4s;
+}
+
+.card:hover img {
+  transform: scale(1.08);
+}
+
+/* BADGE */
+.badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #1f7a63;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+/* PRICE */
+.price-tag {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+/* STATUS OVERLAY */
+.status-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  backdrop-filter: blur(6px);
+}
+
+.status-overlay.available {
+  background: rgba(0, 128, 0, 0.15);
+  color: #1f7a63;
+}
+
+.status-overlay.out-stock{
+  background: rgba(255, 0, 0, 0.15);
+  color: #d9534f;
+}
+
+.status-overlay.low-stock{
+  background: rgba(255, 0, 0, 0.15);
+  color: #b59f00;
+}
+
+
+/* CONTENT */
+.content {
+  padding: 14px;
+}
+
+.title {
+  font-size: 16px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.desc {
+  font-size: 13px;
+  color: #777;
+  margin: 8px 0;
+}
+
+/* FOOTER */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* STATUS CHIP */
+.availability {
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+}
+
+.available {
+  background: #e6f7f0;
+  color: #1f7a63;
+}
+
+/* LOW STOCK */
+.low-stock {
+  background: #fff8d6;
+  color: #b59f00;
+}
+
+/* OUT OF STOCK */
+.out-stock {
+  background: #fdeaea;
+  color: #e02f2f;
+}
+
+/* RATING */
+.rating {
+  font-size: 13px;
+  color: #444;
+}
