@@ -60,9 +60,9 @@ public class SortieMapper {
         // Informations organisateur (seront remplies par le service)
         if (entity.getOrganisateur() != null) {
             dto.setOrganisateurId(entity.getOrganisateur().getId());
-            // ✅ CORRECTION : Utiliser les bons getters selon SignupEntity
-            dto.setOrganisateurPrenom(entity.getOrganisateur().getFirstName());  // FirstName avec majuscule
-            dto.setOrganisateurNom(entity.getOrganisateur().getLastName());      // LastName avec majuscule
+            //  Utiliser les getters selon SignupEntity
+            dto.setOrganisateurPrenom(entity.getOrganisateur().getFirstName());
+            dto.setOrganisateurNom(entity.getOrganisateur().getLastName());
         }
 
         // Informations équipe

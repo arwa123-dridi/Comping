@@ -1,0 +1,78 @@
+<div class="checklist-container">
+  
+  <div class="header">
+    <h1>🤖 IA Checklist Sécurité</h1>
+    <p class="subtitle">
+      Basée sur un modèle RandomForest entraîné avec des données météo tunisiennes
+    </p>
+  </div>
+  
+  <div class="form-card">
+    <h2>📊 Conditions de la randonnée</h2>
+    
+    <div class="form-grid">
+      
+      <div class="form-group">
+        <label>🌡️ Température <span>(°C)</span></label>
+        <input type="number" [(ngModel)]="request.temperature" step="0.5">
+      </div>
+      
+      <div class="form-group">
+        <label>☔ Précipitations <span>(mm)</span></label>
+        <input type="number" [(ngModel)]="request.precipitation" step="0.5">
+      </div>
+      
+      <div class="form-group">
+        <label>💨 Vent <span>(km/h)</span></label>
+        <input type="number" [(ngModel)]="request.windSpeed" step="1">
+      </div>
+      
+      <div class="form-group">
+        <label>💧 Humidité <span>(%)</span></label>
+        <input type="number" [(ngModel)]="request.humidity" step="1">
+      </div>
+      
+      <div class="form-group full-width">
+        <label>⛰️ Difficulté (1 = Facile, 5 = Très difficile)</label>
+        <input type="range" [(ngModel)]="request.difficulte" min="1" max="5" step="1">
+        <div class="range-labels">
+          <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+        </div>
+        <div class="difficulty-value">Niveau : <strong>{{ request.difficulte }}/5</strong></div>
+      </div>
+      
+    </div>
+    
+    <button class="predict-button" (click)="generateChecklist()" [disabled]="loading">
+      <span *ngIf="!loading">🔮 Générer la checklist IA</span>
+      <span *ngIf="loading">⏳ Prédiction en cours...</span>
+    </button>
+  </div>
+  
+  <div *ngIf="response" class="result-card">
+    <div class="alert-banner" [class]="getAlertClass(response.alertLevel)">
+      {{ response.alertLevel }}
+    </div>
+    
+    <div class="checklist-result">
+      <div class="checklist-icon">{{ getIconForItem(response.checklistItem) }}</div>
+      <div class="checklist-content">
+        <h3>📋 Checklist recommandée</h3>
+        <div class="main-item">{{ response.checklistItem }}</div>
+        <div class="confidence">
+          🔒 Confiance IA : 
+          <div class="confidence-bar"><div class="confidence-fill" [style.width.%]="response.confidence * 100"></div></div>
+          <span>{{ response.confidence * 100 | number:'1.0-0' }}%</span>
+        </div>
+        <p class="details">{{ response.details }}</p>
+        <div class="recommendations">
+          <h4>✨ Recommandations</h4>
+          <ul><li *ngFor="let rec of response.recommendations">{{ rec }}</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="errorMessage" class="error-card">❌ {{ errorMessage }}</div>
+  
+</div>

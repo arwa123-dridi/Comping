@@ -25,21 +25,14 @@ public class SignupEntity {
     private String address;
     private Role role;
 
-    private String photo; // URL de la photo
+    private String photo;// URL de la photo
+    private boolean statut = true;
 
-    public String getFirstName() {
-        return FirstName;
-    }
-  public String getLastName()
-  {
+    public String getLastName() {
         return LastName;
     }
 
-    public void setFirstName(String FirstName) {
-        this.FirstName = FirstName;
-    }
 
-    public void setLastName(String LastName) {
-        this.LastName = LastName;
-    }
+
+
 }

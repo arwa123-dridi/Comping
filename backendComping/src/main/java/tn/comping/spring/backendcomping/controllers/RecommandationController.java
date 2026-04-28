@@ -37,15 +37,14 @@ public class RecommandationController {
         return ResponseEntity.ok(recommandationService.recommanderEquipes(userId));
     }
 
-    // GET /api/recommandations/profil?userId=xxx
+    // ── Profil utilisateur ─────────────────────────────────────────────────
     @GetMapping("/profil")
     public ResponseEntity<UserProfile> getProfil(@RequestParam String userId) {
         return ResponseEntity.ok(
                 recommandationService.construireOuMettreAJourProfil(userId));
     }
 
-    // POST /api/recommandations/participation/mise-a-jour
-    // → À appeler depuis ton SortieService après chaque inscription
+    // ── Mise à jour profil après inscription ──────────────────────────────
     @PostMapping("/participation/mise-a-jour")
     public ResponseEntity<Map<String, String>> mettreAJourProfil(
             @RequestBody Map<String, String> body) {
@@ -53,4 +52,5 @@ public class RecommandationController {
         recommandationService.mettreAJourProfilApresInscription(userId);
         return ResponseEntity.ok(Map.of("message", "Profil mis à jour"));
     }
+
 }

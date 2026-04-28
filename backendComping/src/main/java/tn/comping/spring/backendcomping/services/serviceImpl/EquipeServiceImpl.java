@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.comping.spring.backendcomping.utils.mapper.EquipeMapper;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -82,22 +81,17 @@ public class EquipeServiceImpl implements IEquipeService {
 
     @Override
     public void deleteEquipe(String id) {
-        log.info("Suppression de l'équipe: {}", id);
-
         List<Sortie> sorties = sortieRepository.findByEquipeId(id);
         sorties.forEach(s -> s.setEquipe(null));
         sortieRepository.saveAll(sorties);
-
         equipeRepository.deleteById(id);
         log.info("Équipe {} supprimée", id);
     }
 
     @Override
     public EquipeResponseDTO ajouterMembre(String equipeId, String utilisateurId) {
-
         Equipe equipe = equipeRepository.findById(equipeId)
                 .orElseThrow(() -> new RuntimeException("Équipe non trouvée"));
-
         SignupEntity utilisateur = signupRepository.findById(utilisateurId)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
@@ -153,9 +147,7 @@ public class EquipeServiceImpl implements IEquipeService {
 
     @Override
     public List<EquipeResponseDTO> getEquipesAvecPlace() {
-        return equipeRepository.findEquipesAvecPlace().stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+        return EquipeMapper.toDtoList(equipeRepository.findEquipesAvecPlace());
     }
 
     private EquipeResponseDTO mapToResponseDTO(Equipe equipe) {

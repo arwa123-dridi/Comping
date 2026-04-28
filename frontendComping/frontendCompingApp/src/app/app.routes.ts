@@ -19,6 +19,8 @@ import { SigninComponent } from './signin/signin.component';
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 import { OrganizerGuard } from './guards/organizer.guard';
+import { ChecklistIaComponent } from './checklist-ia/checklist-ia.component';
+
 
 export const routes: Routes = [
   { path: 'Campino', component: HomeComponent },
@@ -26,6 +28,7 @@ export const routes: Routes = [
   { path: 'profile', component: ProfileComponent }, 
   { path: '', redirectTo: 'Campino', pathMatch: 'full' },
   { path: 'login', component: SigninComponent },
+   { path: 'checklist-ia', component: ChecklistIaComponent },
    {
 path: 'admin',
     component: AdminLayoutComponent,

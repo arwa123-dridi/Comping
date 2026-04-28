@@ -42,6 +42,7 @@ public class SecurityConfig {
                                 "/api/auth/**",
                                 "/api/sorties/**",
                                 "/api/equipes/**",
+                                "/api/upload/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
@@ -61,8 +62,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
-                        .requestMatchers("/api/upload/image").authenticated()
-
                         // Tout le reste nécessite authentification
                         .anyRequest().authenticated()
                 )
