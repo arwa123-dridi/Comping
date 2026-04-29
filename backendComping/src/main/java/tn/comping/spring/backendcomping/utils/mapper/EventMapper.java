@@ -64,7 +64,13 @@ public class EventMapper {
                 .placesRestantes(entity.getCapacite() - nbParticipants)
                 .dejaInscrit(false)
                 .categorie(entity.getCategorie())
-
+                .niveauDifficulte(entity.getNiveauDifficulte())
+                .trancheAge(entity.getTrancheAge())
+                .latitude(entity.getLatitude())
+                .longitude(entity.getLongitude())
+                .saison(entity.getSaison())
+                .dureeEnHeures(entity.getDureeEnHeures())
+                .tags(entity.getTags())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

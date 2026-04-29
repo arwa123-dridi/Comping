@@ -68,6 +68,14 @@ public class EventServiceImpl implements  EventService{
         if (dto.getStatut() != null) {
             existing.setStatut(dto.getStatut());
         }
+        existing.setNiveauDifficulte(dto.getNiveauDifficulte());
+        existing.setTrancheAge(dto.getTrancheAge());
+        existing.setLatitude(dto.getLatitude());
+        existing.setLongitude(dto.getLongitude());
+        existing.setSaison(dto.getSaison());
+        existing.setDureeEnHeures(dto.getDureeEnHeures());
+        existing.setTags(dto.getTags());
+        existing.setActivityIds(dto.getActivityIds());
         return EventMapper.toDto(eventRepository.save(existing));
     }
 
