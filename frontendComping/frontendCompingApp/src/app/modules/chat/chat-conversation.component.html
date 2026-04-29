@@ -1,0 +1,44 @@
+<div class="chat-conversation">
+
+  <!-- HEADER CONVERSATION -->
+  <div class="conv-header">
+    <div class="user-info">
+      <div class="av av-green">LM</div>
+      <div>
+        <h3>Lucas Martin</h3>
+        <span>En ligne</span>
+      </div>
+    </div>
+    <div class="conv-actions">
+      <button class="icon-btn" title="Appel vocal">📞</button>
+      <button class="icon-btn" title="Plus">⋮⋮</button>
+    </div>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="messages-container">
+    <div class="message" *ngFor="let msg of messages" [ngClass]="'msg-' + msg.type">
+      <div class="msg-bubble">
+        {{msg.text}}
+      </div>
+      <span class="msg-time">{{msg.time}}</span>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="message-input">
+    <input 
+      [(ngModel)]="newMessage" 
+      (keyup.enter)="sendMessage()"
+      placeholder="Tapez votre message..."
+    />
+    <button (click)="sendMessage()" [disabled]="!newMessage.trim()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </div>
+
+</div>
+

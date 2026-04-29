@@ -1,0 +1,223 @@
+<div class="page">
+  <div class="card">
+
+    <h2 class="title">⛺ Créer un événement camping</h2>
+
+    <form (ngSubmit)="onSubmit()" class="form">
+
+      <!-- Titre -->
+      <div class="form-group">
+        <label>Titre</label>
+        <input
+          type="text"
+          [(ngModel)]="event.titre"
+          name="titre"
+          placeholder="Ex: Nuit sous les étoiles"
+          required
+        />
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label>Description</label>
+        <textarea
+          [(ngModel)]="event.description"
+          name="description"
+          placeholder="Décrire l'événement"
+        ></textarea>
+      </div>
+
+      <!-- Prix / Capacité -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prix (TND)</label>
+          <input
+            type="number"
+            [(ngModel)]="event.prix"
+            name="prix"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Capacité</label>
+          <input
+            type="number"
+            [(ngModel)]="event.capacite"
+            name="capacite"
+          />
+        </div>
+      </div>
+
+      <!-- Dates -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date début</label>
+          <input
+            type="datetime-local"
+            [(ngModel)]="event.dateDebut"
+            name="dateDebut"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Date fin</label>
+          <input
+            type="datetime-local"
+            [(ngModel)]="event.dateFin"
+            name="dateFin"
+          />
+        </div>
+      </div>
+
+      <!-- Lieu -->
+      <div class="form-group">
+        <label>Lieu</label>
+        <input
+          type="text"
+          [(ngModel)]="event.lieu"
+          name="lieu"
+          placeholder="Ex: Ain Draham"
+        />
+      </div>
+
+      <!-- Catégorie -->
+      <div class="form-group">
+        <label>Catégorie</label>
+        <input
+          type="text"
+          [(ngModel)]="event.categorie"
+          name="categorie"
+          placeholder="Ex: Camping sauvage"
+        />
+      </div>
+
+    
+
+      <!-- Statut -->
+      <div class="form-group">
+        <label>Statut</label>
+        <select [(ngModel)]="event.statut" name="statut">
+          <option value="VALIDE">Validé</option>
+          <option value="TERMINE">Terminé</option>
+          <option value="ANNULE">Annulé</option>
+        </select>
+      </div>
+
+      <!-- Activités -->
+      <div class="form-group">
+        <label>Activités</label>
+
+        <div class="activities-box">
+          <label class="activity-item" *ngFor="let act of activities">
+            <input
+              type="checkbox"
+              [value]="act.idActivity"
+              (change)="onActivityChange($event)"
+            />
+            {{ act.nom }}
+          </label>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="form-group">
+        <label>Tags (séparés par virgule)</label>
+        <input
+          type="text"
+          [(ngModel)]="tagsInput"
+          name="tagsInput"
+          placeholder="nature, aventure, montagne"
+        />
+      </div>
+
+      <!-- Niveau difficulté -->
+      <div class="form-group">
+        <label>Niveau difficulté</label>
+        <select
+          [(ngModel)]="event.niveauDifficulte"
+          name="niveauDifficulte"
+        >
+          <option value="Facile">Facile</option>
+          <option value="Moyen">Moyen</option>
+          <option value="Difficile">Difficile</option>
+        </select>
+      </div>
+
+      <!-- Tranche âge -->
+      <div class="form-group">
+        <label>Tranche d'âge</label>
+        <input
+          type="text"
+          [(ngModel)]="event.trancheAge"
+          name="trancheAge"
+          placeholder="18-35"
+        />
+      </div>
+
+      <!-- Latitude / Longitude -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Latitude</label>
+          <input
+            type="number"
+            [(ngModel)]="event.latitude"
+            name="latitude"
+            step="any"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Longitude</label>
+          <input
+            type="number"
+            [(ngModel)]="event.longitude"
+            name="longitude"
+            step="any"
+          />
+        </div>
+      </div>
+
+      <!-- Saison / Durée -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Saison</label>
+          <input
+            type="text"
+            [(ngModel)]="event.saison"
+            name="saison"
+            placeholder="Été"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Durée (heures)</label>
+          <input
+            type="number"
+            [(ngModel)]="event.dureeEnHeures"
+            name="dureeEnHeures"
+          />
+        </div>
+      </div>
+
+      <button type="submit" class="btn">
+        Créer l'événement
+      </button>
+
+    </form>
+  </div>
+</div>
+<!-- SUCCESS POPUP -->
+<div class="success-overlay" *ngIf="showSuccess">
+  <div class="success-box">
+
+    <div class="icon">✔</div>
+
+    <h3>Succès</h3>
+    <p>Événement créé avec succès</p>
+
+    <button (click)="showSuccess = false">
+      OK
+    </button>
+
+  </div>
+</div>

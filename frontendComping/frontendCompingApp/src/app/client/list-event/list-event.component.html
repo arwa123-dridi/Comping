@@ -1,0 +1,130 @@
+<div class="page">
+  <header class="main-header">
+    <div class="header-content">
+      <div class="title-section">
+        <h1>Événements disponibles</h1>
+        <span class="count-badge">{{ events.length }} expéditions trouvées</span>
+        
+        <div class="header-actions">
+          <button class="btn-primary" (click)="onCreateEvent()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Créer un événement
+          </button>
+          <button class="btn-outline" (click)="onCreateActivity()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 20L9 12l3-8 3 8-3 8z"></path>
+            </svg>
+            Nouvelle activité
+          </button>
+          <a routerLink="/activities/list" class="btn-outline nav-link">
+            📋 Liste des activités
+          </a>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-glass green">
+          <span class="stat-label">Validés</span>
+          <span class="stat-value">{{ validCount }}</span>
+        </div>
+        <div class="stat-glass orange">
+          <span class="stat-label">Terminés</span>
+          <span class="stat-value">{{ termineCount }}</span>
+        </div>
+        <div class="stat-glass red">
+          <span class="stat-label">Annulés</span>
+          <span class="stat-value">{{ annuleCount }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ✅ filter-bar déplacé ICI, hors du header vert -->
+  <div class="filter-bar">
+    <select [(ngModel)]="filters.statut">
+      <option value="">Tous les statuts</option>
+      <option value="VALIDE">Validé</option>
+      <option value="TERMINE">Terminé</option>
+      <option value="ANNULE">Annulé</option>
+    </select>
+    <input type="text" placeholder="Lieu" [(ngModel)]="filters.lieu" />
+    <input type="number" placeholder="Prix min" [(ngModel)]="filters.prixMin" />
+    <input type="number" placeholder="Prix max" [(ngModel)]="filters.prixMax" />
+    <button class="btn-primary" (click)="applyFilters()">🔍 Filtrer</button>
+    <button class="btn-outline" (click)="resetFilters()">Reset</button>
+  </div>
+
+  <!-- grille événements -->
+  <div class="grid">
+    <div class="event-card" *ngFor="let event of events">
+      <div class="status-indicator" [ngClass]="getTopBarClass(event.statut)"></div>
+
+      <div class="card-content">
+        <div class="card-header">
+          <h2 class="card-titre">{{ event.titre }}</h2>
+          <span class="badge" [ngClass]="getStatutClass(event.statut)">
+            {{ event.statut }}
+          </span>
+        </div>
+
+        <p class="card-desc">{{ event.description }}</p>
+
+        <div class="card-meta">
+          <div class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            {{ event.capacite }} places
+          </div>
+        </div>
+
+        <div class="activities-row" *ngIf="event.activities?.length">
+          <svg class="activity-main-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 20L9 2L16 20"></path>
+            <path d="M12 20L19 2L22 20"></path>
+          </svg>
+          <span class="activity-tag" *ngFor="let act of event.activities">
+            <span class="tag-dot"></span>
+            {{ act.nom }}
+          </span>
+        </div>
+
+        <div class="card-divider"></div>
+
+        <div class="card-footer">
+          <div class="price-container">
+            <span class="currency">DT</span>
+            <span class="amount">{{ event.prix | number:'1.2-2' }}</span>
+            <span class="per-person">/ pers.</span>
+          </div>
+
+          <div class="action-buttons">
+            <button class="icon-btn edit" (click)="editEvent(event)" title="Modifier">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </button>
+            <button class="icon-btn delete" (click)="deleteEvent(event.idEvent)" title="Supprimer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="events.length === 0">
+    <div class="empty-icon">🏕️</div>
+    <p>Aucune aventure prévue pour le moment.</p>
+  </div>
+</div>

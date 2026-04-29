@@ -1,0 +1,102 @@
+<!-- Standalone Angular Component - Copie exacte admin layout -->
+
+<app-sidebar></app-sidebar>
+<div class="main">
+  <app-admin-header></app-admin-header>
+  <div class="content">
+    
+    <div class="dashboard">
+      
+      <!-- BANNER AVIS -->
+      <div class="banner">
+        <div class="banner-text">
+          <h1>Module Avis</h1>
+          <p>Workflow modération complète</p>
+        </div>
+      </div>
+
+      <!-- STATS AVIS -->
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-value">4.3<span>⭐</span></div>
+          <div class="stat-label">Note moyenne</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-value">127</div>
+          <div class="stat-label">Total avis</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-value">89%</div>
+          <div class="stat-label">Satisfaction</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value">3</div>
+          <div class="stat-label">À modérer</div>
+        </div>
+      </div>
+
+      <!-- TABLEAU AVIS - Workflow métier -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            Avis en attente (statut, valide, motifRejet)
+          </div>
+        </div>
+        <table class="resa-table">
+          <thead>
+            <tr>
+              <th>Auteur</th>
+              <th>Cible (typeCible/cibleId)</th>
+              <th>Note/Commentaire</th>
+              <th>Statut</th>
+              <th>Actions Modérateur</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="client">
+                  <div class="av av-green">LM</div>
+                  <span>Lucas Martin (SignupEntity)</span>
+                </div>
+              </td>
+              <td>Site "Forêt Pins" (typeCible: site, cibleId: 12)</td>
+              <td>
+                5⭐ "Parfait !" 
+              </td>
+              <td><span class="pill green">En attente</span></td>
+              <td>
+                <button class="btn-primary small" title="Valider">✓ Valider</button>
+                <button class="btn-outline danger small" title="Rejeter + motif">✗ Rejeter</button>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div class="client">
+                  <div class="av av-blue">SC</div>
+                  <span>Sophie Carré</span>
+                </div>
+              </td>
+              <td>Post #45 (typeCible: post)</td>
+              <td>3⭐ "Sanitaires à améliorer"</td>
+              <td><span class="pill amber">En attente</span></td>
+              <td>
+                <button class="btn-primary small">Valider</button>
+                <button class="btn-outline danger small">Rejeter</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- RÉPONSES OFFICIELLES -->
+      <div class="card">
+        <div class="card-title">Réponses officielles (ReponseAvis 1:1)</div>
+        <p>Ajouter réponse publique liée à Avis ID</p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+

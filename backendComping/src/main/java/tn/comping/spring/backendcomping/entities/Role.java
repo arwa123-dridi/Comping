@@ -6,6 +6,6 @@ public enum Role {
     BOUTIQUE,
     ORGANISATEUR,
     PARTENAIRE_logistique,
-    MODERATEUR,
     USER
 }
+

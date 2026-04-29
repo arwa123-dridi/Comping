@@ -11,7 +11,8 @@ public class SignupMapper {
         if (dto == null) return null;
 
         return SignupEntity.builder()
-                .name(dto.getName())
+                .firstName(dto.getFirstName())
+                .lastName(dto.getlastName())
                 .email(dto.getEmail())
                 .password(dto.getPassword())
                 .telephone(dto.getTelephone())
@@ -25,7 +26,8 @@ public class SignupMapper {
         if (entity == null) return null;
 
         return SignupDTO.builder()
-                .name(entity.getName())
+                .firstName(entity.getFirstName())
+                .lastName(entity.getLastName())
                 .email(entity.getEmail())
                 .password(entity.getPassword())
                 .telephone(entity.getTelephone())

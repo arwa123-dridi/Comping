@@ -63,7 +63,7 @@ public class ChatServiceImpl implements ChatService {
                 .collect(Collectors.toList());
     }
 
-    @Override
+@Override
     public MessageResponseDTO sendMessage(String currentUserId, MessageRequestDTO dto) {
         Message msg = ChatMapper.toEntity(dto, currentUserId);
         Message saved = messageRepository.save(msg);
@@ -72,7 +72,8 @@ public class ChatServiceImpl implements ChatService {
         updateConversationOnNewMessage(dto.getConversationId(), currentUserId);
 
         log.info("Message sent in conv {} by user {}", dto.getConversationId(), currentUserId);
-        return mapMsgResponse(saved);
+        MessageResponseDTO response = mapMsgResponse(saved);
+        return response;
     }
 
     @Override

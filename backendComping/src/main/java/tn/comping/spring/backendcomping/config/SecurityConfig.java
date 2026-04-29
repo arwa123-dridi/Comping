@@ -30,7 +30,7 @@ public class SecurityConfig {
         http.cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new org.springframework.web.cors.CorsConfiguration();
                     corsConfig.setAllowedOrigins(List.of("http://localhost:4200"));
-                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE","PATCH", "OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("*"));
                     return corsConfig;
                 }))
@@ -46,19 +46,22 @@ public class SecurityConfig {
                                 "/api/demandes-transport/**",
                                 "/api/creneaux-livraison/**",
                                 "/api/incidents/**",
-                                "/api/conventions-partenaires/**"
+                                "/api/conventions-partenaires/**",
+                                 "/api/produits/**",
+                                  "/uploads/**" 
                         ).permitAll()
 
                         // Rôles spécifiques
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/moderateur/**").hasRole("MODERATEUR")
                         .requestMatchers("/api/organisateur/**").hasRole("ORGANISATEUR")
-
+                        .requestMatchers("/api/produits/**").authenticated()
                         // Avis – MODERATEUR ou ADMIN
                         .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
-
+                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/events/**").authenticated()
                         // Tout le reste nécessite authentification
                         .anyRequest().authenticated()
                 )

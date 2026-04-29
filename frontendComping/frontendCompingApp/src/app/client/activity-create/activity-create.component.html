@@ -1,0 +1,46 @@
+<div class="page">
+  <div class="card">
+    <h2 class="title">🏕️ Créer une Activité</h2>
+
+    <form [formGroup]="activityForm" (ngSubmit)="onSubmit()" class="form">
+
+      <div class="form-group">
+        <label>Nom</label>
+        <input type="text" formControlName="nom"
+               placeholder="Ex: Randonnée en montagne" />
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea formControlName="description"
+                  placeholder="Décrivez l'activité..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type</label>
+          <input type="text" formControlName="type"
+                 placeholder="Ex: Plein air" />
+        </div>
+        <div class="form-group">
+          <label>Durée</label>
+          <input type="text" formControlName="duree"
+                 placeholder="Ex: 2h30" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Capacité</label>
+        <input type="number" formControlName="capacite"
+               placeholder="Ex: 20" />
+      </div>
+
+      <button type="submit" class="btn">Ajouter l'activité</button>
+
+    </form>
+
+    <div class="success-box" *ngIf="successMessage">
+      ✅ {{ successMessage }}
+    </div>
+  </div>
+</div>

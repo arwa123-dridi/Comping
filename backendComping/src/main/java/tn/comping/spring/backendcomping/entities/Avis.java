@@ -36,8 +36,10 @@ public class Avis {
     // modération
     private String moderateurId;
     private String motifRejet;
+    private String parentAvisId;
 
 }
+
 
 
     

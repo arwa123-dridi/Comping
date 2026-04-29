@@ -9,13 +9,18 @@ import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
 import tn.comping.spring.backendcomping.dto.SignupDTO;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 
 public class SignupController {
 
-    @Autowired
-    private SignupService signupService;
+    private final SignupService signupService;
+
+    public SignupController(SignupService signupService) {
+        this.signupService = signupService;
+    }
 
     // Endpoint to register a new user
     @PostMapping("/registerUser")
@@ -27,4 +32,6 @@ public class SignupController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
 }

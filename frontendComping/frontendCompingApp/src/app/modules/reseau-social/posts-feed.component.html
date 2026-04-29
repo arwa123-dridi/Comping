@@ -1,0 +1,68 @@
+<div class="module-social">
+
+  <!-- BANNER -->
+  <div class="banner">
+    <div class="banner-text">
+      <h1>Module Réseau Social ✦</h1>
+      <p>Modérez le feed et gérez la communauté.</p>
+    </div>
+    <div class="banner-actions">
+      <button class="btn-outline">Utilisateurs</button>
+      <button class="btn-primary">Nouveau post</button>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stats-grid">
+    <div class="stat-card green">
+      <div class="stat-value">{{ stats.totalPosts }}</div>
+      <div class="stat-label">Posts total</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-value">{{ stats.activeUsers }}</div>
+      <div class="stat-label">Utilisateurs actifs</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-value">{{ stats.reports }}</div>
+      <div class="stat-label">Signalements</div>
+    </div>
+  </div>
+
+  <!-- FEED POSTS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Feed Posts (Modération)
+      </div>
+      <input class="search-input" placeholder="Rechercher post..." />
+    </div>
+    <div class="posts-list">
+      <div class="post-item" *ngFor="let post of posts" routerLink="/modules/reseau-social/{{post.id}}">
+        <div class="post-header">
+          <div class="user-info">
+            <div class="av av-green">{{post.user.slice(0,2)}}</div>
+            <div>
+              <span class="username">{{post.user}}</span>
+              <span class="post-time">2h</span>
+            </div>
+          </div>
+          <span class="status-pill" [class.approved]="post.status === 'approuvé'" [class.rejected]="post.status === 'rejete'">{{post.status}}</span>
+        </div>
+        <div class="post-content">
+          {{post.content}}
+        </div>
+        <div class="post-actions">
+          <span>❤️ {{post.likes}}</span>
+          <span>💬 {{post.comments}}</span>
+          <button class="moderate-btn approve">Approuver</button>
+          <button class="moderate-btn reject">Rejeter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+

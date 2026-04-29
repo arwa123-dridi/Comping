@@ -1,17 +1,18 @@
-# TODO.md - Plan pour corriger le code et rendre l'app exécutable
+# NEW TASK: Complete Reseau Social Module Implementation
 
-## Étapes du plan (cocher au fur et à mesure):
+Status: ⏳ In Progress
 
-- [ ] 1. Créer/mettre à jour ce TODO.md ✅ **(EN COURS)**
-- [x] 2. Fix SignupRepository.java - Ajouter méthode Spring Data findByEmail(String email) ✅
-- [x] 3. Fix SignupServiceImpl.java - Injecter deps (@RequiredArgsConstructor SignupRepository, PasswordEncoder, JwtUtils), corriger registerUser/login logic, supprimer static refs/logs console ✅
-- [x] 4. Fix GlobalExceptionHandler.java - Corriger signatures méthodes @ExceptionHandler (retour type sur 1 ligne), supprimer duplicatas ✅
-- [x] 5. Fix SignupController.java - Remplacer @Autowired par constructor injection ✅
-- [x] 6. Fix AvisServiceImpl.java - Ajouter imports ResponseStatusException/HttpStatus, ajouter méthode private mapToResponseDTO(Avis), corriger accents/apostrophes français ✅
-- [x] 7. Vérifier repositories (AvisRepository, ReponseAvisRepository) pour méthodes custom ✅ (compile success)
-- [x] 8. mvn clean compile - Vérifier compilation ✅ BUILD SUCCESS
-- [ ] 9. mvn spring-boot:run - Lancer app, tester Swagger http://localhost:8087/swagger-ui.html
-- [ ] 10. Tests fonctionnels (signup, avis, etc.) avec MongoDB local
+**Existing:** Post.java, PostRepository.java, PostRequestDTO.java, PostResponseDTO.java
 
-**Prochaine étape: 2. SignupRepository.java**
+**Missing:** PostService, PostServiceImpl, PostController, PostMapper, Frontend
 
+## Steps:
+
+1. [ ] ✅ Update TODO.md ✅ DONE
+2. ✅ Read PostRequestDTO.java, PostResponseDTO.java ✅ DONE
+3. ✅ Create PostService.java interface ✅ DONE
+4. ✅ Create PostServiceImpl.java ✅ DONE
+5. ✅ Create PostController.java ✅ DONE
+6. ✅ Create PostMapper.java ✅ DONE
+7. [ ] Frontend: reseau-social components + routes
+8. [ ] Test & complete

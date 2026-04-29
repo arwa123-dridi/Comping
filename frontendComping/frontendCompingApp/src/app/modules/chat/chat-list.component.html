@@ -1,0 +1,55 @@
+<div class="module-chat">
+
+  <!-- BANNER -->
+  <div class="banner">
+    <div class="banner-text">
+      <h1>Module Chat ✦</h1>
+      <p>Gérez vos conversations clients en temps réel.</p>
+    </div>
+    <div class="banner-actions">
+      <button class="btn-outline">Statistiques</button>
+      <button class="btn-primary">Nouveau chat</button>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stats-grid">
+    <div class="stat-card green">
+      <div class="stat-value">{{ stats.active }}</div>
+      <div class="stat-label">Conversations actives</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-value">{{ stats.total }}</div>
+      <div class="stat-label">Total conversations</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-value">{{ stats.urgent }}</div>
+      <div class="stat-label">À traiter d'urgence</div>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-section">
+    <input class="search-input" placeholder="Rechercher une conversation..." />
+  </div>
+
+  <!-- LISTE CONVERSATIONS -->
+  <div class="chat-list">
+    <div class="chat-item" *ngFor="let conv of conversations" [routerLink]="['/modules/chat', conv.id]">
+      <div class="chat-avatar av av-{{conv.status.replace('_', '-')}}">{{conv.avatar}}</div>
+      <div class="chat-info">
+        <div class="chat-header">
+          <span class="chat-name">{{conv.user}}</span>
+          <span class="chat-time">{{conv.time}}</span>
+        </div>
+        <div class="chat-preview">{{conv.lastMsg}}</div>
+      </div>
+      <div class="chat-meta">
+        <span *ngIf="conv.unread > 0" class="unread-badge">{{conv.unread}}</span>
+        <div class="status-dot" [ngClass]="'status-' + conv.status"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+

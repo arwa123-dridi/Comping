@@ -1,0 +1,94 @@
+<div class="module-avis">
+
+  <!-- BANNER -->
+  <div class="banner">
+    <div class="banner-text">
+      <h1>Module Avis ✦</h1>
+      <p>Gérez les retours clients, modérez et analysez la satisfaction.</p>
+    </div>
+    <div class="banner-actions">
+      <button class="btn-outline">Exporter CSV</button>
+      <button class="btn-primary">+ Répondre à un avis</button>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stats-grid">
+    <div class="stat-card green">
+      <div class="stat-top">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <span class="stat-badge">live</span>
+      </div>
+      <div class="stat-value">{{ stats.avgRating }}⭐</div>
+      <div class="stat-label">Note moyenne</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-value">{{ stats.total }}</div>
+      <div class="stat-label">Avis total</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-value">{{ stats.positif }}%</div>
+      <div class="stat-label">Avis positifs</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-value">3</div>
+      <div class="stat-label">En attente modération</div>
+    </div>
+  </div>
+
+  <!-- TABLE AVIS -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        Liste des avis
+      </div>
+      <input class="search-input" placeholder="Rechercher un avis..." />
+    </div>
+    <table class="avis-table">
+      <thead>
+        <tr>
+          <th>Client</th>
+          <th>Site</th>
+          <th>Note</th>
+          <th>Commentaire</th>
+          <th>Date</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+<tr *ngFor="let item of avis">
+          <td><div class="client"><div class="av av-green">{{item.user.slice(0,2)}}</div><span>{{item.user}}</span></div></td>
+          <td>{{item.site}}</td>
+          <td>
+            <div class="rating">
+              <span *ngFor="let s of [1,2,3,4,5]; let i = index" [class.filled]="i < item.rating" class="star">⭐</span>
+            </div>
+          </td>
+          <td>{{item.comment}}</td>
+          <td>{{item.date}}</td>
+          <td><span class="pill" [class.pill-approuve]="item.status === 'approuvé'" [class.pill-attente]="item.status === 'en_attente'">
+            {{item.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}}
+          </span></td>
+          <td>
+            <button class="icon-btn small" title="Approuver">✓</button>
+            <button class="icon-btn small danger" title="Rejeter">✗</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+

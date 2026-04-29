@@ -1,0 +1,68 @@
+<div class="container">
+  <div class="card content-box">
+    <div class="header-box">
+      <h2 class="title">Modifier activité</h2>
+    </div>
+
+    <p *ngIf="loading" class="loading-text">Chargement...</p>
+
+    <form *ngIf="!loading" (ngSubmit)="updateActivity()" class="form">
+      
+      <div class="form-group">
+        <label>Nom</label>
+        <input
+          type="text"
+          [(ngModel)]="activity.nom"
+          name="nom"
+          required
+          placeholder="Nom de l'activité"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea
+          [(ngModel)]="activity.description"
+          name="description"
+          placeholder="Décrivez l'activité..."
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Type</label>
+        <input
+          type="text"
+          [(ngModel)]="activity.type"
+          name="type"
+          placeholder="Ex: Sport, Culture..."
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Durée</label>
+          <input
+            type="text"
+            [(ngModel)]="activity.duree"
+            name="duree"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Capacité</label>
+          <input
+            type="number"
+            [(ngModel)]="activity.capacite"
+            name="capacite"
+          />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="cancel()">Annuler</button>
+        <button type="submit" class="btn-save">Enregistrer les modifications</button>
+      </div>
+
+    </form>
+  </div>
+</div>

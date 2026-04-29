@@ -1,51 +1,86 @@
 <div class="signup-container">
-  <h2>Sign Up</h2>
-  <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+  <div class="card">
 
-    <div>
-      <label>Name:</label>
-      <input type="text" formControlName="name" />
-      <div *ngIf="signupForm.get('name')?.invalid && signupForm.get('name')?.touched">
-        Name is required
+    <!-- LEFT SIDE -->
+    <div class="left">
+      <div class="slideshow-container">
+        <div class="slides-wrapper" #slidesWrapper>
+          <div class="slide-left" *ngFor="let slide of slides" [style.backgroundImage]="'url(' + slide.url + ')'"></div>
+        </div>
+      </div>
+
+      <div class="overlay">
+        <h1>Welcome</h1>
+        <p>
+          Join our camping community and explore nature like never before.
+        </p>
       </div>
     </div>
 
-    <div>
-      <label>Email:</label>
-      <input type="email" formControlName="email" />
-      <div *ngIf="signupForm.get('email')?.invalid && signupForm.get('email')?.touched">
-        Valid email is required
-      </div>
+    <!-- RIGHT SIDE -->
+    <div class="right">
+      <h2>Create Account</h2>
+      <p>Create your account. It's free and only takes a minute</p>
+
+      <!-- Bind the form to signupForm -->
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+
+        <div class="row">
+          <input type="text" placeholder="Prénom" formControlName="firstName" />
+          <input type="text" placeholder="Nom" formControlName="lastName" />
+        </div>
+
+        <input type="email" placeholder="Email (@gmail.com)" formControlName="email" (input)="onEmailInput($event)" />
+        <div class="error" *ngIf="f['email'].touched && f['email'].invalid">
+          Email must be a valid Gmail address (example&#64;gmail.com)
+        </div>
+        <input type="tel" placeholder="+216XXXXXXXX" formControlName="telephone" (input)="onPhoneInput($event)" />
+
+        <div class="error" *ngIf="f['telephone'].touched && f['telephone'].invalid">
+          Phone must be in format +216XXXXXXXX
+        </div>
+
+        <input type="text" placeholder="Adresse" formControlName="address" />
+        <input type="password" placeholder="Password" formControlName="password" />
+        <input type="password" placeholder="Confirm Password" formControlName="confirmPassword" />
+
+        <div class="error" *ngIf="f['confirmPassword'].touched && f['confirmPassword'].errors?.['mismatch']">
+          Passwords do not match
+        </div>
+
+
+
+
+        <label class="checkbox">
+          <select formControlName="role">
+            <!-- Placeholder -->
+            <option [ngValue]="null" disabled>Select Role</option>
+
+            <!-- Actual roles -->
+            <option *ngFor="let role of roles.slice(1)" [value]="role">{{ role }}</option>
+          </select>
+        </label>
+
+        <button type="submit" class="btn-register" [disabled]="isLoading">
+          Register Now
+        </button>
+
+        <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+      </form>
     </div>
 
-    <div>
-      <label>Password:</label>
-      <input type="password" formControlName="password" />
-      <div *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched">
-        Password is required (min 6 chars)
-      </div>
+  </div>
+
+  <!-- SUCCESS POPUP -->
+  <div class="popup-overlay" *ngIf="showSuccessPopup">
+    <div class="popup">
+      <div class="popup-icon">✓</div>
+
+      <h2>Registration Successful 🎉</h2>
+      <p>Your account has been created successfully.</p>
+
+      <button class="btn-popup" (click)="closePopup()">OK</button>
     </div>
-
-    <div>
-      <label>Telephone:</label>
-      <input type="text" formControlName="telephone" />
-    </div>
-
-    <div>
-      <label>Address:</label>
-      <input type="text" formControlName="address" />
-    </div>
-
-    <div>
-      <label>Role:</label>
-      <select formControlName="role">
-        <option value="USER">User</option>
-        <option value="ADMIN">Admin</option>
-      </select>
-    </div>
-
-    <button type="submit" [disabled]="signupForm.invalid">Sign Up</button>
-  </form>
-
-  <p *ngIf="successMessage">{{ successMessage }}</p>
+  </div>
 </div>

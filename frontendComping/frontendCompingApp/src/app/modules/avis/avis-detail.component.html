@@ -1,0 +1,48 @@
+<div class="avis-detail">
+
+  <!-- HEADER -->
+  <div class="detail-header">
+    <button class="back-btn" routerLink="/modules/avis">← Retour</button>
+    <div class="detail-actions">
+      <button class="btn-primary" (click)="onApprove()">Approuver</button>
+      <button class="btn-outline danger" (click)="onReject()">Rejeter</button>
+    </div>
+  </div>
+
+  <!-- AVIS CONTENT -->
+  <div class="avis-content">
+    <div class="user-header">
+      <div class="user-info">
+        <div class="av av-green">{{avis?.avatar}}</div>
+        <div>
+          <h2>{{avis?.user}}</h2>
+          <span class="site">{{avis?.site}}</span>
+        </div>
+      </div>
+      <div class="rating-section">
+        <div class="rating">{{avis?.rating}}⭐</div>
+        <span class="date">{{avis?.date}}</span>
+      </div>
+    </div>
+
+    <div class="comment">
+      {{avis?.comment}}
+    </div>
+
+    <div class="status-section">
+      <span class="pill pill-{{avis?.status.replace('_', '-')}}">{{avis?.status | titlecase}}</span>
+    </div>
+  </div>
+
+  <!-- REPONSE ADMIN -->
+  <div class="response-section">
+    <h3>Votre réponse (optionnelle)</h3>
+    <textarea 
+      [(ngModel)]="avis.response" 
+      placeholder="Répondez à cet avis publiquement..."
+      rows="4"></textarea>
+    <button class="btn-primary" (click)="onRespond()">Publier réponse</button>
+  </div>
+
+</div>
+
