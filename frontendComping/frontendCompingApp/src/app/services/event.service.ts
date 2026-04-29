@@ -20,7 +20,7 @@ console.log("TOKEN:", token);
     headers: token
       ? { Authorization: `Bearer ${token}` }
       : {}
-  });
+  })
   }
 
   toggleStatut(id: string, statut: string): Observable<EventModel> {

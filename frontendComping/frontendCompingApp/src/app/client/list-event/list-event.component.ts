@@ -99,6 +99,15 @@ onCreateEvent() {
     this.router.navigate(['/activities/add']);
     // Ici, ton code pour créer une activité
   }
+
+
+openDetails(event: any): void {
+  this.selectedEvent = event;
+}
+
+closeDetails(): void {
+  this.selectedEvent = null;
+}
   applyFilters(): void {
   this.events = this.allEvents.filter(e => {
 
@@ -128,4 +137,5 @@ resetFilters(): void {
 
   this.events = this.allEvents;
 }
+
 }

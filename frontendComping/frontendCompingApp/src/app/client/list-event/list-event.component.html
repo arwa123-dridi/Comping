@@ -105,6 +105,13 @@
           </div>
 
           <div class="action-buttons">
+             <button class="icon-btn details" (click)="openDetails(event)" title="Voir détails">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+  </button>
             <button class="icon-btn edit" (click)="editEvent(event)" title="Modifier">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -127,4 +134,177 @@
     <div class="empty-icon">🏕️</div>
     <p>Aucune aventure prévue pour le moment.</p>
   </div>
+  <!-- ✅ MODALE DÉTAILS -->
+<div class="modal-overlay" *ngIf="selectedEvent" (click)="closeDetails()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+
+    <!-- Barre de statut colorée -->
+    <div class="modal-top-bar" [ngClass]="getTopBarClass(selectedEvent.statut)"></div>
+
+    <!-- Header modale -->
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-titre">{{ selectedEvent.titre }}</h2>
+        <span class="badge" [ngClass]="getStatutClass(selectedEvent.statut)">
+          {{ selectedEvent.statut }}
+        </span>
+      </div>
+      <button class="close-btn" (click)="closeDetails()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body modale -->
+    <div class="modal-body">
+
+  <!-- Description -->
+  <div class="detail-section">
+    <h4 class="section-label">📝 Description</h4>
+    <p class="detail-text">{{ selectedEvent.description }}</p>
+  </div>
+
+  <!-- Grille principale -->
+  <div class="detail-grid">
+    <div class="detail-item">
+      <span class="detail-icon">👥</span>
+      <div>
+        <span class="detail-label">Capacité</span>
+        <span class="detail-value">{{ selectedEvent.capacite }} places</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">💰</span>
+      <div>
+        <span class="detail-label">Prix</span>
+        <span class="detail-value price-highlight">{{ selectedEvent.prix | number:'1.2-2' }} DT / pers.</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">📍</span>
+      <div>
+        <span class="detail-label">Lieu</span>
+        <span class="detail-value">{{ selectedEvent.lieu }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">🏷️</span>
+      <div>
+        <span class="detail-label">Catégorie</span>
+        <span class="detail-value">{{ selectedEvent.categorie }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">📅</span>
+      <div>
+        <span class="detail-label">Date début</span>
+        <span class="detail-value">{{ selectedEvent.dateDebut | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">🏁</span>
+      <div>
+        <span class="detail-label">Date fin</span>
+        <span class="detail-value">{{ selectedEvent.dateFin | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">⏱️</span>
+      <div>
+        <span class="detail-label">Durée</span>
+        <span class="detail-value">{{ selectedEvent.dureeEnHeures }}h</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">🌤️</span>
+      <div>
+        <span class="detail-label">Saison</span>
+        <span class="detail-value">{{ selectedEvent.saison }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">💪</span>
+      <div>
+        <span class="detail-label">Niveau difficulté</span>
+        <span class="detail-value">{{ selectedEvent.niveauDifficulte }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">🎂</span>
+      <div>
+        <span class="detail-label">Tranche d'âge</span>
+        <span class="detail-value">{{ selectedEvent.trancheAge }} ans</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">🗺️</span>
+      <div>
+        <span class="detail-label">Coordonnées GPS</span>
+        <span class="detail-value">{{ selectedEvent.latitude }}, {{ selectedEvent.longitude }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">📆</span>
+      <div>
+        <span class="detail-label">Créé le</span>
+        <span class="detail-value">{{ selectedEvent.createdAt | date:'dd/MM/yyyy' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tags -->
+  <div class="detail-section" *ngIf="selectedEvent.tags?.length">
+    <h4 class="section-label">🔖 Tags</h4>
+    <div class="tags-row">
+      <span class="tag-pill" *ngFor="let tag of selectedEvent.tags">{{ tag }}</span>
+    </div>
+  </div>
+
+  <!-- Activités -->
+  <div class="detail-section" *ngIf="selectedEvent.activities?.length">
+    <h4 class="section-label">🏃 Activités associées</h4>
+    <div class="activities-row">
+      <span class="activity-tag" *ngFor="let act of selectedEvent.activities">
+        <span class="tag-dot"></span>
+        {{ act.nom }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Participants -->
+  <div class="detail-section">
+    <h4 class="section-label">🙋 Participants inscrits</h4>
+    <p class="detail-text" *ngIf="!selectedEvent.participantIds?.length">
+      Aucun participant pour le moment.
+    </p>
+    <p class="detail-text" *ngIf="selectedEvent.participantIds?.length">
+      {{ selectedEvent.participantIds.length }} participant(s) inscrit(s)
+    </p>
+  </div>
+
+</div>
+
+    <!-- Footer modale -->
+    <div class="modal-footer">
+      <button class="btn-outline-dark" (click)="closeDetails()">Fermer</button>
+      <button class="btn-primary" (click)="editEvent(selectedEvent); closeDetails()">
+        ✏️ Modifier
+      </button>
+    </div>
+
+  </div>
+</div>
 </div>

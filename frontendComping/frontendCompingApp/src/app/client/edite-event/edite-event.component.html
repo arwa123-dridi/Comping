@@ -1,24 +1,32 @@
+<!-- MODAL MODIFIER ÉVÉNEMENT -->
 <div class="modal-overlay" (click)="closeModal()">
-  <div class="card modal-content" (click)="$event.stopPropagation()">
+  <div class="edit-card" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
     <div class="modal-header">
-      <h2 class="title">modifier l'événement</h2>
-      <button class="close-btn" (click)="closeModal()">&times;</button>
+      <h2 class="title">⛺ Modifier un événement camping</h2>
+      <button class="close-btn" (click)="closeModal()">×</button>
     </div>
 
+    <!-- FORM -->
     <form (ngSubmit)="onUpdate()" class="form">
+
+      <!-- Titre -->
       <div class="form-group">
         <label>Titre</label>
         <input type="text" [(ngModel)]="event.titre" name="titre" required />
       </div>
 
+      <!-- Description -->
       <div class="form-group">
         <label>Description</label>
         <textarea [(ngModel)]="event.description" name="description"></textarea>
       </div>
 
+      <!-- Prix / Capacité -->
       <div class="form-row">
         <div class="form-group">
-          <label>Prix (DT)</label>
+          <label>Prix (TND)</label>
           <input type="number" [(ngModel)]="event.prix" name="prix" />
         </div>
 
@@ -28,6 +36,7 @@
         </div>
       </div>
 
+      <!-- Statut -->
       <div class="form-group">
         <label>Statut</label>
         <select [(ngModel)]="event.statut" name="statut">
@@ -37,8 +46,84 @@
         </select>
       </div>
 
+      <!-- Catégorie -->
+      <div class="form-group">
+        <label>Catégorie</label>
+        <input type="text" [(ngModel)]="event.categorie" name="categorie" />
+      </div>
+
+      <!-- Lieu -->
+      <div class="form-group">
+        <label>Lieu</label>
+        <input type="text" [(ngModel)]="event.lieu" name="lieu" />
+      </div>
+
+      <!-- Niveau difficulté -->
+      <div class="form-group">
+        <label>Niveau de difficulté</label>
+        <select [(ngModel)]="event.niveauDifficulte" name="niveauDifficulte">
+          <option value="Facile">Facile</option>
+          <option value="Moyen">Moyen</option>
+          <option value="Difficile">Difficile</option>
+        </select>
+      </div>
+
+      <!-- Tranche d'âge -->
+      <div class="form-group">
+        <label>Tranche d'âge</label>
+        <select [(ngModel)]="event.trancheAge" name="trancheAge">
+          <option value="12-18">12-18</option>
+          <option value="18-25">18-25</option>
+          <option value="18-40">18-40</option>
+          <option value="40+">40+</option>
+        </select>
+      </div>
+
+      <!-- Saison -->
+      <div class="form-group">
+        <label>Saison</label>
+        <select [(ngModel)]="event.saison" name="saison">
+          <option value="Hiver">Hiver</option>
+          <option value="Printemps">Printemps</option>
+          <option value="Été">Été</option>
+          <option value="Automne">Automne</option>
+        </select>
+      </div>
+
+      <!-- Durée -->
+      <div class="form-group">
+        <label>Durée (heures)</label>
+        <input type="number" [(ngModel)]="event.dureeEnHeures" name="dureeEnHeures" />
+      </div>
+
+      <!-- GPS -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>Latitude</label>
+          <input type="number" [(ngModel)]="event.latitude" name="latitude" />
+        </div>
+
+        <div class="form-group">
+          <label>Longitude</label>
+          <input type="number" [(ngModel)]="event.longitude" name="longitude" />
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="form-group">
+        <label>Tags (séparés par virgule)</label>
+        <input
+          type="text"
+          [(ngModel)]="event.tagsText"
+          name="tagsText"
+          placeholder="plage, musique, camping"
+        />
+      </div>
+
+      <!-- Activités -->
       <div class="form-group">
         <label>Activités</label>
+
         <div class="activities-box">
           <label class="activity-item" *ngFor="let act of allActivities">
             <input
@@ -51,10 +136,17 @@
         </div>
       </div>
 
+      <!-- Actions -->
       <div class="modal-actions">
-        <button type="button" class="btn-cancel" (click)="closeModal()">Annuler</button>
-        <button type="submit" class="btn-save">Enregistrer les modifications</button>
+        <button type="button" class="btn-cancel" (click)="closeModal()">
+          Annuler
+        </button>
+
+        <button type="submit" class="btn-save">
+          Enregistrer les modifications
+        </button>
       </div>
+
     </form>
   </div>
 </div>
