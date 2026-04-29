@@ -1,0 +1,60 @@
+<div class="modal-overlay" (click)="closeModal()">
+  <div class="card modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="title">modifier l'événement</h2>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+
+    <form (ngSubmit)="onUpdate()" class="form">
+      <div class="form-group">
+        <label>Titre</label>
+        <input type="text" [(ngModel)]="event.titre" name="titre" required />
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="event.description" name="description"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prix (DT)</label>
+          <input type="number" [(ngModel)]="event.prix" name="prix" />
+        </div>
+
+        <div class="form-group">
+          <label>Capacité</label>
+          <input type="number" [(ngModel)]="event.capacite" name="capacite" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Statut</label>
+        <select [(ngModel)]="event.statut" name="statut">
+          <option value="VALIDE">Validé</option>
+          <option value="TERMINE">Terminé</option>
+          <option value="ANNULE">Annulé</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Activités</label>
+        <div class="activities-box">
+          <label class="activity-item" *ngFor="let act of allActivities">
+            <input
+              type="checkbox"
+              [checked]="isActivitySelected(act.idActivity)"
+              (change)="onActivityChange($event, act)"
+            />
+            {{ act.nom }}
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="closeModal()">Annuler</button>
+        <button type="submit" class="btn-save">Enregistrer les modifications</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -54,6 +54,27 @@ public ReservationResponse createReservation(ReservationRequest request) {
     return mapper.toResponse(saved);  // ← retourne toujours 200 OK
 }
 
+@Override
+public Reservation updateReservation(String id, Reservation request) {
+    Reservation existing = repository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Réservation non trouvée : " + id));
+
+    if (request.getSiteCampingId() != null) 
+        existing.setSiteCampingId(request.getSiteCampingId());
+    if (request.getDateDebut() != null)     
+        existing.setDateDebut(request.getDateDebut());
+    if (request.getDateFin() != null)       
+        existing.setDateFin(request.getDateFin());
+    if (request.getModePaiement() != null)  
+        existing.setModePaiement(request.getModePaiement());
+    if (request.getStatut() != null)        
+        existing.setStatut(request.getStatut());
+    
+    existing.setMontantTotal(request.getMontantTotal());
+
+    return repository.save(existing);
+}
+
     @Override
     public ReservationResponse updateStatut(String id, StatutReservation statut) {
         Reservation reservation = repository.findById(id)

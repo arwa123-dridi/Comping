@@ -3,6 +3,9 @@ package tn.comping.spring.backendcomping.dto;
 import lombok.*;
 import tn.comping.spring.backendcomping.entities.StatutEvent;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -18,4 +21,22 @@ public class EventResponseDTO {
     private double prix;
     private int capacite;
     private StatutEvent statut;
+    private List<ActivityResponse> activities;
+    private LocalDateTime dateDebut;
+    private LocalDateTime dateFin;
+    private String lieu;
+    private int nombreParticipants;
+    private int placesRestantes;
+    private boolean dejaInscrit;
+    private String categorie;
+    private LocalDateTime createdAt;
+    private String organisateurId;
+
+    private List<String> tags;
+    private String niveauDifficulte;
+    private String trancheAge;
+    private double latitude;
+    private double longitude;
+    private String saison;
+    private int dureeEnHeures;
 }

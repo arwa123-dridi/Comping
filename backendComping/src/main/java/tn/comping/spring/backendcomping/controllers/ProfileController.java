@@ -9,6 +9,9 @@ import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.repositories.SignupRepository;
 import tn.comping.spring.backendcomping.services.serviceImpl.IProfileService;
 import jakarta.validation.Valid;
+import tn.comping.spring.backendcomping.utils.Constants;
+
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -47,5 +50,25 @@ public class ProfileController {
     @GetMapping("/by-email/{email}")
     public ResponseEntity<SignupEntity> getUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(profileService.getUserByEmail(email));
+    }
+    @GetMapping(Constants.GET_ALL_USERS)
+    public ResponseEntity<List<SignupEntity>> getAllUsers() {
+        return ResponseEntity.ok(profileService.getAllUsers());
+    }
+    @DeleteMapping(Constants.DELETE_USER)
+    public ResponseEntity<String> deleteUser(@PathVariable String userId) {
+        profileService.deleteUser(userId);
+        return ResponseEntity.ok("Utilisateur supprimé");
+    }
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<SignupEntity> updateStatus(
+            @PathVariable String id,
+            @RequestBody Map<String, Boolean> body) {
+
+        boolean statut = body.get("statut");
+
+        SignupEntity updatedUser = profileService.updateStatus(id, statut);
+
+        return ResponseEntity.ok(updatedUser);
     }
 }

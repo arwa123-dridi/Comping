@@ -19,6 +19,10 @@ export class ReservationService {
     return this.http.get<Reservation>(`${this.apiUrl}/${id}`);
   }
 
+  update(id: string, data: Partial<Reservation>): Observable<Reservation> {
+  return this.http.patch<Reservation>(`${this.apiUrl}/${id}`, data);
+}
+
   getHistorique(utilisateurId: string): Observable<Reservation[]> {
     return this.http.get<Reservation[]>(`${this.apiUrl}/historique/${utilisateurId}`);
   }
@@ -33,7 +37,9 @@ export class ReservationService {
     });
   }
 
-  delete(id: string): Observable<string> {
-    return this.http.delete<string>(`${this.apiUrl}/${id}`);
-  }
+  delete(id: string): Observable<any> {
+  return this.http.delete(`${this.apiUrl}/${id}`, { 
+    responseType: 'text' 
+  });
+}
 }

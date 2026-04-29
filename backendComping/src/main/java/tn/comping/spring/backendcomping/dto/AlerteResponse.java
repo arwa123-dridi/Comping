@@ -1,7 +1,9 @@
 package tn.comping.spring.backendcomping.dto;
+import tn.comping.spring.backendcomping.dto.AlerteResponse;
 
 import lombok.*;
 import tn.comping.spring.backendcomping.entities.TypeAlerte;
+
 import java.util.Date;
 
 @Data 

@@ -44,6 +44,7 @@ export class SigninComponent {
         console.log('Login réussi', res);
         this.signinService.saveToken(res.token);
          this.router.navigate(['/Campino']);
+        console.log("TOKEN IN LOCALSTORAGE:", localStorage.getItem('authToken'));
       },
       error: (err) => {
         this.isLoading = false;

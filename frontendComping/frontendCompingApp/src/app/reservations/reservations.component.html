@@ -30,27 +30,30 @@
   </div>
 </header>
 
-<!-- HERO BAND -->
+<!-- HERO -->
 <div class="page-hero">
   <div class="hero-bg-pattern"></div>
   <div class="hero-content">
-    <div class="hero-left">
-      <span class="eyebrow-tag">⛺ TABLEAU DE BORD</span>
-      <h1>Gestion des <em>Réservations</em></h1>
-      <p>Suivez, confirmez et gérez toutes les réservations en temps réel.</p>
-    </div>
-    <div class="hero-stats">
-      <div class="hstat">
-        <div class="hstat-num">{{ reservations.length }}</div>
-        <div class="hstat-label">Total</div>
+    <p class="hero-greeting">Bonjour, <strong>{{ currentUser?.name || 'Campeur' }} 👋</strong></p>
+    <h1>Mes <em>Réservations</em></h1>
+    <p class="hero-subtitle">Retrouvez toutes vos réservations de camping ici.</p>
+
+    <div class="stats-bar">
+      <div class="sbar-item">
+        <div class="sbar-num">{{ reservations.length }}</div>
+        <div class="sbar-label">Total</div>
       </div>
-      <div class="hstat hstat-divider">
-        <div class="hstat-num hstat-orange">{{ countByStatut('EN_ATTENTE') }}</div>
-        <div class="hstat-label">En attente</div>
+      <div class="sbar-item">
+        <div class="sbar-num c-orange">{{ countByStatut('EN_ATTENTE') }}</div>
+        <div class="sbar-label">En attente</div>
       </div>
-      <div class="hstat hstat-divider">
-        <div class="hstat-num hstat-green">{{ countByStatut('CONFIRME') }}</div>
-        <div class="hstat-label">Confirmées</div>
+      <div class="sbar-item">
+        <div class="sbar-num c-green">{{ countByStatut('CONFIRME') }}</div>
+        <div class="sbar-label">Confirmée</div>
+      </div>
+      <div class="sbar-item">
+        <div class="sbar-num c-rose">{{ countByStatut('ANNULE') }}</div>
+        <div class="sbar-label">Annulée</div>
       </div>
     </div>
   </div>
@@ -59,115 +62,136 @@
 <!-- MAIN BODY -->
 <div class="page-body">
 
-  <!-- FILTER BAR -->
-  <div class="filter-bar">
-    <div class="filter-tabs">
-      <button class="ftab" [class.active]="activeFilter==='ALL'"        (click)="setFilter('ALL')">Toutes</button>
-      <button class="ftab" [class.active]="activeFilter==='EN_ATTENTE'" (click)="setFilter('EN_ATTENTE')">En attente</button>
-      <button class="ftab" [class.active]="activeFilter==='CONFIRME'"   (click)="setFilter('CONFIRME')">Confirmées</button>
-      <button class="ftab" [class.active]="activeFilter==='ANNULE'"     (click)="setFilter('ANNULE')">Annulées</button>
-    </div>
-    <span class="filter-count">{{ filteredReservations.length }} résultat(s)</span>
+  <!-- ADD BUTTON -->
+  <div class="add-btn-wrap">
+    <button class="btn-add-reservation" (click)="openModal()">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"/>
+      </svg>
+      ⛺ Réserver un nouveau camping
+    </button>
   </div>
 
-  <!-- TABLE CARD -->
-  <div class="table-card" *ngIf="!loading && filteredReservations.length > 0">
-     <!-- BUTTON ADD -->
+  <!-- FILTER TABS -->
+  <div class="filter-tabs">
+    <button class="ftab" [class.active]="activeFilter==='ALL'"        (click)="setFilter('ALL')">Toutes</button>
+    <button class="ftab" [class.active]="activeFilter==='EN_ATTENTE'" (click)="setFilter('EN_ATTENTE')">En attente</button>
+    <button class="ftab" [class.active]="activeFilter==='CONFIRME'"   (click)="setFilter('CONFIRME')">Confirmées</button>
+    <button class="ftab" [class.active]="activeFilter==='ANNULE'"     (click)="setFilter('ANNULE')">Annulées</button>
+  </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Campeur</th>
-          <th>Période</th>
-          <th>Montant</th>
-          <th>Paiement</th>
-          <th>Statut</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let r of filteredReservations; let i = index"
-            class="table-row" [style.--i]="i">
+  <!-- CARDS LIST -->
+  <div class="cards-list" *ngIf="!loading && filteredReservations.length > 0">
+    <div
+      *ngFor="let r of filteredReservations; let i = index"
+      class="res-card"
+      [class.status-confirme]="r.statut === 'CONFIRME' || r.statut === 'CONFIRMEE'"
+      [class.status-attente]="r.statut === 'EN_ATTENTE'"
+      [class.status-annule]="r.statut === 'ANNULE' || r.statut === 'ANNULEE'"
+      [class.status-terminee]="r.statut === 'TERMINEE'"
+      [style.--i]="i">
 
-         
+      <!-- Colored top stripe -->
+      <div class="res-card-stripe"></div>
 
-          
-
-          <!-- CAMPEUR -->
-          <td>
-            <div class="user-cell">
-              <div class="avatar">{{ getAvatar(r.utilisateurId) }}</div>
-              <span>{{ r.utilisateurId }}</span>
+      <!-- CARD HEADER -->
+      <div class="res-card-header">
+        <div class="res-card-site">
+          <div class="site-icon" [class.icon-orange]="r.statut === 'EN_ATTENTE'" [class.icon-blue]="r.statut === 'ANNULE' || r.statut === 'ANNULEE'">
+            🏕️
+          </div>
+          <div class="site-info">
+            <div class="site-name">{{ getSiteName(r.siteCampingId) }}</div>
+            <div class="site-location">
+              <svg viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 1a5 5 0 00-5 5c0 3.5 5 9 5 9s5-5.5 5-9a5 5 0 00-5-5zm0 7a2 2 0 110-4 2 2 0 010 4z"/>
+              </svg>
+              Tunisie
             </div>
-          </td>
+          </div>
+        </div>
 
-          <!-- PÉRIODE -->
-          <td>
-            <div class="period-cell">
-              <span class="d-from">{{ r.dateDebut | date:'dd MMM' }}</span>
-              <span class="d-arrow">→</span>
-              <span class="d-to">{{ r.dateFin | date:'dd MMM yy' }}</span>
-            </div>
-          </td>
+        <!-- STATUS BADGE -->
+        <span class="status-badge" [ngClass]="{
+          'badge-confirme': r.statut === 'CONFIRME' || r.statut === 'CONFIRMEE',
+          'badge-attente':  r.statut === 'EN_ATTENTE',
+          'badge-annule':   r.statut === 'ANNULE'   || r.statut === 'ANNULEE',
+          'badge-terminee': r.statut === 'TERMINEE'
+        }">
+          <span class="sdot"></span>
+          <ng-container [ngSwitch]="r.statut">
+            <ng-container *ngSwitchCase="'CONFIRME'">✓ Confirmée</ng-container>
+            <ng-container *ngSwitchCase="'CONFIRMEE'">✓ Confirmée</ng-container>
+            <ng-container *ngSwitchCase="'EN_ATTENTE'">⏳ En attente</ng-container>
+            <ng-container *ngSwitchCase="'ANNULE'">✕ Annulée</ng-container>
+            <ng-container *ngSwitchCase="'ANNULEE'">✕ Annulée</ng-container>
+            <ng-container *ngSwitchCase="'TERMINEE'">Terminée</ng-container>
+            <ng-container *ngSwitchDefault>{{ r.statut }}</ng-container>
+          </ng-container>
+        </span>
+      </div>
 
-          <!-- MONTANT -->
-          <td>
-            <div class="amount-cell">
-              <span class="amount-val">{{ r.montantTotal | number:'1.0-0' }}</span>
-              <span class="amount-cur">&nbsp;DT</span>
-            </div>
-          </td>
+      <!-- DATES ROW -->
+      <div class="res-card-dates">
+        <div class="date-block">
+          <div class="date-label">Arrivée</div>
+          <div class="date-val">{{ r.dateDebut | date:'dd MMM' }}</div>
+        </div>
+        <div class="date-arrow">
+          <span class="date-arrow-line">→</span>
+          <span class="nights-pill">{{ getNights(r.dateDebut, r.dateFin) }} nuits</span>
+        </div>
+        <div class="date-block">
+          <div class="date-label">Départ</div>
+          <div class="date-val">{{ r.dateFin | date:'dd MMM' }}</div>
+        </div>
+      </div>
 
-          <!-- PAIEMENT -->
-          <td>
-            <span class="pay-badge">{{ r.modePaiement || '—' }}</span>
-          </td>
+      <!-- ALERT for EN_ATTENTE -->
+      <div class="res-card-alert" *ngIf="r.statut === 'EN_ATTENTE'">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/>
+        </svg>
+        En attente de confirmation du propriétaire. Vous serez notifié par email.
+      </div>
 
-          <!-- STATUT -->
-          <td>
-            <span class="badge" [ngClass]="{
-              'badge-orange': r.statut === 'EN_ATTENTE',
-              'badge-green' : r.statut === 'CONFIRME' || r.statut === 'CONFIRMEE',
-              'badge-red'   : r.statut === 'ANNULE'   || r.statut === 'ANNULEE',
-              'badge-blue'  : r.statut === 'TERMINEE',
-              'badge-grey'  : !r.statut
-            }">
-              <span class="bdot"></span>{{ r.statut || '—' }}
-            </span>
-          </td>
+      <!-- CARD FOOTER -->
+      <div class="res-card-footer">
+        <div class="footer-amount-wrap">
+          <div class="footer-amount-label" *ngIf="r.statut !== 'ANNULE' && r.statut !== 'ANNULEE'">Total payé</div>
+          <div class="footer-amount-label" *ngIf="r.statut === 'ANNULE' || r.statut === 'ANNULEE'">Remboursé</div>
+          <div class="footer-amount" [class.refund]="r.statut === 'ANNULE' || r.statut === 'ANNULEE'">
+            <ng-container *ngIf="r.statut === 'ANNULE' || r.statut === 'ANNULEE'">↩ </ng-container>
+            {{ r.montantTotal | number:'1.0-0' }} <span>DT</span>
+          </div>
+        </div>
 
-          <!-- ACTIONS -->
-          <td>
-            <div class="actions">
-              <button class="btn-action btn-accept" title="ADD"
-                    (click)="openModal()"  (click)="updateStatut(r.id, 'CONFIRME')">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                </svg>
-              </button>
-              <button class="btn-action btn-reject" title="Annuler"
-                      (click)="updateStatut(r.id, 'ANNULE')">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
-                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"/>
-                </svg>
-              </button>
-              <button class="btn-action btn-delete" title="Supprimer"
-                      (click)="deleteReservation(r.id)">
-                <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
-                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/>
-                </svg>
-              </button>
-            </div>
-          </td>
+        <div class="footer-actions">
+          <!-- Annuler (only for EN_ATTENTE) -->
+          <button
+            class="btn-danger-outline"
+            *ngIf="r.statut === 'EN_ATTENTE'"
+            (click)="deleteReservation(r.id)">
+            Annuler
+          </button>
 
-        </tr>
-      </tbody>
-    </table>
+          <!-- Edit button -->
+          <button class="btn-icon btn-icon-edit" title="Modifier" (click)="openEditModal(r)">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+            </svg>
+          </button>
+
+          <!-- Voir détails -->
+          <button class="btn-primary">Voir détails</button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- EMPTY STATE -->
   <div class="empty-state" *ngIf="!loading && filteredReservations.length === 0">
-    <div class="empty-glow"></div>
     <span class="empty-icon">🏕️</span>
     <h3>Aucune réservation</h3>
     <p>Il n'y a pas de réservation pour ce filtre.</p>
@@ -179,15 +203,16 @@
     <p>Chargement…</p>
   </div>
 
- 
+</div>
 
-<!-- MODAL -->
-<!-- MODAL -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL NOUVELLE RÉSERVATION -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div class="camp-modal" (click)="$event.stopPropagation()">
 
     <div class="camp-modal-header">
-      <h2>Nouvelle réservation</h2>
+      <h2>⛺ Nouvelle réservation</h2>
       <button class="close-btn" (click)="closeModal()">✕</button>
     </div>
 
@@ -241,4 +266,93 @@
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL SUPPRESSION -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
+  <div class="delete-modal" (click)="$event.stopPropagation()">
+    <div class="delete-modal-icon">
+      <svg viewBox="0 0 24 24" fill="none" width="28" height="28">
+        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+              stroke="#e02f2f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h3>Supprimer la réservation</h3>
+    <p>Cette action est <strong>irréversible</strong>. La réservation sera définitivement supprimée.</p>
+    <div class="delete-modal-actions">
+      <button class="btn-cancel" (click)="cancelDelete()">Annuler</button>
+      <button class="btn-confirm-delete" (click)="confirmDelete()">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+          <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/>
+        </svg>
+        Supprimer
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL EDIT -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="camp-modal" (click)="$event.stopPropagation()">
+
+    <div class="camp-modal-header">
+      <h2>✏️ Modifier la réservation</h2>
+      <button class="close-btn" (click)="closeEditModal()">✕</button>
+    </div>
+
+    <div class="camp-modal-body">
+
+      <div class="form-group">
+        <label>Site de Camping</label>
+        <select [(ngModel)]="editReservation.siteCampingId">
+          <option value="" disabled>Choisir un emplacement...</option>
+          <option *ngFor="let s of sites" [value]="s.id">{{ s.nom }}</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date début</label>
+          <input [(ngModel)]="editReservation.dateDebut" type="date">
+        </div>
+        <div class="form-group">
+          <label>Date fin</label>
+          <input [(ngModel)]="editReservation.dateFin" type="date">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Montant (DT)</label>
+          <input [(ngModel)]="editReservation.montantTotal" type="number">
+        </div>
+        <div class="form-group">
+          <label>Paiement</label>
+          <select [(ngModel)]="editReservation.modePaiement">
+            <option value="CARTE">Carte</option>
+            <option value="ESPECE">Espèce</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Statut</label>
+        <select [(ngModel)]="editReservation.statut">
+          <option value="EN_ATTENTE">En attente</option>
+          <option value="CONFIRME">Confirmée</option>
+          <option value="ANNULE">Annulée</option>
+          <option value="TERMINEE">Terminée</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="camp-modal-footer">
+      <button class="btn-cancel" (click)="closeEditModal()">Annuler</button>
+      <button class="btn-save" (click)="saveEdit()">Enregistrer les modifications</button>
+    </div>
+
+  </div>
 </div>

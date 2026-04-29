@@ -9,6 +9,8 @@ import tn.comping.spring.backendcomping.dto.UpdatePasswordDTO;
 import tn.comping.spring.backendcomping.dto.UpdateProfileDTO;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.repositories.SignupRepository;
+
+import java.util.List;
 //import tn.comping.spring.backendcomping.services.serviceImpl.IProfileService; // ✅ AJOUTÉ
 
 @Service
@@ -109,5 +111,27 @@ public class ProfileServiceImpl implements IProfileService { // ✅ IMPLEMENTS l
     public SignupEntity getUserByEmail(String email) {
         return signupRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+    }
+
+    @Override
+    public List<SignupEntity> getAllUsers() {
+        return signupRepository.findAll();
+    }
+
+    @Override
+    public void deleteUser(String userId) {
+        SignupEntity user = signupRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé : " + userId));
+        signupRepository.delete(user);
+    }
+
+    @Override
+    public SignupEntity updateStatus(String id, boolean statut) {
+        SignupEntity user = signupRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setStatut(statut);
+
+        return signupRepository.save(user);
     }
 }

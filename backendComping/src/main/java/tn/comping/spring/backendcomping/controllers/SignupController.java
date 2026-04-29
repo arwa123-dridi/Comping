@@ -9,6 +9,8 @@ import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
 import tn.comping.spring.backendcomping.dto.SignupDTO;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 
@@ -30,4 +32,6 @@ public class SignupController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+
 }

@@ -48,20 +48,22 @@ public class SecurityConfig {
                                 "/api/incidents/**",
                                 "/api/conventions-partenaires/**",
                                 "/api/reservations/**",
-                                "/api/sites/**"
-
+                                "/api/sites/**",
+                                 "/api/produits/**",
+                                  "/uploads/**" 
                         ).permitAll()
 
                         // Rôles spécifiques
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/moderateur/**").hasRole("MODERATEUR")
                         .requestMatchers("/api/organisateur/**").hasRole("ORGANISATEUR")
-
+                        .requestMatchers("/api/produits/**").authenticated()
                         // Avis – MODERATEUR ou ADMIN
                         .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
-
+                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/events/**").authenticated()
                         // Tout le reste nécessite authentification
                         .anyRequest().authenticated()
                 )

@@ -148,6 +148,9 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                <mainClass>
+            tn.comping.spring.backendcomping.BackendCompingApplication
+        </mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

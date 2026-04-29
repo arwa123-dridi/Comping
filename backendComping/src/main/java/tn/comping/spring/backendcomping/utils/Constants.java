@@ -7,19 +7,27 @@ public class Constants {
 //api event
     public static final String BASE_URL_EVENT = "/api/events";
 
-    public static final String CREATE_EVENT = "";
+    public static final String CREATE_EVENT = "/CREATE/EVENT";
     public static final String GET_ALL_EVENTS = "";
-    public static final String GET_EVENT_BY_ID = "/{id}";
-    public static final String UPDATE_EVENT = "/{id}";
+    public static final String GET_EVENT_BY_ID = "EVENTBYID/{id}";
+    public static final String UPDATE_EVENT = "/UPDATE/{id}";
     public static final String DELETE_EVENT = "/{id}";
+
+    public static final String COUNT_VALID = "/count/valide";
+    public static final String COUNT_DONE = "/count/termine";
+    public static final String COUNT_CANCELLED = "/count/annule";
+
+    // ================= PARTICIPATION =================
+    public static final String PARTICIPATE = "/{eventId}/participate";
+    public static final String CANCEL_PARTICIPATION = "/{eventId}/cancel";
     //api activity
     public static final String BASE_URL_ACTIVITY = "/api/activities";
 
-    public static final String CREATE_ACTIVITY = "";
-    public static final String GET_ALL_ACTIVITIES = "";
+    public static final String CREATE_ACTIVITY = "/add";
+    public static final String GET_ALL_ACTIVITIES = "/GetAllActivities";
     public static final String GET_ACTIVITY_BY_ID = "/{id}";
-    public static final String UPDATE_ACTIVITY = "/{id}";
-    public static final String DELETE_ACTIVITY = "/{id}";
+    public static final String UPDATE_ACTIVITY = "updateactivity/{id}";
+    public static final String DELETE_ACTIVITY = "deleteactivity/{id}";
 
 
     //api demande transport
@@ -31,7 +39,9 @@ public class Constants {
     public static final String UPDATE_DEMANDE_TRANSPORT = "/{id}";
     public static final String DELETE_DEMANDE_TRANSPORT = "/{id}";
 
-    //api creneau livraison
+    //api Users
+    public static final String GET_ALL_USERS = "";
+    public static final String DELETE_USER = "/{userId}";
     // api creneaux livraison
     public static final String BASE_URL_CRENEAU_LIVRAISON = "/api/creneaux-livraison";
 
