@@ -1,9 +1,6 @@
 package tn.comping.spring.backendcomping.config;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -13,6 +10,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -49,9 +48,10 @@ public class SecurityConfig {
                                 "/api/demandes-transport/**",
                                 "/api/creneaux-livraison/**",
                                 "/api/incidents/**",
-                                "/api/conventions-partenaires/**"
-
-                        ).permitAll()
+                                "/api/conventions-partenaires/**",
+                                "/api/weather/**",
+                                "/api/checklist/**")
+                            .permitAll()
 
                         // Rôles spécifiques
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

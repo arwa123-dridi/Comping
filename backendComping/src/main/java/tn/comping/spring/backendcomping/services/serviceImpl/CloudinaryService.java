@@ -1,4 +1,4 @@
-package tn.comping.spring.backendcomping.services.serviceImpl;
+/*package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -20,3 +20,4 @@ public class CloudinaryService {
         return uploadResult.get("url").toString();
     }
 }
+*/

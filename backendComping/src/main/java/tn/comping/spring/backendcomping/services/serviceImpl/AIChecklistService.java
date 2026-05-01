@@ -23,10 +23,10 @@ public class AIChecklistService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${flask.api.url}")  // Récupère l'URL depuis application.properties
-    private String flaskApiUrl;
+    @Value("${ia.api.url}")// Récupère l'URL FlastAPI
+    private String flastApiUrl;
 
-    @Value("${flask.api.timeout:5000}")
+    @Value("${ai.api.timeout:5000}")
     private int timeout;
 
     public AIChecklistService() {
@@ -44,7 +44,7 @@ public class AIChecklistService {
         log.info("🌤️ Appel à l'IA Flask pour prédiction...");
         log.info("   Température: {}°C", request.getTemperature());
         log.info("   Précipitations: {}mm", request.getPrecipitation());
-        log.info("   Vent: {}km/h", request.getWindSpeed());
+        log.info("   Vent: {}km/h", request.getWind_speed());
         log.info("   Difficulté: {}/5", request.getDifficulte());
 
         // Préparer les headers HTTP
@@ -57,7 +57,7 @@ public class AIChecklistService {
         try {
             // Appeler l'API Flask
             ResponseEntity<ChecklistResponse> response = restTemplate.postForEntity(
-                    flaskApiUrl,
+                    flastApiUrl,
                     entity,
                     ChecklistResponse.class
             );
