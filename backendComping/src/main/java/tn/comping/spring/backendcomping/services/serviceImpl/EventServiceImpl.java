@@ -1,6 +1,7 @@
 package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import tn.comping.spring.backendcomping.config.JwtUtils;
@@ -18,10 +19,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventServiceImpl implements  EventService{
     private final EventRepository eventRepository;
     private final ActivityRepository activityRepository;
     private final SecurityUtils securityUtils;
+    private  final CarteFideliteService carteFideliteService;
     @Override
     public EventResponseDTO createEvent(EventRequestDTO dto) {
         String userId = securityUtils.getCurrentUserId();
@@ -113,9 +116,12 @@ public class EventServiceImpl implements  EventService{
             throw new RuntimeException("Déjà inscrit à cet event");
         }
 
+
+
         event.getParticipantIds().add(userId);
 
         Event saved = eventRepository.save(event);
+
         return EventMapper.toDto(saved);
     }
 

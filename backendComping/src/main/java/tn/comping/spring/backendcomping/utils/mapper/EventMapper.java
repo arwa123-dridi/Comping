@@ -58,7 +58,11 @@ public class EventMapper {
                 .lieu(entity.getLieu())
 
                 .organisateurId(entity.getOrganisateurId())
-
+                .participantIds(
+                        entity.getParticipantIds() != null
+                                ? entity.getParticipantIds()
+                                : new ArrayList<>()
+                )
 
                 .nombreParticipants(nbParticipants)
                 .placesRestantes(entity.getCapacite() - nbParticipants)
