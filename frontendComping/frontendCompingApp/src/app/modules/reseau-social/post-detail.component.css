@@ -1,0 +1,163 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #0f1f2e;
+  color: #eef7ef;
+  font-family: "Nunito", Arial, sans-serif;
+}
+
+.detail-workspace {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.post-panel,
+.comments-panel,
+.comment {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.045);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+  border-radius: 8px;
+}
+
+.post-panel,
+.comments-panel {
+  margin-top: 16px;
+  padding: 20px;
+}
+
+header,
+.author,
+footer,
+.comment-form,
+.reply-form {
+  display: flex;
+  align-items: center;
+}
+
+header {
+  justify-content: space-between;
+}
+
+.author {
+  gap: 12px;
+}
+
+.author div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2d6a4f, #4ade80);
+  font-weight: 900;
+}
+
+.author span,
+small,
+footer {
+  color: rgba(238, 247, 239, 0.62);
+}
+
+.post-type {
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: rgba(74, 222, 128, 0.12);
+  color: #86efac;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+p {
+  line-height: 1.6;
+}
+
+.image-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.image-strip img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+footer {
+  gap: 16px;
+  margin-top: 14px;
+}
+
+input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(7, 18, 28, 0.72);
+  color: #fff;
+  border-radius: 8px;
+  padding: 11px 12px;
+  font: inherit;
+}
+
+button {
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.ghost-action,
+.reply-form button {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(238, 247, 239, 0.78);
+  background: rgba(255, 255, 255, 0.06);
+  min-height: 40px;
+  padding: 0 14px;
+}
+
+.primary-action {
+  min-height: 40px;
+  border: 0;
+  color: #082114;
+  background: #4ade80;
+  padding: 0 16px;
+}
+
+.comment-form,
+.reply-form {
+  gap: 10px;
+}
+
+.comment {
+  margin-top: 14px;
+  padding: 16px;
+}
+
+.replies {
+  margin-top: 12px;
+  padding-left: 18px;
+  border-left: 2px solid rgba(74, 222, 128, 0.28);
+}
+
+.reply {
+  padding: 10px 0;
+}
+
+.alert {
+  margin-top: 16px;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.error {
+  background: rgba(239, 68, 68, 0.14);
+  color: #fecaca;
+}

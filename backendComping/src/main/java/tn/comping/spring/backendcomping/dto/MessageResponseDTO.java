@@ -15,4 +15,5 @@ public class MessageResponseDTO {
     private String typeMessage;
     private boolean lu;
     private Date dateCreation;
+    private String transcription; // Pour voice messages
 }

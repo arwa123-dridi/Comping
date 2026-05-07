@@ -1,94 +1,116 @@
-<div class="module-avis">
-
-  <!-- BANNER -->
-  <div class="banner">
-    <div class="banner-text">
-      <h1>Module Avis ✦</h1>
-      <p>Gérez les retours clients, modérez et analysez la satisfaction.</p>
+<section class="campino-social-shell">
+  <aside class="community-sidebar">
+    <a routerLink="/Campino" class="brand">
+      <span class="brand-mark">⛺</span>
+      <span>CAMPI<strong>NO</strong></span>
+    </a>
+    <nav>
+      <a routerLink="/modules/reseau-social" routerLinkActive="active">Fil communaute</a>
+      <a routerLink="/modules/avis" routerLinkActive="active">Avis campeurs</a>
+      <a routerLink="/modules/chat" routerLinkActive="active">Messages</a>
+      <a routerLink="/profile">Mon profil</a>
+    </nav>
+    <div class="sidebar-note">
+      <strong>{{ isAdmin ? 'Mode moderation' : 'Mode campeur' }}</strong>
+      <span>{{ isAdmin ? 'Valider les retours avant publication.' : 'Evaluer une cible apres experience.' }}</span>
     </div>
-    <div class="banner-actions">
-      <button class="btn-outline">Exporter CSV</button>
-      <button class="btn-primary">+ Répondre à un avis</button>
-    </div>
-  </div>
+  </aside>
 
-  <!-- STAT CARDS -->
-  <div class="stats-grid">
-    <div class="stat-card green">
-      <div class="stat-top">
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
+  <main class="social-main">
+    <header class="social-topbar">
+      <div>
+        <span class="eyebrow">Confiance et qualite</span>
+        <h1>Avis campeurs</h1>
+      </div>
+      <span class="role-pill">{{ isAdmin ? 'Administrateur' : 'Client' }}</span>
+    </header>
+
+    <div class="alerts">
+      <div class="alert error" *ngIf="error">{{ error }}</div>
+      <div class="alert success" *ngIf="success">{{ success }}</div>
+    </div>
+
+    <section class="target-card">
+      <label>
+        Type
+        <select [(ngModel)]="selectedTargetType" (change)="loadAll()">
+          <option *ngFor="let type of targetTypes" [ngValue]="type">{{ type }}</option>
+        </select>
+      </label>
+      <label>
+        Cible
+        <input [(ngModel)]="selectedTargetId" (keyup.enter)="loadAll()" placeholder="Identifiant de la cible" />
+      </label>
+      <button class="primary-action" type="button" (click)="loadAll()">Consulter</button>
+    </section>
+
+    <section class="composer-card">
+      <div class="composer-head">
+        <div class="avatar">ME</div>
+        <div>
+          <strong>Votre retour d'experience</strong>
+          <span>Il sera visible apres validation.</span>
         </div>
-        <span class="stat-badge">live</span>
       </div>
-      <div class="stat-value">{{ stats.avgRating }}⭐</div>
-      <div class="stat-label">Note moyenne</div>
-    </div>
-    <div class="stat-card blue">
-      <div class="stat-value">{{ stats.total }}</div>
-      <div class="stat-label">Avis total</div>
-    </div>
-    <div class="stat-card amber">
-      <div class="stat-value">{{ stats.positif }}%</div>
-      <div class="stat-label">Avis positifs</div>
-    </div>
-    <div class="stat-card red">
-      <div class="stat-value">3</div>
-      <div class="stat-label">En attente modération</div>
-    </div>
-  </div>
-
-  <!-- TABLE AVIS -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/>
-          <polyline points="10 9 9 9 8 9"/>
-        </svg>
-        Liste des avis
+      <div class="rating-input">
+        <label>Note</label>
+        <input type="number" min="1" max="5" [(ngModel)]="form.note" />
       </div>
-      <input class="search-input" placeholder="Rechercher un avis..." />
-    </div>
-    <table class="avis-table">
-      <thead>
-        <tr>
-          <th>Client</th>
-          <th>Site</th>
-          <th>Note</th>
-          <th>Commentaire</th>
-          <th>Date</th>
-          <th>Statut</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-<tr *ngFor="let item of avis">
-          <td><div class="client"><div class="av av-green">{{item.user.slice(0,2)}}</div><span>{{item.user}}</span></div></td>
-          <td>{{item.site}}</td>
-          <td>
-            <div class="rating">
-              <span *ngFor="let s of [1,2,3,4,5]; let i = index" [class.filled]="i < item.rating" class="star">⭐</span>
-            </div>
-          </td>
-          <td>{{item.comment}}</td>
-          <td>{{item.date}}</td>
-          <td><span class="pill" [class.pill-approuve]="item.status === 'approuvé'" [class.pill-attente]="item.status === 'en_attente'">
-            {{item.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}}
-          </span></td>
-          <td>
-            <button class="icon-btn small" title="Approuver">✓</button>
-            <button class="icon-btn small danger" title="Rejeter">✗</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      <textarea rows="4" [(ngModel)]="form.commentaire" placeholder="Ce que vous avez aime, ce qui peut etre ameliore..."></textarea>
+      <button class="primary-action wide" type="button" (click)="submitAvis()" [disabled]="saving">Envoyer en moderation</button>
+    </section>
 
-</div>
+    <section class="feed-toolbar tabs">
+      <button type="button" [class.active]="activeView === 'cible'" (click)="activeView = 'cible'">Avis publics</button>
+      <button type="button" [class.active]="activeView === 'mes-avis'" (click)="activeView = 'mes-avis'">Mes avis</button>
+      <button type="button" *ngIf="isAdmin" [class.active]="activeView === 'moderation'" (click)="activeView = 'moderation'">
+        Moderation {{ pendingCount }}
+      </button>
+    </section>
 
+    <section class="feed-toolbar">
+      <input [(ngModel)]="search" placeholder="Rechercher un avis" />
+      <span>{{ visibleAvis.length }} avis</span>
+    </section>
+
+    <article class="review-card" *ngFor="let item of visibleAvis" [routerLink]="['/modules/avis', item.id]">
+      <header class="post-head">
+        <div class="author">
+          <div class="avatar">{{ item.utilisateurNom.slice(0, 2).toUpperCase() }}</div>
+          <div>
+            <strong>{{ item.utilisateurNom || 'Utilisateur' }}</strong>
+            <span>{{ item.typeCible }} - {{ item.cibleId }}</span>
+          </div>
+        </div>
+        <span class="post-type" [ngClass]="item.statut.toLowerCase()">{{ statusLabel(item.statut) }}</span>
+      </header>
+
+      <div class="stars">
+        <span *ngFor="let star of stars(item.note)">★</span>
+      </div>
+      <p>{{ item.commentaire }}</p>
+      <small>{{ item.datePublication | date:'dd/MM/yyyy HH:mm' }}</small>
+
+      <div class="moderation-actions" *ngIf="isAdmin && activeView === 'moderation'" (click)="$event.stopPropagation()">
+        <input [(ngModel)]="rejectMotifs[item.id]" placeholder="Motif de rejet" />
+        <button type="button" class="approve" (click)="approve(item)">Valider</button>
+        <button type="button" class="reject" (click)="reject(item)">Rejeter</button>
+      </div>
+    </article>
+
+    <div class="empty-state" *ngIf="!loading && visibleAvis.length === 0">Aucun avis a afficher.</div>
+  </main>
+
+  <aside class="context-panel">
+    <article>
+      <h2>Qualite cible</h2>
+      <div class="metric"><span>Moyenne</span><strong>{{ stats.noteMoyenne || 0 }}/5</strong></div>
+      <div class="metric"><span>Avis valides</span><strong>{{ stats.nombreTotal }}</strong></div>
+      <div class="metric"><span>5 etoiles</span><strong>{{ stats.nombre5Etoiles }}</strong></div>
+    </article>
+    <article>
+      <h2>Regle de role</h2>
+      <p>Le client cree et consulte ses avis. L'administrateur traite la file de moderation avant publication.</p>
+    </article>
+  </aside>
+</section>

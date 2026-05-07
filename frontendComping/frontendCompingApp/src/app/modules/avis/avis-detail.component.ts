@@ -1,34 +1,71 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AvisResponse, CommunityService } from '../../services/community.service';
 
 @Component({
   selector: 'app-avis-detail',
+  standalone: false,
   templateUrl: './avis-detail.component.html',
   styleUrls: ['./avis-detail.component.css']
 })
 export class AvisDetailComponent implements OnInit {
-  avis: any;
+  avis: AvisResponse | null = null;
+  isAdmin = false;
+  motif = '';
+  error = '';
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private community: CommunityService
+  ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    this.isAdmin = this.community.isAdmin();
     const id = this.route.snapshot.paramMap.get('id');
-    // Mock data
-    this.avis = {
-      id: 1,
-      user: 'Lucas Martin',
-      avatar: 'LM',
-      site: 'Forêt des Pins',
-      rating: 5,
-      comment: 'Super expérience en famille! Emplacements spacieux et calmes. Le personnel a été très accueillant et compétent.',
-      date: '12 Avril 2024',
-      response: '',
-      status: 'approuvé'
-    };
+    if (!id) {
+      this.error = 'Avis introuvable.';
+      return;
+    }
+    this.community.getAvisById(id).subscribe({
+      next: avis => {
+        this.avis = avis;
+      },
+      error: () => {
+        this.error = 'Impossible de charger cet avis.';
+      }
+    });
   }
 
-  onApprove() { console.log('Approved'); }
-  onReject() { console.log('Rejected'); }
-  onRespond() { console.log('Responded:', this.avis.response); }
-}
+  approve(): void {
+    if (!this.avis) {
+      return;
+    }
+    this.community.validateAvis(this.avis.id).subscribe({
+      next: avis => {
+        this.avis = avis;
+      },
+      error: () => {
+        this.error = 'Validation impossible.';
+      }
+    });
+  }
 
+  reject(): void {
+    if (!this.avis) {
+      return;
+    }
+    this.community.rejectAvis(this.avis.id, this.motif.trim() || 'Non conforme').subscribe({
+      next: avis => {
+        this.avis = avis;
+      },
+      error: () => {
+        this.error = 'Rejet impossible.';
+      }
+    });
+  }
+
+  back(): void {
+    void this.router.navigate(['/modules/avis']);
+  }
+}

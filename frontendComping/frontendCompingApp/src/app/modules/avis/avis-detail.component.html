@@ -1,48 +1,33 @@
-<div class="avis-detail">
+<section class="detail-workspace">
+  <button class="ghost-action" type="button" (click)="back()">Retour aux avis</button>
+  <div class="alert error" *ngIf="error">{{ error }}</div>
 
-  <!-- HEADER -->
-  <div class="detail-header">
-    <button class="back-btn" routerLink="/modules/avis">← Retour</button>
-    <div class="detail-actions">
-      <button class="btn-primary" (click)="onApprove()">Approuver</button>
-      <button class="btn-outline danger" (click)="onReject()">Rejeter</button>
-    </div>
-  </div>
-
-  <!-- AVIS CONTENT -->
-  <div class="avis-content">
-    <div class="user-header">
-      <div class="user-info">
-        <div class="av av-green">{{avis?.avatar}}</div>
-        <div>
-          <h2>{{avis?.user}}</h2>
-          <span class="site">{{avis?.site}}</span>
-        </div>
+  <article class="detail-panel" *ngIf="avis">
+    <header>
+      <div class="avatar">{{ avis.utilisateurNom.slice(0, 2).toUpperCase() }}</div>
+      <div>
+        <span>{{ avis.typeCible }} - {{ avis.cibleId }}</span>
+        <h1>{{ avis.utilisateurNom || 'Utilisateur' }}</h1>
       </div>
-      <div class="rating-section">
-        <div class="rating">{{avis?.rating}}⭐</div>
-        <span class="date">{{avis?.date}}</span>
-      </div>
+      <strong class="status">{{ avis.statut }}</strong>
+    </header>
+
+    <div class="rating">{{ avis.note }}/5</div>
+    <p>{{ avis.commentaire }}</p>
+    <small>{{ avis.datePublication | date:'dd/MM/yyyy HH:mm' }}</small>
+
+    <section class="children" *ngIf="avis.enfants && avis.enfants.length > 0">
+      <h2>Reponses</h2>
+      <article *ngFor="let enfant of avis.enfants">
+        <strong>{{ enfant.utilisateurNom }}</strong>
+        <p>{{ enfant.commentaire }}</p>
+      </article>
+    </section>
+
+    <div class="moderation" *ngIf="isAdmin">
+      <input [(ngModel)]="motif" placeholder="Motif de rejet" />
+      <button class="approve" type="button" (click)="approve()">Valider</button>
+      <button class="reject" type="button" (click)="reject()">Rejeter</button>
     </div>
-
-    <div class="comment">
-      {{avis?.comment}}
-    </div>
-
-    <div class="status-section">
-      <span class="pill pill-{{avis?.status.replace('_', '-')}}">{{avis?.status | titlecase}}</span>
-    </div>
-  </div>
-
-  <!-- REPONSE ADMIN -->
-  <div class="response-section">
-    <h3>Votre réponse (optionnelle)</h3>
-    <textarea 
-      [(ngModel)]="avis.response" 
-      placeholder="Répondez à cet avis publiquement..."
-      rows="4"></textarea>
-    <button class="btn-primary" (click)="onRespond()">Publier réponse</button>
-  </div>
-
-</div>
-
+  </article>
+</section>

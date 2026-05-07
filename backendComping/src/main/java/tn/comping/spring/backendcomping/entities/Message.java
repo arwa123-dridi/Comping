@@ -28,4 +28,8 @@ public class Message {
     private boolean supprime = false;
     
     private Date dateCreation;
+    
+    private String transcription; // Pour messages vocaux transcrits (VosK)
+    
+    private String callData; // WebRTC signaling: offer/answer/ICE candidates JSON
 }

@@ -16,7 +16,7 @@ public class AvisMapper {
 
         return Avis.builder()
                 .note(dto.getNote())
-                .commentaire(dto.getCommentaire())
+                .commentaire(dto.getCommentaire().trim())
                 .datePublication(new Date())
                 .statut(StatutAvis.EN_ATTENTE)
                 .valide(false)
@@ -58,7 +58,7 @@ public class AvisMapper {
         if (avis == null || dto == null) return;
 
         avis.setNote(dto.getNote());
-        avis.setCommentaire(dto.getCommentaire());
+        avis.setCommentaire(dto.getCommentaire().trim());
         avis.setDateModification(new Date());
         avis.setStatut(StatutAvis.EN_ATTENTE);
         avis.setValide(false);

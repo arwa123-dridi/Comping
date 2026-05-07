@@ -16,6 +16,7 @@ public class ChatMapper {
                 .destinataireId(getDestinataireId(dto.getConversationId(), expediteurId)) // Logic to derive
                 .contenu(dto.getContenu())
                 .typeMessage(dto.getTypeMessage() != null ? dto.getTypeMessage() : "TEXT")
+                .transcription(dto.getTranscription())
                 .dateCreation(new Date())
                 .build();
     }

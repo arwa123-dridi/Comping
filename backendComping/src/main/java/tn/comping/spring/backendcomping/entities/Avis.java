@@ -34,7 +34,7 @@ public class Avis {
     private Date dateModification;
 
     // modération
-    private String moderateurId;
+    private String adminId;
     private String motifRejet;
     private String parentAvisId;
 
@@ -43,5 +43,4 @@ public class Avis {
 
 
     
-
 

@@ -13,10 +13,17 @@ public interface ChatService {
     
     List<ConversationResponseDTO> getUserConversations(String userId);
     
-    List<MessageResponseDTO> getMessages(String conversationId, int page, int size);
+    List<MessageResponseDTO> getMessages(String conversationId, int page, int size, String userId);
     
     MessageResponseDTO sendMessage(String currentUserId, MessageRequestDTO dto);
     
     void markAsRead(String conversationId, String userId);
+    
+    // Nouvelles méthodes pour features avancées
+    boolean isUserOnline(String userId);
+    
+    String transcribeVoice(byte[] audioBytes);
+    
+    void handleCallSignal(String conversationId, String signalData, String senderId, String callType);
     
 }

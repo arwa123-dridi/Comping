@@ -23,9 +23,9 @@ public interface AvisService {
 
     void deleteAvis(String id, String utilisateurEmail);
 
-    AvisResponseDTO validerAvis(String id, String moderateurEmail);
+    AvisResponseDTO validerAvis(String id, String adminEmail);
 
-    AvisResponseDTO rejeterAvis(String id, String motif, String moderateurEmail);
+    AvisResponseDTO rejeterAvis(String id, String motif, String adminEmail);
 
     StatistiquesAvisDTO getStatistiquesAvis(String cibleId, String typeCible);
 }

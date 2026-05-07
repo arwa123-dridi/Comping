@@ -1,0 +1,52 @@
+<section class="detail-workspace">
+  <button class="ghost-action" type="button" (click)="back()">Retour au feed</button>
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+
+  <article class="post-panel" *ngIf="post">
+    <header>
+      <div class="author">
+        <div class="avatar">{{ post.auteurNom.slice(0, 2).toUpperCase() }}</div>
+        <div>
+          <strong>{{ post.auteurNom || 'Utilisateur' }}</strong>
+          <span>{{ post.datePublication | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </div>
+      <span class="post-type">{{ post.typePost }}</span>
+    </header>
+
+    <p>{{ post.contenu }}</p>
+
+    <div class="image-strip" *ngIf="post.images && post.images.length > 0">
+      <img *ngFor="let image of post.images" [src]="image" alt="Media du post" />
+    </div>
+
+    <footer>
+      <span>{{ post.likesCount }} j'aime</span>
+      <span>{{ post.commentairesCount }} commentaire(s)</span>
+    </footer>
+  </article>
+
+  <section class="comments-panel" *ngIf="post">
+    <h2>Commentaires</h2>
+    <div class="comment-form">
+      <input [(ngModel)]="commentDraft" placeholder="Ajouter un commentaire" />
+      <button class="primary-action" type="button" (click)="addComment()">Envoyer</button>
+    </div>
+
+    <article class="comment" *ngFor="let comment of comments">
+      <strong>{{ comment.auteurNom }}</strong>
+      <p>{{ comment.contenu }}</p>
+      <small>{{ comment.datePublication | date:'dd/MM/yyyy HH:mm' }}</small>
+      <div class="reply-form">
+        <input [(ngModel)]="replyDrafts[comment.id]" placeholder="Repondre" />
+        <button type="button" (click)="addReply(comment)">Repondre</button>
+      </div>
+      <div class="replies" *ngIf="comment.replies && comment.replies.length > 0">
+        <article class="reply" *ngFor="let reply of comment.replies">
+          <strong>{{ reply.auteurNom }}</strong>
+          <p>{{ reply.contenu }}</p>
+        </article>
+      </div>
+    </article>
+  </section>
+</section>

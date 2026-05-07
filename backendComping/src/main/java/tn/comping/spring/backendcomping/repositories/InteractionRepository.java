@@ -13,4 +13,5 @@ public interface InteractionRepository extends MongoRepository<Interaction, Stri
     Optional<Interaction> findByAuteurIdAndCibleTypeAndCibleIdAndType(String auteurId, String cibleType, String cibleId, String type);
     long countByCibleTypeAndCibleIdAndType(String cibleType, String cibleId, String type); // likes count
     long countByCibleTypeAndCibleId(String cibleType, String cibleId); // total interactions
+    void deleteByCibleTypeAndCibleId(String cibleType, String cibleId);
 }

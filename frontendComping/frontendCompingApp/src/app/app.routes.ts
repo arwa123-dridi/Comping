@@ -52,5 +52,16 @@ export const routes: Routes = [
     path: 'products/:id',
     component: ProductDetailComponent
   },
+  {
+    path: 'modules/avis',
+    loadChildren: () => import('./modules/avis/avis.module').then(m => m.AvisModule)
+  },
+  {
+    path: 'modules/reseau-social',
+    loadChildren: () => import('./modules/reseau-social/reseau-social.module').then(m => m.ReseauSocialModule)
+  },
+  {
+    path: 'modules/chat',
+    loadChildren: () => import('./modules/chat/chat.module').then(m => m.ChatModule)
+  },
  ];
-

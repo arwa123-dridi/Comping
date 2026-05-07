@@ -31,17 +31,17 @@ public class AvisServiceImpl implements AvisService {
 
     @Override
     public AvisResponseDTO creerAvis(AvisRequestDTO dto, String utilisateurEmail) {
+        validateAvisPayload(dto);
         SignupEntity utilisateur = signupRepository.findByEmail(utilisateurEmail)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouve"));
 
-        if (dto.getNote() < 1 || dto.getNote() > 5) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La note doit etre entre 1 et 5");
-        }
-
         String parentAvisId = dto.getParentAvisId();
         if (parentAvisId != null && !parentAvisId.isEmpty()) {
-            avisRepository.findById(parentAvisId)
+            Avis parent = avisRepository.findById(parentAvisId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Avis parent non trouve"));
+            if (!parent.getCibleId().equals(dto.getCibleId()) || parent.getTypeCible() != dto.getTypeCible()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La reponse doit concerner la meme cible que l'avis parent");
+            }
         }
 
         Avis avis = AvisMapper.toEntity(dto, utilisateur.getId());
@@ -66,7 +66,7 @@ public class AvisServiceImpl implements AvisService {
 
     @Override
     public List<AvisResponseDTO> getAvisByCible(String cibleId, String typeCibleStr) {
-        TypeCible typeCible = TypeCible.valueOf(typeCibleStr);
+        TypeCible typeCible = parseTypeCible(typeCibleStr);
         List<Avis> racines = avisRepository.findByCibleIdAndTypeCibleAndValideAndParentAvisIdIsNullOrderByDatePublicationDesc(
                 cibleId, typeCible, true);
 
@@ -96,6 +96,7 @@ public class AvisServiceImpl implements AvisService {
 
     @Override
     public AvisResponseDTO updateAvis(String id, AvisRequestDTO dto, String utilisateurEmail) {
+        validateAvisPayload(dto);
         Avis avis = avisRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Avis non trouve"));
 
@@ -104,10 +105,6 @@ public class AvisServiceImpl implements AvisService {
 
         if (!avis.getUtilisateurId().equals(utilisateur.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous n etes pas autorise a modifier cet avis");
-        }
-
-        if (dto.getNote() < 1 || dto.getNote() > 5) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La note doit etre entre 1 et 5");
         }
 
         String newParentId = dto.getParentAvisId();
@@ -152,7 +149,7 @@ public class AvisServiceImpl implements AvisService {
 
         avis.setStatut(StatutAvis.VALIDE);
         avis.setValide(true);
-        avis.setModerateurId(admin.getId());
+        avis.setAdminId(admin.getId());
 
         return mapToResponseDTO(avisRepository.save(avis));
     }
@@ -168,16 +165,48 @@ public class AvisServiceImpl implements AvisService {
         avis.setStatut(StatutAvis.REJETE);
         avis.setValide(false);
         avis.setMotifRejet(motif);
-        avis.setModerateurId(admin.getId());
+        avis.setAdminId(admin.getId());
 
         return mapToResponseDTO(avisRepository.save(avis));
     }
 
     @Override
     public StatistiquesAvisDTO getStatistiquesAvis(String cibleId, String typeCibleStr) {
-        TypeCible typeCible = TypeCible.valueOf(typeCibleStr);
-        List<Avis> avisList = avisRepository.findByCibleIdAndTypeCible(cibleId, typeCible);
+        TypeCible typeCible = parseTypeCible(typeCibleStr);
+        List<Avis> avisList = avisRepository.findByCibleIdAndTypeCible(cibleId, typeCible)
+                .stream()
+                .filter(Avis::isValide)
+                .collect(Collectors.toList());
         return StatistiquesAvisMapper.toDTO(avisList);
+    }
+
+    private void validateAvisPayload(AvisRequestDTO dto) {
+        if (dto == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "L'avis est obligatoire");
+        }
+        if (dto.getNote() < 1 || dto.getNote() > 5) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La note doit etre entre 1 et 5");
+        }
+        if (dto.getTypeCible() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le type de cible est obligatoire");
+        }
+        if (dto.getCibleId() == null || dto.getCibleId().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La cible est obligatoire");
+        }
+        if (dto.getCommentaire() == null || dto.getCommentaire().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le commentaire est obligatoire");
+        }
+    }
+
+    private TypeCible parseTypeCible(String typeCibleStr) {
+        if (typeCibleStr == null || typeCibleStr.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le type de cible est obligatoire");
+        }
+        try {
+            return TypeCible.valueOf(typeCibleStr.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type de cible invalide");
+        }
     }
 
     private AvisResponseDTO mapToResponseDTO(Avis avis) {

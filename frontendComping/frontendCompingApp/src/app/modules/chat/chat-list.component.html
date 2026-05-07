@@ -1,55 +1,76 @@
-<div class="module-chat">
+<section class="campino-social-shell">
+  <aside class="community-sidebar">
+    <a routerLink="/Campino" class="brand">
+      <span class="brand-mark">⛺</span>
+      <span>CAMPI<strong>NO</strong></span>
+    </a>
+    <nav>
+      <a routerLink="/modules/reseau-social" routerLinkActive="active">Fil communaute</a>
+      <a routerLink="/modules/avis" routerLinkActive="active">Avis campeurs</a>
+      <a routerLink="/modules/chat" routerLinkActive="active">Messages</a>
+      <a routerLink="/profile">Mon profil</a>
+    </nav>
+    <div class="sidebar-note">
+      <strong>Conversation privee</strong>
+      <span>Continuer un echange apres un avis ou une publication.</span>
+    </div>
+  </aside>
 
-  <!-- BANNER -->
-  <div class="banner">
-    <div class="banner-text">
-      <h1>Module Chat ✦</h1>
-      <p>Gérez vos conversations clients en temps réel.</p>
-    </div>
-    <div class="banner-actions">
-      <button class="btn-outline">Statistiques</button>
-      <button class="btn-primary">Nouveau chat</button>
-    </div>
-  </div>
+  <main class="social-main">
+    <header class="social-topbar">
+      <div>
+        <span class="eyebrow">Messagerie</span>
+        <h1>Boite de reception</h1>
+      </div>
+      <button class="soft-btn" type="button" (click)="loadConversations()">Actualiser</button>
+    </header>
 
-  <!-- STAT CARDS -->
-  <div class="stats-grid">
-    <div class="stat-card green">
-      <div class="stat-value">{{ stats.active }}</div>
-      <div class="stat-label">Conversations actives</div>
-    </div>
-    <div class="stat-card blue">
-      <div class="stat-value">{{ stats.total }}</div>
-      <div class="stat-label">Total conversations</div>
-    </div>
-    <div class="stat-card amber">
-      <div class="stat-value">{{ stats.urgent }}</div>
-      <div class="stat-label">À traiter d'urgence</div>
-    </div>
-  </div>
+    <div class="alert error" *ngIf="error">{{ error }}</div>
 
-  <!-- SEARCH -->
-  <div class="search-section">
-    <input class="search-input" placeholder="Rechercher une conversation..." />
-  </div>
-
-  <!-- LISTE CONVERSATIONS -->
-  <div class="chat-list">
-    <div class="chat-item" *ngFor="let conv of conversations" [routerLink]="['/modules/chat', conv.id]">
-      <div class="chat-avatar av av-{{conv.status.replace('_', '-')}}">{{conv.avatar}}</div>
-      <div class="chat-info">
-        <div class="chat-header">
-          <span class="chat-name">{{conv.user}}</span>
-          <span class="chat-time">{{conv.time}}</span>
+    <section class="composer-card">
+      <div class="composer-head">
+        <div class="avatar">+</div>
+        <div>
+          <strong>Nouvelle conversation</strong>
+          <span>Utiliser l'email ou l'id du campeur.</span>
         </div>
-        <div class="chat-preview">{{conv.lastMsg}}</div>
       </div>
-      <div class="chat-meta">
-        <span *ngIf="conv.unread > 0" class="unread-badge">{{conv.unread}}</span>
-        <div class="status-dot" [ngClass]="'status-' + conv.status"></div>
+      <div class="conversation-create">
+        <input [(ngModel)]="participant2Id" placeholder="destinataire@campino.tn" />
+        <input [(ngModel)]="avisId" placeholder="Avis lie optionnel" />
+        <button class="primary-action" type="button" (click)="createConversation()" [disabled]="creating">Ouvrir</button>
       </div>
-    </div>
-  </div>
+    </section>
 
-</div>
+    <section class="feed-toolbar">
+      <input [(ngModel)]="search" placeholder="Rechercher une conversation" />
+      <span>{{ filteredConversations.length }} conversation(s)</span>
+    </section>
 
+    <article class="conversation-row" *ngFor="let conv of filteredConversations" (click)="openConversation(conv)">
+      <div class="avatar">{{ initials(conv) }}</div>
+      <div class="conversation-main">
+        <div class="conversation-head">
+          <strong>{{ title(conv) }}</strong>
+          <span>{{ conv.dateDernierMessage | date:'dd/MM HH:mm' }}</span>
+        </div>
+        <p>{{ conv.avisId ? 'Avis lie: ' + conv.avisId : 'Conversation directe' }}</p>
+      </div>
+      <span class="badge" *ngIf="conv.messagesNonLus > 0">{{ conv.messagesNonLus }}</span>
+    </article>
+
+    <div class="empty-state" *ngIf="!loading && filteredConversations.length === 0">Aucune conversation.</div>
+  </main>
+
+  <aside class="context-panel">
+    <article>
+      <h2>Messagerie</h2>
+      <div class="metric"><span>Total</span><strong>{{ conversations.length }}</strong></div>
+      <div class="metric"><span>Non lus</span><strong>{{ unreadTotal }}</strong></div>
+    </article>
+    <article>
+      <h2>Experience</h2>
+      <p>Le chat intervient apres une interaction publique: question sur un avis, aide sur une reservation, suivi d'une activite.</p>
+    </article>
+  </aside>
+</section>

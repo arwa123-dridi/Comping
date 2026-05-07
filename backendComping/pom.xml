@@ -110,7 +110,6 @@
             <scope>test</scope>
         </dependency>
 
-
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
@@ -122,6 +121,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
+
+        <!-- Vosk pour transcription vocale offline -->
+      <dependency>
+    <groupId>com.alphacephei</groupId>
+    <artifactId>vosk</artifactId>
+    <version>0.3.45</version>
+</dependency>
+
     </dependencies>
 
     <build>

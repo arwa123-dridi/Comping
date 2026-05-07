@@ -10,4 +10,5 @@ public class MessageRequestDTO {
     private String conversationId;
     private String contenu;
     private String typeMessage; // TEXT, IMAGE
+    private String transcription;
 }

@@ -1,68 +1,89 @@
-<div class="module-social">
+<section class="campino-social-shell">
+  <aside class="community-sidebar">
+    <a routerLink="/Campino" class="brand">
+      <span class="brand-mark">⛺</span>
+      <span>CAMPI<strong>NO</strong></span>
+    </a>
+    <nav>
+      <a routerLink="/modules/reseau-social" routerLinkActive="active">Fil communaute</a>
+      <a routerLink="/modules/avis" routerLinkActive="active">Avis campeurs</a>
+      <a routerLink="/modules/chat" routerLinkActive="active">Messages</a>
+      <a routerLink="/profile">Mon profil</a>
+    </nav>
+    <div class="sidebar-note">
+      <strong>Scenario</strong>
+      <span>Partager, commenter, discuter puis evaluer une experience.</span>
+    </div>
+  </aside>
 
-  <!-- BANNER -->
-  <div class="banner">
-    <div class="banner-text">
-      <h1>Module Réseau Social ✦</h1>
-      <p>Modérez le feed et gérez la communauté.</p>
-    </div>
-    <div class="banner-actions">
-      <button class="btn-outline">Utilisateurs</button>
-      <button class="btn-primary">Nouveau post</button>
-    </div>
-  </div>
-
-  <!-- STAT CARDS -->
-  <div class="stats-grid">
-    <div class="stat-card green">
-      <div class="stat-value">{{ stats.totalPosts }}</div>
-      <div class="stat-label">Posts total</div>
-    </div>
-    <div class="stat-card blue">
-      <div class="stat-value">{{ stats.activeUsers }}</div>
-      <div class="stat-label">Utilisateurs actifs</div>
-    </div>
-    <div class="stat-card amber">
-      <div class="stat-value">{{ stats.reports }}</div>
-      <div class="stat-label">Signalements</div>
-    </div>
-  </div>
-
-  <!-- FEED POSTS -->
-  <div class="card">
-    <div class="card-header">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        </svg>
-        Feed Posts (Modération)
+  <main class="social-main">
+    <header class="social-topbar">
+      <div>
+        <span class="eyebrow">Campino social</span>
+        <h1>Fil communaute</h1>
       </div>
-      <input class="search-input" placeholder="Rechercher post..." />
+      <button class="soft-btn" type="button" (click)="loadFeed()">Actualiser</button>
+    </header>
+
+    <div class="alerts">
+      <div class="alert error" *ngIf="error">{{ error }}</div>
+      <div class="alert success" *ngIf="success">{{ success }}</div>
     </div>
-    <div class="posts-list">
-      <div class="post-item" *ngFor="let post of posts" routerLink="/modules/reseau-social/{{post.id}}">
-        <div class="post-header">
-          <div class="user-info">
-            <div class="av av-green">{{post.user.slice(0,2)}}</div>
-            <div>
-              <span class="username">{{post.user}}</span>
-              <span class="post-time">2h</span>
-            </div>
+
+    <section class="composer-card">
+      <div class="composer-head">
+        <div class="avatar">ME</div>
+        <textarea rows="3" [(ngModel)]="newPost" placeholder="Quoi de neuf dans votre aventure Campino ?"></textarea>
+      </div>
+      <div class="composer-actions">
+        <input [(ngModel)]="imageDraft" placeholder="Ajouter des images par URL, separees par virgule" />
+        <button class="primary-action" type="button" (click)="publish()" [disabled]="saving">Publier</button>
+      </div>
+    </section>
+
+    <section class="feed-toolbar">
+      <input [(ngModel)]="search" placeholder="Rechercher une publication, un campeur..." />
+      <span>{{ filteredPosts.length }} publication(s)</span>
+    </section>
+
+    <article class="post-card" *ngFor="let post of filteredPosts" (click)="openPost(post)">
+      <header class="post-head">
+        <div class="author">
+          <div class="avatar">{{ post.auteurNom.slice(0, 2).toUpperCase() }}</div>
+          <div>
+            <strong>{{ post.auteurNom || 'Utilisateur' }}</strong>
+            <span>{{ post.datePublication | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
-          <span class="status-pill" [class.approved]="post.status === 'approuvé'" [class.rejected]="post.status === 'rejete'">{{post.status}}</span>
         </div>
-        <div class="post-content">
-          {{post.content}}
-        </div>
-        <div class="post-actions">
-          <span>❤️ {{post.likes}}</span>
-          <span>💬 {{post.comments}}</span>
-          <button class="moderate-btn approve">Approuver</button>
-          <button class="moderate-btn reject">Rejeter</button>
-        </div>
+        <span class="post-type">{{ post.typePost || 'FEED' }}</span>
+      </header>
+
+      <p>{{ post.contenu }}</p>
+
+      <div class="image-strip" *ngIf="post.images && post.images.length > 0">
+        <img *ngFor="let image of post.images" [src]="image" alt="Media du post" />
       </div>
-    </div>
-  </div>
 
-</div>
+      <footer class="post-actions">
+        <button type="button" (click)="like(post, $event)">♡ {{ post.likesCount }}</button>
+        <button type="button">Commentaires {{ post.commentairesCount }}</button>
+        <span>Ouvrir la discussion</span>
+      </footer>
+    </article>
 
+    <div class="empty-state" *ngIf="!loading && filteredPosts.length === 0">Aucune publication pour le moment.</div>
+  </main>
+
+  <aside class="context-panel">
+    <article>
+      <h2>Aujourd'hui</h2>
+      <div class="metric"><span>Posts</span><strong>{{ posts.length }}</strong></div>
+      <div class="metric"><span>Likes</span><strong>{{ totalLikes }}</strong></div>
+      <div class="metric"><span>Commentaires</span><strong>{{ totalComments }}</strong></div>
+    </article>
+    <article>
+      <h2>Bon parcours</h2>
+      <p>Publier une sortie, ouvrir les commentaires, puis poursuivre en message prive si un campeur a besoin d'aide.</p>
+    </article>
+  </aside>
+</section>

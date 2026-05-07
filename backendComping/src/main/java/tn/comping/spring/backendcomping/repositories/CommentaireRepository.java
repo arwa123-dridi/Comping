@@ -11,4 +11,5 @@ public interface CommentaireRepository extends MongoRepository<Commentaire, Stri
     List<Commentaire> findByPostIdOrderByDatePublicationAsc(String postId);
     List<Commentaire> findByPostIdAndParentCommentIdOrderByDatePublicationAsc(String postId, String parentCommentId);
     List<Commentaire> findByParentCommentIdOrderByDatePublicationAsc(String parentCommentId);
+    void deleteByPostId(String postId);
 }
