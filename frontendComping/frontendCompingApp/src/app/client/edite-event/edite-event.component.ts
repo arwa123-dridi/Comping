@@ -86,12 +86,15 @@ export class EditeEventComponent implements OnInit {
   // Fermer la modale
   closeModal(): void {
     this.close.emit();
+    this.router.navigate(['/events/list']);
   }
 
   // Sauvegarder les modifs
- onUpdate(): void {
+ showSuccessPopup = false;
+  onUpdate(): void {
 
   const payload = {
+    
     titre: this.event.titre,
     description: this.event.description,
     prix: this.event.prix,
@@ -116,14 +119,18 @@ export class EditeEventComponent implements OnInit {
 
   this.eventService.updateEvent(this.event.idEvent, payload as any).subscribe({
     next: (response) => {
-      alert('✅ Événement modifié avec succès !');
-      this.saved.emit(response);
-      this.closeModal();
-      this.router.navigate(['/events/list']);
+       this.showSuccessPopup = true;
+    
+       setTimeout(() => {
+        this.showSuccessPopup = false;
+        this.saved.emit(response);
+        this.router.navigate(['/events/list']);
+      }, 2500); // ✅ disparaît après 2.5s
     },
     error: (err) => {
       console.error('Erreur update', err);
     }
   });
 }
+
 }

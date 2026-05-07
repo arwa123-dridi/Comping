@@ -220,4 +220,66 @@
     </button>
 
   </div>
+
+</div>
+  <!-- RECOMMENDATION POPUP -->
+
+<div
+  class="success-overlay"
+  *ngIf="showSuggestionPopup"
+>
+
+  <div class="success-box recommendation-box">
+
+    <div class="icon">✨</div>
+
+    <h3>Activités recommandées</h3>
+
+    <p>
+      Aucune activité n’a été ajoutée à cet événement.
+    </p>
+
+    <p>
+      Nous vous recommandons les activités suivantes :
+    </p>
+
+    <div class="suggested-activities">
+
+      <label
+        class="activity-item"
+        *ngFor="let activity of suggestedActivities"
+      >
+
+        <input
+          type="checkbox"
+          [value]="activity.idActivity"
+          (change)="onSuggestedActivityChange($event)"
+        />
+
+        {{ activity.nom }}
+
+      </label>
+
+    </div>
+
+    <div class="popup-buttons">
+
+      <button
+        class="btn"
+        (click)="confirmSuggestedActivities()"
+      >
+        Ajouter les activités
+      </button>
+
+      <button
+        class="btn cancel-btn"
+        (click)="ignoreSuggestions()"
+      >
+        Ignorer
+      </button>
+
+    </div>
+
+  </div>
+
 </div>

@@ -4,6 +4,7 @@ import { EventService } from '../../services/event.service';
 import { ActivityService } from '../../services/activity.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { RecommendationActivity }from '../../services/recommendation-activity';
 
 @Component({
   selector: 'app-add-event',
@@ -50,10 +51,16 @@ showSuccess = false;
 
 activities: any[] = [];
 selectedActivities: string[] = [];
+showSuggestionPopup = false;
+
+suggestedActivities: any[] = [];
+
+selectedSuggestedActivities: string[] = [];
   constructor(
     private eventService: EventService,
      private activityService: ActivityService,
-    private router: Router
+    private router: Router,
+    private recommendationService: RecommendationActivity
   ) {}
 ngOnInit(): void {
   this.loadActivities();
@@ -68,30 +75,47 @@ loadActivities(): void {
     error: (err) => console.error(err)
   });
 }
-  onSubmit(): void {
-     // 🔥 conversion tagsInput -> tags[]
+onSubmit(): void {
+
   this.event.tags = this.tagsInput
     .split(',')
     .map(tag => tag.trim())
     .filter(tag => tag !== '');
 
-  // 🔥 date création automatique
   this.event.createdAt = new Date().toISOString();
-  // 🔥 debug important
-  console.log("EVENT SENT =>", this.event);
-    this.eventService.createEvent(this.event).subscribe({
-    
-        next: () => {
-  this.showSuccess = true;
 
-  setTimeout(() => {
-    this.showSuccess = false;
-  }, 2000);
-},
-      
+  // ✅ aucune activité sélectionnée
+  if (this.selectedActivities.length === 0) {
+
+    this.loadSuggestedActivities();
+
+    return;
+  }
+
+  this.createEvent();
+}
+createEvent(): void {
+
+  console.log("EVENT SENT =>", this.event);
+
+  this.eventService.createEvent(this.event)
+    .subscribe({
+
+      next: () => {
+
+        this.showSuccess = true;
+
+        setTimeout(() => {
+
+          this.showSuccess = false;
+             this.router.navigate(['/events/list']); 
+
+        }, 2000);
+      },
+
       error: (err) => console.error(err)
     });
-  }
+}
  onActivityChange(event: any): void {
   const id = event.target.value; // string
 
@@ -105,5 +129,54 @@ loadActivities(): void {
 
   this.event.activityIds = [...this.selectedActivities];
 }
+loadSuggestedActivities(): void {
 
+  this.recommendationService
+    .suggestActivities(this.event)
+    .subscribe({
+
+      next: (data) => {
+
+        console.log("SUGGESTIONS =>", data);
+
+        this.suggestedActivities = data;
+
+        this.showSuggestionPopup = true;
+      },
+
+      error: (err) => console.error(err)
+    });
+}
+onSuggestedActivityChange(event: any): void {
+
+  const id = event.target.value;
+
+  if (event.target.checked) {
+
+    if (!this.selectedSuggestedActivities.includes(id)) {
+
+      this.selectedSuggestedActivities.push(id);
+    }
+
+  } else {
+
+    this.selectedSuggestedActivities =
+      this.selectedSuggestedActivities.filter(x => x !== id);
+  }
+}
+confirmSuggestedActivities(): void {
+
+  this.event.activityIds =
+    [...this.selectedSuggestedActivities];
+
+  this.showSuggestionPopup = false;
+
+  this.createEvent();
+}
+ignoreSuggestions(): void {
+
+  this.showSuggestionPopup = false;
+
+  this.createEvent();
+}
 }

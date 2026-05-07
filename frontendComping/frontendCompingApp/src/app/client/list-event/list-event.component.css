@@ -527,3 +527,26 @@
   font-size: 12px;
   font-weight: 600;
 }
+.icon-btn.participate {
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+
+.icon-btn.participate:hover:not(:disabled) {
+  background: #10b981;
+  color: white;
+}
+
+.icon-btn.participate:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.icon-btn.pay {
+  color: #10b981;
+  border-color: #10b981;
+}
+
+.icon-btn.pay:hover {
+  background: #10b981;
+  color: white;
+}

@@ -13,9 +13,9 @@
             </svg>
             Créer une activité
           </button>
-          <a routerLink="/events/list" class="btn-outline nav-link">
-            📋 Liste des événements
-          </a>
+         <button class="btn-outline nav-link" (click)="goToEvents()">
+  📋 Liste des événements
+</button>
         </div>
       </div>
 
@@ -27,9 +27,29 @@
       </div>
     </div>
   </header>
+<div class="filters">
+  <input
+    type="text"
+    placeholder="🔍 Rechercher ..."
+    [(ngModel)]="searchText"
+  />
+  <select [(ngModel)]="selectedType" (change)="applyFilters()">
+    <option value="">Tous les types</option>
+    <option *ngFor="let t of uniqueTypes" [value]="t">{{ t }}</option>
+  </select>
 
+  <select [(ngModel)]="selectedDifficulty" (change)="applyFilters()">
+    <option value="">Toutes les difficultés</option>
+    <option value="facile">Facile</option>
+    <option value="moyen">Moyen</option>
+    <option value="difficile">Difficile</option>
+  </select>
+  <button class="btn-primary" (click)="applyFilters()">
+  Rechercher
+</button>
+</div>
   <div class="grid">
-    <div class="event-card" *ngFor="let activity of activities">
+    <div class="event-card" *ngFor="let activity of filteredActivities">
       <div class="status-indicator top-actif"></div>
 
       <div class="card-content">
@@ -41,6 +61,7 @@
         <p class="card-desc">{{ activity.description }}</p>
 
         <div class="card-meta">
+          <!-- ✅ Déjà présents -->
           <div class="meta-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"></circle>
@@ -57,6 +78,43 @@
             </svg>
             {{ activity.capacite }} personnes
           </div>
+
+          <!-- ✅ Nouveaux attributs -->
+          <div class="meta-item" *ngIf="activity.niveauDifficulte">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+            {{ activity.niveauDifficulte }}
+          </div>
+
+          <div class="meta-item" *ngIf="activity.trancheAge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            {{ activity.trancheAge }}
+          </div>
+
+          <div class="meta-item" *ngIf="activity.saison">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+            </svg>
+            {{ activity.saison }}
+          </div>
+        </div>
+
+        <!-- ✅ Tags -->
+        <div class="tags-container" *ngIf="activity.tags && activity.tags.length > 0">
+          <span class="tag" *ngFor="let tag of activity.tags">
+            # {{ tag }}
+          </span>
         </div>
 
         <div class="card-divider"></div>

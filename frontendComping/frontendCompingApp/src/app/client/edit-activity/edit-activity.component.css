@@ -23,10 +23,9 @@
 }
 
 .title {
-  color: #1b4332; /* Vert foncé de l'événement */
+  color: #2e7d32;
   font-size: 22px;
-  font-weight: 800;
-  margin: 0;
+  font-weight: 700;
   text-align: center;
 }
 
@@ -53,10 +52,11 @@ input, textarea {
   box-sizing: border-box; /* Important pour le padding */
 }
 
-input:focus, textarea:focus {
-  border-color: #2d6a4f;
+input:focus, textarea:focus, select:focus {
+  border-color: #2e7d32;
+  box-shadow: 0 0 6px rgba(46,125,50,0.3);
   outline: none;
-  background-color: #f0fdf4; /* Un très léger fond vert au focus */
+  background-color: #f0fdf4;
 }
 
 textarea {
@@ -80,7 +80,7 @@ textarea {
 
 .btn-save {
   flex: 2;
-  background: #2d6a4f;
+  background: #2e7d32;
   color: white;
   border: none;
   padding: 14px;
@@ -114,4 +114,43 @@ textarea {
   text-align: center;
   color: #64748b;
   font-style: italic;
+}
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.popup-content {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  border-top: 5px solid #2e7d32;
+  animation: pop 0.3s ease;
+}
+
+.popup-content .icon {
+  font-size: 40px;
+  color: #2e7d32;
+}
+
+.popup-content h3 {
+  color: #2e7d32;
+  margin: 10px 0;
+}
+
+.popup-content p {
+  color: #666;
+}
+@keyframes pop {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }

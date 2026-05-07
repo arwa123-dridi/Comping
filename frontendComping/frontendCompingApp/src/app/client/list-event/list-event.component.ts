@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { EventService } from '../../services/event.service';
+import { PaymentEvent } from '../../services/payment-event';
 import { CommonModule } from '@angular/common';
 import { Event as AppEvent } from '../../models/event.model';
 import { Router, RouterLink } from '@angular/router';
 import { EditeEventComponent } from '../edite-event/edite-event.component';
 import { FormsModule } from '@angular/forms';
+import { FideliteComponent } from '../fidelite-component/fidelite-component';
 
 @Component({
   selector: 'app-list-event',
    standalone: true,
-  imports: [CommonModule, EditeEventComponent,RouterLink, FormsModule],
+  imports: [CommonModule, EditeEventComponent,RouterLink, FormsModule,FideliteComponent],
   templateUrl: './list-event.component.html',
   styleUrl: './list-event.component.css'
 })
@@ -30,10 +32,12 @@ allEvents: AppEvent[] = [];
   StatutEvent = String;
  
   constructor(private eventService: EventService,
+     private paymentService: PaymentEvent,
      private router: Router
   ) {}
  
   ngOnInit(): void {
+    this.loadEvents();
     this.eventService.getAllEvents().subscribe({
       next: (data) => {
          this.allEvents = data;
@@ -43,8 +47,17 @@ allEvents: AppEvent[] = [];
       error: (err) => console.error('Erreur chargement événements', err)
     });
      this.loadCounts();
+     
   }
-
+loadEvents(): void {
+  this.eventService.getAllEvents().subscribe({
+    next: (data) => {
+      this.allEvents = data;
+      this.events = data;
+    },
+    error: (err) => console.error('Erreur chargement événements', err)
+  });
+}
   loadCounts(): void {
   this.eventService.countValide().subscribe({
     next: (val) => this.validCount = val,
@@ -102,7 +115,10 @@ onCreateEvent() {
 
 
 openDetails(event: any): void {
-  this.selectedEvent = event;
+   this.eventService.getEventById(event.idEvent).subscribe(data => {
+    console.log("EVENT DETAILS =>", data); // 🔍 ICI
+    this.selectedEvent = data;
+  });
 }
 
 closeDetails(): void {
@@ -137,5 +153,49 @@ resetFilters(): void {
 
   this.events = this.allEvents;
 }
+participate(eventId: string | undefined): void {
+   if (!eventId) return;
+  this.eventService.participate(eventId).subscribe({
+    next: () => {
+      alert('✅ Participation confirmée ! Passez au paiment pour finalser votre participation');
+      this.loadEvents(); // recharger la liste
+    },
+    error: (err) => {
+      alert('❌ ' + (err.error?.message || 'Erreur lors de la participation'));
+    }
+  });
+}
+cancelParticipation(eventId: string | undefined): void {
+  if (!eventId) return;
 
+  this.eventService.cancelParticipation(eventId).subscribe({
+    next: () => {
+      alert('✅ Participation annulée.');
+      this.loadEvents();
+    },
+    error: (err) => {
+      alert('❌ ' + (err.error?.message || 'Erreur lors de l\'annulation'));
+    }
+  });
+}
+payEvent(eventId: string | undefined): void {
+  console.log("CLICK PAY EVENT", eventId);
+
+  if (!eventId) {
+    console.log("EVENT ID NULL");
+    return;
+  }
+
+  console.log("CALLING PAYMENT SERVICE");
+
+  this.paymentService.checkout(eventId).subscribe({
+    next: (url) => {
+      console.log("STRIPE URL =", url);
+      window.location.href = url;
+    },
+    error: (err) => {
+      console.error("PAYMENT ERROR", err);
+    }
+  });
+}
 }

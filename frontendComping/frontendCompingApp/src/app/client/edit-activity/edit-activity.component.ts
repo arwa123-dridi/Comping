@@ -22,11 +22,18 @@ export class EditActivityComponent implements OnInit {
   description: '',
   type: '',
   duree: '0',
-  capacite: '0'
+  capacite: '0',
+    niveauDifficulte: '',
+  trancheAge: '',
+  saison: '',
+  tags: []
+
   };
 
   loading = true;
-
+   tagsInput: string = '';
+showPopup = false;
+popupMessage = '';
   constructor(
     private route: ActivatedRoute,
     private activityService: ActivityService,
@@ -39,6 +46,7 @@ export class EditActivityComponent implements OnInit {
     this.activityService.getActivityById(this.id).subscribe({
       next: (data) => {
         this.activity = data;
+         this.tagsInput = data.tags ? data.tags.join(', ') : '';
         this.loading = false;
       },
       error: (err) => {
@@ -49,10 +57,17 @@ export class EditActivityComponent implements OnInit {
   }
 
   updateActivity(): void {
+      this.activity.tags = this.tagsInput
+    ? this.tagsInput.split(',').map(t => t.trim())
+    : [];
     this.activityService.updateActivity(this.id, this.activity).subscribe({
       next: () => {
-        alert('Activité modifiée avec succès');
-        this.router.navigate(['/activities']);
+        this.showPopup = true;
+        this.popupMessage = 'Activité modifiée avec succès';
+        setTimeout(() => {
+        this.showPopup = false;
+        this.router.navigate(['/activities/list']);
+      }, 1500);
       },
       error: (err) => {
         console.error('Erreur update', err);
@@ -61,6 +76,6 @@ export class EditActivityComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/activities']);
+    this.router.navigate(['/activities/list']);
   }
 }

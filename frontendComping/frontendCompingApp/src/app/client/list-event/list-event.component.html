@@ -1,10 +1,10 @@
+<app-fidelite-component></app-fidelite-component>
 <div class="page">
   <header class="main-header">
     <div class="header-content">
       <div class="title-section">
         <h1>Événements disponibles</h1>
         <span class="count-badge">{{ events.length }} expéditions trouvées</span>
-        
         <div class="header-actions">
           <button class="btn-primary" (click)="onCreateEvent()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -112,6 +112,40 @@
       <line x1="12" y1="16" x2="12.01" y2="16"></line>
     </svg>
   </button>
+   <!-- ✅ Bouton Participer -->
+  <button class="icon-btn participate" 
+          (click)="participate(event.idEvent)" 
+          title="Participer"
+          [disabled]="event.statut !== 'VALIDE'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+      <circle cx="9" cy="7" r="4"></circle>
+      <line x1="19" y1="8" x2="19" y2="14"></line>
+      <line x1="22" y1="11" x2="16" y2="11"></line>
+    </svg>
+  </button>
+  <!-- ✅ Bouton Payer -->
+<button class="icon-btn pay" 
+        (click)="payEvent(event.idEvent)" 
+        title="Payer"
+        [disabled]="event.statut !== 'VALIDE'">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+    <line x1="1" y1="10" x2="23" y2="10"></line>
+  </svg>
+</button>
+  <!-- ✅ Bouton Annuler participation -->
+<button class="icon-btn cancel-participate"
+        (click)="event.idEvent && cancelParticipation(event.idEvent)"
+        title="Annuler participation"
+        [disabled]="event.statut !== 'VALIDE'">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+    <circle cx="9" cy="7" r="4"></circle>
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+</button>
             <button class="icon-btn edit" (click)="editEvent(event)" title="Modifier">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -293,6 +327,9 @@
     <p class="detail-text" *ngIf="selectedEvent.participantIds?.length">
       {{ selectedEvent.participantIds.length }} participant(s) inscrit(s)
     </p>
+       <ul>
+  
+    </ul>
   </div>
 
 </div>
