@@ -23,16 +23,11 @@ public class Activity {
     private String duree ;
     private String capacite;
 
-    // ✅ AJOUTS POUR L'IA
-    private List<String> tags;
+
     private String niveauDifficulte;
     private String trancheAge;
-    private double prix;
-    private String lieu;
-    private double latitude;
-    private double longitude;
     private String saison;
-    private String meteoRecommandee;
+    private List<String> tags;
 
 
 }

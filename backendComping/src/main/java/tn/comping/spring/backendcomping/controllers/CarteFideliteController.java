@@ -19,16 +19,13 @@ public class CarteFideliteController {
     @PostMapping("/add-points")
     public String ajouterPoints(
             @RequestParam String clientId,
-            @RequestParam int montant) {
+            @RequestParam int points) {
 
-        carteFideliteService.ajouterPoints(clientId, montant);
+        carteFideliteService.ajouterPoints(clientId, points);
         return "Points ajoutés avec succès";
     }
-    @PostMapping("/reduction")
-    public double appliquerReduction(
-            @RequestParam String clientId,
-            @RequestParam double prix) {
-
-        return carteFideliteService.appliquerReduction(clientId, prix);
+    @GetMapping("/message/{clientId}")
+    public String getMessage(@PathVariable String clientId) {
+        return carteFideliteService.getFideliteMessage(clientId);
     }
 }

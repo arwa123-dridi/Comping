@@ -48,7 +48,8 @@ public class SecurityConfig {
                                 "/api/incidents/**",
                                 "/api/conventions-partenaires/**",
                                  "/api/produits/**",
-                                  "/uploads/**" 
+                                  "/uploads/**" ,
+                                "/api/webhook"
                         ).permitAll()
 
                         // Rôles spécifiques

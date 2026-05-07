@@ -14,6 +14,10 @@ public class ActivityMapper {
                 .type(request.getType())
                 .duree(request.getDuree())
                 .capacite(request.getCapacite())
+                .niveauDifficulte(request.getNiveauDifficulte())
+                .trancheAge(request.getTrancheAge())
+                .saison(request.getSaison())
+                .tags(request.getTags())
                 .build();
     }
 
@@ -26,6 +30,10 @@ public class ActivityMapper {
                 .type(activity.getType())
                 .duree(activity.getDuree())
                 .capacite(activity.getCapacite())
+                .niveauDifficulte(activity.getNiveauDifficulte())
+                .trancheAge(activity.getTrancheAge())
+                .saison(activity.getSaison())
+                .tags(activity.getTags())
                 .build();
     }
 

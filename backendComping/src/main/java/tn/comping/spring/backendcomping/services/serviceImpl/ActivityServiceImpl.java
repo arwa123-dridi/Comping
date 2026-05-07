@@ -52,6 +52,10 @@ public class ActivityServiceImpl implements  ActivityService{
         activity.setDuree(request.getDuree());
         activity.setCapacite(request.getCapacite());
 
+        activity.setNiveauDifficulte(request.getNiveauDifficulte());
+        activity.setTrancheAge(request.getTrancheAge());
+        activity.setSaison(request.getSaison());
+        activity.setTags(request.getTags());
         activity = activityRepository.save(activity);
 
         return ActivityMapper.toResponse(activity);
