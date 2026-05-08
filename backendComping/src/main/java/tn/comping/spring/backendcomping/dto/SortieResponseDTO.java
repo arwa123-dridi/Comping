@@ -14,18 +14,19 @@ public class SortieResponseDTO {
     private LocalDateTime dateDebut;
     private LocalDateTime dateFin;
     private String lieuDepart;
+    private String lieuArrivee;
     private String region;
     private Difficulte difficulte;
     private Integer capaciteMax;
     private Integer placesDisponibles;
     private Double prixParPersonne;
     private StatutSortie statut;
-
-    // Champs manquants
     private String equipementRequis;
     private Boolean assistanceMedicale;
     private Double distanceKm;
-    private String lieuArrivee;
+
+    // ✅ AJOUTÉ — URL image Cloudinary
+    private String imageUrl;
 
     private String organisateurId;
     private String organisateurNom;
@@ -36,7 +37,5 @@ public class SortieResponseDTO {
     private Integer nombreParticipants;
     private List<String> participantIds;
     private LocalDateTime dateCreation;
-
     private String utilisateurPrenom;
-
 }

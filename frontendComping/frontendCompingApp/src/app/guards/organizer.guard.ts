@@ -1,40 +1,40 @@
+// src/app/guards/organizer.guard.ts
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
+import {
+  CanActivate, ActivatedRouteSnapshot,
+  RouterStateSnapshot, Router, UrlTree
+} from '@angular/router';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class OrganizerGuard implements CanActivate {
-  
+
   constructor(private router: Router) {}
 
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
-    
-    const token = localStorage.getItem('authToken');
+  ): boolean | UrlTree {
+    const token    = localStorage.getItem('authToken');
+    const userId   = localStorage.getItem('userId');
     const userRole = localStorage.getItem('userRole');
-    const userId = localStorage.getItem('userId');
-    
-    // Check if logged in and ORGANISATEUR
-    if (token && userId && userRole === 'ORGANISATEUR') {
+
+    const isOrg   = userRole === 'ORGANISATEUR' || userRole === 'ROLE_ORGANISATEUR';
+    const isAdmin  = userRole === 'ADMIN'        || userRole === 'ROLE_ADMIN';
+
+    if (token && userId && (isOrg || isAdmin)) {
       return true;
     }
-    
-    // Logged but not organizer → user dashboard
-    if (token && userId && userRole !== 'ORGANISATEUR') {
-      this.router.navigate(['/dashboard'], { 
-        queryParams: { error: 'requires_organizer' }
+
+    if (token && userId) {
+      // Connecté mais pas organisateur → dashboard user
+      return this.router.createUrlTree(['/dashboard'], {
+        queryParams: { error: 'organizer-required' }
       });
-      return false;
     }
-    
-    // Not logged → login
-    this.router.navigate(['/signin'], { 
-      queryParams: { returnUrl: state.url, requiredRole: 'ORGANISATEUR' }
+
+    // Non connecté → login
+    return this.router.createUrlTree(['/login'], {
+      queryParams: { returnUrl: state.url }
     });
-    return false;
   }
 }
