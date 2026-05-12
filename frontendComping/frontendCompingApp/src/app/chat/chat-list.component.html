@@ -1,0 +1,219 @@
+<section class="campino-social-shell">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="community-sidebar">
+    <a routerLink="/Campino" class="brand">
+      <span class="brand-mark">C</span>
+      <span>CAMPI<strong>NO</strong></span>
+    </a>
+    <nav>
+      <a routerLink="/community" routerLinkActive="active">
+        <span class="nav-icon">🏠</span> Fil communauté
+      </a>
+      <a routerLink="/reviews" routerLinkActive="active">
+        <span class="nav-icon">⭐</span> Avis campeurs
+      </a>
+      <a routerLink="/messages" routerLinkActive="active">
+        <span class="nav-icon">💬</span> Messages
+        <span class="badge-mini" *ngIf="unreadTotal > 0">{{ unreadTotal }}</span>
+      </a>
+      <a routerLink="/profile">
+        <span class="nav-icon">👤</span> Mon profil
+      </a>
+    </nav>
+
+    <div class="online-users">
+      <h3>🟢 En ligne ({{ onlineUsers.length }})</h3>
+      <div class="online-list">
+        <div *ngFor="let user of onlineUsers" class="online-item">
+          <div class="avatar avatar-mini">
+            <span class="presence-dot online"></span>
+            {{ (user.nom || 'US').slice(0, 2).toUpperCase() }}
+          </div>
+          <span class="online-name">{{ user.nom }}</span>
+        </div>
+        <p *ngIf="onlineUsers.length === 0" class="empty-online">
+          Aucun campeur en ligne actuellement.
+        </p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="social-main">
+    <header class="social-topbar">
+      <div>
+        <span class="eyebrow">Messagerie</span>
+        <h1>Conversations
+          <span class="unread-pill" *ngIf="unreadTotal > 0">{{ unreadTotal }} non lus</span>
+        </h1>
+      </div>
+      <button class="soft-btn" type="button" (click)="loadConversations()">↻ Actualiser</button>
+    </header>
+
+    <div class="alerts">
+      <div class="alert error" *ngIf="error">{{ error }}</div>
+      <div class="alert success" *ngIf="success">{{ success }}</div>
+    </div>
+
+    <!-- New Direct Conversation -->
+    <section class="composer-card">
+      <div class="composer-head">
+        <div class="avatar avatar-me">+</div>
+        <div>
+          <strong>Nouvelle conversation directe</strong>
+          <span>Échangez avec un campeur</span>
+        </div>
+      </div>
+      <div class="form-row">
+        <input [(ngModel)]="participant2Id" placeholder="📧 email@campino.tn" />
+        <input [(ngModel)]="avisId" placeholder="🆔 ID Avis lié (optionnel)" />
+        <button class="primary-action" (click)="createConversation()" [disabled]="creating">
+          Ouvrir
+        </button>
+      </div>
+    </section>
+
+    <!-- New Group Form -->
+    <section class="composer-card group-form" *ngIf="showGroupForm">
+      <div class="composer-head">
+        <div class="avatar avatar-group">👥</div>
+        <div>
+          <strong>Créer un groupe</strong>
+          <span>Minimum 2 participants</span>
+        </div>
+        <button class="close-btn" (click)="showGroupForm = false">✕</button>
+      </div>
+      <div class="form-row">
+        <input [(ngModel)]="groupName" placeholder="🏷️ Nom du groupe (ex: Campeurs Secteur A)" />
+      </div>
+      <div class="form-row">
+        <textarea [(ngModel)]="groupParticipants" rows="2"
+                  placeholder="📧 Emails des participants, séparés par virgule (min 2)"></textarea>
+      </div>
+      <div class="form-row" style="justify-content: flex-end;">
+        <button class="primary-action" (click)="createGroup()" [disabled]="creating">
+          {{ creating ? 'Création...' : '✨ Créer le groupe' }}
+        </button>
+      </div>
+    </section>
+
+    <button class="create-group-btn" *ngIf="!showGroupForm" (click)="showGroupForm = true">
+      <span>+</span> Créer un nouveau groupe
+    </button>
+
+    <!-- Search bar -->
+    <section class="feed-toolbar">
+      <input [(ngModel)]="search" placeholder="🔍 Rechercher une conversation..." />
+      <span class="count">{{ filteredConversations.length }} conversation{{ filteredConversations.length > 1 ? 's' : '' }}</span>
+    </section>
+
+    <!-- Groups Section -->
+    <section *ngIf="groupConversations.length > 0">
+      <h2 class="section-title">👥 Groupes</h2>
+      <article class="conversation-row" *ngFor="let conv of groupConversations" (click)="openConversation(conv)">
+        <div class="avatar avatar-group">
+          <span *ngIf="!conv.avatarGroupe">{{ initials(conv) }}</span>
+          <img *ngIf="conv.avatarGroupe" [src]="conv.avatarGroupe" alt="" />
+        </div>
+        <div class="conversation-main">
+          <div class="conversation-head">
+            <strong>{{ title(conv) }}</strong>
+            <span class="time">{{ timeAgo(conv.dateDernierMessage) }}</span>
+          </div>
+          <p class="last-message">
+            <span class="participants-preview">{{ participantPreview(conv) }}</span>
+            <span class="separator"> · </span>
+            <span class="msg-preview">{{ conv.dernierMessageContenu || 'Pas encore de message' }}</span>
+          </p>
+        </div>
+        <span class="badge" *ngIf="conv.messagesNonLus > 0">{{ conv.messagesNonLus }}</span>
+      </article>
+    </section>
+
+    <!-- Direct Conversations Section -->
+    <section *ngIf="directConversations.length > 0">
+      <h2 class="section-title">💬 Conversations directes</h2>
+      <article class="conversation-row" *ngFor="let conv of directConversations" (click)="openConversation(conv)">
+        <div class="avatar">
+          <span class="presence-dot" [class.online]="isOnline(conv)"></span>
+          {{ initials(conv) }}
+        </div>
+        <div class="conversation-main">
+          <div class="conversation-head">
+            <strong>{{ title(conv) }}</strong>
+            <span class="time">{{ timeAgo(conv.dateDernierMessage) }}</span>
+          </div>
+          <p class="last-message">
+            <span class="status-text" [class.online]="isOnline(conv)">
+              {{ isOnline(conv) ? '🟢 En ligne' : '⚪ Hors ligne' }}
+            </span>
+            <span class="separator" *ngIf="conv.dernierMessageContenu"> · </span>
+            <span class="msg-preview">{{ conv.dernierMessageContenu }}</span>
+          </p>
+        </div>
+        <span class="badge" *ngIf="conv.messagesNonLus > 0">{{ conv.messagesNonLus }}</span>
+      </article>
+    </section>
+
+    <div class="empty-state" *ngIf="!loading && filteredConversations.length === 0">
+      <div class="empty-icon">💬</div>
+      <h3>Aucune conversation</h3>
+      <p>Commencez par une nouvelle conversation ou créez un groupe.</p>
+    </div>
+  </main>
+
+  <!-- ===== STATS PANEL ===== -->
+  <aside class="context-panel">
+    <article class="ai-card">
+      <header class="ai-header">
+        <span class="ai-icon">📊</span>
+        <div>
+          <h2>Vue d'ensemble</h2>
+          <small>Activité messagerie</small>
+        </div>
+      </header>
+      <div class="stat-grid">
+        <div class="stat-cell">
+          <strong>{{ conversations.length }}</strong>
+          <span>Convos</span>
+        </div>
+        <div class="stat-cell">
+          <strong>{{ groupConversations.length }}</strong>
+          <span>Groupes</span>
+        </div>
+        <div class="stat-cell">
+          <strong>{{ unreadTotal }}</strong>
+          <span>Non lus</span>
+        </div>
+      </div>
+    </article>
+
+    <article class="ai-card">
+      <header class="ai-header">
+        <span class="ai-icon">🎙️</span>
+        <div>
+          <h2>Messages vocaux</h2>
+          <small>Avec transcription IA</small>
+        </div>
+      </header>
+      <p class="info-text">
+        Enregistrez un message vocal et l'IA <strong>Vosk</strong> le transcrira automatiquement en texte.
+        Pratique en pleine nature !
+      </p>
+    </article>
+
+    <article class="ai-card">
+      <header class="ai-header">
+        <span class="ai-icon">📞</span>
+        <div>
+          <h2>Appels</h2>
+          <small>Audio & vidéo</small>
+        </div>
+      </header>
+      <p class="info-text">
+        Lancez un appel <strong>audio</strong> ou <strong>vidéo</strong> directement depuis une conversation,
+        que ce soit en 1:1 ou en groupe.
+      </p>
+    </article>
+  </aside>
+</section>

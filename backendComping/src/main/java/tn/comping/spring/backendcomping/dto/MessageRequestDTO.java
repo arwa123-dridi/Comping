@@ -9,6 +9,6 @@ import lombok.*;
 public class MessageRequestDTO {
     private String conversationId;
     private String contenu;
-    private String typeMessage; // TEXT, IMAGE
-    private String transcription;
+    private String typeMessage; // TEXT, VOICE, IMAGE, FILE
+    private String transcription; // Pour les messages vocaux
 }

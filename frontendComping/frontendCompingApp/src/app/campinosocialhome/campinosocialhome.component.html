@@ -1,0 +1,416 @@
+<!-- HEADER -->
+<header>
+  <a routerLink="/" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+        <rect width="46" height="46" rx="10" fill="#1b2a4a"/>
+        <circle cx="34" cy="9" r="5" fill="#F5C842"/><circle cx="37" cy="7" r="4" fill="#1b2a4a"/>
+        <polygon points="3,34 10,20 17,34" fill="#1b4d1b"/>
+        <polygon points="13,34 23,15 33,34" fill="#1b4d1b"/>
+        <polygon points="27,34 36,20 45,34" fill="#1b4d1b"/>
+        <polygon points="15,34 23,17 31,34" fill="#2e7d32"/>
+        <polygon points="20,34 23,25 26,34" fill="#e53935"/>
+        <rect x="0" y="34" width="46" height="4" fill="#2e7d32"/>
+        <rect x="0" y="40" width="12" height="6" fill="#e53935"/>
+        <rect x="12" y="40" width="11" height="6" fill="#F5C842"/>
+        <rect x="23" y="40" width="11" height="6" fill="#2e7d32"/>
+        <rect x="34" y="40" width="12" height="6" fill="#1b2a4a"/>
+      </svg>
+    </div>
+    <span class="logo-name">CAMPI<span>NO</span></span>
+  </a>
+    <div class="header-btns">
+       <a routerLink="/login" class="btn-ghost">Connexion</a>
+    <a routerLink="/signup" class="btn-fill">S'inscrire gratuitement</a>
+     </div>
+     <nav>  <a routerLink="/Campino" >Revenir au menu principale</a></nav>
+</header>
+
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<section class="hero">
+
+  <!-- Éléments flottants animés -->
+  <div class="float-card fc-post" style="top:18%;left:4%">
+    <div class="fc-ava" style="background:linear-gradient(135deg,#3da859,#1b4d1b)">🧗</div>
+    <div class="fc-body">
+      <div class="fc-name">TomLeGrimpeur</div>
+      <div class="fc-text">Lever de soleil au Djebel Ressas 🌄</div>
+      <div class="fc-meta">❤️ 234 &nbsp;·&nbsp; 💬 45</div>
+    </div>
+  </div>
+
+  <div class="float-card fc-rating" style="top:22%;right:5%">
+    <div class="fc-stars">★★★★★</div>
+    <div class="fc-rname">Camping Ain Draham</div>
+    <div class="fc-rmeta">📍 Tabarka · 48 avis</div>
+  </div>
+
+  <div class="float-card fc-chat" style="bottom:28%;left:3%">
+    <div class="fc-bubble left">On campe ce week-end ? 🏕️</div>
+    <div class="fc-bubble right">Zaghouan ou Ain Draham ?</div>
+    <div class="fc-bubble left">Les deux ! 🔥</div>
+  </div>
+
+  <div class="float-card fc-post" style="bottom:22%;right:4%">
+    <div class="fc-ava" style="background:linear-gradient(135deg,#f29027,#c0720a)">🏕️</div>
+    <div class="fc-body">
+      <div class="fc-name">SaraLaRando</div>
+      <div class="fc-text">Spot secret forêt Bellouta ✨</div>
+      <div class="fc-meta">❤️ 567 &nbsp;·&nbsp; 💬 89</div>
+    </div>
+  </div>
+
+  <div class="float-badge" style="top:55%;right:6%">
+    <span class="live-dot"></span> 240 campeurs en ligne
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="hero-inner">
+    <div class="hero-av-stack">
+      <span class="hav">🧗</span><span class="hav">🏕️</span>
+      <span class="hav">🌿</span><span class="hav">🔥</span>
+      <span class="hav">⛺</span>
+      <span class="hav-more">+24 995</span>
+    </div>
+
+    <h1 class="hero-title">
+      Ici, on ne poste pas<br>
+      des photos.<br>
+      <em>On vit l'aventure.</em>
+    </h1>
+
+    <p class="hero-desc">
+      Partagez vos sorties, trouvez les vrais spots recommandés par des campeurs
+      comme vous, et planifiez vos prochaines aventures avec votre tribu.
+      <strong>La communauté camping de Tunisie vous attend.</strong>
+    </p>
+
+    <div class="hero-ctas">
+      <a routerLink="/signup" class="btn-hero-primary">
+        Rejoindre la communauté — c'est gratuit
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a routerLink="/login" class="btn-hero-ghost">Déjà membre ? Connexion</a>
+    </div>
+
+    <div class="hero-trust">
+      <span>✓ Gratuit</span>
+      <span>✓ Sans engagement</span>
+      <span>✓ Accès immédiat aux 3 espaces</span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════ LIVE STRIP ══════════════════════ -->
+<div class="live-strip">
+  <div class="ls-inner">
+    <span class="ls-live"><span class="live-dot"></span> EN DIRECT</span>
+    <div class="ls-track">
+      <span>🧗 TomLeGrimpeur vient de poster une photo · </span>
+      <span>⭐ Camping Ain Draham vient de recevoir un avis 5 étoiles · </span>
+      <span>💬 NatureAndChill et FeuDeCamp ont démarré une conversation · </span>
+      <span>🏕️ SaraLaRando a partagé un nouveau spot · </span>
+      <span>❤️ 234 campeurs ont réagi au dernier post de TomLeGrimpeur · </span>
+      <span>🧗 TomLeGrimpeur vient de poster une photo · </span>
+      <span>⭐ Camping Ain Draham vient de recevoir un avis 5 étoiles · </span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ MODULES SHOWCASE ══════════════════════ -->
+<section class="showcase">
+  <div class="showcase-wrap">
+
+    <!-- Réseau Social -->
+    <div class="feature-row">
+      <div class="feature-visual fv-green">
+        <div class="fv-label">📱 Réseau Social</div>
+        <div class="fv-mockup">
+          <div class="fm-post">
+            <div class="fm-ava" style="background:linear-gradient(135deg,#3da859,#1b4d1b)">🧗</div>
+            <div class="fm-content">
+              <div class="fm-user">TomLeGrimpeur</div>
+              <div class="fm-bar b-long"></div>
+              <div class="fm-bar b-medium"></div>
+              <div class="fm-reactions">❤️ 234 &nbsp; 💬 45 &nbsp; <span class="fm-tag">#rando</span></div>
+            </div>
+          </div>
+          <div class="fm-post">
+            <div class="fm-ava" style="background:linear-gradient(135deg,#f29027,#c0720a)">🏕️</div>
+            <div class="fm-content">
+              <div class="fm-user">SaraLaRando</div>
+              <div class="fm-bar b-medium"></div>
+              <div class="fm-bar b-short"></div>
+              <div class="fm-reactions">❤️ 567 &nbsp; 💬 89 &nbsp; <span class="fm-tag">#nature</span></div>
+            </div>
+          </div>
+          <div class="fm-hashtags">
+            <span>#rando</span><span>#camping</span><span>#tunisie</span><span>#nature</span>
+          </div>
+        </div>
+        <div class="fv-stat">1 200 posts · cette semaine</div>
+      </div>
+
+      <div class="feature-copy">
+        <div class="fc-eyebrow">RÉSEAU SOCIAL</div>
+        <h2>Ton fil, tes aventures,<br>ta communauté.</h2>
+        <p>
+          Publiez vos sorties, vos découvertes, vos conseils.
+          Explorez ce que partagent 25 000 campeurs comme vous.
+          Likez, commentez, suivez les passionnés qui vous inspirent.
+        </p>
+        <ul class="fc-perks">
+          <li>📸 Partage de photos et de posts</li>
+          <li>🔥 Hashtags et contenus tendance</li>
+          <li>👤 Profil campeur personnalisé</li>
+        </ul>
+        <a routerLink="/login" class="fc-cta green">Accéder au fil communauté →</a>
+      </div>
+    </div>
+
+    <!-- Avis Campeurs -->
+    <div class="feature-row reverse">
+      <div class="feature-visual fv-orange">
+        <div class="fv-label">⭐ Avis Campeurs</div>
+        <div class="fv-mockup">
+          <div class="fm-rating-card">
+            <div class="frc-name">🏕️ Camping Ain Draham</div>
+            <div class="frc-stars">★★★★★ <span>4.9</span></div>
+            <div class="frc-bars">
+              <div class="frb-row"><span>5★</span><div class="frb-bar" style="width:85%"></div><span>68</span></div>
+              <div class="frb-row"><span>4★</span><div class="frb-bar" style="width:55%;opacity:.7"></div><span>18</span></div>
+              <div class="frb-row"><span>3★</span><div class="frb-bar" style="width:20%;opacity:.4"></div><span>5</span></div>
+            </div>
+          </div>
+          <div class="fm-avis-preview">
+            <div class="fm-ava" style="background:linear-gradient(135deg,#1f73a3,#155a82)">🌿</div>
+            <div class="fm-content">
+              <div class="fm-user">NatureAndChill</div>
+              <div class="fm-bar b-long"></div>
+              <div class="fm-bar b-medium"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fv-stat">340 spots notés · 4.8★ moyen</div>
+      </div>
+
+      <div class="feature-copy">
+        <div class="fc-eyebrow">AVIS CAMPEURS</div>
+        <h2>Les vrais avis des<br>vrais campeurs.</h2>
+        <p>
+          Pas des algorithmes, pas des bots.
+          Juste vos expériences authentiques sur les spots de Tunisie.
+          Avant de partir, lisez ce que la communauté en dit vraiment.
+        </p>
+        <ul class="fc-perks">
+          <li>⭐ Notes et avis vérifiés</li>
+          <li>📍 340+ spots référencés en Tunisie</li>
+          <li>✍️ Déposez votre propre avis</li>
+        </ul>
+        <a routerLink="/login" class="fc-cta orange">Découvrir les avis →</a>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="feature-row">
+      <div class="feature-visual fv-blue">
+        <div class="fv-label">💬 Messages</div>
+        <div class="fv-mockup">
+          <div class="fm-chat">
+            <div class="fmc-msg left">
+              <div class="fmc-ava">🧗</div>
+              <div class="fmc-bubble left">On campe ce week-end ? ⛺</div>
+            </div>
+            <div class="fmc-msg right">
+              <div class="fmc-bubble right">Oui ! Ain Draham ou Zaghouan ?</div>
+              <div class="fmc-ava">🏕️</div>
+            </div>
+            <div class="fmc-msg left">
+              <div class="fmc-ava">🧗</div>
+              <div class="fmc-bubble left">Les deux ! J'organise le groupe 🔥</div>
+            </div>
+            <div class="fmc-online">🟢 3 membres en ligne</div>
+          </div>
+        </div>
+        <div class="fv-stat">8 500+ messages · ce mois</div>
+      </div>
+
+      <div class="feature-copy">
+        <div class="fc-eyebrow">MESSAGERIE</div>
+        <h2>Ton prochain équipier<br>est ici.</h2>
+        <p>
+          Planifiez ensemble. Partagez des astuces.
+          Formez des groupes de rando. Ne partez plus jamais seul
+          dans la nature quand une communauté entière peut vous accompagner.
+        </p>
+        <ul class="fc-perks">
+          <li>💬 Conversations privées 1-à-1</li>
+          <li>🎤 Messages vocaux et audio</li>
+          <li>📎 Partage de photos et fichiers</li>
+        </ul>
+        <a routerLink="/login" class="fc-cta blue">Ouvrir ma messagerie →</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════ SOCIAL PROOF ══════════════════════ -->
+<section class="proof-section">
+  <div class="showcase-wrap">
+    <div class="proof-grid">
+      <div class="proof-big">
+        <div class="pb-num">25 000+</div>
+        <div class="pb-label">campeurs nous font confiance</div>
+        <div class="pb-avatars">
+          <span>🧗</span><span>🏕️</span><span>🌿</span><span>🔥</span>
+          <span>⛺</span><span>🏔️</span><span>🎒</span><span>🌲</span>
+        </div>
+      </div>
+      <div class="proof-stats">
+        <div class="ps-item">
+          <strong>48 000+</strong>
+          <span>Posts partagés</span>
+        </div>
+        <div class="ps-item">
+          <strong>340+</strong>
+          <span>Spots notés</span>
+        </div>
+        <div class="ps-item">
+          <strong>8 500+</strong>
+          <span>Messages / mois</span>
+        </div>
+        <div class="ps-item">
+          <strong>4.8★</strong>
+          <span>Satisfaction</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ TÉMOIGNAGES ══════════════════════ -->
+<section class="testi-section">
+  <div class="showcase-wrap">
+    <div class="testi-hd">
+      <span class="eyebrow-tag">ILS EN PARLENT</span>
+      <h2>La communauté parle<br>d'elle-même</h2>
+    </div>
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="tq">❝</div>
+        <p>"Grâce aux avis de la communauté, j'ai découvert des spots que je n'aurais jamais trouvés seul. Le réseau social campeur par excellence !"</p>
+        <div class="testi-author">
+          <span class="tav" style="background:linear-gradient(135deg,#3da859,#1b4d1b)">🧗</span>
+          <div><strong>TomLeGrimpeur</strong><span>Campeur depuis 3 ans · Tunis</span></div>
+        </div>
+      </div>
+      <div class="testi-card testi-featured">
+        <div class="tq">❝</div>
+        <p>"J'ai posté ma première photo, et en 10 minutes j'avais 50 commentaires de campeurs qui connaissaient le spot. Cette communauté c'est incroyable !"</p>
+        <div class="testi-author">
+          <span class="tav" style="background:linear-gradient(135deg,#f29027,#c0720a)">🏕️</span>
+          <div><strong>SaraLaRando</strong><span>Randonneuse · Sfax</span></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="tq">❝</div>
+        <p>"Les messages, c'est là où tout se passe vraiment. On a monté un groupe de 12 pour Ain Draham en une conversation. Je reviens chaque semaine !"</p>
+        <div class="testi-author">
+          <span class="tav" style="background:linear-gradient(135deg,#1f73a3,#155a82)">🌿</span>
+          <div><strong>NatureAndChill</strong><span>Photographe nature · Bizerte</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ CTA FINAL ══════════════════════ -->
+<section class="cta-final">
+  <div class="cta-bg-text" aria-hidden="true">CAMPINO</div>
+  <div class="cta-inner">
+    <div class="cta-badge">
+      <span class="live-dot"></span> 240 campeurs actifs en ce moment
+    </div>
+    <h2>Rejoignez la tribu.<br><em>Maintenant.</em></h2>
+    <p>Inscription gratuite · Accès immédiat · Aucune carte requise</p>
+    <div class="cta-btns">
+      <a routerLink="/signup" class="cta-btn-main">
+        Créer mon compte gratuitement
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a routerLink="/login" class="cta-btn-sec">J'ai déjà un compte</a>
+    </div>
+    <div class="cta-modules">
+      <span>📱 Réseau Social</span>
+      <span class="cta-sep">+</span>
+      <span>⭐ Avis Campeurs</span>
+      <span class="cta-sep">+</span>
+      <span>💬 Messagerie</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="fg-brand">
+      <a routerLink="/" class="logo" style="text-decoration:none;">
+        <div class="logo-icon" style="width:40px;height:40px;">
+          <svg viewBox="0 0 46 46">
+            <rect width="46" height="46" rx="10" fill="#1b2a4a"/>
+            <polygon points="3,34 10,20 17,34" fill="#1b4d1b"/>
+            <polygon points="13,34 23,15 33,34" fill="#1b4d1b"/>
+            <polygon points="15,34 23,17 31,34" fill="#2e7d32"/>
+            <polygon points="20,34 23,25 26,34" fill="#e53935"/>
+            <rect x="0" y="34" width="46" height="4" fill="#2e7d32"/>
+            <rect x="0" y="40" width="12" height="6" fill="#e53935"/>
+            <rect x="12" y="40" width="11" height="6" fill="#F5C842"/>
+            <rect x="23" y="40" width="11" height="6" fill="#2e7d32"/>
+            <rect x="34" y="40" width="12" height="6" fill="#1b2a4a"/>
+          </svg>
+        </div>
+        <span class="logo-name" style="color:#fff;">CAMPI<span style="color:#3da859;">NO</span></span>
+      </a>
+      <p>La première plateforme communautaire de camping en Tunisie.</p>
+      <div class="socials">
+        <a href="https://instagram.com" target="_blank" class="soc">📸</a>
+        <a href="https://facebook.com" target="_blank" class="soc">👥</a>
+        <a href="https://twitter.com" target="_blank" class="soc">🐦</a>
+        <a href="https://youtube.com" target="_blank" class="soc">▶️</a>
+      </div>
+    </div>
+    <div class="fg-col">
+      <h5>COMMUNAUTÉ</h5>
+      <a routerLink="/login">Fil communauté</a>
+      <a routerLink="/login">Avis campeurs</a>
+      <a routerLink="/login">Messages</a>
+      <a routerLink="/profile">Mon profil</a>
+    </div>
+    <div class="fg-col">
+      <h5>PLATEFORME</h5>
+      <a routerLink="/Campino">Accueil</a>
+      <a routerLink="/marketplace">Matériel</a>
+      <a routerLink="/events/list">Événements</a>
+      <a routerLink="/activities/list">Activités</a>
+    </div>
+    <div class="fg-col fg-contact">
+      <h5>CONTACT</h5>
+      <p>📧 contact&#64;campino.tn</p>
+      <p>📞 +216 71 000 000</p>
+      <p>📍 Tunis, Tunisie</p>
+    </div>
+  </div>
+  <div class="footer-bar">
+    <p>© 2026 CAMPINO. Tous droits réservés.</p>
+    <div class="color-strip">
+      <div class="cs" style="background:#3da859;"></div>
+      <div class="cs" style="background:#1f73a3;"></div>
+      <div class="cs" style="background:#f5e642;"></div>
+      <div class="cs" style="background:#f29027;"></div>
+      <div class="cs" style="background:#e02f2f;"></div>
+    </div>
+    <p><a routerLink="/cgu" style="color:rgba(255,255,255,0.25);text-decoration:none;">CGU</a> · <a routerLink="/privacy" style="color:rgba(255,255,255,0.25);text-decoration:none;">Confidentialité</a></p>
+  </div>
+</footer>

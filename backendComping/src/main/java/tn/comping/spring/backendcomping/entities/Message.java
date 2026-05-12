@@ -24,7 +24,9 @@ public class Message {
     private String contenu;
     private String typeMessage; // TEXT, IMAGE, etc.
     
+    @Builder.Default
     private boolean lu = false;
+    @Builder.Default
     private boolean supprime = false;
     
     private Date dateCreation;

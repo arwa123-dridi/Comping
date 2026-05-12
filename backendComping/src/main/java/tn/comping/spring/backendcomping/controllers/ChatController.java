@@ -10,14 +10,12 @@ import tn.comping.spring.backendcomping.dto.*;
 import tn.comping.spring.backendcomping.services.ChatService;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;
-
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -26,9 +24,9 @@ import java.util.List;
 public class ChatController {
 
     private final ChatService chatService;
-    
     private static final String UPLOAD_DIR = "./uploads/voice";
 
+    // === CONVERSATIONS ===
     @GetMapping("/conversations")
     public ResponseEntity<List<ConversationResponseDTO>> getConversations(Authentication auth) {
         return ResponseEntity.ok(chatService.getUserConversations(auth.getName()));
@@ -41,6 +39,31 @@ public class ChatController {
         return ResponseEntity.ok(chatService.getOrCreateConversation(auth.getName(), dto));
     }
 
+    // === GROUPES ===
+    @PostMapping("/group")
+    public ResponseEntity<ConversationResponseDTO> createGroup(
+            @RequestBody GroupConversationRequestDTO dto,
+            Authentication auth) {
+        return ResponseEntity.ok(chatService.createGroupConversation(auth.getName(), dto));
+    }
+
+    @PostMapping("/group/{conversationId}/add")
+    public ResponseEntity<ConversationResponseDTO> addParticipant(
+            @PathVariable String conversationId,
+            @RequestParam String participantId,
+            Authentication auth) {
+        return ResponseEntity.ok(chatService.addParticipantToGroup(conversationId, auth.getName(), participantId));
+    }
+
+    @PostMapping("/group/{conversationId}/remove")
+    public ResponseEntity<ConversationResponseDTO> removeParticipant(
+            @PathVariable String conversationId,
+            @RequestParam String participantId,
+            Authentication auth) {
+        return ResponseEntity.ok(chatService.removeParticipantFromGroup(conversationId, auth.getName(), participantId));
+    }
+
+    // === MESSAGES ===
     @GetMapping("/messages/{conversationId}")
     public ResponseEntity<List<MessageResponseDTO>> getMessages(
             @PathVariable String conversationId,
@@ -57,33 +80,38 @@ public class ChatController {
         return ResponseEntity.ok(chatService.sendMessage(auth.getName(), dto));
     }
 
-    // === NOUVEAUX ENDPOINTS ===
-    
+    @PutMapping("/messages/{conversationId}/read")
+    public ResponseEntity<Void> markAsRead(
+            @PathVariable String conversationId,
+            Authentication auth) {
+        chatService.markAsRead(conversationId, auth.getName());
+        return ResponseEntity.noContent().build();
+    }
+
+    // === VOICE MESSAGES ===
     @PostMapping(value = "/voice", consumes = "multipart/form-data")
     public ResponseEntity<MessageResponseDTO> sendVoiceMessage(
             @RequestParam("audio") MultipartFile audio,
             @RequestParam("conversationId") String conversationId,
             Authentication auth) {
         try {
-            String userId = auth.getName();
             String transcription = chatService.transcribeVoice(audio.getBytes());
-            
-            // Save audio file (uploads/voice/)
             String audioUrl = saveAudioFile(audio);
-            
-            MessageRequestDTO voiceDto = new MessageRequestDTO();
-            voiceDto.setConversationId(conversationId);
-            voiceDto.setContenu(audioUrl);
-            voiceDto.setTypeMessage("VOICE");
-            voiceDto.setTranscription(transcription);
-            
-            MessageResponseDTO voiceMsg = chatService.sendMessage(userId, voiceDto);
-            return ResponseEntity.ok(voiceMsg);
+
+            MessageRequestDTO voiceDto = MessageRequestDTO.builder()
+                    .conversationId(conversationId)
+                    .contenu(audioUrl)
+                    .typeMessage("VOICE")
+                    .transcription(transcription)
+                    .build();
+
+            return ResponseEntity.ok(chatService.sendMessage(auth.getName(), voiceDto));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
-    
+
+    // === VIDEO/AUDIO CALLS ===
     @PostMapping("/call/{conversationId}/signal")
     public ResponseEntity<Void> sendCallSignal(
             @PathVariable String conversationId,
@@ -94,42 +122,25 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/messages/{conversationId}/read")
-    public ResponseEntity<Void> markAsRead(
-            @PathVariable String conversationId,
-            Authentication auth) {
-        chatService.markAsRead(conversationId, auth.getName());
-        return ResponseEntity.noContent().build();
-    }
-    
+    // === STATUT UTILISATEUR ===
     @GetMapping("/status/{userId}")
-    public ResponseEntity<Boolean> getUserStatus(@PathVariable String userId) {
-        return ResponseEntity.ok(chatService.isUserOnline(userId));
+    public ResponseEntity<UserStatusDTO> getUserStatus(@PathVariable String userId) {
+        return ResponseEntity.ok(chatService.getUserStatus(userId));
     }
 
-    private String getUserIdFromAuth(Authentication auth) {
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new RuntimeException("Utilisateur non authentifié");
-        }
-        // Utilise auth.getName() (JWT subject = userId ou email)
-        return auth.getName();
+    @GetMapping("/online")
+    public ResponseEntity<List<UserStatusDTO>> getOnlineUsers() {
+        return ResponseEntity.ok(chatService.getOnlineUsers());
     }
-    
-    private String saveAudioFile(MultipartFile audio) throws IOException {
-        // Créer dossier si n'existe pas
+
+    // === HELPER ===
+    private String saveAudioFile(MultipartFile audio) throws Exception {
         File uploadDirFile = new File(UPLOAD_DIR);
-        if (!uploadDirFile.exists()) {
-            uploadDirFile.mkdirs();
-        }
-        
-        // UUID + extension .wav (Vosk attend 16kHz mono WAV)
+        if (!uploadDirFile.exists()) uploadDirFile.mkdirs();
+
         String fileName = UUID.randomUUID() + ".wav";
         Path filePath = Paths.get(UPLOAD_DIR, fileName);
-        
-        // Copy fichier
         Files.copy(audio.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-        
         return "/uploads/voice/" + fileName;
     }
-
 }

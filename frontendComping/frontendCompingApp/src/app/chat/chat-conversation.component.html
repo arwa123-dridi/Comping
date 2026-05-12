@@ -1,0 +1,193 @@
+<section class="conversation-page">
+
+  <!-- ===== HEADER ===== -->
+  <header class="conversation-top">
+    <button class="back-btn" type="button" (click)="back()" title="Retour">
+      <span>‹</span>
+    </button>
+
+    <div class="conversation-info">
+      <div class="avatar" [class.avatar-group]="conversation?.groupe">
+        <span class="presence-dot" [class.online]="otherOnline" *ngIf="conversation && !conversation.groupe"></span>
+        <span *ngIf="!conversation?.groupe">{{ getOtherInitials() }}</span>
+        <span *ngIf="conversation?.groupe">👥</span>
+      </div>
+      <div>
+        <h1>{{ getOtherName() || 'Conversation' }}</h1>
+        <span class="status" *ngIf="conversation && !conversation.groupe">
+          <span class="status-dot" [class.online]="otherOnline"></span>
+          {{ otherOnline ? 'En ligne' : 'Hors ligne' }}
+        </span>
+        <span class="status" *ngIf="conversation?.groupe">
+          {{ conversation?.participantIds?.length || 0 }} participants
+        </span>
+      </div>
+    </div>
+
+    <div class="conversation-actions">
+      <span class="realtime-pill" [class.online]="realtimeConnected">
+        <span class="pulse-dot"></span>
+        {{ realtimeConnected ? 'Temps réel' : 'Connexion...' }}
+      </span>
+      <button class="call-btn audio-call" type="button"
+              (click)="startCall('AUDIO')"
+              [disabled]="callActive"
+              title="Appel audio">
+        📞
+      </button>
+      <button class="call-btn video-call" type="button"
+              (click)="startCall('VIDEO')"
+              [disabled]="callActive"
+              title="Appel vidéo">
+        📹
+      </button>
+      <button class="icon-btn" type="button" (click)="loadMessages()" title="Actualiser">↻</button>
+    </div>
+  </header>
+
+  <!-- ===== STATUS NOTIFICATIONS ===== -->
+  <div class="status-banner" *ngIf="success">
+    {{ success }}
+  </div>
+
+  <div class="alert error" *ngIf="error">{{ error }}</div>
+
+  <!-- ===== INCOMING CALL ===== -->
+  <section class="incoming-call-banner" *ngIf="incomingCall">
+    <div class="ringer-pulse">
+      <span class="call-icon">{{ callType === 'AUDIO' ? '📞' : '📹' }}</span>
+    </div>
+    <div class="call-info">
+      <strong>{{ callerName || 'Inconnu' }}</strong>
+      <span>Appel {{ callType === 'AUDIO' ? 'audio' : 'vidéo' }} entrant...</span>
+    </div>
+    <div class="call-actions">
+      <button class="accept-call" (click)="acceptCall()" title="Accepter">✓</button>
+      <button class="reject-call" (click)="endCall()" title="Refuser">✕</button>
+    </div>
+  </section>
+
+  <!-- ===== VIDEO CALL OVERLAY ===== -->
+  <section class="video-call-overlay" *ngIf="callActive && !incomingCall">
+    <div class="call-header">
+      <span class="call-status">
+        <span class="pulse-red"></span>
+        Appel {{ callType === 'AUDIO' ? 'audio' : 'vidéo' }} en cours · {{ getOtherName() }}
+      </span>
+    </div>
+
+    <div class="video-grid">
+      <div class="video-tile" *ngIf="webrtc.callState.remoteStream">
+        <video [srcObject]="webrtc.callState.remoteStream" autoplay playsinline></video>
+        <div class="video-name">{{ getOtherName() }}</div>
+      </div>
+      <div class="video-tile remote-empty" *ngIf="!webrtc.callState.remoteStream">
+        <div class="big-avatar">{{ getOtherInitials() }}</div>
+        <div class="video-name">{{ getOtherName() }}</div>
+        <div class="connecting">Connexion en cours...</div>
+      </div>
+
+      <div class="video-tile self" *ngIf="callType === 'VIDEO'">
+        <video [srcObject]="webrtc.callState.localStream" autoplay playsinline muted></video>
+        <div class="video-name">Vous</div>
+      </div>
+    </div>
+
+    <div class="call-controls">
+      <button class="ctrl-btn" (click)="toggleMute()" title="Couper micro">🎤</button>
+      <button class="ctrl-btn" (click)="toggleVideo()" *ngIf="callType === 'VIDEO'" title="Couper caméra">📹</button>
+      <button class="ctrl-btn end-call" (click)="endCall()" title="Raccrocher">📞</button>
+    </div>
+  </section>
+
+  <!-- ===== MESSAGES ===== -->
+  <main class="messages-panel" #messagesPanel [class.dimmed]="callActive">
+    <ng-container *ngFor="let message of messages; let i = index">
+      <!-- Date separator -->
+      <div class="date-separator" *ngIf="shouldShowDateSeparator(i)">
+        <span>{{ formatDateSeparator(message.dateCreation) }}</span>
+      </div>
+
+      <!-- Call message -->
+      <div class="call-event-message" *ngIf="isCallMessage(message)">
+        <span class="call-event-icon">{{ message.typeMessage.includes('AUDIO') ? '📞' : '📹' }}</span>
+        <span>{{ message.expediteurNom }} · {{ formatCallMessage(message) }}</span>
+        <span class="call-event-time">{{ formatTime(message.dateCreation) }}</span>
+      </div>
+
+      <!-- Regular message -->
+      <article class="message-row" *ngIf="!isCallMessage(message)" [class.mine]="isMine(message)">
+        <div class="msg-avatar" *ngIf="!isMine(message)">{{ getMessageInitials(message) }}</div>
+        <div class="message-content">
+          <strong class="sender-name" *ngIf="conversation?.groupe && !isMine(message)">{{ message.expediteurNom }}</strong>
+
+          <div class="bubble" [class.mine]="isMine(message)" [class.voice-bubble]="message.typeMessage === 'VOICE'">
+            <!-- Voice message -->
+            <audio *ngIf="message.typeMessage === 'VOICE'"
+                   controls
+                   [src]="getAudioUrl(message)"
+                   preload="metadata"></audio>
+
+            <!-- Text message -->
+            <p *ngIf="message.typeMessage !== 'VOICE'">{{ message.contenu }}</p>
+
+            <!-- Transcription IA -->
+            <div class="transcription" *ngIf="message.transcription">
+              <span class="ai-badge">🤖 Transcription IA</span>
+              <em>{{ message.transcription }}</em>
+            </div>
+          </div>
+
+          <small class="msg-time">
+            {{ formatTime(message.dateCreation) }}
+            <span class="msg-status" *ngIf="isMine(message)">{{ message.lu ? '✓✓' : '✓' }}</span>
+          </small>
+        </div>
+      </article>
+    </ng-container>
+
+    <div class="empty-conv" *ngIf="!loading && messages.length === 0">
+      <div class="empty-icon">💬</div>
+      <h3>Démarrez la conversation</h3>
+      <p>Envoyez votre premier message à {{ getOtherName() }}</p>
+    </div>
+  </main>
+
+  <!-- ===== RECORDING BANNER ===== -->
+  <div class="recording-banner" *ngIf="recording">
+    <span class="rec-dot"></span>
+    Enregistrement... {{ formatDuration(recordingDuration) }}
+    <button class="cancel-rec" (click)="cancelRecording()">Annuler</button>
+    <button class="send-rec" (click)="stopRecording()">Envoyer</button>
+  </div>
+
+  <!-- ===== COMPOSER ===== -->
+  <footer class="message-composer" *ngIf="!recording">
+    <button class="icon-action" type="button" title="Pièce jointe">📎</button>
+
+    <input class="message-input"
+           [(ngModel)]="newMessage"
+           (keyup.enter)="sendMessage()"
+           placeholder="Écrire un message..."
+           [disabled]="sending" />
+
+    <label class="icon-action voice-upload" title="Importer un audio">
+      🎵
+      <input type="file" accept="audio/*" (change)="sendVoiceFile($event)" [disabled]="sendingVoice" hidden />
+    </label>
+
+    <button class="icon-action voice-btn" type="button"
+            (click)="toggleRecording()"
+            [class.recording]="recording"
+            [disabled]="sendingVoice"
+            title="Enregistrer vocal">
+      🎤
+    </button>
+
+    <button class="send-btn" type="button"
+            (click)="sendMessage()"
+            [disabled]="sending || !newMessage.trim()">
+      ➤
+    </button>
+  </footer>
+</section>

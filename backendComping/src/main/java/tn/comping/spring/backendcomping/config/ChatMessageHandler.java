@@ -25,6 +25,7 @@ public class ChatMessageHandler {
                 .id("ws-" + System.currentTimeMillis())
                 .contenu(message.getContenu())
                 .conversationId(message.getConversationId())
+                .expediteurId("websocket")
                 .expediteurNom("WebSocket User")
                 .dateCreation(new Date())
                 .build();

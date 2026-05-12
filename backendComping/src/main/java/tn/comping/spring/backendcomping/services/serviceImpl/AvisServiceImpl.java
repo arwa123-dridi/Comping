@@ -60,7 +60,7 @@ public class AvisServiceImpl implements AvisService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Avis non trouve"));
 
         AvisResponseDTO dto = mapToResponseDTO(avis);
-        dto.setEnfants(buildEnfantsRecursif(id));
+        dto.setEnfants(buildEnfantsRecursif(id, true));
         return dto;
     }
 
@@ -71,7 +71,7 @@ public class AvisServiceImpl implements AvisService {
                 cibleId, typeCible, true);
 
         return racines.stream()
-                .map(this::mapToResponseDTOWithEnfants)
+                .map(this::mapToResponseDTOWithEnfantsValides)
                 .collect(Collectors.toList());
     }
 
@@ -108,10 +108,18 @@ public class AvisServiceImpl implements AvisService {
         }
 
         String newParentId = dto.getParentAvisId();
-        if (newParentId != null && !newParentId.isEmpty() && !newParentId.equals(id)) {
-            avisRepository.findById(newParentId)
+        if (newParentId != null && !newParentId.isEmpty()) {
+            if (newParentId.equals(id) || isDescendantOf(newParentId, id)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Un avis ne peut pas devenir son propre parent");
+            }
+            Avis parent = avisRepository.findById(newParentId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Avis parent non trouve"));
+            if (!parent.getCibleId().equals(dto.getCibleId()) || parent.getTypeCible() != dto.getTypeCible()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La reponse doit concerner la meme cible que l'avis parent");
+            }
             avis.setParentAvisId(newParentId);
+        } else {
+            avis.setParentAvisId(null);
         }
 
         AvisMapper.updateEntityFromDTO(avis, dto);
@@ -215,24 +223,35 @@ public class AvisServiceImpl implements AvisService {
         return AvisMapper.toResponseDTO(avis, utilisateurNom);
     }
 
-    private AvisResponseDTO mapToResponseDTOWithEnfants(Avis avis) {
+    private AvisResponseDTO mapToResponseDTOWithEnfantsValides(Avis avis) {
         AvisResponseDTO dto = mapToResponseDTO(avis);
-        dto.setEnfants(buildEnfantsRecursif(avis.getId()));
+        dto.setEnfants(buildEnfantsRecursif(avis.getId(), false));
         return dto;
     }
 
-    private List<AvisResponseDTO> buildEnfantsRecursif(String parentAvisId) {
+    private List<AvisResponseDTO> buildEnfantsRecursif(String parentAvisId, boolean includeNonValides) {
         List<Avis> enfants = avisRepository.findByParentAvisIdOrderByDatePublicationDesc(parentAvisId);
         if (enfants.isEmpty()) {
             return new ArrayList<>();
         }
         return enfants.stream()
+                .filter(e -> includeNonValides || e.isValide())
                 .map(e -> {
                     AvisResponseDTO dto = mapToResponseDTO(e);
-                    dto.setEnfants(buildEnfantsRecursif(e.getId()));
+                    dto.setEnfants(buildEnfantsRecursif(e.getId(), includeNonValides));
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    private boolean isDescendantOf(String possibleChildId, String parentId) {
+        List<Avis> enfants = avisRepository.findByParentAvisIdOrderByDatePublicationDesc(parentId);
+        for (Avis enfant : enfants) {
+            if (enfant.getId().equals(possibleChildId) || isDescendantOf(possibleChildId, enfant.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void deleteEnfantsRecursif(String parentAvisId) {

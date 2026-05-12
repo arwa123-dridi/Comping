@@ -1,0 +1,261 @@
+<section class="campino-social-shell">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="community-sidebar">
+    <a routerLink="/Campino" class="brand">
+      <span class="brand-mark">C</span>
+      <span>CAMPI<strong>NO</strong></span>
+    </a>
+    <nav>
+      <a routerLink="/community" routerLinkActive="active">
+        <span class="nav-icon">🏠</span> Fil communauté
+      </a>
+      <a routerLink="/reviews" routerLinkActive="active">
+        <span class="nav-icon">⭐</span> Avis campeurs
+      </a>
+      <a routerLink="/messages" routerLinkActive="active">
+        <span class="nav-icon">💬</span> Messages
+      </a>
+      <a routerLink="/profile">
+        <span class="nav-icon">👤</span> Mon profil
+      </a>
+    </nav>
+    <div class="sidebar-note">
+      <strong>🌲 Vivez le camping</strong>
+      <span>Partagez, échangez et créez des souvenirs avec la communauté.</span>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="social-main">
+    <header class="social-topbar">
+      <div>
+        <span class="eyebrow">Réseau social</span>
+        <h1>Fil communauté</h1>
+      </div>
+      <button class="soft-btn" type="button" (click)="loadFeed()">
+        <span>↻</span> Actualiser
+      </button>
+    </header>
+
+    <div class="alerts">
+      <div class="alert error" *ngIf="error">{{ error }}</div>
+      <div class="alert success" *ngIf="success">{{ success }}</div>
+    </div>
+
+    <!-- Composer -->
+    <section class="composer-card">
+      <div class="composer-head">
+        <div class="avatar avatar-me">{{ initials(community.getCurrentEmail()) }}</div>
+        <textarea rows="3" [(ngModel)]="newPost"
+                  placeholder="Que partagez-vous aujourd'hui ? Utilisez #hashtags pour atteindre la communauté"></textarea>
+      </div>
+      <div class="composer-actions">
+        <input [(ngModel)]="imageDraft" placeholder="🖼️ URLs d'images (séparées par virgules)" />
+        <select [(ngModel)]="visibilite">
+          <option value="PUBLIC">🌍 Public</option>
+          <option value="AMIS">👥 Amis</option>
+          <option value="PRIVE">🔒 Privé</option>
+        </select>
+        <button class="primary-action" type="button" (click)="publish()" [disabled]="saving">
+          {{ saving ? 'Publication...' : 'Publier' }}
+        </button>
+      </div>
+    </section>
+
+    <!-- Tabs feed -->
+    <section class="feed-tabs">
+      <button [class.active]="feedMode === 'tendances'" (click)="setFeedMode('tendances')">
+        <span>🔥</span> Tendances IA
+      </button>
+      <button [class.active]="feedMode === 'recents'" (click)="setFeedMode('recents')">
+        <span>🕐</span> Récents
+      </button>
+      <button [class.active]="feedMode === 'amis'" (click)="setFeedMode('amis')">
+        <span>👥</span> Mes amis
+      </button>
+    </section>
+
+    <!-- Search bar -->
+    <section class="feed-toolbar">
+      <input [(ngModel)]="search" placeholder="🔍 Rechercher publication, auteur, hashtag..." />
+      <span class="count">{{ filteredPosts.length }} publication{{ filteredPosts.length > 1 ? 's' : '' }}</span>
+    </section>
+
+    <!-- Selected hashtag indicator -->
+    <div class="hashtag-banner" *ngIf="selectedHashtag">
+      Publications avec #{{ selectedHashtag }}
+      <button (click)="loadFeed()">✕</button>
+    </div>
+
+    <!-- Posts list -->
+    <article class="post-card" *ngFor="let post of filteredPosts" (click)="openPost(post)">
+      <header class="post-head">
+        <div class="author" (click)="openUserPosts(post, $event)" title="Voir les posts de {{ post.auteurNom }}">
+          <div class="avatar" [class.with-photo]="post.auteurPhoto">
+            <img *ngIf="post.auteurPhoto" [src]="post.auteurPhoto" alt="" />
+            <span *ngIf="!post.auteurPhoto">{{ initials(post.auteurNom) }}</span>
+          </div>
+          <div>
+            <strong class="author-link">{{ post.auteurNom || 'Utilisateur' }}</strong>
+            <span>{{ timeAgo(post.datePublication) }} · {{ post.visibilite === 'PUBLIC' ? '🌍' : (post.visibilite === 'AMIS' ? '👥' : '🔒') }}</span>
+          </div>
+        </div>
+        <div class="post-meta-right">
+          <span class="trend-badge" *ngIf="post.trendScore && post.trendScore > 50">🔥 Tendance</span>
+          <ng-container *ngIf="isMyPost(post)">
+            <button class="icon-btn edit-btn" (click)="startEdit(post, $event)" title="Modifier">✏️</button>
+            <button class="icon-btn" (click)="deletePost(post, $event)" title="Supprimer">🗑️</button>
+          </ng-container>
+        </div>
+      </header>
+
+      <!-- Formulaire d'édition inline -->
+      <div class="edit-form" *ngIf="editingPost?.id === post.id" (click)="$event.stopPropagation()">
+        <textarea rows="3" [(ngModel)]="editContent" placeholder="Modifiez votre publication..."></textarea>
+        <div class="edit-form-row">
+          <input [(ngModel)]="editImages" placeholder="🖼️ URLs d'images (séparées par virgules)" />
+          <select [(ngModel)]="editVisibilite">
+            <option value="PUBLIC">🌍 Public</option>
+            <option value="AMIS">👥 Amis</option>
+            <option value="PRIVE">🔒 Privé</option>
+          </select>
+        </div>
+        <div class="edit-form-actions">
+          <button class="cancel-btn" (click)="cancelEdit($event)">Annuler</button>
+          <button class="primary-action" (click)="saveEdit($event)" [disabled]="saving_edit">
+            {{ saving_edit ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+        </div>
+      </div>
+
+      <p class="post-content" *ngIf="editingPost?.id !== post.id" [innerHTML]="post.contenu"></p>
+
+      <div class="hashtag-pills" *ngIf="post.hashtags && post.hashtags.length > 0">
+        <span *ngFor="let h of post.hashtags" class="hashtag-pill" (click)="$event.stopPropagation(); loadByHashtag(h)">
+          #{{ h }}
+        </span>
+      </div>
+
+      <div class="image-strip" *ngIf="post.images && post.images.length > 0">
+        <img *ngFor="let image of post.images" [src]="image" alt="Photo post" />
+      </div>
+
+      <!-- Reactions summary -->
+      <div class="reactions-summary" *ngIf="totalReactions(post) > 0">
+        <span class="reaction-bubble" *ngFor="let r of reactionsList(post)">
+          {{ r.emoji }} {{ r.count }}
+        </span>
+        <span class="comments-count">💬 {{ post.commentairesCount }}</span>
+      </div>
+
+      <!-- Actions bar -->
+      <footer class="post-actions">
+        <div class="reaction-trigger" (click)="toggleReactionPicker(post, $event)">
+          <button class="action-btn" [class.active]="!!post.myReaction">
+            {{ post.myReaction || '👍' }} {{ post.myReaction ? 'Aimé' : 'Aimer' }}
+          </button>
+          <div class="reaction-picker" *ngIf="reactionPickerOpenFor === post.id">
+            <button *ngFor="let emoji of availableReactions"
+                    class="picker-emoji"
+                    [class.selected]="post.myReaction === emoji"
+                    (click)="toggleReaction(post, emoji, $event)">
+              {{ emoji }}
+            </button>
+          </div>
+        </div>
+        <button class="action-btn" (click)="openPost(post); $event.stopPropagation()">
+          💬 Commenter
+        </button>
+        <button class="action-btn" (click)="startChat(post, $event)">
+          ✉️ Message
+        </button>
+      </footer>
+    </article>
+
+    <div class="empty-state" *ngIf="!loading && filteredPosts.length === 0">
+      <div class="empty-icon">🏕️</div>
+      <h3>Aucune publication</h3>
+      <p>Soyez le premier à partager une expérience !</p>
+    </div>
+  </main>
+
+  <!-- ===== AI RECOMMENDATION SIDEBAR ===== -->
+  <aside class="context-panel">
+    <article class="ai-card">
+      <header class="ai-header">
+        <span class="ai-icon">✨</span>
+        <div>
+          <h2>IA · Tendances</h2>
+          <small>Sujets populaires</small>
+        </div>
+      </header>
+      <div class="hashtag-cloud">
+        <button *ngFor="let h of trendingHashtags"
+                class="trending-tag"
+                (click)="loadByHashtag(h.tag)">
+          <span class="tag-icon">🔥</span>
+          <span>#{{ h.tag }}</span>
+          <span class="tag-count">{{ h.count }}</span>
+        </button>
+        <p *ngIf="trendingHashtags.length === 0" class="empty-tags">
+          Pas encore de tendance. Lancez la conversation !
+        </p>
+      </div>
+    </article>
+
+    <article class="ai-card">
+      <header class="ai-header">
+        <span class="ai-icon">🧠</span>
+        <div>
+          <h2>Pour vous</h2>
+          <small>Recommandations IA</small>
+        </div>
+      </header>
+      <div class="rec-list">
+        <div class="rec-post" *ngFor="let rec of recommandations" (click)="openPost(rec)">
+          <div class="rec-thumb">
+            <img *ngIf="rec.images && rec.images[0]" [src]="rec.images[0]" alt="" />
+            <span *ngIf="!rec.images || !rec.images[0]">📷</span>
+          </div>
+          <div class="rec-info">
+            <div class="rec-title">{{ rec.contenu | slice:0:50 }}{{ rec.contenu.length > 50 ? '...' : '' }}</div>
+            <div class="rec-meta">{{ rec.auteurNom }} · {{ timeAgo(rec.datePublication) }}</div>
+            <div class="ai-score">
+              <span>{{ ((rec.trendScore || 0) / 2) | number:'1.0-0' }}%</span>
+              <div class="score-bar">
+                <div class="score-fill" [style.width.%]="(rec.trendScore || 0) / 2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p *ngIf="recommandations.length === 0" class="empty-tags">
+          Aucune recommandation pour le moment.
+        </p>
+      </div>
+    </article>
+
+    <article class="ai-card stats-card">
+      <header class="ai-header">
+        <span class="ai-icon">📊</span>
+        <div>
+          <h2>Activité</h2>
+          <small>Aujourd'hui</small>
+        </div>
+      </header>
+      <div class="stat-grid">
+        <div class="stat-cell">
+          <strong>{{ posts.length }}</strong>
+          <span>Posts</span>
+        </div>
+        <div class="stat-cell">
+          <strong>{{ totalLikes }}</strong>
+          <span>Likes</span>
+        </div>
+        <div class="stat-cell">
+          <strong>{{ totalComments }}</strong>
+          <span>Comments</span>
+        </div>
+      </div>
+    </article>
+  </aside>
+</section>

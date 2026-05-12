@@ -8,9 +8,10 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PostRequestDTO {
-    private String avisId; // Optional
+    private String avisId;
     private String cibleType;
     private String cibleId;
     private String contenu;
     private List<String> images;
+    private String visibilite; // PUBLIC, AMIS, PRIVE
 }

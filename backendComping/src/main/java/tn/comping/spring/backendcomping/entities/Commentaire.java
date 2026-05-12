@@ -23,10 +23,13 @@ public class Commentaire {
     private String contenu;
     
     private Date datePublication;
+    @Builder.Default
     private boolean valide = true;
-    
+
+    @Builder.Default
     private int likesCount = 0;
-    
+
     // Pour l'ordre d'affichage
+    @Builder.Default
     private int niveau = 0; // 0=réponse directe, 1=réponse à réponse, etc.
 }

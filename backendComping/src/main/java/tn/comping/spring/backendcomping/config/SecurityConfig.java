@@ -1,7 +1,6 @@
 package tn.comping.spring.backendcomping.config;
 
 import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
@@ -29,6 +28,7 @@ public class SecurityConfig {
                     corsConfig.setAllowedOrigins(List.of("http://localhost:4200"));
                     corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("*"));
+                    corsConfig.setAllowCredentials(true);
                     return corsConfig;
                 }))
                 .csrf(csrf -> csrf.disable())
@@ -39,6 +39,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
+                                "/ws-chat/**",                       // WebSocket endpoint
                                 "/api/demandes-transport/**",
                                 "/api/creneaux-livraison/**",
                                 "/api/incidents/**",
@@ -54,6 +55,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/avis/*/rejeter").hasRole("ADMIN")
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/events/**").authenticated()
+                        .requestMatchers("/api/posts/**").authenticated()
+                        .requestMatchers("/api/chat/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

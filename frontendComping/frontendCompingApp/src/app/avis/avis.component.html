@@ -1,0 +1,267 @@
+<section class="campino-social-shell">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="community-sidebar">
+    <a routerLink="/Campino" class="brand">
+      <span class="brand-mark">C</span>
+      <span>CAMPI<strong>NO</strong></span>
+    </a>
+    <nav>
+      <a routerLink="/community"><span class="nav-icon">🏠</span> Fil communauté</a>
+      <a routerLink="/reviews" routerLinkActive="active"><span class="nav-icon">⭐</span> Avis campeurs</a>
+      <a routerLink="/messages"><span class="nav-icon">💬</span> Messages</a>
+      <a routerLink="/profile"><span class="nav-icon">👤</span> Mon profil</a>
+    </nav>
+
+    <div class="sidebar-note" *ngIf="isAdmin">
+      <strong>👮 Modération</strong>
+      <span>Validez les avis avant qu'ils soient visibles par la communauté.</span>
+    </div>
+    <div class="sidebar-note" *ngIf="!isAdmin">
+      <strong>⭐ Vos avis comptent</strong>
+      <span>Partagez vos expériences et notez les événements et campings.</span>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="social-main">
+    <header class="social-topbar">
+      <div>
+        <span class="eyebrow">Avis</span>
+        <h1>Avis campeurs</h1>
+      </div>
+      <button class="primary-action" (click)="showForm = !showForm">
+        {{ showForm ? '✕ Annuler' : '✍️ Donner mon avis' }}
+      </button>
+    </header>
+
+    <div class="alerts">
+      <div class="alert error" *ngIf="error">{{ error }}</div>
+      <div class="alert success" *ngIf="success">{{ success }}</div>
+    </div>
+
+    <!-- Form -->
+    <section class="composer-card" *ngIf="showForm">
+      <div class="composer-head">
+        <div class="avatar avatar-me">{{ initials(community.getCurrentEmail()) }}</div>
+        <div>
+          <strong>Donner un avis</strong>
+          <span>Votre avis sera vérifié avant d'être publié</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <select [(ngModel)]="newAvis.typeCible">
+          <option value="EVENEMENT">📅 Événement</option>
+          <option value="SITE_CAMPING">🏕️ Site de camping</option>
+          <option value="PRODUIT">🛒 Produit</option>
+          <option value="ACTIVITE">🎯 Activité</option>
+        </select>
+        <input [(ngModel)]="newAvis.cibleId" placeholder="🆔 ID de la cible" />
+      </div>
+
+      <div class="rating-row">
+        <span>Votre note :</span>
+        <div class="star-input">
+          <button type="button"
+                  *ngFor="let s of [1,2,3,4,5]"
+                  [class.active]="newAvis.note >= s"
+                  (click)="setNote(s)">★</button>
+        </div>
+        <span class="note-value">{{ newAvis.note }}/5</span>
+      </div>
+
+      <textarea [(ngModel)]="newAvis.commentaire"
+                rows="3"
+                placeholder="Partagez votre expérience..."></textarea>
+
+      <button class="primary-action" (click)="submitAvis()" [disabled]="saving">
+        {{ saving ? 'Envoi...' : '🚀 Publier mon avis' }}
+      </button>
+    </section>
+
+    <!-- Tabs -->
+    <section class="feed-tabs">
+      <button [class.active]="selectedTab === 'tous'" (click)="setTab('tous')">
+        🌍 Tous les avis
+      </button>
+      <button [class.active]="selectedTab === 'mes-avis'" (click)="setTab('mes-avis')">
+        📝 Mes avis
+      </button>
+      <button *ngIf="isAdmin"
+              [class.active]="selectedTab === 'admin'"
+              (click)="setTab('admin')">
+        ⏳ À modérer
+      </button>
+    </section>
+
+    <!-- Filters for "tous" tab -->
+    <section class="feed-toolbar" *ngIf="selectedTab === 'tous'">
+      <select [(ngModel)]="selectedTargetType" (change)="loadAvis()">
+        <option value="EVENEMENT">📅 Événement</option>
+        <option value="SITE_CAMPING">🏕️ Site</option>
+        <option value="PRODUIT">🛒 Produit</option>
+        <option value="ACTIVITE">🎯 Activité</option>
+      </select>
+      <input [(ngModel)]="cibleId" (change)="loadAvis()" placeholder="🆔 ID Cible..." />
+      <input [(ngModel)]="search" (input)="applyFilters()" placeholder="🔍 Rechercher..." />
+    </section>
+
+    <!-- Status filters -->
+    <section class="status-filters" *ngIf="selectedTab !== 'admin'">
+      <button class="status-chip" [class.active]="selectedStatus === 'TOUS'" (click)="setStatusFilter('TOUS')">
+        Tous
+      </button>
+      <button class="status-chip" [class.active]="selectedStatus === 'VALIDE'" (click)="setStatusFilter('VALIDE')">
+        ✅ Validés
+      </button>
+      <button class="status-chip" [class.active]="selectedStatus === 'EN_ATTENTE'" (click)="setStatusFilter('EN_ATTENTE')">
+        ⏳ En attente
+      </button>
+      <button class="status-chip" [class.active]="selectedStatus === 'REJETE'" (click)="setStatusFilter('REJETE')">
+        ❌ Rejetés
+      </button>
+    </section>
+
+    <!-- Stats card (only when target loaded) -->
+    <section class="stats-banner" *ngIf="stats && selectedTab === 'tous' && cibleId">
+      <div class="stat-main">
+        <div class="big-rating">{{ stats.noteMoyenne | number:'1.1-1' }}</div>
+        <div class="big-rating-stars">
+          <span *ngFor="let s of stars(stats.noteMoyenne)">{{ s }}</span>
+        </div>
+        <div class="stat-total">{{ stats.nombreTotal }} avis</div>
+      </div>
+      <div class="distribution">
+        <div class="dist-row" *ngFor="let d of notesDistribution()">
+          <span class="dist-label">{{ d.note }}★</span>
+          <div class="dist-bar"><div class="dist-fill" [style.width.%]="d.pct"></div></div>
+          <span class="dist-count">{{ d.count }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Reject form -->
+    <section class="reject-form" *ngIf="rejectingId">
+      <h3>❌ Motif du rejet</h3>
+      <textarea [(ngModel)]="rejectMotif" rows="2"
+                placeholder="Expliquez pourquoi cet avis ne peut être publié..."></textarea>
+      <div class="form-actions">
+        <button class="secondary-btn" (click)="cancelReject()">Annuler</button>
+        <button class="danger-btn" (click)="confirmReject()">Confirmer le rejet</button>
+      </div>
+    </section>
+
+    <!-- Avis cards -->
+    <article *ngFor="let a of filteredAvis"
+             class="avis-card"
+             [class.pending]="a.statut === 'EN_ATTENTE'"
+             [class.rejected]="a.statut === 'REJETE'"
+             (click)="detail(a)">
+      <div class="avis-head">
+        <div class="author">
+          <div class="avatar">{{ initials(a.utilisateurNom) }}</div>
+          <div>
+            <strong>{{ a.utilisateurNom || 'Utilisateur' }}</strong>
+            <span>{{ timeAgo(a.datePublication) }} · {{ a.typeCible }}</span>
+          </div>
+        </div>
+        <div class="avis-meta">
+          <span class="status-pill" [class.valide]="a.statut === 'VALIDE'"
+                                    [class.attente]="a.statut === 'EN_ATTENTE'"
+                                    [class.rejete]="a.statut === 'REJETE'">
+            {{ statusLabel[a.statut] }}
+          </span>
+        </div>
+      </div>
+
+      <div class="rating-display">
+        <span class="stars">
+          <span *ngFor="let s of stars(a.note)" [class.active]="s === '★'">{{ s }}</span>
+        </span>
+        <span class="note-text">{{ a.note }}/5</span>
+      </div>
+
+      <p class="avis-comment">{{ a.commentaire }}</p>
+
+      <footer class="avis-actions">
+        <span class="cible-info">🎯 {{ a.cibleId }}</span>
+        <div class="action-buttons">
+          <ng-container *ngIf="isAdmin && a.statut === 'EN_ATTENTE'">
+            <button class="action-btn validate" (click)="validate(a); $event.stopPropagation()">
+              ✅ Valider
+            </button>
+            <button class="action-btn reject" (click)="openReject(a); $event.stopPropagation()">
+              ❌ Rejeter
+            </button>
+          </ng-container>
+          <button class="action-btn message" (click)="contactAuthor(a); $event.stopPropagation()"
+                  *ngIf="a.utilisateurId && a.utilisateurId !== community.getCurrentEmail()">
+            ✉️ Contacter
+          </button>
+        </div>
+      </footer>
+    </article>
+
+    <div class="empty-state" *ngIf="!loading && filteredAvis.length === 0">
+      <div class="empty-icon">⭐</div>
+      <h3>Aucun avis</h3>
+      <p *ngIf="selectedTab === 'tous' && !cibleId">Renseignez un ID de cible pour voir les avis.</p>
+      <p *ngIf="selectedTab === 'tous' && cibleId">Soyez le premier à donner votre avis !</p>
+      <p *ngIf="selectedTab === 'mes-avis'">Vous n'avez pas encore publié d'avis.</p>
+      <p *ngIf="selectedTab === 'admin'">Aucun avis en attente de validation.</p>
+    </div>
+  </main>
+
+  <!-- ===== STATS PANEL ===== -->
+  <aside class="context-panel">
+    <article class="ai-card">
+      <header class="ai-header">
+        <span class="ai-icon">📋</span>
+        <div>
+          <h2>Workflow</h2>
+          <small>Étapes de validation</small>
+        </div>
+      </header>
+      <div class="workflow">
+        <div class="step">
+          <span class="step-num">1</span>
+          <div>
+            <strong>Soumission</strong>
+            <small>Vous publiez votre avis</small>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <div>
+            <strong>Modération</strong>
+            <small>Un admin vérifie le contenu</small>
+          </div>
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          <div>
+            <strong>Publication</strong>
+            <small>Votre avis devient visible</small>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="ai-card">
+      <header class="ai-header">
+        <span class="ai-icon">💡</span>
+        <div>
+          <h2>Conseils</h2>
+          <small>Pour un bon avis</small>
+        </div>
+      </header>
+      <ul class="tips">
+        <li>✅ Soyez précis et factuel</li>
+        <li>✅ Respectez les autres campeurs</li>
+        <li>✅ Décrivez votre expérience</li>
+        <li>❌ Pas d'insultes ni de spam</li>
+        <li>❌ Pas d'infos personnelles</li>
+      </ul>
+    </article>
+  </aside>
+</section>

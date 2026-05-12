@@ -1,0 +1,88 @@
+<section class="user-posts-shell">
+
+  <!-- Header -->
+  <header class="up-header">
+    <button class="back-btn" (click)="goBack()">← Retour</button>
+    <div class="up-title">
+      <div class="avatar-lg">{{ initials(authorName) }}</div>
+      <div>
+        <span class="eyebrow">Profil</span>
+        <h1>{{ authorName || 'Utilisateur' }}</h1>
+        <small>{{ posts.length }} publication{{ posts.length > 1 ? 's' : '' }}</small>
+      </div>
+    </div>
+    <button class="soft-btn" (click)="loadPosts()">↻ Actualiser</button>
+  </header>
+
+  <!-- Alerts -->
+  <div class="alerts">
+    <div class="alert error" *ngIf="error">{{ error }}</div>
+    <div class="alert success" *ngIf="success">{{ success }}</div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <span>Chargement des publications...</span>
+  </div>
+
+  <!-- Posts -->
+  <article class="post-card" *ngFor="let post of posts">
+    <header class="post-head">
+      <div class="author">
+        <div class="avatar" [class.with-photo]="post.auteurPhoto">
+          <img *ngIf="post.auteurPhoto" [src]="post.auteurPhoto" alt="" />
+          <span *ngIf="!post.auteurPhoto">{{ initials(post.auteurNom) }}</span>
+        </div>
+        <div>
+          <strong>{{ post.auteurNom || 'Utilisateur' }}</strong>
+          <span>{{ timeAgo(post.datePublication) }} · {{ post.visibilite === 'PUBLIC' ? '🌍' : (post.visibilite === 'AMIS' ? '👥' : '🔒') }}</span>
+        </div>
+      </div>
+      <div class="post-meta-right">
+        <span class="trend-badge" *ngIf="post.trendScore && post.trendScore > 50">🔥 Tendance</span>
+      </div>
+    </header>
+
+    <p class="post-content" [innerHTML]="post.contenu"></p>
+
+    <div class="hashtag-pills" *ngIf="post.hashtags && post.hashtags.length > 0">
+      <span class="hashtag-pill" *ngFor="let h of post.hashtags">#{{ h }}</span>
+    </div>
+
+    <div class="image-strip" *ngIf="post.images && post.images.length > 0">
+      <img *ngFor="let img of post.images" [src]="img" alt="Photo post" />
+    </div>
+
+    <div class="reactions-summary" *ngIf="totalReactions(post) > 0">
+      <span class="reaction-bubble" *ngFor="let r of reactionsList(post)">{{ r.emoji }} {{ r.count }}</span>
+      <span class="comments-count">💬 {{ post.commentairesCount }}</span>
+    </div>
+
+    <footer class="post-actions">
+      <div class="reaction-trigger" (click)="toggleReactionPicker(post, $event)">
+        <button class="action-btn" [class.active]="!!post.myReaction">
+          {{ post.myReaction || '👍' }} {{ post.myReaction ? 'Aimé' : 'Aimer' }}
+        </button>
+        <div class="reaction-picker" *ngIf="reactionPickerOpenFor === post.id">
+          <button *ngFor="let emoji of availableReactions"
+                  class="picker-emoji"
+                  [class.selected]="post.myReaction === emoji"
+                  (click)="toggleReaction(post, emoji, $event)">{{ emoji }}</button>
+        </div>
+      </div>
+      <button class="action-btn" *ngIf="!isMyPost(post)" (click)="startChat(post, $event)">
+        ✉️ Message
+      </button>
+    </footer>
+  </article>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!loading && posts.length === 0">
+    <div class="empty-icon">🏕️</div>
+    <h3>Aucune publication</h3>
+    <p>Cet utilisateur n'a pas encore partagé de contenu.</p>
+    <button class="soft-btn" (click)="goBack()">← Retour au fil</button>
+  </div>
+
+</section>

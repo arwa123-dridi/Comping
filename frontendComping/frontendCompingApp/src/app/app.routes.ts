@@ -1,4 +1,3 @@
-
 import { Routes } from '@angular/router';
 import { SignupComponent } from './signup/signup.component';
 import { HomeComponent } from './Home/home/home.component';
@@ -21,10 +20,17 @@ import { ProductListComponent } from './product-list/product-list.component';
 import { ProductCardComponent } from './product-card/product-card.component';
 import { ProductFrontComponent } from './product-front/product-front.component';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
+import { ChatConversationComponent } from './chat/chat-conversation.component';
+import { ChatListComponent } from './chat/chat-list.component';
+import { PostsFeedComponent } from './reseau-social/posts-feed.component';
+import { UserPostsComponent } from './reseau-social/user-posts.component';
+import { AvisComponent } from './avis/avis.component';
+import { HomeComponent as CampinoSocialHomeComponent } from './campinosocialhome/campinosocialhome.component';
 
 
 export const routes: Routes = [
   { path: 'Campino', component: HomeComponent },
+  { path: 'social-home', component: CampinoSocialHomeComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'profile', component: ProfileComponent }, 
   { path: 'forgot-password', component: ForgotPasswordComponent },
@@ -52,16 +58,11 @@ export const routes: Routes = [
     path: 'products/:id',
     component: ProductDetailComponent
   },
-  {
-    path: 'modules/avis',
-    loadChildren: () => import('./modules/avis/avis.module').then(m => m.AvisModule)
-  },
-  {
-    path: 'modules/reseau-social',
-    loadChildren: () => import('./modules/reseau-social/reseau-social.module').then(m => m.ReseauSocialModule)
-  },
-  {
-    path: 'modules/chat',
-    loadChildren: () => import('./modules/chat/chat.module').then(m => m.ChatModule)
-  },
+  
+  { path: 'reviews', component: AvisComponent },
+  { path: 'community', component: PostsFeedComponent },
+  { path: 'community/user/:userId', component: UserPostsComponent },
+  { path: 'messages', component: ChatListComponent },
+  { path: 'messages/:id', component: ChatConversationComponent }
+
  ];
