@@ -20,6 +20,8 @@ import { ProductListComponent } from './product-list/product-list.component';
 import { ProductCardComponent } from './product-card/product-card.component';
 import { ProductFrontComponent } from './product-front/product-front.component';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
+import { CampingSiteComponent } from './admin/camping-site/camping-site';
+import { PaiementComponent } from './paiement/paiement';
 
 
 export const routes: Routes = [
@@ -29,6 +31,7 @@ export const routes: Routes = [
   {path: 'reservations', component: ReservationsComponent},  
   { path: '', redirectTo: 'Campino', pathMatch: 'full' },
   { path: 'login', component: SigninComponent },
+  { path: 'paiement/:id', component:   PaiementComponent },
    { path: 'events/add', component: AddEventComponent },
      { path: 'events/list', component: ListEventComponent },
        { path: 'events/edit/:id', component: EditeEventComponent },
@@ -41,7 +44,8 @@ export const routes: Routes = [
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'users', component: UsersComponent },
-      { path: 'events', component: EventComponent }
+      { path: 'events', component: EventComponent },
+      { path: 'camping-sites', component: CampingSiteComponent },
     ]
   },
   { path: 'productTable', component: ProductListComponent},

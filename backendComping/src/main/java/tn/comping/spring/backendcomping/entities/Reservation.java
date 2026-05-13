@@ -19,4 +19,6 @@ public class Reservation {
     private String modePaiement;
     private Date datePaiement;
     private String statutPaiement;
+
+    private String paiementId;
 }

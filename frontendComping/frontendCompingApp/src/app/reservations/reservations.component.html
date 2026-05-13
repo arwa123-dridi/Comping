@@ -62,6 +62,120 @@
 <!-- MAIN BODY -->
 <div class="page-body">
 
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       CALENDRIER DE DISPONIBILITÉ
+  ════════════════════════════════════════════════════════════════════════ -->
+  <div class="calendar-section">
+
+    <!-- Header cliquable -->
+    <div class="calendar-section-header" [class.is-open]="calendarOpen" (click)="toggleCalendar()">
+      <div class="cal-header-left">
+        <div class="cal-header-icon">📅</div>
+        <div>
+          <div class="cal-header-title">Disponibilités du site</div>
+          <div class="cal-header-sub">Visualisez les créneaux libres et réservés</div>
+        </div>
+      </div>
+      <button class="cal-toggle-btn" [class.open]="calendarOpen" (click)="$event.stopPropagation(); toggleCalendar()" aria-label="Afficher/masquer le calendrier">▼</button>
+    </div>
+
+    <!-- Corps du calendrier -->
+    <div class="calendar-body" *ngIf="calendarOpen">
+
+      <!-- Sélecteur de site -->
+      <div class="form-group cal-site-select">
+        <label>Filtrer par site de camping</label>
+        <select [(ngModel)]="calendarSiteId" (ngModelChange)="onCalendarSiteChange()">
+          <option value="">— Tous les sites —</option>
+          <option *ngFor="let s of sites" [value]="s.id">{{ s.nom }}</option>
+        </select>
+      </div>
+
+      <!-- Navigation mois -->
+      <div class="cal-nav">
+        <span class="cal-nav-title">{{ calendarMonthLabel }}</span>
+        <div class="cal-nav-arrows">
+          <button class="cal-nav-btn" (click)="prevMonth()" title="Mois précédent">‹</button>
+          <button class="cal-nav-btn" (click)="goToday()" title="Aujourd'hui" style="font-size:11px;">Auj.</button>
+          <button class="cal-nav-btn" (click)="nextMonth()" title="Mois suivant">›</button>
+        </div>
+      </div>
+
+      <!-- Légende -->
+      <div class="cal-legend">
+        <div class="cal-legend-item"><div class="leg-dot libre"></div> Libre</div>
+        <div class="cal-legend-item"><div class="leg-dot reserve"></div> En attente</div>
+        <div class="cal-legend-item"><div class="leg-dot bloque"></div> Confirmé</div>
+        <div class="cal-legend-item"><div class="leg-dot today"></div> Aujourd'hui</div>
+      </div>
+
+      <!-- En-têtes jours -->
+      <div class="cal-grid-head">
+        <div class="cal-day-name" *ngFor="let d of dayNames">{{ d }}</div>
+      </div>
+
+      <!-- Grille des jours -->
+      <div class="cal-grid">
+        <div
+          *ngFor="let cell of calendarCells"
+          class="cal-day"
+          [class.empty]="!cell.date"
+          [class.past]="cell.isPast"
+          [class.today]="cell.isToday"
+          [class.libre]="cell.date && !cell.isPast && !cell.isToday && cell.status === 'libre'"
+          [class.reserve]="cell.date && cell.status === 'reserve'"
+          [class.bloque]="cell.date && cell.status === 'bloque'"
+          [class.selected]="cell.date && selectedCalDate === cell.dateStr"
+          (click)="onDayClick(cell)">
+
+          <span class="cal-day-num" *ngIf="cell.date">{{ cell.date.getDate() }}</span>
+          <span class="cal-day-dot" *ngIf="cell.date && cell.status"></span>
+
+          <!-- Tooltip -->
+          <div class="cal-tooltip" *ngIf="cell.date && cell.tooltipText">
+            {{ cell.tooltipText }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats du mois -->
+      <div class="cal-stats">
+        <span class="cal-stat-chip s-libre">✓ {{ calStats.libre }} libres</span>
+        <span class="cal-stat-chip s-reserve">⏳ {{ calStats.reserve }} en attente</span>
+        <span class="cal-stat-chip s-bloque" *ngIf="calStats.bloque > 0">✕ {{ calStats.bloque }} confirmés</span>
+      </div>
+
+      <!-- Info créneau sélectionné -->
+      <div
+        class="cal-selected-info"
+        *ngIf="selectedCalDate && selectedCellStatus === 'libre'"
+      >
+        <h4>📅 {{ selectedCalDateLabel }}</h4>
+        <p>Ce créneau est disponible. Vous pouvez démarrer une réservation à partir de cette date.</p>
+        <button class="btn-book-slot" (click)="bookFromCalendar()">
+          ⛺ Réserver ce créneau
+        </button>
+      </div>
+
+      <div
+        class="cal-selected-info is-reserve"
+        *ngIf="selectedCalDate && selectedCellStatus === 'reserve'"
+      >
+        <h4 style="color:#9a5c0a;">⏳ {{ selectedCalDateLabel }}</h4>
+        <p>Ce créneau a une réservation en attente de confirmation.</p>
+      </div>
+
+      <div
+        class="cal-selected-info is-bloque"
+        *ngIf="selectedCalDate && selectedCellStatus === 'bloque'"
+      >
+        <h4 style="color:#b02020;">✕ {{ selectedCalDateLabel }}</h4>
+        <p>Ce créneau est déjà réservé et confirmé pour ce site.</p>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ADD BUTTON -->
   <div class="add-btn-wrap">
     <button class="btn-add-reservation" (click)="openModal()">
@@ -91,13 +205,14 @@
       [class.status-terminee]="r.statut === 'TERMINEE'"
       [style.--i]="i">
 
-      <!-- Colored top stripe -->
       <div class="res-card-stripe"></div>
 
       <!-- CARD HEADER -->
       <div class="res-card-header">
         <div class="res-card-site">
-          <div class="site-icon" [class.icon-orange]="r.statut === 'EN_ATTENTE'" [class.icon-blue]="r.statut === 'ANNULE' || r.statut === 'ANNULEE'">
+          <div class="site-icon"
+               [class.icon-orange]="r.statut === 'EN_ATTENTE'"
+               [class.icon-blue]="r.statut === 'ANNULE' || r.statut === 'ANNULEE'">
             🏕️
           </div>
           <div class="site-info">
@@ -147,7 +262,7 @@
         </div>
       </div>
 
-      <!-- ALERT for EN_ATTENTE -->
+      <!-- ALERT pour EN_ATTENTE -->
       <div class="res-card-alert" *ngIf="r.statut === 'EN_ATTENTE'">
         <svg viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/>
@@ -167,7 +282,6 @@
         </div>
 
         <div class="footer-actions">
-          <!-- Annuler (only for EN_ATTENTE) -->
           <button
             class="btn-danger-outline"
             *ngIf="r.statut === 'EN_ATTENTE'"
@@ -175,15 +289,19 @@
             Annuler
           </button>
 
-          <!-- Edit button -->
+          <button class="btn-pay-now"
+            *ngIf="r.statut === 'EN_ATTENTE'"
+            [routerLink]="['/paiement', r.id]">
+            💳 Payer
+          </button>
+
           <button class="btn-icon btn-icon-edit" title="Modifier" (click)="openEditModal(r)">
             <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
             </svg>
           </button>
 
-          <!-- Voir détails -->
-          <button class="btn-primary">Voir détails</button>
+          
         </div>
       </div>
 
@@ -206,7 +324,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════════ -->
-<!-- MODAL NOUVELLE RÉSERVATION -->
+<!-- MODAL NOUVELLE RÉSERVATION                                                  -->
 <!-- ═══════════════════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div class="camp-modal" (click)="$event.stopPropagation()">
@@ -245,7 +363,7 @@
       <div class="form-row">
         <div class="form-group">
           <label>Montant (DT)</label>
-          <input [(ngModel)]="newReservation.montantTotal" type="number">
+          <input [(ngModel)]="newReservation.montantTotal" type="number" min="0">
         </div>
         <div class="form-group">
           <label>Paiement</label>
@@ -267,7 +385,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════════ -->
-<!-- MODAL SUPPRESSION -->
+<!-- MODAL SUPPRESSION                                                           -->
 <!-- ═══════════════════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
   <div class="delete-modal" (click)="$event.stopPropagation()">
@@ -292,7 +410,7 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════════════════ -->
-<!-- MODAL EDIT -->
+<!-- MODAL EDIT                                                                  -->
 <!-- ═══════════════════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
   <div class="camp-modal" (click)="$event.stopPropagation()">
@@ -326,7 +444,7 @@
       <div class="form-row">
         <div class="form-group">
           <label>Montant (DT)</label>
-          <input [(ngModel)]="editReservation.montantTotal" type="number">
+          <input [(ngModel)]="editReservation.montantTotal" type="number" min="0">
         </div>
         <div class="form-group">
           <label>Paiement</label>

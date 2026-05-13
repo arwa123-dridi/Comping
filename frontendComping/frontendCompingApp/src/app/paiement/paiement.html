@@ -1,0 +1,141 @@
+<header>
+  <a routerLink="/" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+        <rect width="46" height="46" rx="10" fill="#1b2a4a"/>
+        <circle cx="34" cy="9" r="5" fill="#F5C842"/>
+        <circle cx="37" cy="7" r="4" fill="#1b2a4a"/>
+        <polygon points="3,34 10,20 17,34" fill="#1b4d1b"/>
+        <polygon points="13,34 23,15 33,34" fill="#1b4d1b"/>
+        <polygon points="27,34 36,20 45,34" fill="#2e7d32"/>
+        <polygon points="20,34 23,25 26,34" fill="#e53935"/>
+        <rect x="0" y="34" width="46" height="4" fill="#2e7d32"/>
+      </svg>
+    </div>
+    <span class="logo-name">CAMPI<span>NO</span></span>
+  </a>
+  <div class="header-btns">
+    <a routerLink="/reservations" class="btn-ghost">← Mes réservations</a>
+  </div>
+</header>
+
+<div class="pay-page">
+
+  <!-- LOADING -->
+  <div class="stripe-loading" *ngIf="!stripeReady && !loading">
+  <span class="stripe-loading-dot"></span>
+  Chargement du formulaire de paiement...
+</div>
+
+  <!-- SUCCÈS -->
+  <div class="success-card" *ngIf="success">
+    <div class="success-icon">✅</div>
+    <h2>Paiement réussi !</h2>
+    <p>Votre réservation est maintenant <strong>confirmée</strong>.</p>
+    <p>Un email de confirmation vous a été envoyé.</p>
+    <div class="redirect-bar">
+      <div class="redirect-bar-fill"></div>
+    </div>
+    <p class="redirect-msg">Redirection dans 3 secondes...</p>
+  </div>
+
+  <!-- LAYOUT PRINCIPAL -->
+  <div class="pay-layout" *ngIf="!loading && !success && reservation">
+
+    <!-- GAUCHE : résumé réservation -->
+    <div class="pay-summary">
+
+      <div class="summary-brand">
+        <span>⛺</span>
+        <div>
+          <div class="summary-brand-name">TuniCamp</div>
+          <div class="summary-brand-sub">Paiement sécurisé</div>
+        </div>
+      </div>
+
+      <div class="summary-amount-big">
+        <span class="amount-label">Montant à payer</span>
+        <span class="amount-value">
+          {{ reservation.montantTotal }}
+          <em>DT</em>
+        </span>
+      </div>
+
+      <div class="summary-divider"></div>
+
+      <div class="summary-detail-title">Détails de la réservation</div>
+
+      <div class="summary-row">
+        <span>🏕️ Site</span>
+        <strong>{{ reservation.siteCampingId | slice:0:10 }}...</strong>
+      </div>
+      <div class="summary-row">
+        <span>📅 Arrivée</span>
+        <strong>{{ reservation.dateDebut | date:'dd MMM yyyy' }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>📅 Départ</span>
+        <strong>{{ reservation.dateFin | date:'dd MMM yyyy' }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>🌙 Durée</span>
+        <strong>{{ getNights() }} nuits</strong>
+      </div>
+      <div class="summary-row">
+        <span>💳 Mode</span>
+        <strong>{{ reservation.modePaiement || 'CARTE' }}</strong>
+      </div>
+
+      <div class="summary-divider"></div>
+
+      <div class="summary-secure-badges">
+        <div class="secure-badge">🔒 SSL</div>
+        <div class="secure-badge">✅ Stripe</div>
+        <div class="secure-badge">🛡️ 3D Secure</div>
+      </div>
+
+    </div>
+
+    <!-- DROITE : Stripe Payment Element -->
+    <div class="pay-form-card">
+  <div class="pay-form-header">
+    <h2>💳 Paiement</h2>
+    <p>Vos informations sont chiffrées et sécurisées</p>
+  </div>
+
+  <!-- Stripe Payment Element -->
+  <div id="payment-element"></div>
+
+  <!-- Erreur -->
+  <div class="pay-error" *ngIf="errorMsg">
+    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"/>
+    </svg>
+    {{ errorMsg }}
+  </div>
+
+  <!-- ✅ BOUTON ICI — directement sous le formulaire Stripe -->
+ <button class="btn-pay"
+        (click)="pay()"
+        [disabled]="paying || !stripeReady">
+  <ng-container *ngIf="!stripeReady && !paying">
+    ⏳ Chargement...
+  </ng-container>
+  <ng-container *ngIf="stripeReady && !paying">
+    🔒 Payer {{ reservation?.montantTotal }} DT maintenant
+  </ng-container>
+  <ng-container *ngIf="paying">
+    <span class="pay-spinner"></span>
+    Traitement en cours...
+  </ng-container>
+</button>
+
+  <div class="pay-footer-note">
+    En cliquant sur "Payer", vous acceptez nos
+    <a href="#">conditions générales</a>.
+    Powered by <strong>Stripe</strong> 🔒
+  </div>
+</div>
+  </div>
+
+</div>
