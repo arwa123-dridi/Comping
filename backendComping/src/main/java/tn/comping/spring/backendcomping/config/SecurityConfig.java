@@ -49,7 +49,7 @@ public class SecurityConfig {
                                 "/api/conventions-partenaires/**",
                                  "/api/produits/**",
                                   "/uploads/**" ,
-                                "/api/webhook"
+                                "/api/webhook/**"
                         ).permitAll()
 
                         // Rôles spécifiques

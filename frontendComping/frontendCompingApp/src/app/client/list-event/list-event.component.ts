@@ -30,6 +30,7 @@ allEvents: AppEvent[] = [];
    events: AppEvent[] = [];
    selectedEvent: any = null;
   StatutEvent = String;
+  userRole: string = '';
  
   constructor(private eventService: EventService,
      private paymentService: PaymentEvent,
@@ -37,7 +38,7 @@ allEvents: AppEvent[] = [];
   ) {}
  
   ngOnInit(): void {
-    this.loadEvents();
+     this.userRole = (localStorage.getItem('role') || '').trim().toUpperCase();
     this.eventService.getAllEvents().subscribe({
       next: (data) => {
          this.allEvents = data;

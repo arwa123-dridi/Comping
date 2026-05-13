@@ -20,6 +20,8 @@ import { ProductCardComponent } from './product-card/product-card.component';
 import { ProductFrontComponent } from './product-front/product-front.component';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
 import { SuccessEvent } from './pages/success-event/success-event';
+import { RecommendationEvent } from './client/recommendation-event/recommendation-event';
+import { ActivityComponent } from './admin/activity/activity';
 
 
 export const routes: Routes = [
@@ -35,13 +37,16 @@ export const routes: Routes = [
             { path: 'activities/list', component: ListActivityComponent },
              { path: 'activities/edit/:id', component: EditActivityComponent },
               { path: 'success', component: SuccessEvent },
+               { path: 'Recommandation', component: RecommendationEvent },
+              
    {
     path: 'admin',
     component: AdminLayoutComponent,
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'users', component: UsersComponent },
-      { path: 'events', component: EventComponent }
+      { path: 'events', component: EventComponent },
+      {path: 'activities', component: ActivityComponent}
     ]
   },
   { path: 'productTable', component: ProductListComponent},

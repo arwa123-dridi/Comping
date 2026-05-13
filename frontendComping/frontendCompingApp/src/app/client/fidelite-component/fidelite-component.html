@@ -1,4 +1,21 @@
-<div class="fidelite-card">
-  <h3>🎁 Carte Fidélité</h3>
-  <p>{{ message }}</p>
+<div class="popup-overlay" *ngIf="showPopup">
+  
+  <div class="fidelite-popup">
+
+    <button class="close-btn" (click)="showPopup = false">
+      ✖
+    </button>
+
+    <div class="icon">
+      🎁
+    </div>
+
+    <h2>Carte Fidélité</h2>
+
+    <p>
+      {{ message }}
+    </p>
+
+  </div>
+
 </div>

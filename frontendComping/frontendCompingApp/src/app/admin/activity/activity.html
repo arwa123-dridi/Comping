@@ -1,0 +1,115 @@
+<div class="content">
+
+  <div class="page-header">
+    <h2>Liste des activités</h2>
+    <p class="subtitle">{{ filteredActivities.length }} activité(s) trouvée(s)</p>
+  </div>
+
+  <!-- FILTRES -->
+  <div class="filters">
+
+    <div class="filter-input">
+      <input
+        type="text"
+        placeholder="Nom activité..."
+        [(ngModel)]="filterNom"
+        (input)="applyFilters()"
+      />
+    </div>
+
+    <div class="filter-input">
+      <select [(ngModel)]="filterType" (change)="applyFilters()">
+        <option value="">Tous les types</option>
+        <option value="SPORT">SPORT</option>
+        <option value="AVENTURE">AVENTURE</option>
+        <option value="CULTURE">CULTURE</option>
+      </select>
+    </div>
+
+    <div class="filter-input">
+      <select [(ngModel)]="filterSaison" (change)="applyFilters()">
+        <option value="">Toutes saisons</option>
+        <option value="ETE">Été</option>
+        <option value="HIVER">Hiver</option>
+        <option value="PRINTEMPS">Printemps</option>
+        <option value="AUTOMNE">Automne</option>
+      </select>
+    </div>
+<div class="filter-actions">
+  <button class="btn-filter" (click)="applyFilters()">
+    🔍 Filtrer
+  </button>
+
+  <button class="btn-reset" (click)="resetFilters()">
+    ♻ Réinitialiser
+  </button>
+</div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Type</th>
+          <th>Durée</th>
+          <th>Capacité</th>
+          <th>Niveau</th>
+          <th>Saison</th>
+          <th>Tags</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let activity of filteredActivities">
+
+          <td>{{ activity.nom }}</td>
+          <td>{{ activity.type }}</td>
+          <td>{{ activity.duree }}</td>
+          <td>{{ activity.capacite }}</td>
+          <td>{{ activity.niveauDifficulte }}</td>
+          <td>{{ activity.saison }}</td>
+          <td>
+            <span *ngFor="let t of activity.tags" class="tag">
+              {{ t }}
+            </span>
+          </td>
+
+          <td class="actions">
+            <button class="btn-del" (click)="openDeletePopup(activity.idActivity)">
+              🗑
+            </button>
+          </td>
+
+        </tr>
+
+        <tr *ngIf="filteredActivities.length === 0">
+          <td colspan="8" class="empty">
+            Aucune activité trouvée
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+  <!-- POPUP -->
+  <div class="modal-overlay" *ngIf="showDeletePopup">
+    <div class="modal">
+      <h3>Confirmation de suppression</h3>
+      <p>
+      Êtes-vous sûr de vouloir supprimer cette activité ?<br>
+      <span>Cette action est irréversible.</span>
+    </p>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closePopup()">Annuler</button>
+        <button class="btn-delete" (click)="confirmDelete()">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+</div>

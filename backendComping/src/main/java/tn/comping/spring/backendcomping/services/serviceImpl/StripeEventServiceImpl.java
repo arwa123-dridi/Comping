@@ -12,6 +12,7 @@ import tn.comping.spring.backendcomping.repositories.EventRepository;
 import tn.comping.spring.backendcomping.repositories.PaymentEventRepository;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -50,19 +51,21 @@ public class StripeEventServiceImpl implements  StripeEventService{
                                 .build()
                 )
                 .build();
-
         Session session = Session.create(params);
+        Optional<PaymentEvent> existingPayment = paymentEventRepository
+                .findFirstByEventIdAndUserIdAndStatus(eventId, userId, PaymentEventStatus.PENDING);
 
-        PaymentEvent payment = PaymentEvent.builder()
-                .userId(userId)
-                .eventId(eventId)
-                .amount(prixFinal)
-                .status(PaymentEventStatus.PENDING)
-                .createdAt(LocalDateTime.now())
-                .method(PaymentEventMethod.CARD)
-                .build();
-
-        paymentEventRepository.save(payment);
+        if (existingPayment.isEmpty()) {
+            PaymentEvent payment = PaymentEvent.builder()
+                    .userId(userId)
+                    .eventId(eventId)
+                    .amount(prixFinal)
+                    .status(PaymentEventStatus.PENDING)
+                    .createdAt(LocalDateTime.now())
+                    .method(PaymentEventMethod.CARD)
+                    .build();
+            paymentEventRepository.save(payment);
+        }
 
         return session.getUrl();
 

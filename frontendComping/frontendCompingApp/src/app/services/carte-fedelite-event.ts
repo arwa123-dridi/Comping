@@ -9,7 +9,7 @@ export class CarteFedeliteEvent {
 
  getMessage(userId: string) {
 
-    const token = localStorage.getItem('authtoken'); 
+    const token = localStorage.getItem('authToken'); 
 
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`
