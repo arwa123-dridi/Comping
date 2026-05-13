@@ -31,7 +31,7 @@ public class StripeWebhookController {
     private final CarteFideliteService carteFideliteService;
     private final PaymentEventRepository paymentEventRepository;
     private final Gson gson = new Gson();
-    @Value("${stripe.webhook.secret}")
+   // @Value("${stripe.webhook.secret}")
     private String endpointSecret ;
     @PostMapping
     public ResponseEntity<String> handleWebhook(
