@@ -42,6 +42,7 @@
         📹
       </button>
       <button class="icon-btn" type="button" (click)="loadMessages()" title="Actualiser">↻</button>
+      <button class="icon-btn danger-icon" type="button" (click)="deleteConversation()" title="Supprimer la conversation">🗑</button>
     </div>
   </header>
 
@@ -51,6 +52,13 @@
   </div>
 
   <div class="alert error" *ngIf="error">{{ error }}</div>
+
+  <div class="message-selection-bar" *ngIf="selectedMessages.length > 0">
+    <strong>{{ selectedMessages.length }} sélectionné{{ selectedMessages.length > 1 ? 's' : '' }}</strong>
+    <button type="button" (click)="startEditSelected()" [disabled]="!canEditSelectedMessage">Modifier</button>
+    <button type="button" class="danger-action" (click)="deleteSelectedMessages()" [disabled]="!canDeleteSelectedMessages">Supprimer</button>
+    <button type="button" (click)="clearMessageSelection()">Annuler</button>
+  </div>
 
   <!-- ===== INCOMING CALL ===== -->
   <section class="incoming-call-banner" *ngIf="incomingCall">
@@ -116,26 +124,57 @@
       </div>
 
       <!-- Regular message -->
-      <article class="message-row" *ngIf="!isCallMessage(message)" [class.mine]="isMine(message)">
+      <article class="message-row" *ngIf="!isCallMessage(message)"
+               [class.mine]="isMine(message)"
+               [class.selected]="isMessageSelected(message)">
+        <button class="select-message-btn" type="button"
+                [class.checked]="isMessageSelected(message)"
+                (click)="toggleMessageSelection(message, $event)"
+                title="Sélectionner le message">
+          ✓
+        </button>
         <div class="msg-avatar" *ngIf="!isMine(message)">{{ getMessageInitials(message) }}</div>
         <div class="message-content">
           <strong class="sender-name" *ngIf="conversation?.groupe && !isMine(message)">{{ message.expediteurNom }}</strong>
 
           <div class="bubble" [class.mine]="isMine(message)" [class.voice-bubble]="message.typeMessage === 'VOICE'">
+            <div class="message-edit-form" *ngIf="editingMessageId === message.id">
+              <textarea rows="3" [(ngModel)]="editMessageText" (click)="$event.stopPropagation()"></textarea>
+              <div>
+                <button type="button" (click)="cancelMessageEdit($event)">Annuler</button>
+                <button type="button" class="save-edit-btn" (click)="saveMessageEdit(message, $event)">Enregistrer</button>
+              </div>
+            </div>
+            <ng-container *ngIf="editingMessageId !== message.id">
             <!-- Voice message -->
             <audio *ngIf="message.typeMessage === 'VOICE'"
                    controls
                    [src]="getAudioUrl(message)"
                    preload="metadata"></audio>
 
+            <img *ngIf="isImageMessage(message)"
+                 class="chat-image"
+                 [src]="getMediaUrl(message.contenu)"
+                 [alt]="getFileName(message)" />
+
+            <a *ngIf="isFileMessage(message)"
+               class="file-message"
+               [href]="getMediaUrl(message.contenu)"
+               target="_blank"
+               rel="noopener">
+              <span>ðŸ“Ž</span>
+              <strong>{{ getFileName(message) }}</strong>
+            </a>
+
             <!-- Text message -->
-            <p *ngIf="message.typeMessage !== 'VOICE'">{{ message.contenu }}</p>
+            <p *ngIf="message.typeMessage !== 'VOICE' && !isImageMessage(message) && !isFileMessage(message)">{{ message.contenu }}</p>
 
             <!-- Transcription IA -->
             <div class="transcription" *ngIf="message.transcription">
               <span class="ai-badge">🤖 Transcription IA</span>
-              <em>{{ message.transcription }}</em>
+              <em>{{ formatTranscription(message.transcription) }}</em>
             </div>
+            </ng-container>
           </div>
 
           <small class="msg-time">
@@ -165,10 +204,16 @@
   <footer class="message-composer" *ngIf="!recording">
     <button class="icon-action" type="button" title="Pièce jointe">📎</button>
 
+    <label class="icon-action" title="Importer une pièce jointe">
+      📎
+      <input type="file" (change)="sendAttachment($event)" [disabled]="sendingAttachment" hidden />
+    </label>
+
     <input class="message-input"
            [(ngModel)]="newMessage"
            (keyup.enter)="sendMessage()"
-           placeholder="Écrire un message..."
+           placeholder="Écrire un message... (Entrée pour envoyer)"
+           autocomplete="off"
            [disabled]="sending" />
 
     <label class="icon-action voice-upload" title="Importer un audio">

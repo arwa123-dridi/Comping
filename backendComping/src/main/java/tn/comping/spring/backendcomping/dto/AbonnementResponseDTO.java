@@ -8,5 +8,7 @@ import lombok.*;
 @Builder
 public class AbonnementResponseDTO {
     private String id;
+    private String suiviId;
     private String suiviNom;
+    private String suiviEmail;
 }

@@ -28,4 +28,8 @@ public interface AvisService {
     AvisResponseDTO rejeterAvis(String id, String motif, String adminEmail);
 
     StatistiquesAvisDTO getStatistiquesAvis(String cibleId, String typeCible);
+
+    List<AvisResponseDTO> getAvisValides();
+
+    List<AvisResponseDTO> getAvisAmis(String utilisateurEmail);
 }

@@ -1,58 +1,91 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   CommunityService, AvisRequest, AvisResponse,
-  AvisStats, AvisStatus, TargetType
+  AvisStats, AvisStatus
 } from '../services/community.service';
+import { CommunitySidebarComponent } from '../shared/community-sidebar/community-sidebar.component';
 
 @Component({
   selector: 'app-avis',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, CommunitySidebarComponent],
   templateUrl: './avis.component.html',
   styleUrls: ['./avis.component.css']
 })
-export class AvisComponent implements OnInit {
+export class AvisComponent implements OnInit, OnDestroy {
+  // Paramètres de modération IA (UI-only)
+  aiSettings = {
+    autoValidate5stars: true,
+    detectInappropriate: true,
+    personalizedRecs: true
+  };
+
   // Liste des avis
   avis: AvisResponse[] = [];
   filteredAvis: AvisResponse[] = [];
-  myAvis: AvisResponse[] = [];
 
-  // Stats
+  // Stats (conservé pour compat panel droit admin)
   stats: AvisStats | null = null;
 
-  // Filtres
-  selectedTab: 'tous' | 'mes-avis' | 'admin' = 'tous';
+  // Onglets
+  selectedTab: 'tous' | 'amis' | 'mes-avis' | 'admin' = 'tous';
+
+  // Filtre statut — uniquement actif dans l'onglet "mes-avis"
   selectedStatus: AvisStatus | 'TOUS' = 'TOUS';
-  selectedTargetType: TargetType = 'EVENEMENT';
-  cibleId = '';
+
+  // Recherche par mot-clé
   search = '';
 
-  // Formulaire création
+  // Formulaire création (sans sélection de cible)
   showForm = false;
   newAvis: AvisRequest = {
     note: 5,
     commentaire: '',
-    cibleId: '',
-    typeCible: 'EVENEMENT'
+    cibleId: 'general',
+    typeCible: 'ACTIVITE'
   };
 
+  sidebarCollapsed = false;
   loading = false;
   saving = false;
   error = '';
   success = '';
 
-  // Rejet
+  // Rejet (modération admin)
   rejectingId: string | null = null;
   rejectMotif = '';
 
-  constructor(public community: CommunityService, private router: Router) {}
+  // Édition de son propre avis
+  editingAvis: AvisResponse | null = null;
+  editForm: AvisRequest = { note: 5, commentaire: '', cibleId: 'general', typeCible: 'ACTIVITE' };
+
+  private routeSub?: Subscription;
+
+  constructor(
+    public community: CommunityService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
     this.community.connectNotificationsSocket();
-    this.loadAvis();
+    this.routeSub = this.route.queryParamMap.subscribe(params => {
+      const tab = params.get('tab');
+      if (tab === 'admin' && this.isAdmin) {
+        this.selectedTab = 'admin';
+      } else if (!tab) {
+        this.selectedTab = 'tous';
+      }
+      this.loadAvis();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.routeSub?.unsubscribe();
   }
 
   get isAdmin(): boolean { return this.community.isAdmin(); }
@@ -65,8 +98,10 @@ export class AvisComponent implements OnInit {
     };
   }
 
-  setTab(tab: 'tous' | 'mes-avis' | 'admin'): void {
+  setTab(tab: 'tous' | 'amis' | 'mes-avis' | 'admin'): void {
     this.selectedTab = tab;
+    this.selectedStatus = 'TOUS';
+    this.search = '';
     this.loadAvis();
   }
 
@@ -74,7 +109,17 @@ export class AvisComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    if (this.selectedTab === 'mes-avis') {
+    if (this.selectedTab === 'tous') {
+      this.community.getAllValidatedAvis().subscribe({
+        next: avis => { this.avis = avis; this.applyFilters(); this.loading = false; },
+        error: () => { this.error = 'Impossible de charger les avis.'; this.loading = false; }
+      });
+    } else if (this.selectedTab === 'amis') {
+      this.community.getFriendsAvis().subscribe({
+        next: avis => { this.avis = avis; this.applyFilters(); this.loading = false; },
+        error: () => { this.error = 'Impossible de charger les avis de vos amis.'; this.loading = false; }
+      });
+    } else if (this.selectedTab === 'mes-avis') {
       this.community.getMyAvis().subscribe({
         next: avis => { this.avis = avis; this.applyFilters(); this.loading = false; },
         error: () => { this.error = 'Impossible de charger vos avis.'; this.loading = false; }
@@ -84,45 +129,23 @@ export class AvisComponent implements OnInit {
         next: avis => { this.avis = avis; this.applyFilters(); this.loading = false; },
         error: () => { this.error = 'Impossible de charger les avis à modérer.'; this.loading = false; }
       });
-    } else {
-      if (!this.cibleId.trim()) {
-        this.avis = [];
-        this.filteredAvis = [];
-        this.loading = false;
-        return;
-      }
-      this.community.getAvisByTarget(this.cibleId.trim(), this.selectedTargetType).subscribe({
-        next: avis => {
-          this.avis = avis;
-          this.applyFilters();
-          this.loading = false;
-          this.loadStats();
-        },
-        error: () => { this.error = 'Impossible de charger les avis.'; this.loading = false; }
-      });
     }
-  }
-
-  loadStats(): void {
-    if (!this.cibleId.trim()) return;
-    this.community.getAvisStats(this.cibleId.trim(), this.selectedTargetType).subscribe({
-      next: stats => this.stats = stats,
-      error: () => this.stats = null
-    });
   }
 
   applyFilters(): void {
     let filtered = [...this.avis];
 
-    if (this.selectedStatus !== 'TOUS') {
+    // Filtre statut uniquement pour "mes-avis"
+    if (this.selectedTab === 'mes-avis' && this.selectedStatus !== 'TOUS') {
       filtered = filtered.filter(a => a.statut === this.selectedStatus);
     }
 
+    // Recherche par mot-clé
     const query = this.search.trim().toLowerCase();
     if (query) {
       filtered = filtered.filter(a =>
         a.commentaire.toLowerCase().includes(query) ||
-        a.utilisateurNom.toLowerCase().includes(query)
+        (a.utilisateurNom || '').toLowerCase().includes(query)
       );
     }
 
@@ -139,10 +162,6 @@ export class AvisComponent implements OnInit {
       this.error = 'Le commentaire est obligatoire.';
       return;
     }
-    if (!this.newAvis.cibleId.trim()) {
-      this.error = 'L\'ID de la cible est obligatoire.';
-      return;
-    }
     if (this.newAvis.note < 1 || this.newAvis.note > 5) {
       this.error = 'La note doit être entre 1 et 5.';
       return;
@@ -156,7 +175,7 @@ export class AvisComponent implements OnInit {
         this.success = '✅ Avis envoyé. En attente de validation par un administrateur.';
         this.saving = false;
         this.showForm = false;
-        this.newAvis = { note: 5, commentaire: '', cibleId: '', typeCible: 'EVENEMENT' };
+        this.newAvis = { note: 5, commentaire: '', cibleId: 'general', typeCible: 'ACTIVITE' };
         setTimeout(() => this.success = '', 5000);
         this.loadAvis();
       },
@@ -187,6 +206,56 @@ export class AvisComponent implements OnInit {
   cancelReject(): void {
     this.rejectingId = null;
     this.rejectMotif = '';
+  }
+
+  startEdit(a: AvisResponse, event: Event): void {
+    event.stopPropagation();
+    this.editingAvis = a;
+    this.editForm = {
+      note: a.note,
+      commentaire: a.commentaire,
+      cibleId: a.cibleId || 'general',
+      typeCible: a.typeCible || 'ACTIVITE'
+    };
+  }
+
+  cancelEdit(): void {
+    this.editingAvis = null;
+  }
+
+  confirmEdit(): void {
+    if (!this.editingAvis) return;
+    if (!this.editForm.commentaire.trim()) { this.error = 'Le commentaire est obligatoire.'; return; }
+
+    this.saving = true;
+    this.community.updateAvis(this.editingAvis.id, this.editForm).subscribe({
+      next: () => {
+        this.success = '✅ Avis modifié. En attente de revalidation.';
+        this.saving = false;
+        this.editingAvis = null;
+        setTimeout(() => this.success = '', 4000);
+        this.loadAvis();
+      },
+      error: (e) => { this.error = e.error?.message || 'Modification impossible.'; this.saving = false; }
+    });
+  }
+
+  deleteAvis(a: AvisResponse, event: Event): void {
+    event.stopPropagation();
+    if (!confirm('Supprimer cet avis définitivement ?')) return;
+    this.community.deleteMyAvis(a.id).subscribe({
+      next: () => {
+        this.success = '🗑️ Avis supprimé.';
+        setTimeout(() => this.success = '', 3000);
+        this.loadAvis();
+      },
+      error: () => this.error = 'Suppression impossible.'
+    });
+  }
+
+  isMyAvis(a: AvisResponse): boolean {
+    return a.utilisateurId === this.community.getCurrentEmail() ||
+           (this.filteredAvis.length > 0 && this.selectedTab === 'mes-avis');
   }
 
   confirmReject(): void {
@@ -243,7 +312,6 @@ export class AvisComponent implements OnInit {
     });
   }
 
-  // Distribution des notes pour le graphique
   notesDistribution(): { note: number; count: number; pct: number }[] {
     if (!this.stats) return [];
     const total = this.stats.nombreTotal || 1;

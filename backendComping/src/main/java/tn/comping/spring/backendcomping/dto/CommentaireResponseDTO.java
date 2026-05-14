@@ -16,6 +16,7 @@ public class CommentaireResponseDTO {
     private String contenu;
     private Date datePublication;
     private int likesCount;
+    private boolean likedByCurrentUser;
     private int niveau;
     private List<CommentaireResponseDTO> replies;
 }

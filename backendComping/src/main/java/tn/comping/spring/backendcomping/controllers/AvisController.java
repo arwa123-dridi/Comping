@@ -101,6 +101,16 @@ public class AvisController {
         return ResponseEntity.ok(avisService.rejeterAvis(id, motif, email));
     }
 
+    @GetMapping("/valides")
+    public ResponseEntity<List<AvisResponseDTO>> getAvisValides() {
+        return ResponseEntity.ok(avisService.getAvisValides());
+    }
+
+    @GetMapping("/amis")
+    public ResponseEntity<List<AvisResponseDTO>> getAvisAmis(Authentication authentication) {
+        return ResponseEntity.ok(avisService.getAvisAmis(authentication.getName()));
+    }
+
     @GetMapping("/statistiques/{cibleId}")
     public ResponseEntity<StatistiquesAvisDTO> getStatistiquesAvis(
             @PathVariable String cibleId,

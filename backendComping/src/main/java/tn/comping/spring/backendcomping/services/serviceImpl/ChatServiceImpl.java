@@ -2,6 +2,8 @@ package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -41,6 +43,7 @@ public class ChatServiceImpl implements ChatService {
     private final ConcurrentHashMap<String, Date> lastSeenMap = new ConcurrentHashMap<>();
 
     private Object voskModel = null; // lazy init
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @PostConstruct
     private void initVosk() {
@@ -115,7 +118,7 @@ public class ChatServiceImpl implements ChatService {
         }
 
         Map<String, Integer> unreadMap = new HashMap<>();
-        resolvedParticipants.forEach(p -> unreadMap.put(p, 0));
+        resolvedParticipants.forEach(p -> unreadMap.put(mKey(p), 0));
 
         Conversation group = Conversation.builder()
                 .groupe(true)
@@ -155,7 +158,7 @@ public class ChatServiceImpl implements ChatService {
         String newKey = resolveUserKey(newParticipantId);
         if (!conv.getParticipantIds().contains(newKey)) {
             conv.getParticipantIds().add(newKey);
-            conv.getMessagesNonLusParParticipant().put(newKey, 0);
+            conv.getMessagesNonLusParParticipant().put(mKey(newKey), 0);
             conversationRepository.save(conv);
         }
         return mapConvResponse(conv, userKey);
@@ -175,7 +178,7 @@ public class ChatServiceImpl implements ChatService {
 
         String targetKey = resolveUserKey(participantId);
         conv.getParticipantIds().remove(targetKey);
-        conv.getMessagesNonLusParParticipant().remove(targetKey);
+        conv.getMessagesNonLusParParticipant().remove(mKey(targetKey));
         conversationRepository.save(conv);
         return mapConvResponse(conv, userKey);
     }
@@ -254,6 +257,53 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    public MessageResponseDTO updateMessage(String messageId, String contenu, String userId) {
+        if (isBlank(contenu))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Le message ne peut pas etre vide");
+
+        String userKey = resolveUserKey(userId);
+        Message msg = messageRepository.findById(messageId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Message introuvable"));
+        verifyParticipant(msg.getConversationId(), userKey);
+        verifyRecentOwnMessage(msg, userKey);
+
+        String type = msg.getTypeMessage() == null ? "TEXT" : msg.getTypeMessage();
+        if (!"TEXT".equalsIgnoreCase(type))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seuls les messages texte peuvent etre modifies");
+
+        msg.setContenu(contenu.trim());
+        Message saved = messageRepository.save(msg);
+        MessageResponseDTO response = mapMsgResponse(saved);
+        messagingTemplate.convertAndSend("/topic/conversations/" + msg.getConversationId(),
+                Map.of("eventType", "MESSAGE_UPDATED", "message", response));
+        return response;
+    }
+
+    @Override
+    public void deleteMessage(String messageId, String userId) {
+        String userKey = resolveUserKey(userId);
+        Message msg = messageRepository.findById(messageId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Message introuvable"));
+        verifyParticipant(msg.getConversationId(), userKey);
+        verifyRecentOwnMessage(msg, userKey);
+
+        String conversationId = msg.getConversationId();
+        messageRepository.delete(msg);
+        messagingTemplate.convertAndSend("/topic/conversations/" + conversationId,
+                Map.of("eventType", "MESSAGE_DELETED", "messageId", messageId));
+    }
+
+    @Override
+    public void deleteConversation(String conversationId, String userId) {
+        String userKey = resolveUserKey(userId);
+        verifyParticipant(conversationId, userKey);
+        messageRepository.deleteByConversationId(conversationId);
+        conversationRepository.deleteById(conversationId);
+        messagingTemplate.convertAndSend("/topic/conversations/" + conversationId,
+                Map.of("eventType", "CONVERSATION_DELETED", "conversationId", conversationId));
+    }
+
+    @Override
     public void markAsRead(String conversationId, String userId) {
         String userKey = resolveUserKey(userId);
         Conversation conv = verifyParticipant(conversationId, userKey);
@@ -263,7 +313,7 @@ public class ChatServiceImpl implements ChatService {
                 .forEach(m -> { m.setLu(true); messageRepository.save(m); });
 
         if (conv.isGroupe()) {
-            conv.getMessagesNonLusParParticipant().put(userKey, 0);
+            conv.getMessagesNonLusParParticipant().put(mKey(userKey), 0);
         } else {
             if (userKey.equals(conv.getParticipant1Id())) conv.setMessagesNonLusP1(0);
             else conv.setMessagesNonLusP2(0);
@@ -363,18 +413,22 @@ public class ChatServiceImpl implements ChatService {
                 if (accepted) result = (String) recClass.getMethod("getResult").invoke(rec);
             }
             if (result.isEmpty()) result = (String) recClass.getMethod("getFinalResult").invoke(rec);
-            // Extraire le texte du JSON Vosk {"text": "..."}
-            if (result.contains("\"text\"")) {
-                int start = result.indexOf("\"text\"") + 9;
-                int end = result.indexOf("\"", start);
-                if (end > start) return result.substring(start, end);
-            }
             ((AutoCloseable) rec).close();
-            return result;
+            return extractVoskText(result);
         } catch (Exception e) {
             log.error("Vosk transcription error", e);
             return "[Erreur transcription]";
         }
+    }
+
+    private String extractVoskText(String result) {
+        if (isBlank(result)) return "";
+        try {
+            JsonNode json = objectMapper.readTree(result);
+            JsonNode textNode = json.get("text");
+            if (textNode != null) return textNode.asText();
+        } catch (Exception ignored) {}
+        return result;
     }
 
     @Override
@@ -437,6 +491,16 @@ public class ChatServiceImpl implements ChatService {
         return conv;
     }
 
+    private void verifyRecentOwnMessage(Message msg, String userKey) {
+        if (!userKey.equals(msg.getExpediteurId()))
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous ne pouvez modifier que vos messages");
+        if (msg.getDateCreation() == null)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Message trop ancien");
+        long ageMs = System.currentTimeMillis() - msg.getDateCreation().getTime();
+        if (ageMs > 10 * 60 * 1000)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Delai de 10 minutes depasse");
+    }
+
     private ConversationResponseDTO mapConvResponse(Conversation conv, String currentUserId) {
         ConversationResponseDTO.ConversationResponseDTOBuilder builder = ConversationResponseDTO.builder()
                 .id(conv.getId())
@@ -453,7 +517,7 @@ public class ChatServiceImpl implements ChatService {
                            ? conv.getParticipantIds().stream().map(this::resolveDisplayName).collect(Collectors.toList())
                            : List.of())
                    .messagesNonLus(conv.getMessagesNonLusParParticipant() != null
-                           ? conv.getMessagesNonLusParParticipant().getOrDefault(currentUserId, 0)
+                           ? conv.getMessagesNonLusParParticipant().getOrDefault(mKey(currentUserId), 0)
                            : 0);
         } else {
             int unread = currentUserId.equals(conv.getParticipant1Id()) ? conv.getMessagesNonLusP1() : conv.getMessagesNonLusP2();
@@ -493,7 +557,7 @@ public class ChatServiceImpl implements ChatService {
             getParticipants(conv).stream()
                     .filter(pid -> !pid.equals(senderId))
                     .forEach(pid -> conv.getMessagesNonLusParParticipant()
-                            .merge(pid, 1, Integer::sum));
+                            .merge(mKey(pid), 1, Integer::sum));
         } else {
             if (senderId.equals(conv.getParticipant1Id())) conv.setMessagesNonLusP2(conv.getMessagesNonLusP2() + 1);
             else conv.setMessagesNonLusP1(conv.getMessagesNonLusP1() + 1);
@@ -511,6 +575,12 @@ public class ChatServiceImpl implements ChatService {
         return findUser(userIdOrEmail)
                 .map(SignupEntity::getEmail)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable: " + userIdOrEmail));
+    }
+
+    /** Encode email as a MongoDB-safe map key (dots forbidden in BSON field names). */
+    private String mKey(String email) {
+        if (email == null) return "";
+        return email.replace(".", "․").replace("$", "＄");
     }
 
     private String resolveUserKeyOptional(String userIdOrEmail) {

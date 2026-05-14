@@ -22,5 +22,7 @@ public interface MessageRepository extends MongoRepository<Message, String> {
     
     @Query("{ 'conversationId': ?0, 'dateCreation': { $gt: ?1 } }")
     List<Message> findRecentMessagesAfter(String conversationId, Date afterDate);
+
+    void deleteByConversationId(String conversationId);
     
 }

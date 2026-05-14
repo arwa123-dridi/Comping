@@ -10,6 +10,7 @@ import tn.comping.spring.backendcomping.dto.CommentaireResponseDTO;
 import tn.comping.spring.backendcomping.services.CommentaireService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/posts/{postId}/comments")
@@ -30,8 +31,29 @@ public class CommentaireController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CommentaireResponseDTO>> getComments(@PathVariable String postId) {
-        return ResponseEntity.ok(commentaireService.getCommentairesByPost(postId));
+    public ResponseEntity<List<CommentaireResponseDTO>> getComments(
+            @PathVariable String postId,
+            Authentication authentication) {
+        String userId = authentication != null ? authentication.getName() : null;
+        return ResponseEntity.ok(commentaireService.getCommentairesByPost(postId, userId));
+    }
+
+    @PostMapping("/{commentId}/like")
+    public ResponseEntity<Void> likeComment(
+            @PathVariable String postId,
+            @PathVariable String commentId,
+            Authentication authentication) {
+        commentaireService.likeComment(commentId, authentication.getName());
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{commentId}/like")
+    public ResponseEntity<Void> unlikeComment(
+            @PathVariable String postId,
+            @PathVariable String commentId,
+            Authentication authentication) {
+        commentaireService.unlikeComment(commentId, authentication.getName());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{commentId}")
@@ -49,5 +71,24 @@ public class CommentaireController {
             Authentication authentication) {
         String userId = authentication.getName();
         return ResponseEntity.ok(commentaireService.replyToComment(commentId, dto, userId));
+    }
+
+    @PutMapping("/{commentId}")
+    public ResponseEntity<CommentaireResponseDTO> updateComment(
+            @PathVariable String postId,
+            @PathVariable String commentId,
+            @RequestBody Map<String, String> body,
+            Authentication authentication) {
+        return ResponseEntity.ok(
+                commentaireService.updateComment(commentId, body.get("contenu"), authentication.getName()));
+    }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable String postId,
+            @PathVariable String commentId,
+            Authentication authentication) {
+        commentaireService.deleteComment(commentId, authentication.getName());
+        return ResponseEntity.noContent().build();
     }
 }

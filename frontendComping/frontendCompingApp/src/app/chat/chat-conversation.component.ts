@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -22,6 +22,9 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
   conversationId = '';
   conversation: ConversationResponse | null = null;
   messages: MessageResponse[] = [];
+  selectedMessageIds = new Set<string>();
+  editingMessageId: string | null = null;
+  editMessageText = '';
 
   newMessage = '';
   loading = false;
@@ -30,6 +33,7 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
   // Voice recording
   recording = false;
   sendingVoice = false;
+  sendingAttachment = false;
   recordingDuration = 0;
   private recordingTimer?: number;
 
@@ -63,12 +67,17 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
   ) {}
 
   ngOnInit(): void {
-    this.conversationId = this.route.snapshot.paramMap.get('id') ?? '';
     this.currentUserKey = this.community.getCurrentEmail();
 
-    this.loadConversation();
-    this.loadMessages();
-    this.connectRealtime();
+    // S'abonner à paramMap (observable) pour réagir aux changements de conversation
+    // sans rechargement de page (Angular réutilise le composant sur /messages/:id)
+    this.subs.push(
+      this.route.paramMap.subscribe(params => {
+        const newId = params.get('id') ?? '';
+        if (newId === this.conversationId) return;
+        this.switchConversation(newId);
+      })
+    );
 
     // Listen to user status changes
     this.subs.push(
@@ -93,6 +102,29 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
         this.callerName = state.remoteUserName || '';
       })
     );
+  }
+
+  private switchConversation(id: string): void {
+    // Couper le socket de l'ancienne conversation avant d'en ouvrir une nouvelle
+    this.disconnectRealtime();
+
+    // Réinitialiser l'état
+    this.conversationId = id;
+    this.messages = [];
+    this.conversation = null;
+    this.selectedMessageIds.clear();
+    this.editingMessageId = null;
+    this.editMessageText = '';
+    this.newMessage = '';
+    this.error = '';
+    this.success = '';
+    this.otherOnline = false;
+
+    if (!id) return;
+
+    this.loadConversation();
+    this.loadMessages();
+    this.connectRealtime();
   }
 
   ngOnDestroy(): void {
@@ -128,12 +160,24 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
   loadMessages(showLoader = true): void {
     if (!this.conversationId) { this.error = 'Conversation introuvable.'; return; }
     this.loading = showLoader;
-    this.community.getMessages(this.conversationId).subscribe({
+    this.fetchAllMessages(0, []);
+  }
+
+  private fetchAllMessages(page: number, accumulated: MessageResponse[]): void {
+    const PAGE_SIZE = 100;
+    this.community.getMessages(this.conversationId, page, PAGE_SIZE).subscribe({
       next: messages => {
-        this.messages = messages;
-        this.loading = false;
-        this.shouldScroll = true;
-        this.community.markAsRead(this.conversationId).subscribe({ error: () => {} });
+        const all = [...accumulated, ...messages];
+        if (messages.length === PAGE_SIZE) {
+          // Il peut y avoir d'autres pages
+          this.fetchAllMessages(page + 1, all);
+        } else {
+          this.messages = all;
+          this.selectedMessageIds.clear();
+          this.loading = false;
+          this.shouldScroll = true;
+          this.community.markAsRead(this.conversationId).subscribe({ error: () => {} });
+        }
       },
       error: () => {
         this.error = 'Impossible de charger les messages.';
@@ -165,6 +209,93 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
         this.error = 'Message non envoyé.';
         this.sending = false;
       }
+    });
+  }
+
+  toggleMessageSelection(message: MessageResponse, event: Event): void {
+    event.stopPropagation();
+    if (this.isCallMessage(message)) return;
+    if (this.selectedMessageIds.has(message.id)) {
+      this.selectedMessageIds.delete(message.id);
+    } else {
+      this.selectedMessageIds.add(message.id);
+    }
+  }
+
+  clearMessageSelection(): void {
+    this.selectedMessageIds.clear();
+  }
+
+  isMessageSelected(message: MessageResponse): boolean {
+    return this.selectedMessageIds.has(message.id);
+  }
+
+  get selectedMessages(): MessageResponse[] {
+    return this.messages.filter(m => this.selectedMessageIds.has(m.id));
+  }
+
+  get canEditSelectedMessage(): boolean {
+    return this.selectedMessages.length === 1 && this.canMutateMessage(this.selectedMessages[0])
+      && this.selectedMessages[0].typeMessage === 'TEXT';
+  }
+
+  get canDeleteSelectedMessages(): boolean {
+    return this.selectedMessages.length > 0 && this.selectedMessages.every(m => this.canMutateMessage(m));
+  }
+
+  startEditSelected(): void {
+    if (!this.canEditSelectedMessage) return;
+    const message = this.selectedMessages[0];
+    this.editingMessageId = message.id;
+    this.editMessageText = message.contenu;
+    this.clearMessageSelection();
+  }
+
+  saveMessageEdit(message: MessageResponse, event: Event): void {
+    event.stopPropagation();
+    const contenu = this.editMessageText.trim();
+    if (!contenu) return;
+
+    this.community.updateMessage(message.id, contenu).subscribe({
+      next: updated => {
+        this.messages = this.messages.map(m => m.id === updated.id ? updated : m);
+        this.editingMessageId = null;
+        this.editMessageText = '';
+      },
+      error: () => this.error = 'Modification impossible après 10 minutes.'
+    });
+  }
+
+  cancelMessageEdit(event: Event): void {
+    event.stopPropagation();
+    this.editingMessageId = null;
+    this.editMessageText = '';
+  }
+
+  deleteSelectedMessages(): void {
+    const messages = this.selectedMessages;
+    if (!messages.length || !this.canDeleteSelectedMessages) {
+      this.error = 'Vous pouvez supprimer uniquement vos messages envoyés depuis moins de 10 minutes.';
+      return;
+    }
+    if (!confirm(`Supprimer ${messages.length} message${messages.length > 1 ? 's' : ''} ?`)) return;
+
+    forkJoin(messages.map(m => this.community.deleteMessage(m.id))).subscribe({
+      next: () => {
+        const ids = new Set(messages.map(m => m.id));
+        this.messages = this.messages.filter(m => !ids.has(m.id));
+        this.clearMessageSelection();
+      },
+      error: () => this.error = 'Suppression impossible après 10 minutes.'
+    });
+  }
+
+  deleteConversation(): void {
+    if (!this.conversationId) return;
+    if (!confirm('Supprimer toute la conversation et tous ses messages ?')) return;
+    this.community.deleteConversation(this.conversationId).subscribe({
+      next: () => void this.router.navigate(['/messages']),
+      error: () => this.error = 'Suppression de la conversation impossible.'
     });
   }
 
@@ -200,7 +331,7 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
     this.sendingVoice = true;
     try {
       const blob = await this.voiceRecorder.stopRecording();
-      this.community.sendVoiceMessage(this.conversationId, blob).subscribe({
+      this.community.sendVoiceMessage(this.conversationId, blob, 'message.wav').subscribe({
         next: message => {
           if (!this.messages.some(m => m.id === message.id)) {
             this.messages = [...this.messages, message];
@@ -227,13 +358,22 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
   }
 
   // Upload audio file from disk
-  sendVoiceFile(event: Event): void {
+  async sendVoiceFile(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file || !this.conversationId) return;
 
     this.sendingVoice = true;
-    this.community.sendVoiceMessage(this.conversationId, file).subscribe({
+    let audioToSend: Blob = file;
+    let fileName = file.name || 'message.wav';
+    try {
+      audioToSend = await this.voiceRecorder.convertToWav16k(file);
+      fileName = 'message.wav';
+    } catch {
+      this.error = 'Audio non compatible avec la transcription. Envoi du fichier original.';
+    }
+
+    this.community.sendVoiceMessage(this.conversationId, audioToSend, fileName).subscribe({
       next: message => {
         if (!this.messages.some(m => m.id === message.id)) {
           this.messages = [...this.messages, message];
@@ -245,6 +385,29 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
       error: () => {
         this.error = 'Message vocal non envoyé. Utilisez un WAV 16kHz mono.';
         this.sendingVoice = false;
+        input.value = '';
+      }
+    });
+  }
+
+  sendAttachment(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file || !this.conversationId) return;
+
+    this.sendingAttachment = true;
+    this.community.sendAttachment(this.conversationId, file).subscribe({
+      next: message => {
+        if (!this.messages.some(m => m.id === message.id)) {
+          this.messages = [...this.messages, message];
+        }
+        this.sendingAttachment = false;
+        this.shouldScroll = true;
+        input.value = '';
+      },
+      error: () => {
+        this.error = 'Pièce jointe non envoyée.';
+        this.sendingAttachment = false;
         input.value = '';
       }
     });
@@ -290,6 +453,12 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
   isMine(message: MessageResponse): boolean {
     return message.expediteurId === this.currentUserKey ||
            message.expediteurNom === this.currentUserKey;
+  }
+
+  canMutateMessage(message: MessageResponse): boolean {
+    if (!message || !this.isMine(message) || this.isCallMessage(message)) return false;
+    const created = new Date(message.dateCreation).getTime();
+    return Number.isFinite(created) && Date.now() - created <= 10 * 60 * 1000;
   }
 
   isCallMessage(message: MessageResponse): boolean {
@@ -354,7 +523,36 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
   }
 
   getAudioUrl(message: MessageResponse): string {
-    return 'http://localhost:8087' + message.contenu;
+    return this.getMediaUrl(message.contenu);
+  }
+
+  getMediaUrl(url: string): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : 'http://localhost:8087' + url;
+  }
+
+  isImageMessage(message: MessageResponse): boolean {
+    return message.typeMessage === 'IMAGE';
+  }
+
+  isFileMessage(message: MessageResponse): boolean {
+    return message.typeMessage === 'FILE';
+  }
+
+  getFileName(message: MessageResponse): string {
+    const content = message.contenu || '';
+    const clean = content.split('?')[0];
+    return decodeURIComponent(clean.substring(clean.lastIndexOf('/') + 1)) || 'Pièce jointe';
+  }
+
+  formatTranscription(transcription?: string): string {
+    if (!transcription) return '';
+    try {
+      const parsed = JSON.parse(transcription);
+      return parsed?.text || transcription;
+    } catch {
+      return transcription;
+    }
   }
 
   // ===================================================
@@ -366,13 +564,18 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
     const token = localStorage.getItem('authToken');
     if (!token) return;
 
-    const ws = new WebSocket('ws://localhost:8087/ws-chat/websocket');
+    if (this.reconnectHandle) {
+      window.clearTimeout(this.reconnectHandle);
+      this.reconnectHandle = undefined;
+    }
+
+    const ws = new WebSocket('ws://localhost:8087/ws-chat');
     this.socket = ws;
 
     ws.onopen = () => {
       this.sendFrame('CONNECT', {
-        'accept-version': '1.2',
-        'heart-beat': '10000,10000',
+        'accept-version': '1.2,1.1,1.0',
+        'heart-beat': '0,0',
         'Authorization': `Bearer ${token}`
       });
     };
@@ -381,12 +584,18 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
     ws.onclose = () => {
       this.realtimeConnected = false;
       this.socket = undefined;
-      this.reconnectHandle = window.setTimeout(() => this.connectRealtime(), 5000);
+      if (this.conversationId && localStorage.getItem('authToken')) {
+        this.reconnectHandle = window.setTimeout(() => this.connectRealtime(), 3000);
+      }
     };
     ws.onerror = () => this.realtimeConnected = false;
   }
 
   private disconnectRealtime(): void {
+    if (this.reconnectHandle) {
+      window.clearTimeout(this.reconnectHandle);
+      this.reconnectHandle = undefined;
+    }
     if (!this.socket) return;
     if (this.realtimeConnected) this.sendFrame('DISCONNECT', {});
     this.socket.close();
@@ -402,7 +611,7 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
   private handleStompFrame(raw: string): void {
     const frames = raw.split('\0').filter(f => f.trim().length > 0);
     frames.forEach(frame => {
-      const command = frame.split('\n', 1)[0];
+      const command = frame.split('\n')[0].trim();
       if (command === 'CONNECTED') {
         this.realtimeConnected = true;
         this.sendFrame('SUBSCRIBE', {
@@ -416,8 +625,10 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
         return;
       }
       if (command === 'MESSAGE') {
-        const body = frame.substring(frame.indexOf('\n\n') + 2);
-        this.handleRealtimeBody(body);
+        const bodyStart = frame.indexOf('\n\n');
+        if (bodyStart === -1) return;
+        const body = frame.substring(bodyStart + 2).trim();
+        if (body) this.handleRealtimeBody(body);
       }
     });
   }
@@ -425,6 +636,20 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
   private handleRealtimeBody(body: string): void {
     try {
       const payload = JSON.parse(body);
+      if (payload.eventType === 'MESSAGE_UPDATED' && payload.message) {
+        this.messages = this.messages.map(m => m.id === payload.message.id ? payload.message : m);
+        return;
+      }
+      if (payload.eventType === 'MESSAGE_DELETED' && payload.messageId) {
+        this.messages = this.messages.filter(m => m.id !== payload.messageId);
+        this.selectedMessageIds.delete(payload.messageId);
+        return;
+      }
+      if (payload.eventType === 'CONVERSATION_DELETED') {
+        this.error = 'Cette conversation a été supprimée.';
+        void this.router.navigate(['/messages']);
+        return;
+      }
       if (payload.typeMessage?.includes('CALL') || payload.callData) {
         // Geré via WebRtcService
         return;

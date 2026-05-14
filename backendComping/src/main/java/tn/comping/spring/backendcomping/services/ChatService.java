@@ -17,6 +17,9 @@ public interface ChatService {
     // === MESSAGES ===
     List<MessageResponseDTO> getMessages(String conversationId, int page, int size, String userId);
     MessageResponseDTO sendMessage(String currentUserId, MessageRequestDTO dto);
+    MessageResponseDTO updateMessage(String messageId, String contenu, String userId);
+    void deleteMessage(String messageId, String userId);
+    void deleteConversation(String conversationId, String userId);
     void markAsRead(String conversationId, String userId);
 
     // === STATUT UTILISATEUR ===

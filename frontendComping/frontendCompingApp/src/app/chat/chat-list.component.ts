@@ -1,14 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CommunityService, ConversationResponse, UserStatus } from '../services/community.service';
+import { CommunityService, ConversationResponse, UserStatus, AbonnementResponse } from '../services/community.service';
+import { CommunitySidebarComponent } from '../shared/community-sidebar/community-sidebar.component';
 
 @Component({
   selector: 'app-chat-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, RouterOutlet, CommunitySidebarComponent],
   templateUrl: './chat-list.component.html',
   styleUrls: ['./chat-list.component.css']
 })
@@ -16,20 +17,24 @@ export class ChatListComponent implements OnInit, OnDestroy {
   conversations: ConversationResponse[] = [];
   onlineUsers: UserStatus[] = [];
 
+  followingList: AbonnementResponse[] = [];
+
   // Direct conversation form
-  participant2Id = '';
-  avisId = '';
+  selectedFriendId = '';
 
   // Group creation form
   groupName = '';
-  groupParticipants = ''; // emails séparés par virgule
+  selectedGroupMemberIds: string[] = [];
   showGroupForm = false;
+  showNewConvForm = false;
 
   search = '';
   loading = false;
   creating = false;
   error = '';
   success = '';
+  convOpen = false;
+  sidebarCollapsed = false;
 
   private subs: Subscription[] = [];
 
@@ -39,6 +44,7 @@ export class ChatListComponent implements OnInit, OnDestroy {
     this.community.connectNotificationsSocket();
     this.loadConversations();
     this.loadOnlineUsers();
+    this.loadFollowing();
 
     // Refresh on new messages
     this.subs.push(
@@ -108,20 +114,52 @@ export class ChatListComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadFollowing(): void {
+    this.community.getMyFollowing().subscribe({
+      next: list => this.followingList = list,
+      error: () => {}
+    });
+  }
+
+  toggleGroupForm(): void {
+    this.showGroupForm = !this.showGroupForm;
+    this.showNewConvForm = false;
+    if (!this.showGroupForm) this.selectedGroupMemberIds = [];
+    this.error = '';
+  }
+
+  toggleNewConvForm(): void {
+    this.showNewConvForm = !this.showNewConvForm;
+    this.showGroupForm = false;
+    if (!this.showNewConvForm) this.selectedFriendId = '';
+    if (this.showGroupForm === false) this.selectedGroupMemberIds = [];
+    this.error = '';
+  }
+
+  toggleGroupMember(email: string): void {
+    const idx = this.selectedGroupMemberIds.indexOf(email);
+    if (idx === -1) {
+      this.selectedGroupMemberIds = [...this.selectedGroupMemberIds, email];
+    } else {
+      this.selectedGroupMemberIds = this.selectedGroupMemberIds.filter(e => e !== email);
+    }
+  }
+
+  isGroupMemberSelected(email: string): boolean {
+    return this.selectedGroupMemberIds.includes(email);
+  }
+
   createConversation(): void {
-    const participant = this.participant2Id.trim();
-    if (!participant) {
-      this.error = 'Email du destinataire requis.';
+    if (!this.selectedFriendId) {
+      this.error = 'Sélectionnez un ami.';
       return;
     }
-
     this.creating = true;
     this.error = '';
-    this.community.getOrCreateConversation(participant, this.avisId.trim() || undefined).subscribe({
+    this.community.getOrCreateConversation(this.selectedFriendId).subscribe({
       next: conv => {
         this.creating = false;
-        this.participant2Id = '';
-        this.avisId = '';
+        this.selectedFriendId = '';
         void this.router.navigate(['/messages', conv.id]);
       },
       error: () => {
@@ -133,29 +171,26 @@ export class ChatListComponent implements OnInit, OnDestroy {
 
   createGroup(): void {
     const name = this.groupName.trim();
-    const participants = this.groupParticipants.split(',').map(p => p.trim()).filter(Boolean);
-
     if (!name) {
       this.error = 'Nom du groupe requis.';
       return;
     }
-    if (participants.length < 2) {
-      this.error = 'Au moins 2 participants requis pour un groupe.';
+    if (this.selectedGroupMemberIds.length < 2) {
+      this.error = 'Sélectionnez au moins 2 participants.';
       return;
     }
-
     this.creating = true;
-    this.community.createGroup(name, participants).subscribe({
+    this.community.createGroup(name, [...this.selectedGroupMemberIds]).subscribe({
       next: conv => {
         this.creating = false;
         this.groupName = '';
-        this.groupParticipants = '';
+        this.selectedGroupMemberIds = [];
         this.showGroupForm = false;
-        this.success = '✅ Groupe créé !';
+        this.success = 'Groupe créé !';
         setTimeout(() => this.success = '', 3000);
         void this.router.navigate(['/messages', conv.id]);
       },
-      error: (e) => {
+      error: (e: { error?: { message?: string } }) => {
         this.error = e.error?.message || 'Création du groupe impossible.';
         this.creating = false;
       }
@@ -200,6 +235,12 @@ export class ChatListComponent implements OnInit, OnDestroy {
     if (!conv.groupe || !conv.participantNoms) return '';
     if (conv.participantNoms.length <= 3) return conv.participantNoms.join(', ');
     return `${conv.participantNoms.slice(0, 3).join(', ')} +${conv.participantNoms.length - 3}`;
+  }
+
+  userInitials(userId: string): string {
+    if (!userId) return '?';
+    const parts = userId.split(/[@.\s]/);
+    return parts.filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase() || userId[0].toUpperCase();
   }
 
   private otherParticipantId(conv: ConversationResponse): string {

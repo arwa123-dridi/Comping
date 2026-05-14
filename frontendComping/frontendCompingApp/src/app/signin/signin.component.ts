@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SigninService, LoginDTORequest, LoginDTOResponse } from '../services/signin.service';
 
 @Component({
@@ -21,7 +21,9 @@ export class SigninComponent {
   errorMsg     = '';
 
 
-  constructor(private signinService: SigninService
+  constructor(private signinService: SigninService,
+              private router: Router,
+              private route: ActivatedRoute
   ) {}
 
   togglePassword(): void {
@@ -45,6 +47,7 @@ export class SigninComponent {
         console.log('Login réussi', res);
         this.signinService.saveToken(res.token);
         console.log("TOKEN IN LOCALSTORAGE:", localStorage.getItem('authToken'));
+        void this.router.navigateByUrl(this.getReturnUrl());
       },
       error: (err) => {
         this.isLoading = false;
@@ -52,5 +55,10 @@ export class SigninComponent {
         console.error('Erreur login', err);
       }
     });
+  }
+
+  private getReturnUrl(): string {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    return returnUrl && returnUrl.startsWith('/') ? returnUrl : '/Campino';
   }
 }

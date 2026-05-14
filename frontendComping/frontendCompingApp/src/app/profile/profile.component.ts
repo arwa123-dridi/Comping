@@ -269,6 +269,13 @@ export class ProfileComponent implements OnInit {
   }
 
   logout(): void {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      this.http.post('http://localhost:8087/api/auth/logout', {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).subscribe({ error: () => {} });
+    }
+    localStorage.removeItem('authToken');
     localStorage.removeItem('token');
     this.router.navigate(['/login']);
   }

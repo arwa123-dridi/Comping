@@ -13,4 +13,5 @@ public interface PostRepository extends MongoRepository<Post, String> {
     List<Post> findByAuteurIdOrderByDatePublicationDesc(String auteurId, Pageable pageable);
     List<Post> findByAvisId(String avisId);
     List<Post> findByCibleIdAndCibleTypeOrderByDatePublicationDesc(String cibleId, String cibleType);
+    List<Post> findByAuteurIdInOrderByDatePublicationDesc(List<String> auteurIds, Pageable pageable);
 }

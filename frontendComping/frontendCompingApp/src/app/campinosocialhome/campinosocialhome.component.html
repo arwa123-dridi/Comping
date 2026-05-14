@@ -20,7 +20,7 @@
     <span class="logo-name">CAMPI<span>NO</span></span>
   </a>
     <div class="header-btns">
-       <a routerLink="/login" class="btn-ghost">Connexion</a>
+       <a routerLink="/login" [queryParams]="socialLoginQuery" class="btn-ghost">Connexion</a>
     <a routerLink="/signup" class="btn-fill">S'inscrire gratuitement</a>
      </div>
      <nav>  <a routerLink="/Campino" >Revenir au menu principale</a></nav>
@@ -90,7 +90,7 @@
         Rejoindre la communauté — c'est gratuit
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
-      <a routerLink="/login" class="btn-hero-ghost">Déjà membre ? Connexion</a>
+      <a routerLink="/login" [queryParams]="socialLoginQuery" class="btn-hero-ghost">Déjà membre ? Connexion</a>
     </div>
 
     <div class="hero-trust">
@@ -165,7 +165,7 @@
           <li>🔥 Hashtags et contenus tendance</li>
           <li>👤 Profil campeur personnalisé</li>
         </ul>
-        <a routerLink="/login" class="fc-cta green">Accéder au fil communauté →</a>
+        <a routerLink="/login" [queryParams]="socialLoginQuery" class="fc-cta green">Accéder au fil communauté →</a>
       </div>
     </div>
 
@@ -208,7 +208,7 @@
           <li>📍 340+ spots référencés en Tunisie</li>
           <li>✍️ Déposez votre propre avis</li>
         </ul>
-        <a routerLink="/login" class="fc-cta orange">Découvrir les avis →</a>
+        <a routerLink="/login" [queryParams]="socialLoginQuery" class="fc-cta orange">Découvrir les avis →</a>
       </div>
     </div>
 
@@ -249,7 +249,7 @@
           <li>🎤 Messages vocaux et audio</li>
           <li>📎 Partage de photos et fichiers</li>
         </ul>
-        <a routerLink="/login" class="fc-cta blue">Ouvrir ma messagerie →</a>
+        <a routerLink="/login" [queryParams]="socialLoginQuery" class="fc-cta blue">Ouvrir ma messagerie →</a>
       </div>
     </div>
 
@@ -340,7 +340,7 @@
         Créer mon compte gratuitement
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
-      <a routerLink="/login" class="cta-btn-sec">J'ai déjà un compte</a>
+      <a routerLink="/login" [queryParams]="socialLoginQuery" class="cta-btn-sec">J'ai déjà un compte</a>
     </div>
     <div class="cta-modules">
       <span>📱 Réseau Social</span>
@@ -383,9 +383,9 @@
     </div>
     <div class="fg-col">
       <h5>COMMUNAUTÉ</h5>
-      <a routerLink="/login">Fil communauté</a>
-      <a routerLink="/login">Avis campeurs</a>
-      <a routerLink="/login">Messages</a>
+      <a routerLink="/login" [queryParams]="socialLoginQuery">Fil communauté</a>
+      <a routerLink="/login" [queryParams]="socialLoginQuery">Avis campeurs</a>
+      <a routerLink="/login" [queryParams]="socialLoginQuery">Messages</a>
       <a routerLink="/profile">Mon profil</a>
     </div>
     <div class="fg-col">

@@ -67,24 +67,24 @@ export class VoiceRecorderService {
   /**
    * Convertit un blob audio en WAV 16kHz mono (compatible Vosk)
    */
-  private async convertToWav16k(blob: Blob): Promise<Blob> {
+  async convertToWav16k(blob: Blob): Promise<Blob> {
     const arrayBuffer = await blob.arrayBuffer();
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+    const AudioContextCtor = window.AudioContext || (window as any).webkitAudioContext;
+    const audioCtx = new AudioContextCtor();
     const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
 
     // Récupérer le canal mono (mix down si stéréo)
     const numChannels = 1;
-    const length = audioBuffer.length;
     const sampleRate = 16000;
-
-    const mono = new Float32Array(length);
-    if (audioBuffer.numberOfChannels === 1) {
-      mono.set(audioBuffer.getChannelData(0));
-    } else {
-      const left = audioBuffer.getChannelData(0);
-      const right = audioBuffer.getChannelData(1);
-      for (let i = 0; i < length; i++) mono[i] = (left[i] + right[i]) / 2;
-    }
+    const targetLength = Math.max(1, Math.ceil(audioBuffer.duration * sampleRate));
+    const offlineCtx = new OfflineAudioContext(numChannels, targetLength, sampleRate);
+    const source = offlineCtx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(offlineCtx.destination);
+    source.start(0);
+    const resampled = await offlineCtx.startRendering();
+    const mono = resampled.getChannelData(0);
+    const length = mono.length;
 
     // Encoder en WAV PCM 16-bit
     const buffer = new ArrayBuffer(44 + length * 2);
@@ -115,7 +115,7 @@ export class VoiceRecorderService {
       view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
     }
 
-    audioCtx.close();
+    await audioCtx.close();
     return new Blob([buffer], { type: 'audio/wav' });
   }
 }

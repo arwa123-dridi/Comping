@@ -3,6 +3,7 @@ package tn.comping.spring.backendcomping.services.serviceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import tn.comping.spring.backendcomping.dto.AvisRequestDTO;
@@ -12,13 +13,18 @@ import tn.comping.spring.backendcomping.entities.Avis;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.entities.StatutAvis;
 import tn.comping.spring.backendcomping.entities.TypeCible;
+import tn.comping.spring.backendcomping.entities.Abonnement;
+import tn.comping.spring.backendcomping.entities.Role;
+import tn.comping.spring.backendcomping.repositories.AbonnementRepository;
 import tn.comping.spring.backendcomping.repositories.AvisRepository;
 import tn.comping.spring.backendcomping.repositories.SignupRepository;
 import tn.comping.spring.backendcomping.utils.mapper.AvisMapper;
 import tn.comping.spring.backendcomping.utils.mapper.StatistiquesAvisMapper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +34,8 @@ public class AvisServiceImpl implements AvisService {
 
     private final AvisRepository avisRepository;
     private final SignupRepository signupRepository;
+    private final AbonnementRepository abonnementRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public AvisResponseDTO creerAvis(AvisRequestDTO dto, String utilisateurEmail) {
@@ -48,10 +56,23 @@ public class AvisServiceImpl implements AvisService {
         if (parentAvisId != null && !parentAvisId.isEmpty()) {
             avis.setParentAvisId(parentAvisId);
         }
-        avis = avisRepository.save(avis);
+        final Avis savedAvis = avisRepository.save(avis);
+        log.info("Avis cree - ID: {}, Parent: {}", savedAvis.getId(), savedAvis.getParentAvisId());
 
-        log.info("Avis cree - ID: {}, Parent: {}", avis.getId(), avis.getParentAvisId());
-        return mapToResponseDTO(avis);
+        // Notifier tous les admins qu'un nouvel avis a été déposé
+        final String auteurNom = (utilisateur.getFirstName() + " " + utilisateur.getLastName()).trim();
+        final String expediteurNom = auteurNom.isEmpty() ? utilisateurEmail : auteurNom;
+        signupRepository.findByRole(Role.ADMIN).forEach(admin -> {
+            if (admin.getEmail() != null) {
+                Map<String, Object> payload = new HashMap<>();
+                payload.put("type", "NEW_AVIS");
+                payload.put("expediteurNom", expediteurNom);
+                payload.put("avisId", savedAvis.getId());
+                messagingTemplate.convertAndSend("/topic/user/" + admin.getEmail() + "/notifications", payload);
+            }
+        });
+
+        return mapToResponseDTO(savedAvis);
     }
 
     @Override
@@ -158,8 +179,19 @@ public class AvisServiceImpl implements AvisService {
         avis.setStatut(StatutAvis.VALIDE);
         avis.setValide(true);
         avis.setAdminId(admin.getId());
+        AvisResponseDTO result = mapToResponseDTO(avisRepository.save(avis));
 
-        return mapToResponseDTO(avisRepository.save(avis));
+        // Notifier l'auteur de l'avis
+        SignupEntity auteur = signupRepository.findById(avis.getUtilisateurId()).orElse(null);
+        if (auteur != null && auteur.getEmail() != null) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("type", "AVIS_VALIDE");
+            payload.put("expediteurNom", "Campino");
+            payload.put("avisId", avis.getId());
+            messagingTemplate.convertAndSend("/topic/user/" + auteur.getEmail() + "/notifications", payload);
+        }
+
+        return result;
     }
 
 @Override
@@ -174,8 +206,48 @@ public class AvisServiceImpl implements AvisService {
         avis.setValide(false);
         avis.setMotifRejet(motif);
         avis.setAdminId(admin.getId());
+        AvisResponseDTO result = mapToResponseDTO(avisRepository.save(avis));
 
-        return mapToResponseDTO(avisRepository.save(avis));
+        // Notifier l'auteur de l'avis
+        SignupEntity auteur = signupRepository.findById(avis.getUtilisateurId()).orElse(null);
+        if (auteur != null && auteur.getEmail() != null) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("type", "AVIS_REJETE");
+            payload.put("expediteurNom", "Campino");
+            payload.put("avisId", avis.getId());
+            payload.put("motif", motif);
+            messagingTemplate.convertAndSend("/topic/user/" + auteur.getEmail() + "/notifications", payload);
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<AvisResponseDTO> getAvisValides() {
+        return avisRepository.findByStatutAndParentAvisIdIsNullOrderByDatePublicationDesc(StatutAvis.VALIDE)
+                .stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AvisResponseDTO> getAvisAmis(String utilisateurEmail) {
+        List<String> suiviEmails = abonnementRepository.findBySuiveurId(utilisateurEmail)
+                .stream().map(Abonnement::getSuiviId).collect(Collectors.toList());
+        if (suiviEmails.isEmpty()) return List.of();
+
+        List<String> suiviIds = suiviEmails.stream()
+                .map(email -> signupRepository.findByEmail(email)
+                        .map(SignupEntity::getId).orElse(null))
+                .filter(id -> id != null)
+                .collect(Collectors.toList());
+        if (suiviIds.isEmpty()) return List.of();
+
+        return avisRepository.findByUtilisateurIdInAndValideOrderByDatePublicationDesc(suiviIds, true)
+                .stream()
+                .filter(a -> a.getParentAvisId() == null)
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Override

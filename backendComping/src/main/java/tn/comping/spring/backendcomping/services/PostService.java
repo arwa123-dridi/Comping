@@ -21,5 +21,6 @@ public interface PostService {
     // Trending & IA
     List<PostResponseDTO> getTrendingPosts(int page, int size, String currentUserId);
     List<PostResponseDTO> getPostsByHashtag(String hashtag, int page, int size, String currentUserId);
+    List<PostResponseDTO> getFriendsPosts(List<String> suiviIds, int page, int size, String currentUserId);
     void recalculateTrendScores(); // appelé périodiquement par scheduled task
 }

@@ -13,4 +13,5 @@ public interface AbonnementRepository extends MongoRepository<Abonnement, String
     long countBySuiveurId(String suiveurId);
     long countBySuiviId(String suiviId);
     boolean existsBySuiveurIdAndSuiviId(String suiveurId, String suiviId);
+    void deleteBySuiveurIdAndSuiviId(String suiveurId, String suiviId);
 }

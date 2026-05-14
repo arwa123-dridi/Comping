@@ -15,8 +15,8 @@ import java.util.Set;
 public class JwtUtils {
     private final String jwtSecret="compingSecretKeyForJWTMustBe256BitsLongAtLeast!!";
 
-    //token session duration in milliseconds (10 minutes)
-    private final long jwtExpirationMs = 600000;
+    // 30 days — user stays logged in until explicit logout
+    private final long jwtExpirationMs = 2592000000L;
     private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
     private Key getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes();

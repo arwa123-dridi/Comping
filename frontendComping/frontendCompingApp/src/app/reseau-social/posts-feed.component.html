@@ -1,57 +1,141 @@
-<section class="campino-social-shell">
-  <!-- ===== SIDEBAR ===== -->
-  <aside class="community-sidebar">
-    <a routerLink="/Campino" class="brand">
-      <span class="brand-mark">C</span>
-      <span>CAMPI<strong>NO</strong></span>
-    </a>
-    <nav>
-      <a routerLink="/community" routerLinkActive="active">
-        <span class="nav-icon">🏠</span> Fil communauté
-      </a>
-      <a routerLink="/reviews" routerLinkActive="active">
-        <span class="nav-icon">⭐</span> Avis campeurs
-      </a>
-      <a routerLink="/messages" routerLinkActive="active">
-        <span class="nav-icon">💬</span> Messages
-      </a>
-      <a routerLink="/profile">
-        <span class="nav-icon">👤</span> Mon profil
-      </a>
-    </nav>
-    <div class="sidebar-note">
-      <strong>🌲 Vivez le camping</strong>
-      <span>Partagez, échangez et créez des souvenirs avec la communauté.</span>
-    </div>
-  </aside>
+<section class="campino-social-shell" [class.sidebar-collapsed]="sidebarCollapsed">
 
-  <!-- ===== MAIN ===== -->
+  <!-- ═══════════ SIDEBAR COMMUNAUTÉ ═══════════ -->
+  <app-community-sidebar
+    (feedRequested)="showOverview = false"
+    (overviewRequested)="openOverview()"
+    (collapsedChange)="sidebarCollapsed = $event">
+  </app-community-sidebar>
+
+  <!-- ═══════════ MAIN ═══════════ -->
   <main class="social-main">
-    <header class="social-topbar">
-      <div>
-        <span class="eyebrow">Réseau social</span>
-        <h1>Fil communauté</h1>
-      </div>
-      <button class="soft-btn" type="button" (click)="loadFeed()">
-        <span>↻</span> Actualiser
-      </button>
-    </header>
 
+    <!-- ALERTES -->
     <div class="alerts">
-      <div class="alert error" *ngIf="error">{{ error }}</div>
+      <div class="alert error"   *ngIf="error">{{ error }}</div>
       <div class="alert success" *ngIf="success">{{ success }}</div>
     </div>
 
-    <!-- Composer -->
-    <section class="composer-card">
-      <div class="composer-head">
-        <div class="avatar avatar-me">{{ initials(community.getCurrentEmail()) }}</div>
-        <textarea rows="3" [(ngModel)]="newPost"
-                  placeholder="Que partagez-vous aujourd'hui ? Utilisez #hashtags pour atteindre la communauté"></textarea>
+    <section class="overview-inline" *ngIf="showOverview">
+      <header class="overview-inline-head">
+        <div>
+          <span class="eyebrow">Administration · Campino</span>
+          <h1>Vue d'ensemble</h1>
+          <p>Suivi rapide de la communauté, des avis et des utilisateurs connectés.</p>
+        </div>
+        <button class="soft-btn" type="button" (click)="loadOverviewData()">Actualiser</button>
+      </header>
+
+      <div class="overview-cards">
+        <article>
+          <span>Utilisateurs actifs</span>
+          <strong>{{ activeAuthorsCount || onlineUsers.length }}</strong>
+          <em>Activité du fil</em>
+        </article>
+        <article>
+          <span>Posts</span>
+          <strong>{{ posts.length }}</strong>
+          <em>Aujourd'hui</em>
+        </article>
+        <article>
+          <span>Avis en attente</span>
+          <strong>{{ pendingAvis.length }}</strong>
+          <em>À traiter</em>
+        </article>
+        <article>
+          <span>En ligne</span>
+          <strong>{{ onlineUsers.length }}</strong>
+          <em>Temps réel</em>
+        </article>
       </div>
-      <div class="composer-actions">
-        <input [(ngModel)]="imageDraft" placeholder="🖼️ URLs d'images (séparées par virgules)" />
-        <select [(ngModel)]="visibilite">
+
+      <div class="overview-panels">
+        <article class="overview-panel">
+          <h2>File de modération</h2>
+          <div class="overview-row" *ngFor="let avis of pendingAvis.slice(0, 4)">
+            <span class="overview-avatar">{{ initials(avis.utilisateurNom) }}</span>
+            <div>
+              <strong>{{ avis.utilisateurNom || 'Utilisateur' }}</strong>
+              <p>{{ avis.commentaire | slice:0:72 }}{{ avis.commentaire.length > 72 ? '...' : '' }}</p>
+            </div>
+          </div>
+          <p class="empty-tags" *ngIf="pendingAvis.length === 0">Aucun avis en attente.</p>
+        </article>
+
+        <article class="overview-panel">
+          <h2>Utilisateurs en ligne</h2>
+          <div class="overview-row" *ngFor="let user of onlineUsers.slice(0, 5)">
+            <span class="presence-mini"></span>
+            <div>
+              <strong>{{ user.nom || user.userId }}</strong>
+              <p>{{ user.statusMessage || 'Actif maintenant' }}</p>
+            </div>
+          </div>
+          <p class="empty-tags" *ngIf="onlineUsers.length === 0">Aucun utilisateur en ligne.</p>
+        </article>
+      </div>
+    </section>
+
+    <ng-container *ngIf="!showOverview">
+
+    <!-- STORIES ROW -->
+    <div class="stories-row">
+      <div class="story-item story-add">
+        <div class="story-circle">
+          <span class="story-plus">+</span>
+        </div>
+        <span class="story-name">Mon statut</span>
+      </div>
+      <div class="story-item" *ngFor="let s of stories"
+           (click)="openUserById(s.id, $event)" title="{{ s.nom }}">
+        <div class="story-circle" [style.background]="storyColor(s.nom)">
+          <img *ngIf="s.photo" [src]="s.photo" alt="" />
+          <span *ngIf="!s.photo">{{ initials(s.nom) }}</span>
+        </div>
+        <span class="story-name">{{ s.nom.split(' ')[0] }}</span>
+      </div>
+    </div>
+
+    <!-- ONGLETS FEED (underline style) -->
+    <section class="feed-tabs">
+      <button [class.active]="feedMode === 'recents'" (click)="setFeedMode('recents')">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Feed
+      </button>
+      <button [class.active]="feedMode === 'amis'" (click)="setFeedMode('amis')">
+        <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Mes amis
+      </button>
+      <button class="refresh-tab-btn" type="button" (click)="loadFeed()" title="Actualiser">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px">
+          <polyline points="23 4 23 10 17 10"/>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+      </button>
+    </section>
+
+    <!-- COMPOSER -->
+    <section class="composer-card">
+      <!-- Ligne principale : avatar + textarea -->
+      <div class="composer-top">
+        <div class="avatar avatar-me">{{ initials(community.getCurrentEmail()) }}</div>
+        <textarea [(ngModel)]="newPost"
+                  rows="2"
+                  class="composer-textarea"
+                  placeholder="Quoi de neuf au camping ?"></textarea>
+      </div>
+
+      <!-- Ligne publier (visible si contenu ou images) -->
+      <div class="composer-publish-row" *ngIf="newPost.trim().length > 0 || selectedImagePreviews.length > 0">
+        <select [(ngModel)]="visibilite" class="vis-select">
           <option value="PUBLIC">🌍 Public</option>
           <option value="AMIS">👥 Amis</option>
           <option value="PRIVE">🔒 Privé</option>
@@ -60,60 +144,118 @@
           {{ saving ? 'Publication...' : 'Publier' }}
         </button>
       </div>
+
+      <!-- Aperçus images -->
+      <div class="composer-previews" *ngIf="selectedImagePreviews.length > 0">
+        <div class="composer-preview" *ngFor="let preview of selectedImagePreviews; let i = index">
+          <img [src]="preview" alt="Image sélectionnée" />
+          <button type="button" (click)="removeSelectedImage(i)" title="Retirer l'image">×</button>
+        </div>
+      </div>
+
+      <!-- Séparateur -->
+      <div class="composer-divider"></div>
+
+      <!-- Chips d'action -->
+      <div class="composer-chips">
+        <label class="composer-chip photo-chip" title="Ajouter une photo">
+          <input type="file" accept="image/*" multiple (change)="onImagesSelected($event)" />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span>Photo</span>
+        </label>
+        <button class="composer-chip event-chip" type="button"
+                (click)="newPost = newPost + '\n📅 Événement : '">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span>Événement</span>
+        </button>
+        <button class="composer-chip avis-chip" type="button"
+                (click)="navigateToAvis()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span>Avis</span>
+        </button>
+      </div>
     </section>
 
-    <!-- Tabs feed -->
-    <section class="feed-tabs">
-      <button [class.active]="feedMode === 'tendances'" (click)="setFeedMode('tendances')">
-        <span>🔥</span> Tendances IA
-      </button>
-      <button [class.active]="feedMode === 'recents'" (click)="setFeedMode('recents')">
-        <span>🕐</span> Récents
-      </button>
-      <button [class.active]="feedMode === 'amis'" (click)="setFeedMode('amis')">
-        <span>👥</span> Mes amis
-      </button>
-    </section>
-
-    <!-- Search bar -->
+    <!-- BARRE RECHERCHE (secondaire) -->
     <section class="feed-toolbar">
-      <input [(ngModel)]="search" placeholder="🔍 Rechercher publication, auteur, hashtag..." />
+      <input [(ngModel)]="search" placeholder="Rechercher une publication, un auteur, un #hashtag..." />
       <span class="count">{{ filteredPosts.length }} publication{{ filteredPosts.length > 1 ? 's' : '' }}</span>
     </section>
 
-    <!-- Selected hashtag indicator -->
+    <!-- HASHTAG ACTIF -->
     <div class="hashtag-banner" *ngIf="selectedHashtag">
-      Publications avec #{{ selectedHashtag }}
+      <span>Publications avec <strong>#{{ selectedHashtag }}</strong></span>
       <button (click)="loadFeed()">✕</button>
     </div>
 
-    <!-- Posts list -->
+    <!-- LISTE CAMPEURS SUIVIS (visible uniquement en mode Mes amis) -->
+    <section class="friends-strip" *ngIf="feedMode === 'amis'">
+      <div class="friends-strip-inner" *ngIf="followingList.length > 0; else noFriends">
+        <div class="friend-item" *ngFor="let a of followingList">
+          <div class="friend-avatar" [style.background]="storyColor(a.suiviNom)">
+            {{ initials(a.suiviNom) }}
+          </div>
+          <span class="friend-name">{{ a.suiviNom.split(' ')[0] }}</span>
+          <button class="friend-remove-btn" (click)="unfollow(a.suiviId)" title="Ne plus suivre">×</button>
+        </div>
+      </div>
+      <ng-template #noFriends>
+        <p class="friends-empty">Vous ne suivez encore personne. Découvrez des campeurs dans les "Suggérés" →</p>
+      </ng-template>
+    </section>
+
+    <!-- ─── CARTES POST ─── -->
     <article class="post-card" *ngFor="let post of filteredPosts" (click)="openPost(post)">
       <header class="post-head">
-        <div class="author" (click)="openUserPosts(post, $event)" title="Voir les posts de {{ post.auteurNom }}">
+        <!-- Auteur -->
+        <div class="author" (click)="openUserPosts(post, $event)" title="Publications de {{ post.auteurNom }}">
           <div class="avatar" [class.with-photo]="post.auteurPhoto">
             <img *ngIf="post.auteurPhoto" [src]="post.auteurPhoto" alt="" />
             <span *ngIf="!post.auteurPhoto">{{ initials(post.auteurNom) }}</span>
           </div>
           <div>
-            <strong class="author-link">{{ post.auteurNom || 'Utilisateur' }}</strong>
-            <span>{{ timeAgo(post.datePublication) }} · {{ post.visibilite === 'PUBLIC' ? '🌍' : (post.visibilite === 'AMIS' ? '👥' : '🔒') }}</span>
+            <strong class="author-link">{{ post.auteurNom || 'Campeur Campino' }}</strong>
+            <span class="post-meta-line">
+              {{ timeAgo(post.datePublication) }} ·
+              <span *ngIf="post.visibilite === 'PUBLIC'">🌍 Public</span>
+              <span *ngIf="post.visibilite === 'AMIS'">👥 Amis</span>
+              <span *ngIf="post.visibilite === 'PRIVE'">🔒 Privé</span>
+            </span>
           </div>
+          <!-- Badge type de post -->
+          <span class="post-type-badge evenement"
+                *ngIf="post.typePost === 'EVENEMENT' || post.cibleType === 'EVENEMENT'">
+            📅 Événement
+          </span>
+          <span class="post-type-badge avis"
+                *ngIf="post.typePost === 'AVIS' || post.avisId">
+            ⭐ Avis
+          </span>
         </div>
+
+        <!-- Méta droite -->
         <div class="post-meta-right">
           <span class="trend-badge" *ngIf="post.trendScore && post.trendScore > 50">🔥 Tendance</span>
           <ng-container *ngIf="isMyPost(post)">
             <button class="icon-btn edit-btn" (click)="startEdit(post, $event)" title="Modifier">✏️</button>
-            <button class="icon-btn" (click)="deletePost(post, $event)" title="Supprimer">🗑️</button>
+            <button class="icon-btn"          (click)="deletePost(post, $event)"  title="Supprimer">🗑️</button>
           </ng-container>
         </div>
       </header>
 
-      <!-- Formulaire d'édition inline -->
+      <!-- Edition inline -->
       <div class="edit-form" *ngIf="editingPost?.id === post.id" (click)="$event.stopPropagation()">
         <textarea rows="3" [(ngModel)]="editContent" placeholder="Modifiez votre publication..."></textarea>
         <div class="edit-form-row">
-          <input [(ngModel)]="editImages" placeholder="🖼️ URLs d'images (séparées par virgules)" />
+          <input [(ngModel)]="editImages" placeholder="URLs d'images (séparées par virgules)" />
           <select [(ngModel)]="editVisibilite">
             <option value="PUBLIC">🌍 Public</option>
             <option value="AMIS">👥 Amis</option>
@@ -121,34 +263,34 @@
           </select>
         </div>
         <div class="edit-form-actions">
-          <button class="cancel-btn" (click)="cancelEdit($event)">Annuler</button>
+          <button class="cancel-btn"     (click)="cancelEdit($event)">Annuler</button>
           <button class="primary-action" (click)="saveEdit($event)" [disabled]="saving_edit">
             {{ saving_edit ? 'Enregistrement...' : 'Enregistrer' }}
           </button>
         </div>
       </div>
 
+      <!-- Contenu -->
       <p class="post-content" *ngIf="editingPost?.id !== post.id" [innerHTML]="post.contenu"></p>
 
+      <!-- Hashtags -->
       <div class="hashtag-pills" *ngIf="post.hashtags && post.hashtags.length > 0">
-        <span *ngFor="let h of post.hashtags" class="hashtag-pill" (click)="$event.stopPropagation(); loadByHashtag(h)">
-          #{{ h }}
-        </span>
+        <span *ngFor="let h of post.hashtags" class="hashtag-pill"
+              (click)="$event.stopPropagation(); loadByHashtag(h)">#{{ h }}</span>
       </div>
 
+      <!-- Images -->
       <div class="image-strip" *ngIf="post.images && post.images.length > 0">
-        <img *ngFor="let image of post.images" [src]="image" alt="Photo post" />
+        <img *ngFor="let image of post.images" [src]="image" alt="Photo" />
       </div>
 
-      <!-- Reactions summary -->
+      <!-- Réactions -->
       <div class="reactions-summary" *ngIf="totalReactions(post) > 0">
-        <span class="reaction-bubble" *ngFor="let r of reactionsList(post)">
-          {{ r.emoji }} {{ r.count }}
-        </span>
+        <span class="reaction-bubble" *ngFor="let r of reactionsList(post)">{{ r.emoji }} {{ r.count }}</span>
         <span class="comments-count">💬 {{ post.commentairesCount }}</span>
       </div>
 
-      <!-- Actions bar -->
+      <!-- Actions -->
       <footer class="post-actions">
         <div class="reaction-trigger" (click)="toggleReactionPicker(post, $event)">
           <button class="action-btn" [class.active]="!!post.myReaction">
@@ -158,41 +300,152 @@
             <button *ngFor="let emoji of availableReactions"
                     class="picker-emoji"
                     [class.selected]="post.myReaction === emoji"
-                    (click)="toggleReaction(post, emoji, $event)">
-              {{ emoji }}
-            </button>
+                    (click)="toggleReaction(post, emoji, $event)">{{ emoji }}</button>
           </div>
         </div>
-        <button class="action-btn" (click)="openPost(post); $event.stopPropagation()">
+        <button class="action-btn" (click)="toggleComments(post, $event)">
           💬 Commenter
         </button>
         <button class="action-btn" (click)="startChat(post, $event)">
           ✉️ Message
         </button>
       </footer>
+
+      <section class="comments-panel" *ngIf="commentsOpenFor === post.id" (click)="$event.stopPropagation()">
+
+        <!-- Formulaire nouveau commentaire -->
+        <div class="comment-form">
+          <div class="avatar comment-avatar">{{ initials(community.getCurrentEmail()) }}</div>
+          <div class="comment-input-wrap">
+            <input
+              [(ngModel)]="commentDrafts[post.id]"
+              (input)="onCommentInput(post.id, $event)"
+              (keydown.enter)="submitComment(post, $event)"
+              placeholder="Écrire un commentaire... (@ pour mentionner)"
+              autocomplete="off"
+            />
+            <div class="mention-dropdown" *ngIf="mentionActive && mentionAnchorId === post.id && mentionSuggestions.length > 0">
+              <div class="mention-item" *ngFor="let c of mentionSuggestions" (mousedown)="insertMention(c, post.id)">
+                <span class="mention-av">{{ initials(c.nom) }}</span>
+                <span>{{ c.nom }}</span>
+              </div>
+            </div>
+          </div>
+          <button type="button" (click)="submitComment(post, $event)" [disabled]="commenting[post.id]">
+            {{ commenting[post.id] ? '...' : 'Publier' }}
+          </button>
+        </div>
+
+        <!-- Liste des commentaires aplatie avec indentation -->
+        <div class="comment-list">
+          <ng-container *ngFor="let comment of flatCommentsByPost[post.id] || []">
+            <div class="comment-item" [style.margin-left.px]="comment.indent * 36">
+
+              <div class="avatar comment-avatar"
+                   [style.width.px]="comment.indent > 0 ? 28 : 34"
+                   [style.height.px]="comment.indent > 0 ? 28 : 34"
+                   [style.font-size]="comment.indent > 0 ? '10px' : '11px'">
+                {{ initials(comment.auteurNom || comment.auteurId) }}
+              </div>
+
+              <div class="comment-body">
+
+                <!-- Mode édition -->
+                <div class="comment-edit-form" *ngIf="editingCommentId === comment.id">
+                  <div class="comment-input-wrap">
+                    <textarea rows="2" [(ngModel)]="editCommentDraft"
+                              (input)="onEditCommentInput($event)"
+                              class="edit-textarea"></textarea>
+                    <div class="mention-dropdown" *ngIf="mentionActive && mentionAnchorId === '__edit__' && mentionSuggestions.length > 0">
+                      <div class="mention-item" *ngFor="let c of mentionSuggestions" (mousedown)="insertMentionEdit(c)">
+                        <span class="mention-av">{{ initials(c.nom) }}</span>
+                        <span>{{ c.nom }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="comment-edit-actions">
+                    <button class="cmt-cancel-btn" (click)="cancelEditComment($event)">Annuler</button>
+                    <button class="cmt-save-btn" (click)="saveEditComment(post.id, comment, $event)">Enregistrer</button>
+                  </div>
+                </div>
+
+                <!-- Mode affichage -->
+                <ng-container *ngIf="editingCommentId !== comment.id">
+                  <div class="comment-bubble">
+                    <strong>{{ comment.auteurNom || comment.auteurId || 'Campeur Campino' }}</strong>
+                    <p [innerHTML]="renderMentions(comment.contenu)"></p>
+                  </div>
+
+                  <!-- Barre d'actions -->
+                  <div class="comment-meta-row">
+                    <span class="cmt-time">{{ timeAgo(comment.datePublication) }}</span>
+                    <button class="cmt-action-btn" [class.liked]="comment.likedByCurrentUser"
+                            (click)="toggleCommentLike(post, comment, $event)">
+                      👍<span *ngIf="comment.likesCount > 0"> {{ comment.likesCount }}</span>
+                    </button>
+                    <button class="cmt-action-btn" (click)="setReplyTarget(comment.id, $event)">↩️ Répondre</button>
+                    <button *ngIf="isMyComment(comment)" class="cmt-action-btn edit"
+                            (click)="startEditComment(comment, $event)" title="Modifier">✏️</button>
+                    <button *ngIf="canDeleteComment(post, comment)" class="cmt-action-btn delete"
+                            (click)="deleteCommentItem(post, post.id, comment.id, $event)" title="Supprimer">🗑️</button>
+                  </div>
+                </ng-container>
+
+                <!-- Formulaire de réponse inline -->
+                <div class="reply-form" *ngIf="replyingToCommentId === comment.id">
+                  <div class="comment-input-wrap" style="flex:1; min-width:0">
+                    <input [(ngModel)]="replyDraft"
+                           (input)="onReplyInput($event)"
+                           (keydown.enter)="submitReply(post, comment.id, $event)"
+                           placeholder="Répondre... (@ pour mentionner)"
+                           autocomplete="off" />
+                    <div class="mention-dropdown" *ngIf="mentionActive && mentionAnchorId === '__reply__' && mentionSuggestions.length > 0">
+                      <div class="mention-item" *ngFor="let c of mentionSuggestions" (mousedown)="insertMentionReply(c)">
+                        <span class="mention-av">{{ initials(c.nom) }}</span>
+                        <span>{{ c.nom }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button type="button" (click)="submitReply(post, comment.id, $event)">↑</button>
+                  <button type="button" class="reply-cancel" (click)="cancelReply($event)">✕</button>
+                </div>
+
+              </div>
+            </div>
+          </ng-container>
+
+          <p class="empty-comments" *ngIf="(flatCommentsByPost[post.id] || []).length === 0">
+            Aucun commentaire pour le moment.
+          </p>
+        </div>
+      </section>
     </article>
 
+    <!-- ÉTAT VIDE -->
     <div class="empty-state" *ngIf="!loading && filteredPosts.length === 0">
       <div class="empty-icon">🏕️</div>
-      <h3>Aucune publication</h3>
-      <p>Soyez le premier à partager une expérience !</p>
+      <h3 *ngIf="feedMode === 'recents'">Le fil est vide</h3>
+      <h3 *ngIf="feedMode === 'amis'">Vos amis n'ont rien publié récemment</h3>
+      <p *ngIf="feedMode !== 'amis'">Soyez le premier à partager une expérience avec la communauté !</p>
+      <p *ngIf="feedMode === 'amis'">Invitez des campeurs à rejoindre votre réseau.</p>
     </div>
+    </ng-container>
   </main>
 
-  <!-- ===== AI RECOMMENDATION SIDEBAR ===== -->
+  <!-- ═══════════ PANNEAU DROIT ═══════════ -->
   <aside class="context-panel">
+
+    <!-- La Tendance -->
     <article class="ai-card">
       <header class="ai-header">
         <span class="ai-icon">✨</span>
         <div>
-          <h2>IA · Tendances</h2>
-          <small>Sujets populaires</small>
+          <h2>LA TENDANCE</h2>
+          <small>Sujets populaires en temps réel</small>
         </div>
       </header>
       <div class="hashtag-cloud">
-        <button *ngFor="let h of trendingHashtags"
-                class="trending-tag"
-                (click)="loadByHashtag(h.tag)">
+        <button *ngFor="let h of trendingHashtags" class="trending-tag" (click)="loadByHashtag(h.tag)">
           <span class="tag-icon">🔥</span>
           <span>#{{ h.tag }}</span>
           <span class="tag-count">{{ h.count }}</span>
@@ -203,12 +456,13 @@
       </div>
     </article>
 
+    <!-- Pour vous -->
     <article class="ai-card">
       <header class="ai-header">
         <span class="ai-icon">🧠</span>
         <div>
-          <h2>Pour vous</h2>
-          <small>Recommandations IA</small>
+          <h2>POUR VOUS</h2>
+          <small>Recommandations personnalisées</small>
         </div>
       </header>
       <div class="rec-list">
@@ -218,44 +472,47 @@
             <span *ngIf="!rec.images || !rec.images[0]">📷</span>
           </div>
           <div class="rec-info">
-            <div class="rec-title">{{ rec.contenu | slice:0:50 }}{{ rec.contenu.length > 50 ? '...' : '' }}</div>
+            <div class="rec-title">{{ rec.contenu | slice:0:55 }}{{ rec.contenu.length > 55 ? '...' : '' }}</div>
             <div class="rec-meta">{{ rec.auteurNom }} · {{ timeAgo(rec.datePublication) }}</div>
             <div class="ai-score">
               <span>{{ ((rec.trendScore || 0) / 2) | number:'1.0-0' }}%</span>
-              <div class="score-bar">
-                <div class="score-fill" [style.width.%]="(rec.trendScore || 0) / 2"></div>
-              </div>
+              <div class="score-bar"><div class="score-fill" [style.width.%]="(rec.trendScore || 0) / 2"></div></div>
             </div>
           </div>
         </div>
         <p *ngIf="recommandations.length === 0" class="empty-tags">
-          Aucune recommandation pour le moment.
+          Publiez pour que l'IA affine vos recommandations.
         </p>
       </div>
     </article>
 
-    <article class="ai-card stats-card">
+    <!-- SUGGÉRÉS -->
+    <article class="ai-card" *ngIf="suggestions.length > 0">
       <header class="ai-header">
-        <span class="ai-icon">📊</span>
+        <span class="ai-icon">👥</span>
         <div>
-          <h2>Activité</h2>
-          <small>Aujourd'hui</small>
+          <h2>SUGGÉRÉS</h2>
+          <small>Campeurs à découvrir</small>
         </div>
       </header>
-      <div class="stat-grid">
-        <div class="stat-cell">
-          <strong>{{ posts.length }}</strong>
-          <span>Posts</span>
-        </div>
-        <div class="stat-cell">
-          <strong>{{ totalLikes }}</strong>
-          <span>Likes</span>
-        </div>
-        <div class="stat-cell">
-          <strong>{{ totalComments }}</strong>
-          <span>Comments</span>
+      <div class="suggestions-list">
+        <div class="suggestion-row" *ngFor="let s of suggestions">
+          <div class="suggestion-avatar" [style.background]="storyColor(s.nom)">
+            {{ initials(s.nom) }}
+          </div>
+          <div class="suggestion-info">
+            <strong>{{ s.nom }}</strong>
+            <span>Campeur Campino</span>
+          </div>
+          <button class="follow-btn"
+                  [class.following]="followingIds.has(s.id)"
+                  (click)="followingIds.has(s.id) ? unfollow(s.id) : follow(s.id)">
+            {{ followingIds.has(s.id) ? 'Retirer' : 'Suivre' }}
+          </button>
         </div>
       </div>
     </article>
+
+
   </aside>
 </section>

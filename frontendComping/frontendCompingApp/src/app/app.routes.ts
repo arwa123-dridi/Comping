@@ -62,7 +62,12 @@ export const routes: Routes = [
   { path: 'reviews', component: AvisComponent },
   { path: 'community', component: PostsFeedComponent },
   { path: 'community/user/:userId', component: UserPostsComponent },
-  { path: 'messages', component: ChatListComponent },
-  { path: 'messages/:id', component: ChatConversationComponent }
+  {
+    path: 'messages',
+    component: ChatListComponent,
+    children: [
+      { path: ':id', component: ChatConversationComponent }
+    ]
+  }
 
  ];

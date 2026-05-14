@@ -5,15 +5,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import tn.comping.spring.backendcomping.dto.PostRequestDTO;
 import tn.comping.spring.backendcomping.dto.PostResponseDTO;
+import tn.comping.spring.backendcomping.entities.Abonnement;
 import tn.comping.spring.backendcomping.entities.Interaction;
 import tn.comping.spring.backendcomping.entities.Post;
 import tn.comping.spring.backendcomping.repositories.*;
 import tn.comping.spring.backendcomping.services.PostService;
 import tn.comping.spring.backendcomping.utils.mapper.PostMapper;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -30,6 +35,8 @@ public class PostServiceImpl implements PostService {
     private final SignupRepository signupRepository;
     private final PostMapper postMapper;
     private final CommentaireRepository commentaireRepository;
+    private final AbonnementRepository abonnementRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // =========================================================
     // CRUD
@@ -61,6 +68,21 @@ public class PostServiceImpl implements PostService {
 
         Post saved = postRepository.save(post);
         log.info("Post créé - ID: {}, Auteur: {}, Hashtags: {}", saved.getId(), userId, hashtags);
+
+        // Notifier chaque abonné qu'un ami a publié
+        String auteurNom = signupRepository.findByEmail(userId)
+                .map(u -> (u.getFirstName() + " " + u.getLastName()).trim())
+                .filter(n -> !n.isBlank())
+                .orElse(userId);
+        abonnementRepository.findBySuiviId(userId).forEach(abonnement -> {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("type", "NEW_POST");
+            payload.put("expediteurNom", auteurNom);
+            payload.put("postId", saved.getId());
+            messagingTemplate.convertAndSend(
+                    "/topic/user/" + abonnement.getSuiveurId() + "/notifications", payload);
+        });
+
         return postMapper.toResponseDTO(saved, userId);
     }
 
@@ -68,8 +90,10 @@ public class PostServiceImpl implements PostService {
     public List<PostResponseDTO> getFeedPosts(int page, int size, String currentUserId) {
         PageRequest pageable = PageRequest.of(safePage(page), safeSize(size), Sort.by("datePublication").descending());
         String currentUserKey = resolveExistingUserKey(currentUserId);
+        List<String> followingIds = abonnementRepository.findBySuiveurId(currentUserKey)
+                .stream().map(Abonnement::getSuiviId).collect(Collectors.toList());
         return postRepository.findAll(pageable).stream()
-                .filter(post -> "PUBLIC".equals(post.getVisibilite()))
+                .filter(post -> canSeePost(post, currentUserKey, followingIds))
                 .map(post -> postMapper.toResponseDTO(post, currentUserKey))
                 .collect(Collectors.toList());
     }
@@ -78,9 +102,12 @@ public class PostServiceImpl implements PostService {
     public List<PostResponseDTO> getUserPosts(String userId, int page, int size, String currentUserId) {
         validateUser(userId);
         String currentUserKey = resolveExistingUserKey(currentUserId);
+        List<String> followingIds = abonnementRepository.findBySuiveurId(currentUserKey)
+                .stream().map(Abonnement::getSuiviId).collect(Collectors.toList());
         return postRepository.findByAuteurIdOrderByDatePublicationDesc(
                         userId, PageRequest.of(safePage(page), safeSize(size)))
                 .stream()
+                .filter(post -> canSeePost(post, currentUserKey, followingIds))
                 .map(post -> postMapper.toResponseDTO(post, currentUserKey))
                 .collect(Collectors.toList());
     }
@@ -102,6 +129,7 @@ public class PostServiceImpl implements PostService {
         post.setContenu(dto.getContenu().trim());
         post.setImages(dto.getImages() != null ? dto.getImages() : List.of());
         post.setHashtags(extractHashtags(dto.getContenu()));
+        if (dto.getVisibilite() != null) post.setVisibilite(dto.getVisibilite());
         Post updated = postRepository.save(post);
         return postMapper.toResponseDTO(updated, userId);
     }
@@ -164,6 +192,20 @@ public class PostServiceImpl implements PostService {
         post.getReactions().put(emoji, post.getReactions().getOrDefault(emoji, 0) + 1);
         if ("👍".equals(emoji)) post.setLikesCount(post.getLikesCount() + 1);
         postRepository.save(post);
+
+        // Notifier l'auteur du post (pas d'auto-notification)
+        if (!post.getAuteurId().equals(userId)) {
+            String reacteurNom = signupRepository.findByEmail(userId)
+                    .map(u -> (u.getFirstName() + " " + u.getLastName()).trim())
+                    .filter(n -> !n.isBlank())
+                    .orElse(userId);
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("type", "REACTION");
+            payload.put("expediteurNom", reacteurNom);
+            payload.put("emoji", emoji);
+            payload.put("postId", postId);
+            messagingTemplate.convertAndSend("/topic/user/" + post.getAuteurId() + "/notifications", payload);
+        }
     }
 
     @Override
@@ -217,6 +259,30 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public List<PostResponseDTO> getFriendsPosts(List<String> suiviIds, int page, int size, String currentUserId) {
+        String currentUserKey = resolveExistingUserKey(currentUserId);
+        PageRequest pageable = PageRequest.of(safePage(page), safeSize(size), Sort.by("datePublication").descending());
+
+        // On inclut les posts des amis + les propres posts de l'utilisateur courant
+        List<String> authorIds = new ArrayList<>(suiviIds != null ? suiviIds : List.of());
+        if (!authorIds.contains(currentUserKey)) authorIds.add(currentUserKey);
+
+        if (authorIds.isEmpty()) return List.of();
+
+        return postRepository.findByAuteurIdInOrderByDatePublicationDesc(authorIds, pageable)
+                .stream()
+                .filter(post -> {
+                    // Ses propres posts : toujours visibles
+                    if (post.getAuteurId().equals(currentUserKey)) return true;
+                    // Posts des amis : PUBLIC et AMIS seulement (pas PRIVE)
+                    String vis = post.getVisibilite() != null ? post.getVisibilite() : "PUBLIC";
+                    return "PUBLIC".equals(vis) || "AMIS".equals(vis);
+                })
+                .map(post -> postMapper.toResponseDTO(post, currentUserKey))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void recalculateTrendScores() {
         List<Post> allPosts = postRepository.findAll();
         Date now = new Date();
@@ -259,6 +325,23 @@ public class PostServiceImpl implements PostService {
     // =========================================================
     // HELPERS
     // =========================================================
+
+    /**
+     * Règle de visibilité :
+     *  - Auteur lui-même → toujours visible
+     *  - PUBLIC          → visible par tous
+     *  - AMIS            → visible uniquement si le viewer suit l'auteur
+     *  - PRIVE           → visible uniquement par l'auteur
+     */
+    private boolean canSeePost(Post post, String viewerId, List<String> viewerFollowing) {
+        if (post.getAuteurId().equals(viewerId)) return true;
+        String vis = post.getVisibilite() != null ? post.getVisibilite() : "PUBLIC";
+        switch (vis) {
+            case "PUBLIC": return true;
+            case "AMIS":   return viewerFollowing.contains(post.getAuteurId());
+            default:       return false; // PRIVE et tout inconnu
+        }
+    }
 
     private List<String> extractHashtags(String contenu) {
         if (contenu == null) return List.of();

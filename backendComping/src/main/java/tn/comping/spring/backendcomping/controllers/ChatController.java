@@ -25,6 +25,7 @@ public class ChatController {
 
     private final ChatService chatService;
     private static final String UPLOAD_DIR = "./uploads/voice";
+    private static final String ATTACHMENT_UPLOAD_DIR = "./uploads/chat";
 
     // === CONVERSATIONS ===
     @GetMapping("/conversations")
@@ -80,6 +81,30 @@ public class ChatController {
         return ResponseEntity.ok(chatService.sendMessage(auth.getName(), dto));
     }
 
+    @PutMapping("/message/{messageId}")
+    public ResponseEntity<MessageResponseDTO> updateMessage(
+            @PathVariable String messageId,
+            @RequestBody MessageRequestDTO dto,
+            Authentication auth) {
+        return ResponseEntity.ok(chatService.updateMessage(messageId, dto.getContenu(), auth.getName()));
+    }
+
+    @DeleteMapping("/message/{messageId}")
+    public ResponseEntity<Void> deleteMessage(
+            @PathVariable String messageId,
+            Authentication auth) {
+        chatService.deleteMessage(messageId, auth.getName());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/conversation/{conversationId}")
+    public ResponseEntity<Void> deleteConversation(
+            @PathVariable String conversationId,
+            Authentication auth) {
+        chatService.deleteConversation(conversationId, auth.getName());
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/messages/{conversationId}/read")
     public ResponseEntity<Void> markAsRead(
             @PathVariable String conversationId,
@@ -106,6 +131,28 @@ public class ChatController {
                     .build();
 
             return ResponseEntity.ok(chatService.sendMessage(auth.getName(), voiceDto));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping(value = "/attachment", consumes = "multipart/form-data")
+    public ResponseEntity<MessageResponseDTO> sendAttachment(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("conversationId") String conversationId,
+            Authentication auth) {
+        try {
+            String fileUrl = saveChatFile(file);
+            String contentType = file.getContentType();
+            String typeMessage = contentType != null && contentType.startsWith("image/") ? "IMAGE" : "FILE";
+
+            MessageRequestDTO fileDto = MessageRequestDTO.builder()
+                    .conversationId(conversationId)
+                    .contenu(fileUrl)
+                    .typeMessage(typeMessage)
+                    .build();
+
+            return ResponseEntity.ok(chatService.sendMessage(auth.getName(), fileDto));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -138,9 +185,25 @@ public class ChatController {
         File uploadDirFile = new File(UPLOAD_DIR);
         if (!uploadDirFile.exists()) uploadDirFile.mkdirs();
 
-        String fileName = UUID.randomUUID() + ".wav";
+        String fileName = UUID.randomUUID() + getSafeExtension(audio.getOriginalFilename(), ".wav");
         Path filePath = Paths.get(UPLOAD_DIR, fileName);
         Files.copy(audio.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         return "/uploads/voice/" + fileName;
+    }
+
+    private String saveChatFile(MultipartFile file) throws Exception {
+        File uploadDirFile = new File(ATTACHMENT_UPLOAD_DIR);
+        if (!uploadDirFile.exists()) uploadDirFile.mkdirs();
+
+        String fileName = UUID.randomUUID() + getSafeExtension(file.getOriginalFilename(), "");
+        Path filePath = Paths.get(ATTACHMENT_UPLOAD_DIR, fileName);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        return "/uploads/chat/" + fileName;
+    }
+
+    private String getSafeExtension(String originalName, String fallback) {
+        if (originalName == null || !originalName.contains(".")) return fallback;
+        String extension = originalName.substring(originalName.lastIndexOf(".")).toLowerCase();
+        return extension.matches("\\.[a-z0-9]{1,8}") ? extension : fallback;
     }
 }

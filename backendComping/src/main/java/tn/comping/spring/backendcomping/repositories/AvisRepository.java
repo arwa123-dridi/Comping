@@ -39,4 +39,8 @@ public interface AvisRepository extends MongoRepository<Avis, String> {
     List<Avis> findByCibleIdAndTypeCible(String cibleId, TypeCible typeCible);
 
     void deleteByParentAvisId(String parentAvisId);
+
+    List<Avis> findByStatutAndParentAvisIdIsNullOrderByDatePublicationDesc(StatutAvis statut);
+
+    List<Avis> findByUtilisateurIdInAndValideOrderByDatePublicationDesc(List<String> utilisateurIds, boolean valide);
 }

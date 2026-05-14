@@ -10,5 +10,7 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./campinosocialhome.component.css']
 })
 export class HomeComponent {
+  socialLoginQuery = { returnUrl: '/community' };
+
   constructor() { }
 }
