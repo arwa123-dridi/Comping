@@ -38,7 +38,15 @@ allEvents: AppEvent[] = [];
   ) {}
  
   ngOnInit(): void {
-     this.userRole = (localStorage.getItem('role') || '').trim().toUpperCase();
+    const token = localStorage.getItem('authToken');
+
+if (token) {
+  const payload = JSON.parse(atob(token.split('.')[1]));
+
+  this.userRole = payload.role?.trim().toUpperCase() || '';
+
+  console.log("USER ROLE =", this.userRole);
+}
     this.eventService.getAllEvents().subscribe({
       next: (data) => {
          this.allEvents = data;

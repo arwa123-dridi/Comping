@@ -1,4 +1,4 @@
-<app-fidelite-component></app-fidelite-component>
+<app-fidelite-component *ngIf="userRole !== 'ORGANISATEUR'"></app-fidelite-component>
 <div class="page">
   <header class="main-header">
     <div class="header-content">
@@ -20,11 +20,11 @@
             </svg>
             Nouvelle activité
           </button>
-          <a routerLink="/activities/list" class="btn-outline nav-link">
+          </ng-container>
+            <a routerLink="/activities/list" class="btn-outline nav-link">
             📋 Liste des activités
           </a>
-          </ng-container>
-           <a routerLink="/Recommendation" class="btn-ai nav-link">
+           <a routerLink="/Recommendation" class="btn-ai nav-link" *ngIf="userRole === 'USER'">
     🤖 Events pour moi
   </a>
         </div>
@@ -119,7 +119,7 @@
   </button>
    <!-- ✅ Bouton Participer -->
   <button class="icon-btn participate" 
-          (click)="participate(event.idEvent)" 
+          (click)="participate(event.idEvent)" *ngIf="userRole === 'USER'"
           title="Participer"
           [disabled]="event.statut !== 'VALIDE'">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -131,7 +131,7 @@
   </button>
   <!-- ✅ Bouton Payer -->
 <button class="icon-btn pay" 
-        (click)="payEvent(event.idEvent)" 
+        (click)="payEvent(event.idEvent)" *ngIf="userRole === 'USER'"
         title="Payer"
         [disabled]="event.statut !== 'VALIDE'">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -142,6 +142,7 @@
   <!-- ✅ Bouton Annuler participation -->
 <button class="icon-btn cancel-participate"
         (click)="event.idEvent && cancelParticipation(event.idEvent)"
+        *ngIf="userRole === 'USER'"
         title="Annuler participation"
         [disabled]="event.statut !== 'VALIDE'">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -151,13 +152,13 @@
     <line x1="6" y1="6" x2="18" y2="18"></line>
   </svg>
 </button>
-            <button class="icon-btn edit" (click)="editEvent(event)" title="Modifier">
+            <button class="icon-btn edit" (click)="editEvent(event)" *ngIf="userRole === 'ORGANISATEUR'" title="Modifier">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
               </svg>
             </button>
-            <button class="icon-btn delete" (click)="deleteEvent(event.idEvent)" title="Supprimer">
+            <button class="icon-btn delete" (click)="deleteEvent(event.idEvent)" *ngIf="userRole === 'ORGANISATEUR'" title="Supprimer">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -342,7 +343,7 @@
     <!-- Footer modale -->
     <div class="modal-footer">
       <button class="btn-outline-dark" (click)="closeDetails()">Fermer</button>
-      <button class="btn-primary" (click)="editEvent(selectedEvent); closeDetails()">
+      <button class="btn-primary" *ngIf="userRole === 'ORGANISATEUR'" (click)="editEvent(selectedEvent); closeDetails()">
         ✏️ Modifier
       </button>
     </div>

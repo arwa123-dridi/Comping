@@ -20,6 +20,7 @@ selectedType: string = '';
 selectedDifficulty: string = '';
 uniqueTypes: string[] = [];
 filteredActivities: Activity[] = [];
+ userRole: string = '';
   constructor(private activityService: ActivityService,
     private router: Router
   ) {}
