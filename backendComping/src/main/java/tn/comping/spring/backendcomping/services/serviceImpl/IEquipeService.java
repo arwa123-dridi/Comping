@@ -13,8 +13,6 @@ public interface IEquipeService {
     void deleteEquipe(String id);
 
     // Gestion des membres
-    EquipeResponseDTO ajouterMembre(String equipeId, String utilisateurId, String utilisateurNom);
-
     EquipeResponseDTO ajouterMembre(String equipeId, String utilisateurId);
 
     EquipeResponseDTO retirerMembre(String equipeId, String utilisateurId);

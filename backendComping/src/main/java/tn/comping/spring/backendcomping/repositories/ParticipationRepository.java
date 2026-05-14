@@ -10,22 +10,36 @@ import java.util.Optional;
 @Repository
 public interface ParticipationRepository extends MongoRepository<Participation, String> {
 
-    // ⚠️ MODIFIÉ : Utilise l'ID de la sortie depuis la référence
+    // Utilise l'ID de la sortie depuis la référence
     @Query("{ 'sortie.$id' : ?0 }")
     List<Participation> findBySortieId(String sortieId);
 
-    // ⚠️ MODIFIÉ : Utilise l'ID de l'utilisateur depuis la référence
-    @Query("{ 'utilisateur.$id' : ?0 }")
-    List<Participation> findByUtilisateurId(String utilisateurId);
-
-    // ⚠️ MODIFIÉ : Recherche par les deux IDs
+    // = Recherche par les deux IDs
     @Query("{ 'utilisateur.$id' : ?0, 'sortie.$id' : ?1 }")
     Optional<Participation> findByUtilisateurIdAndSortieId(String utilisateurId, String sortieId);
 
-    // ⚠️ MODIFIÉ : Suppression par ID de sortie
+    //  Suppression par ID de sortie
     @Query(value = "{ 'sortie.$id' : ?0 }", delete = true)
     void deleteBySortieId(String sortieId);
 
-    // ✅ GARDÉ : Comptage par ID de sortie
+    // Comptage par ID de sortie
     long countBySortieId(String sortieId);
+
+    // Compter les participations d'un user (pour seuil historique)
+    @Query(value = "{ 'utilisateur.$id' : ?0 }", count = true)
+    long countByUtilisateurId(String utilisateurId);
+
+    // Toutes les participations triées par date DESC
+    @Query("{ 'utilisateur.$id' : ?0 }")
+    List<Participation> findByUtilisateurIdOrderByDateInscriptionDesc(String utilisateurId);
+
+
+    // Vérifier si un utilisateur est déjà inscrit à une sortie
+    @Query(value = "{ 'utilisateur.$id' : ?0, 'sortie.$id' : ?1 }", exists = true)
+    boolean existsByUtilisateurIdAndSortieId(String utilisateurId, String sortieId);
+
+    // Récupérer toutes les participations d’un user (pour l’historique)
+    @Query("{ 'utilisateur.$id' : ?0 }")
+    List<Participation> findByUtilisateurId(String utilisateurId);
+
 }

@@ -31,4 +31,5 @@ public class SortieRequestDTO {
     private String organisateurId;
     private String organisateurNom;
     private String equipeId;
+    private String imageUrl;
 }

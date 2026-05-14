@@ -447,3 +447,23 @@
   .user-info { display: none; }
   .search-shortcut { display: none; }
 }
+/* Dynamic avatar */
+.avatar-initiales {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, #4ade80, #16a34a);
+  color: white; font-weight: 800; font-size: 14px;
+  flex-shrink: 0;
+}
+.avatar-initiales-lg {
+  display: flex; align-items: center; justify-content: center;
+  width: 46px; height: 46px; border-radius: 50%;
+  background: linear-gradient(135deg, #4ade80, #16a34a);
+  color: white; font-weight: 800; font-size: 18px;
+  flex-shrink: 0;
+}
+.dropdown-item button, button.dropdown-item {
+  background: none; border: none; width: 100%; text-align: left;
+  padding: 10px 16px; cursor: pointer; display: flex; align-items: center; gap: 10px;
+  font-family: inherit; font-size: 14px; color: inherit;
+}

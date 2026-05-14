@@ -1,0 +1,103 @@
+<section class="reco-section" *ngIf="userId">
+
+  <!-- En-tête -->
+  <div class="reco-header">
+    <div class="reco-header-left">
+      <div class="reco-icon">👥</div>
+      <div>
+        <h2 class="reco-title">Équipes recommandées pour vous</h2>
+        <p class="reco-sub" *ngIf="hasHistory">
+          Basé sur votre niveau et vos participations
+        </p>
+        <p class="reco-sub" *ngIf="!hasHistory">
+          Équipes avec places disponibles
+        </p>
+      </div>
+    </div>
+    <div class="reco-badge" *ngIf="hasHistory">
+      <span class="badge-icon">📊</span> IA · Niveau adapté
+    </div>
+    <div class="reco-badge reco-badge--new" *ngIf="!hasHistory">
+      <span class="badge-icon">⭐</span> Places disponibles
+    </div>
+  </div>
+
+  <!-- Chargement -->
+  <div class="reco-loading" *ngIf="loading">
+    <div class="reco-skeleton" *ngFor="let i of [1,2,3,4]">
+      <div class="sk-img"></div>
+      <div class="sk-body">
+        <div class="sk-line sk-line--wide"></div>
+        <div class="sk-line"></div>
+        <div class="sk-line sk-line--short"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aucune recommandation -->
+  <div class="reco-empty" *ngIf="!loading && recommandations.length === 0">
+    <div class="empty-icon">🏕️</div>
+    <p>Aucune équipe recommandée pour le moment.</p>
+    <a routerLink="/equipes" class="btn-explore">Explorer toutes les équipes</a>
+  </div>
+
+  <!-- Grille -->
+  <div class="reco-grid" *ngIf="!loading && recommandations.length > 0">
+    <div
+      class="reco-card"
+      *ngFor="let equipe of recommandations; trackBy: trackById"
+      (click)="viewDetail(equipe.id)"
+    >
+      <div class="card-ai-badge">✨ Recommandé</div>
+
+      <div class="card-img-wrap">
+        <img
+          [src]="getImageUrl(equipe)"
+          [alt]="equipe.nom"
+          class="card-img"
+          loading="lazy"
+        />
+        <div class="card-diff-overlay">
+          {{ getNiveauLabel(equipe.niveau) }}
+        </div>
+      </div>
+
+      <div class="card-body">
+        <h3 class="card-title">{{ equipe.nom }}</h3>
+        <p class="card-desc">{{ (equipe.description || 'Aucune description') | slice:0:80 }}{{ (equipe.description?.length || 0) > 80 ? '…' : '' }}</p>
+
+        <div class="card-meta">
+          <span class="meta-item">
+            <span>👥</span> {{ getMembreCount(equipe) }}/{{ equipe.nbMembresMax }} membres
+          </span>
+          <span class="meta-item">
+            <span>👑</span> {{ equipe.organisateurNom || 'Organisateur' }}
+          </span>
+        </div>
+
+        <div class="card-places">
+          <div class="places-bar">
+            <div
+              class="places-fill"
+              [style.width.%]="(getMembreCount(equipe) / equipe.nbMembresMax) * 100"
+            ></div>
+          </div>
+          <span class="places-text">
+            {{ getPlacesLibres(equipe) }} place(s) disponible(s)
+          </span>
+        </div>
+
+        <div class="card-footer">
+          <button
+            class="btn-inscrit"
+            (click)="rejoindre(equipe.id, $event)"
+            [disabled]="getPlacesLibres(equipe) === 0"
+          >
+            {{ getPlacesLibres(equipe) === 0 ? 'Complet' : 'Rejoindre' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>

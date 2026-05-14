@@ -22,51 +22,55 @@ public class SignupDTO {
 
     //public SignupDTO() {}
 
+
     public String getlastName() {
        return lastName;
    }
 
+
+
+
     //public String getEmail() {
-     //   return email;
-   // }
+    //   return email;
+    // }
 
     //public String getPassword() {
     //    return password;
     //}
 
     //public String getTelephone() {
-   //     return telephone;
-   // }
+    //     return telephone;
+    // }
 
-  //  public String getAddress() {
-     //   return address;
-   // }
+    //  public String getAddress() {
+    //   return address;
+    // }
 
-   // public String getRole() {
-     //   return role;
-   // }
+    // public String getRole() {
+    //   return role;
+    // }
 
-   // public void setName(String name) {
-     //   this.name = name;
-   // }
+    // public void setName(String name) {
+    //   this.name = name;
+    // }
 
-   // public void setEmail(String email) {
+    // public void setEmail(String email) {
     //    this.email = email;
-   // }
+    // }
 
-   // public void setPassword(String password) {
-   //     this.password = password;
-   // }
+    // public void setPassword(String password) {
+    //     this.password = password;
+    // }
 
-   // public void setTelephone(String telephone) {
+    // public void setTelephone(String telephone) {
     //    this.telephone = telephone;
     //}
 
     //public void setAddress(String address) {
-     //   this.address = address;
-   // }
+    //   this.address = address;
+    // }
 
-   // public void setRole(String role) {
+    // public void setRole(String role) {
     //    this.role = role;
     //}
 }

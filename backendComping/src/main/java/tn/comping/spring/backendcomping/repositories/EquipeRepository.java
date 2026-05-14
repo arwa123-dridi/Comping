@@ -9,11 +9,10 @@ import java.util.List;
 @Repository
 public interface EquipeRepository extends MongoRepository<Equipe, String> {
 
-    // ⚠️ MODIFIÉ : Recherche par ID de l'organisateur
-    @Query("{ 'organisateur.$id' : ?0 }")
-    List<Equipe> findByOrganisateurId(String organisateurId);
+    // ✅DBRef safe mapping
+    List<Equipe> findByOrganisateur_Id(String organisateurId);
 
-    // ⚠️ MODIFIÉ : Équipes avec places disponibles
-    @Query("{ $expr: { $lt: [ { $size: '$membres' }, '$nbMembresMax' ] } }")
+    // ✅ SAFE Mongo query
+    @Query("{ $expr: { $lt: [ { $ifNull: [ { $size: '$membres' }, 0 ] }, '$nbMembresMax' ] } }")
     List<Equipe> findEquipesAvecPlace();
 }

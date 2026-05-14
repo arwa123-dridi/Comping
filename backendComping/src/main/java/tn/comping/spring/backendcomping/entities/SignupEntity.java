@@ -26,10 +26,9 @@ public class SignupEntity {
     private String photo;// URL de la photo
     private boolean statut = true;
 
-  
- 
 
-  
 
-   
+
+
+
 }

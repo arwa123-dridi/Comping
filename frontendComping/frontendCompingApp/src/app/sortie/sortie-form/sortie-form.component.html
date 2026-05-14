@@ -1,0 +1,313 @@
+<!-- ============================================================
+     SORTIE FORM — CAMPINO   (Créer / Modifier Randonnée)
+     ============================================================ -->
+<div class="sortie-form-page">
+
+  <!-- ══ HERO HEADER ══════════════════════════════════════════ -->
+  <div class="form-hero">
+    <div class="form-hero-overlay"></div>
+    <div class="form-hero-content">
+      <div class="hero-badge">{{ isEdit ? '✏️ Modification' : '➕ Création' }} · CAMPINO</div>
+      <h1 class="hero-title">
+        {{ isEdit ? 'Modifier la randonnée' : 'Créer une nouvelle' }}
+        <span class="hero-accent">{{ isEdit ? '' : 'randonnée' }}</span>
+      </h1>
+      <p class="hero-sub">Organisez votre aventure et invitez votre équipe</p>
+    </div>
+  </div>
+
+  <!-- ══ FORMULAIRE ═══════════════════════════════════════════ -->
+  <div class="form-body">
+    <form [formGroup]="sortieForm" (ngSubmit)="onSubmit()" class="campino-form">
+
+      <!-- Erreur globale -->
+      <div *ngIf="error" class="form-error-banner">
+        <span>⚠️</span> {{ error }}
+      </div>
+
+      <!-- ────────────────────────────────────────────
+           SECTION 1 · Informations de base
+      ──────────────────────────────────────────── -->
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon green">🏔️</div>
+          <div>
+            <h2 class="section-title">Infos Randonnée</h2>
+            <p class="section-sub">Les informations essentielles de votre sortie</p>
+          </div>
+        </div>
+
+        <!-- Titre -->
+        <div class="field-group">
+          <label class="field-label">Titre de la randonnée *</label>
+          <input type="text"
+                 class="campino-input"
+                 formControlName="titre"
+                 placeholder="Ex : Montée du Jebel Zaghouan…"
+                 [class.input-error]="f['titre'].touched && f['titre'].invalid">
+          <div *ngIf="f['titre'].touched && f['titre'].invalid" class="field-error">
+            Le titre est obligatoire (minimum 3 caractères)
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="field-group">
+          <label class="field-label">Description *</label>
+          <textarea class="campino-input campino-textarea"
+                    formControlName="description"
+                    rows="4"
+                    placeholder="Décrivez le parcours, les points d'intérêt, ce que les participants vivront…"
+                    [class.input-error]="f['description'].touched && f['description'].invalid">
+          </textarea>
+          <div *ngIf="f['description'].touched && f['description'].invalid" class="field-error">
+            La description est obligatoire (minimum 10 caractères)
+          </div>
+        </div>
+
+        <!-- Image principale (CORRIGÉ : pas de formControlName, preview gérée) -->
+        <div class="field-group">
+          <label class="field-label">🖼️ Image principale (optionnel)</label>
+          <div class="image-upload-wrapper">
+            <input type="file" 
+                   class="campino-input image-upload-input"
+                   accept="image/*" 
+                   (change)="onFileSelected($event)">
+          <div *ngIf="imagePreviewUrl" class="image-preview">
+  <img [src]="imagePreviewUrl" alt="Aperçu">
+              <button type="button" (click)="clearImage()" class="clear-preview-btn">✕</button>
+            </div>
+          </div>
+          <div *ngIf="imageUploading" class="upload-spinner">Upload en cours...</div>
+        </div>
+      </div> <!-- fin section 1 -->
+
+      <!-- ────────────────────────────────────────────
+           SECTION 2 · Détails techniques
+      ──────────────────────────────────────────── -->
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon blue">⚙️</div>
+          <div>
+            <h2 class="section-title">Détails Techniques</h2>
+            <p class="section-sub">Dates, distance, difficulté et capacité</p>
+          </div>
+        </div>
+
+        <div class="fields-grid">
+          <!-- Date début -->
+          <div class="field-group">
+            <label class="field-label">📅 Date & Heure de départ *</label>
+            <input type="datetime-local"
+                   class="campino-input"
+                   formControlName="dateDebut"
+                   [class.input-error]="f['dateDebut'].touched && f['dateDebut'].invalid">
+            <div *ngIf="f['dateDebut'].touched && f['dateDebut'].invalid" class="field-error">
+              Date obligatoire
+            </div>
+          </div>
+
+          <!-- Date fin -->
+          <div class="field-group">
+            <label class="field-label">📅 Date & Heure d'arrivée (optionnel)</label>
+            <input type="datetime-local"
+                   class="campino-input"
+                   formControlName="dateFin">
+          </div>
+
+          <!-- Lieu départ -->
+          <div class="field-group">
+            <label class="field-label">📍 Lieu de départ *</label>
+            <input type="text"
+                   class="campino-input"
+                   formControlName="lieuDepart"
+                   placeholder="Ex : Parking Zaghouan"
+                   [class.input-error]="f['lieuDepart'].touched && f['lieuDepart'].invalid">
+            <div *ngIf="f['lieuDepart'].touched && f['lieuDepart'].invalid" class="field-error">
+              Lieu obligatoire
+            </div>
+          </div>
+
+          <!-- Lieu arrivée -->
+          <div class="field-group">
+            <label class="field-label">🏁 Lieu d'arrivée (optionnel)</label>
+            <input type="text"
+                   class="campino-input"
+                   formControlName="lieuArrivee"
+                   placeholder="Ex : Sommet du Jebel">
+          </div>
+
+          <!-- Région -->
+          <div class="field-group">
+            <label class="field-label">🗺️ Région</label>
+            <input type="text"
+                   class="campino-input"
+                   formControlName="region"
+                   placeholder="Ex : Grand Tunis, Nord-Ouest…">
+          </div>
+
+          <!-- Distance -->
+          <div class="field-group">
+            <label class="field-label">📏 Distance (km)</label>
+            <input type="number"
+                   class="campino-input"
+                   formControlName="distanceKm"
+                   min="0"
+                   placeholder="0">
+          </div>
+
+          <!-- Capacité -->
+          <div class="field-group">
+            <label class="field-label">👥 Capacité maximale *</label>
+            <input type="number"
+                   class="campino-input"
+                   formControlName="capaciteMax"
+                   min="1" max="50"
+                   [class.input-error]="f['capaciteMax'].touched && f['capaciteMax'].invalid">
+            <div *ngIf="f['capaciteMax'].touched && f['capaciteMax'].invalid" class="field-error">
+              Entre 1 et 50 personnes
+            </div>
+          </div>
+
+          <!-- Prix -->
+          <div class="field-group">
+            <label class="field-label">💰 Prix par personne (TND)</label>
+            <input type="number"
+                   class="campino-input"
+                   formControlName="prixParPersonne"
+                   min="0"
+                   placeholder="0 = gratuit">
+          </div>
+        </div>
+
+        <!-- Difficulté -->
+        <div class="field-group mt-4">
+          <label class="field-label">🏔️ Niveau de difficulté *</label>
+          <div class="diff-radio-group">
+            <label class="diff-radio" [class.diff-selected-f]="f['difficulte'].value === 'FACILE'">
+              <input type="radio" formControlName="difficulte" value="FACILE">
+              <span class="diff-icon">🥾</span>
+              <span class="diff-label-text">Facile</span>
+              <span class="diff-desc">Accessible à tous</span>
+            </label>
+            <label class="diff-radio" [class.diff-selected-m]="f['difficulte'].value === 'MOYEN'">
+              <input type="radio" formControlName="difficulte" value="MOYEN">
+              <span class="diff-icon">🧗</span>
+              <span class="diff-label-text">Modéré</span>
+              <span class="diff-desc">Bonne condition physique</span>
+            </label>
+            <label class="diff-radio" [class.diff-selected-d]="f['difficulte'].value === 'DIFFICILE'">
+              <input type="radio" formControlName="difficulte" value="DIFFICILE">
+              <span class="diff-icon">⛰️</span>
+              <span class="diff-label-text">Difficile</span>
+              <span class="diff-desc">Expérimentés seulement</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ────────────────────────────────────────────
+           SECTION 3 · Équipe & Logistique
+      ──────────────────────────────────────────── -->
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon orange">👥</div>
+          <div>
+            <h2 class="section-title">Équipe & Logistique</h2>
+            <p class="section-sub">Sélectionnez votre équipe et précisez les besoins</p>
+          </div>
+        </div>
+
+        <!-- Équipement -->
+        <div class="field-group">
+          <label class="field-label">🎒 Équipement requis</label>
+          <input type="text"
+                 class="campino-input"
+                 formControlName="equipementRequis"
+                 placeholder="Ex : chaussures de randonnée, gourde 1.5L, veste imperméable…">
+        </div>
+
+        <!-- Assistance médicale -->
+        <div class="field-group">
+          <div class="checkbox-card" [class.checkbox-card-active]="f['assistanceMedicale'].value">
+            <input type="checkbox"
+                   class="campino-checkbox"
+                   formControlName="assistanceMedicale"
+                   id="assistance">
+            <label for="assistance" class="checkbox-label">
+              <span class="checkbox-icon">🚑</span>
+              <div>
+                <span class="checkbox-title">Assistance médicale disponible</span>
+                <span class="checkbox-sub">Un secouriste sera présent lors de la randonnée</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Équipe -->
+        <div class="field-group">
+          <label class="field-label">🏕️ Équipe organisatrice *</label>
+          <div *ngIf="equipesLoading" class="equipes-loading">
+            <div class="mini-spinner"></div>
+            <span>Chargement des équipes…</span>
+          </div>
+
+          <div *ngIf="!equipesLoading && equipes.length > 0" class="equipes-select-grid">
+            <div *ngFor="let eq of equipes"
+                 class="equipe-option"
+                 [class.equipe-option-selected]="f['equipeId'].value === eq.id"
+                 (click)="selectEquipe(eq.id)">
+              <div class="eq-opt-icon">🏕️</div>
+              <div class="eq-opt-info">
+                <span class="eq-opt-nom">{{ eq.nom }}</span>
+                <span class="eq-opt-cap">{{ eq.nbMembresMax }} membres max</span>
+              </div>
+              <div *ngIf="f['equipeId'].value === eq.id" class="eq-opt-check">✓</div>
+            </div>
+          </div>
+
+          <div *ngIf="!equipesLoading && equipes.length === 0" class="no-equipes">
+            <p>Vous n'avez pas encore d'équipe.</p>
+            <a routerLink="/equipes/create" class="btn-create-equipe">
+              + Créer une équipe d'abord
+            </a>
+          </div>
+
+          <div *ngIf="f['equipeId'].touched && f['equipeId'].invalid" class="field-error mt-2">
+            Veuillez sélectionner une équipe
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ BOUTONS ════════════════════════════════════════ -->
+      <div class="form-actions">
+        <div class="form-status"
+             [class.status-valid]="sortieForm.valid"
+             [class.status-invalid]="sortieForm.invalid && sortieForm.touched">
+          <span *ngIf="sortieForm.valid">✅ Formulaire complet — prêt à enregistrer</span>
+          <span *ngIf="sortieForm.invalid && sortieForm.touched">⚠️ Complétez les champs obligatoires (*)</span>
+          <span *ngIf="!sortieForm.touched">📝 Remplissez le formulaire</span>
+        </div>
+
+        <div class="form-btns">
+          <button type="button"
+                  routerLink="/sorties"
+                  class="btn-cancel">
+            ← Annuler
+          </button>
+          <button type="submit"
+                  class="btn-submit"
+                  [disabled]="sortieForm.invalid || isLoading || imageUploading">
+            <span *ngIf="!isLoading">
+              {{ isEdit ? '✏️ Enregistrer les modifications' : '🚀 Créer la randonnée' }}
+            </span>
+            <span *ngIf="isLoading" class="btn-loading">
+              <div class="mini-spinner white"></div>
+              Enregistrement…
+            </span>
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>

@@ -26,8 +26,10 @@ public class SignupMapper {
         if (entity == null) return null;
 
         return SignupDTO.builder()
+
                 .firstName(entity.getFirstName())
                 .lastName(entity.getLastName())
+
                 .email(entity.getEmail())
                 .password(entity.getPassword())
                 .telephone(entity.getTelephone())

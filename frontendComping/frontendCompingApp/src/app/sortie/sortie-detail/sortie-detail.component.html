@@ -1,0 +1,191 @@
+<!-- ============================================================
+     SORTIE DETAIL — CAMPINO
+     ============================================================ -->
+
+<!-- Loading -->
+<div *ngIf="loading" class="detail-loading">
+  <div class="campino-spinner"></div>
+  <p>Chargement des détails…</p>
+</div>
+
+<!-- Erreur -->
+<div *ngIf="error && !loading" class="detail-error">
+  <span>❌</span>
+  <p>{{ error }}</p>
+  <button routerLink="/sorties">← Retour aux randonnées</button>
+</div>
+
+<!-- Non trouvé -->
+<div *ngIf="!loading && !sortie && !error" class="detail-error">
+  <span>🔍</span>
+  <p>Randonnée introuvable</p>
+  <button routerLink="/sorties">← Retour</button>
+</div>
+
+<!-- CONTENU PRINCIPAL -->
+<div *ngIf="!loading && sortie" class="sortie-detail">
+
+  <!-- ══ HERO BANNIÈRE ══ -->
+  <div class="detail-hero"
+       [style.backgroundImage]="'url(' + getHeroImage() + ')'">
+    <div class="detail-hero-overlay"></div>
+    <div class="detail-hero-content">
+      <!-- Breadcrumb -->
+      <div class="breadcrumb">
+        <a routerLink="/sorties">Randonnées</a>
+        <span>›</span>
+        <span>{{ sortie.titre }}</span>
+      </div>
+      <h1 class="detail-title">{{ sortie.titre }}</h1>
+      <div class="detail-meta-row">
+        <span class="diff-chip"
+              [class.chip-facile]="sortie.difficulte==='FACILE'"
+              [class.chip-moyen]="sortie.difficulte==='MOYEN'"
+              [class.chip-difficile]="sortie.difficulte==='DIFFICILE'">
+          {{ getDiffLabel(sortie.difficulte) }}
+        </span>
+        <span class="meta-chip">📍 {{ sortie.lieuDepart }}</span>
+        <span *ngIf="sortie.region" class="meta-chip">🗺️ {{ sortie.region }}</span>
+        <span class="meta-chip">{{ sortie.distanceKm || '?' }} km</span>
+      </div>
+    </div>
+
+    <!-- Actions organisateur -->
+    <div *ngIf="isOrganisateur" class="org-actions">
+      <button class="btn-edit" (click)="modifier()">✏️ Modifier</button>
+      <button class="btn-delete" (click)="supprimer()">🗑️ Supprimer</button>
+    </div>
+  </div>
+
+  <!-- ══ CORPS ══ -->
+  <div class="detail-body">
+
+    <!-- COLONNE PRINCIPALE -->
+    <div class="detail-main">
+
+      <!-- Description -->
+      <div class="info-card">
+        <h3 class="info-card-title">📝 Description</h3>
+        <p class="info-card-text">{{ sortie.description }}</p>
+      </div>
+
+      <!-- Infos techniques -->
+      <div class="info-card">
+        <h3 class="info-card-title">⚙️ Détails techniques</h3>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="di-label">📅 Date départ</span>
+            <span class="di-value">{{ sortie.dateDebut | date:'EEEE dd MMMM yyyy à HH:mm' }}</span>
+          </div>
+          <div class="detail-item" *ngIf="sortie.dateFin">
+            <span class="di-label">⏱️ Durée estimée</span>
+            <span class="di-value">{{ getDuree() }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="di-label">📏 Distance</span>
+            <span class="di-value">{{ sortie.distanceKm || '?' }} km</span>
+          </div>
+          <div class="detail-item">
+            <span class="di-label">🏔️ Difficulté</span>
+            <span class="di-value">
+              <span class="diff-inline"
+                    [class.chip-facile]="sortie.difficulte==='FACILE'"
+                    [class.chip-moyen]="sortie.difficulte==='MOYEN'"
+                    [class.chip-difficile]="sortie.difficulte==='DIFFICILE'">
+                {{ getDiffLabel(sortie.difficulte) }}
+              </span>
+            </span>
+          </div>
+          <div class="detail-item" *ngIf="sortie.lieuArrivee">
+            <span class="di-label">🏁 Lieu arrivée</span>
+            <span class="di-value">{{ sortie.lieuArrivee }}</span>
+          </div>
+          <div class="detail-item" *ngIf="sortie.prixParPersonne && sortie.prixParPersonne > 0">
+            <span class="di-label">💰 Tarif</span>
+            <span class="di-value price-val">{{ sortie.prixParPersonne }} TND / pers.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Équipement -->
+      <div class="info-card">
+        <h3 class="info-card-title">🎒 Équipement requis</h3>
+        <p class="info-card-text">{{ sortie.equipementRequis || 'Aucun équipement spécifique requis.' }}</p>
+        <div *ngIf="sortie.assistanceMedicale" class="medic-badge">
+          🚑 Assistance médicale disponible sur place
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COLONNE LATÉRALE -->
+    <div class="detail-sidebar">
+
+      <!-- Carte participation -->
+      <div class="side-card part-card">
+        <div class="part-numbers">
+          <div class="part-big">{{ nombreParticipants }}</div>
+          <div class="part-label">participants inscrits</div>
+          <div class="part-bar-wrap">
+            <div class="part-bar-fill"
+                 [style.width.%]="(nombreParticipants / (sortie.capaciteMax || 1)) * 100"
+                 [class.bar-complet]="placesDisponibles === 0">
+            </div>
+          </div>
+          <div class="part-cap">
+            Capacité max : <strong>{{ sortie.capaciteMax }}</strong> personnes
+          </div>
+        </div>
+
+        <!-- Message organisateur -->
+        <div *ngIf="isOrganisateur" class="org-info-badge">
+          👑 Vous êtes l'organisateur de cette randonnée
+        </div>
+
+        <!-- Bouton inscription -->
+        <ng-container *ngIf="!isOrganisateur">
+          <button *ngIf="!isParticipant && placesDisponibles > 0 && !isSortiePasseeOuCompletee()"
+                  class="btn-inscrire-big"
+                  (click)="inscrire()"
+                  [disabled]="inscriptionEnCours">
+            {{ inscriptionEnCours ? '⏳ Inscription…' : '📝 Participer' }}
+          </button>
+          <p *ngIf="!isParticipant && placesDisponibles > 0" class="places-left">
+            {{ placesDisponibles }} place(s) disponible(s)
+          </p>
+
+          <button *ngIf="isParticipant" class="btn-desinscrire" (click)="desinscrire()">
+            ❌ Se désinscrire
+          </button>
+
+          <button *ngIf="!isParticipant && placesDisponibles === 0" class="btn-complet" disabled>
+            😔 Randonnée complète
+          </button>
+
+          <button *ngIf="isSortiePasseeOuCompletee() && !isParticipant" class="btn-complet" disabled>
+            {{ isSortiePassee() ? '⏰ Sort passée' : '😔 Complet' }   
+            </button>
+          
+        </ng-container>
+      </div>
+
+      <!-- Équipe -->
+      <div class="side-card equipe-card">
+        <h4 class="sc-title">👥 Équipe organisatrice</h4>
+        <div class="equipe-info">
+          <div class="equipe-icon">🏕️</div>
+          <div>
+            <div class="equipe-nom">{{ equipeNom }}</div>
+            <div class="equipe-org">par {{ sortie.organisateurNom || 'Inconnu' }}</div>
+          </div>
+        </div>
+        <button *ngIf="sortie.equipeId" class="btn-voir-equipe"
+                [routerLink]="['/equipes', sortie.equipeId]">
+          Voir l'équipe →
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</div>

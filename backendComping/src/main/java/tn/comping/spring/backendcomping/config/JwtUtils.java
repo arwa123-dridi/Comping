@@ -55,7 +55,7 @@ public class JwtUtils {
 
         try{
             if (blacklistedTokens.contains(token)) return false;
-            
+
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
         }
