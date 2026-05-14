@@ -24,8 +24,8 @@ public class SignupEntity {
     private Role role;
 
     private String photo;// URL de la photo
+    @Builder.Default
     private boolean statut = true;
-
 
 
 
