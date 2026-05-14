@@ -2,10 +2,7 @@ package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import tn.comping.spring.backendcomping.dto.PanierResponseDTO;
-import tn.comping.spring.backendcomping.dto.PanierRequestDTO;
-import tn.comping.spring.backendcomping.dto.PanierLigneRequestDTO;
-import tn.comping.spring.backendcomping.dto.PanierLigneResponseDTO;
+import tn.comping.spring.backendcomping.dto.*;
 import tn.comping.spring.backendcomping.entities.*;
 import tn.comping.spring.backendcomping.repositories.PanierRepository;
 import tn.comping.spring.backendcomping.repositories.ProduitRepository;
@@ -13,7 +10,6 @@ import tn.comping.spring.backendcomping.utils.mapper.PanierMapper;
 
 import java.util.ArrayList;
 import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class PanierServiceImpl implements PanierService {
@@ -22,24 +18,14 @@ public class PanierServiceImpl implements PanierService {
     private final ProduitRepository produitRepository;
     private final PanierMapper panierMapper;
 
-    // 🔥 GET PANIER
-    @Override
-    public PanierResponseDTO getPanierByUser(String userId) {
-
-        Panier panier = panierRepository.findByUserIdAndStatut(userId, "ACTIVE")
-                .orElse(null);
-
-        return panierMapper.toDto(panier);
-    }
-
-    // 🔥 ADD PRODUCT
     @Override
     public PanierResponseDTO addProductToPanier(PanierRequestDTO request) {
 
-        Panier panier = panierRepository.findByUserIdAndStatut(request.getUserId(), "ACTIVE")
+        Panier panier = panierRepository
+                .findByUserIdAndStatut(request.getUserId(), PanierStatut.ACTIVE)
                 .orElseGet(() -> Panier.builder()
                         .userId(request.getUserId())
-                        .statut("ACTIVE")
+                        .statut(PanierStatut.ACTIVE)
                         .lignes(new ArrayList<>())
                         .totalPrice(0.0)
                         .build());
@@ -49,16 +35,33 @@ public class PanierServiceImpl implements PanierService {
             Produit p = produitRepository.findById(item.getProduitId())
                     .orElseThrow(() -> new RuntimeException("Produit not found"));
 
-            PanierLigne ligne = PanierLigne.builder()
-                    .produitId(p.getId())
-                    .nomProduit(p.getNomProduit())
-                    .prixUnitaire(p.getPrixProduit())
-                    .quantite(item.getQuantite())
-                    .imageUrl(p.getImageUrl())
-                    .sousTotal(p.getPrixProduit() * item.getQuantite())
-                    .build();
+            // 🔥 CHECK IF PRODUCT ALREADY EXISTS IN CART
+            PanierLigne existingLine = panier.getLignes()
+                    .stream()
+                    .filter(l -> l.getProduitId().equals(p.getId()))
+                    .findFirst()
+                    .orElse(null);
 
-            panier.getLignes().add(ligne);
+            if (existingLine != null) {
+
+                // UPDATE EXISTING LINE
+                existingLine.setQuantite(existingLine.getQuantite() + item.getQuantite());
+                existingLine.setSousTotal(existingLine.getPrixUnitaire() * existingLine.getQuantite());
+
+            } else {
+
+                // CREATE NEW LINE
+                PanierLigne newLine = PanierLigne.builder()
+                        .produitId(p.getId())
+                        .nomProduit(p.getNomProduit())
+                        .prixUnitaire(p.getPrixProduit())
+                        .quantite(item.getQuantite())
+                        .imageUrl(p.getImageUrl())
+                        .sousTotal(p.getPrixProduit() * item.getQuantite())
+                        .build();
+
+                panier.getLignes().add(newLine);
+            }
         }
 
         panier.setTotalPrice(calculateTotal(panier));
@@ -66,11 +69,21 @@ public class PanierServiceImpl implements PanierService {
         return panierMapper.toDto(panierRepository.save(panier));
     }
 
-    // 🔥 REMOVE PRODUCT
+    @Override
+    public PanierResponseDTO getPanierByUser(String userId) {
+
+        Panier panier = panierRepository
+                .findByUserIdAndStatut(userId, PanierStatut.ACTIVE)
+                .orElse(null);
+
+        return panierMapper.toDto(panier);
+    }
+
     @Override
     public PanierResponseDTO removeProduct(String userId, String produitId) {
 
-        Panier panier = panierRepository.findByUserIdAndStatut(userId, "ACTIVE")
+        Panier panier = panierRepository
+                .findByUserIdAndStatut(userId, PanierStatut.ACTIVE)
                 .orElseThrow(() -> new RuntimeException("Panier not found"));
 
         panier.getLignes().removeIf(l -> l.getProduitId().equals(produitId));
@@ -80,11 +93,11 @@ public class PanierServiceImpl implements PanierService {
         return panierMapper.toDto(panierRepository.save(panier));
     }
 
-    // 🔥 UPDATE QUANTITY
     @Override
     public PanierResponseDTO updateQuantity(String userId, String produitId, Integer quantity) {
 
-        Panier panier = panierRepository.findByUserIdAndStatut(userId, "ACTIVE")
+        Panier panier = panierRepository
+                .findByUserIdAndStatut(userId, PanierStatut.ACTIVE)
                 .orElseThrow(() -> new RuntimeException("Panier not found"));
 
         for (PanierLigne l : panier.getLignes()) {
@@ -99,12 +112,38 @@ public class PanierServiceImpl implements PanierService {
         return panierMapper.toDto(panierRepository.save(panier));
     }
 
-    // 💰 TOTAL CALCULATION
-    private Double calculateTotal(Panier panier) {
+    @Override
+    public long getPanierCount(String userId) {
 
+        return panierRepository.findByUserIdAndStatut(userId, PanierStatut.ACTIVE)
+                .map(p -> p.getLignes()
+                        .stream()
+                        .mapToLong(PanierLigne::getQuantite)
+                        .sum())
+                .orElse(0L);
+    }
+
+    private Double calculateTotal(Panier panier) {
         return panier.getLignes()
                 .stream()
                 .mapToDouble(PanierLigne::getSousTotal)
                 .sum();
     }
+
+    @Override
+public PanierResponseDTO clearPanier(String userId) {
+
+    Panier panier = panierRepository
+            .findByUserIdAndStatut(userId, PanierStatut.ACTIVE)
+            .orElseThrow(() -> new RuntimeException("Panier not found"));
+
+    // 🧹 remove all products
+    panier.getLignes().clear();
+    panier.setTotalPrice(0.0);
+
+    Panier saved = panierRepository.save(panier);
+
+    return panierMapper.toDto(saved);
+}
+
 }

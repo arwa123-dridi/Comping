@@ -18,6 +18,7 @@ public class SignupDTO {
     private String telephone;
     private String address;
     private Role role;
+    private boolean statut = true;
 
     //public SignupDTO() {}
 

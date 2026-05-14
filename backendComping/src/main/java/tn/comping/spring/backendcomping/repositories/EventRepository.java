@@ -7,4 +7,5 @@ import tn.comping.spring.backendcomping.entities.Event;
 
 @Repository
 public interface EventRepository extends MongoRepository<Event,String> {
+    long countByStatut(String statut);
 }

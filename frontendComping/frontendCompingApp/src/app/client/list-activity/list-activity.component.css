@@ -1,0 +1,307 @@
+:root {
+  --primary: #2d6a4f;
+  --primary-light: #52b788;
+  --bg: #f8fafc;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --white: #ffffff;
+  --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+}
+
+.page {
+  padding: 40px 20px;
+  background-color: var(--bg);
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* --- HEADER --- */
+.main-header {
+  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+  border-radius: 24px;
+  padding: 40px;
+  margin-bottom: 40px;
+  color: white;
+  box-shadow: 0 20px 25px -5px rgba(27, 67, 50, 0.2);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.title-section h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+}
+
+.count-badge {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  backdrop-filter: blur(4px);
+}
+
+.stats-grid {
+  display: flex;
+  gap: 15px;
+}
+
+.stat-glass {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 15px 25px;
+  border-radius: 18px;
+  text-align: center;
+  min-width: 100px;
+  backdrop-filter: blur(8px);
+}
+
+.stat-label { font-size: 12px; display: block; opacity: 0.8; margin-bottom: 4px; }
+.stat-value { font-size: 22px; font-weight: 700; }
+
+/* --- GRID & CARDS --- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 25px;
+}
+
+.event-card {
+  background: var(--white);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+}
+
+.event-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.status-indicator {
+  height: 6px;
+}
+
+.top-actif { background: #52b788; }
+.top-inactif { background: #ef4444; }
+.top-complet { background: #f59e0b; }
+
+.card-content { padding: 24px; }
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.card-titre {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.card-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-meta {
+  margin-bottom: 20px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.meta-item svg { width: 18px; height: 18px; color: var(--primary); }
+
+.activities-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.activity-main-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--primary-light);
+  margin-right: 4px;
+  opacity: 0.8;
+}
+.activity-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Espace entre le point et le texte */
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #065f46; /* Vert foncé pour le texte */
+  background: #ecfdf5; /* Vert très clair pour le fond */
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1fae5;
+}
+.tag-dot {
+  width: 6px;
+  height: 6px;
+  background: #065f46;
+  border-radius: 50%;
+}
+
+
+.card-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 0 -24px 20px -24px;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-container {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.amount { font-size: 24px; font-weight: 800; color: var(--primary); }
+.currency { font-size: 14px; font-weight: 700; color: var(--primary); }
+.per-person { font-size: 12px; color: var(--text-muted); margin-left: 4px; }
+
+/* --- BUTTONS --- */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #f8fafc;
+  color: var(--text-muted);
+}
+
+.icon-btn svg { width: 18px; height: 18px; }
+
+.icon-btn.edit:hover { background: #e0f2fe; color: #0284c7; }
+.icon-btn.delete:hover { background: #fee2e2; color: #dc2626; }
+
+/* --- EMPTY STATE --- */
+.empty-state {
+  text-align: center;
+  padding: 100px 20px;
+  background: white;
+  border-radius: 30px;
+  border: 2px dashed #e2e8f0;
+}
+
+.empty-icon { font-size: 48px; margin-bottom: 10px; }
+/* --- ACTIONS DANS LE HEADER --- */
+.header-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px; /* Espace sous le titre */
+}
+
+/* Bouton Créer Événement (Plein) */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #d1fae5;
+ color: #064e3b;
+  border: none;
+ padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(82, 183, 136, 0.3);
+}
+
+.btn-primary:hover {
+  background: #74c69d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(82, 183, 136, 0.4);
+}
+
+/* Bouton Créer Activité (Bordure) */
+.btn-outline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: white;
+}
+
+/* Taille des icônes dans les boutons */
+.header-actions svg {
+  width: 18px;
+  height: 18px;
+}
+.badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-actif {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.nav-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}

@@ -1,0 +1,146 @@
+<div class="page">
+
+  <app-sidebar></app-sidebar>
+
+  <div class="content">
+
+    <!-- HEADER -->
+    <div class="header-card">
+      <div>
+        <h1>Liste des commandes</h1>
+        <p>{{ filteredCommandes.length }} commande(s)</p>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+
+      <input
+        type="text"
+        placeholder="🔍 Search client..."
+        [(ngModel)]="searchText"
+        (input)="applyFilters()"
+      />
+
+      <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+        <option value="">All status</option>
+        <option value="EN_ATTENTE">EN_ATTENTE</option>
+        <option value="CONFIRMEE">CONFIRMEE</option>
+        <option value="EN_PREPARATION">EN_PREPARATION</option>
+        <option value="EXPEDIEE">EXPEDIEE</option>
+        <option value="LIVREE">LIVREE</option>
+        <option value="ANNULEE">ANNULEE</option>
+      </select>
+
+      <input
+        type="date"
+        [(ngModel)]="selectedDate"
+        (change)="applyFilters()"
+      />
+
+    </div>
+
+    <!-- LOADING -->
+    <div class="loading" *ngIf="loading">
+      Chargement des commandes...
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card" *ngIf="!loading">
+
+      <table class="product-table" *ngIf="filteredCommandes.length > 0">
+
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Date</th>
+            <th>Paiement</th>
+            <th>Livraison</th>
+            <th>Total</th>
+            <th>Statut</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let c of filteredCommandes">
+
+            <td>{{ c.userId }}</td>
+            <td>{{ c.dateCommande | date:'short' }}</td>
+            <td>{{ c.modePaiement }}</td>
+            <td>{{ c.modeLivraison }}</td>
+
+            <td class="price">
+              {{ c.totalCommande | number:'1.2-2' }} TND
+            </td>
+
+            <td>
+              <span class="badge" [ngClass]="{
+                'yellow': c.statutCommande === 'EN_ATTENTE',
+                'green': c.statutCommande === 'CONFIRMEE',
+                'blue': c.statutCommande === 'EN_PREPARATION',
+                'purple': c.statutCommande === 'EXPEDIEE',
+                'dark': c.statutCommande === 'LIVREE',
+                'red': c.statutCommande === 'ANNULEE'
+              }">
+                {{ c.statutCommande }}
+              </span>
+            </td>
+
+            <td class="actions">
+
+              <button class="btn view" (click)="viewCommande(c.id)">👁</button>
+
+              <button class="btn edit" (click)="changeStatut(c.id, $event)" value="CONFIRMEE">✔</button>
+
+              <button class="btn delete" (click)="changeStatut(c.id, $event)" value="ANNULEE">✖</button>
+
+            </td>
+
+          </tr>
+        </tbody>
+
+      </table>
+
+      <!-- EMPTY -->
+      <div class="empty" *ngIf="filteredCommandes.length === 0">
+        <div class="icon">📦</div>
+        <p>Aucune commande trouvée</p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- POPUP -->
+<div class="modal-overlay" *ngIf="selectedCommande">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+      <h2>📦 Détails commande</h2>
+      <button class="close-btn" (click)="closeModal()">✖</button>
+    </div>
+
+    <div class="modal-body">
+
+      <p><b>Client :</b> {{ selectedCommande.userId }}</p>
+      <p><b>Date :</b> {{ selectedCommande.dateCommande | date:'full' }}</p>
+      <p><b>Paiement :</b> {{ selectedCommande.modePaiement }}</p>
+      <p><b>Livraison :</b> {{ selectedCommande.modeLivraison }}</p>
+      <p><b>Statut :</b> {{ selectedCommande.statutCommande }}</p>
+
+      <hr>
+
+      <div class="total-box">
+        <p>💰 Produits : {{ selectedCommande.totalProduits }} TND</p>
+        <p>🚚 Livraison : {{ selectedCommande.fraisLivraison }} TND</p>
+        <h3>🧾 Total : {{ selectedCommande.totalCommande }} TND</h3>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

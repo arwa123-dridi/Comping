@@ -1,0 +1,107 @@
+<!-- NAVBAR -->
+<nav class="market-navbar">
+
+  <div class="nav-left">
+    <h2>🏕 Campino</h2>
+  </div>
+
+  <div class="nav-links">
+    <a routerLink="/">Accueil</a>
+    <a routerLink="/market" class="active">Marketplace</a>
+    <a href="#">Matériel</a>
+    <a href="#">Expériences</a>
+  </div>
+
+  <div class="nav-actions">
+    <button class="btn-login">Connexion</button>
+    <button class="btn-signup">Inscription</button>
+
+    <div class="cart-icon" (click)="toggleCartSidebar()">
+      <span class="material-icons">shopping_cart</span>
+      <span class="cart-count">{{ cartCount }}</span>
+    </div>
+  </div>
+
+</nav>
+
+<div class="product-detail-container">
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Chargement du produit...</p>
+  </div>
+
+  <!-- PRODUCT -->
+  <div *ngIf="!loading && product" class="product-wrapper">
+
+    <!-- LEFT IMAGE -->
+    <div class="image-section">
+
+      <img [src]="image" alt="product image" />
+
+      <div class="badge">
+        {{ product.categorieProduit }}
+      </div>
+
+    </div>
+
+    <!-- RIGHT CONTENT -->
+    <div class="info-section">
+
+      <h1 class="title">{{ product.nomProduit }}</h1>
+
+      <p class="subtitle">
+        {{ product.descriptionProduit }}
+      </p>
+
+      <!-- PRICE + STATUS -->
+      <div class="price-row">
+
+        <div class="price">
+          {{ product.prixProduit }} <span>TND</span>
+        </div>
+
+        <span class="status" [ngClass]="product.statut">
+          {{ product.statut }}
+        </span>
+
+      </div>
+
+      <!-- BADGES -->
+      <div class="features">
+        <div class="feature">🚚 Livraison rapide</div>
+        <div class="feature">🔒 Paiement sécurisé</div>
+        <div class="feature">📦 Stock vérifié</div>
+      </div>
+
+      <!-- QUANTITY (optional future upgrade) -->
+      <div class="qty-box">
+        <button>-</button>
+        <span>1</span>
+        <button>+</button>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="actions">
+
+        <button class="add-btn" (click)="addToCart()">
+          🛒 Ajouter au panier
+        </button>
+
+        <button class="secondary-btn" (click)="goToMarketplace()">
+          ← Continuer les achats
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<app-product-panier
+  *ngIf="showCartSidebar"
+  (close)="showCartSidebar = false">
+</app-product-panier>

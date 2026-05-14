@@ -24,5 +24,5 @@ public class Panier {
     private Double totalPrice;
 
     // ACTIVE, CHECKOUT, ORDERED
-    private String statut;
+    private PanierStatut statut;
 }

@@ -41,17 +41,22 @@ public class SignupServiceImpl implements SignupService {
 
     @Override
     public LoginDTOResponse login(LoginDTORequest request) {
-            SignupEntity user = signupRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+        SignupEntity user = signupRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-            if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-                throw new RuntimeException("Invalid password");
-            }
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
 
-            String token = jwtUtils.generateToken(user.getEmail(),user.getRole());
+        String token = jwtUtils.generateToken(user.getEmail(), user.getId(), user.getRole());
 
-            return new LoginDTOResponse(token);
+        return new LoginDTOResponse(token);
     }
+
+    @Override
+    public SignupEntity getUserById(String id) {
+        return signupRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
 }
-
-

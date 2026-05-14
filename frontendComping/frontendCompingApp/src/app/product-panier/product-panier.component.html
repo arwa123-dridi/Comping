@@ -1,0 +1,57 @@
+<div class="cart-overlay" (click)="close.emit()"></div>
+
+<div class="cart-panel" *ngIf="!loading && panier">
+
+  <!-- Close Button -->
+  <button class="close-btn" (click)="close.emit()">×</button>
+
+  <!-- Header -->
+  <div class="cart-header">
+    <h2>🛒 Mon Panier</h2>
+    <span class="item-count">{{ panier.lignes?.length || 0 }} article(s)</span>
+  </div>
+
+  <!-- Cart Items -->
+  <div class="cart-items" *ngIf="panier.lignes?.length > 0">
+    <div class="item" *ngFor="let item of panier.lignes">
+
+      <img [src]="getImage(item.imageUrl)" alt="{{ item.nomProduit }}" class="item-img">
+
+      <div class="info">
+        <h4>{{ item.nomProduit }}</h4>
+        <p class="price">{{ item.prixUnitaire | number:'1.0-2' }} TND</p>
+
+        <div class="qty">
+          <button (click)="decrease(item)">−</button>
+          <span>{{ item.quantite }}</span>
+          <button (click)="increase(item)">+</button>
+        </div>
+
+        <p class="subtotal">
+          Sous-total : {{ item.sousTotal | number:'1.0-2' }} TND
+        </p>
+      </div>
+
+      <button class="delete" (click)="removeItem(item.produitId)">🗑</button>
+    </div>
+  </div>
+
+  <!-- Empty Cart -->
+  <div *ngIf="!panier.lignes?.length" class="empty-cart">
+    🛒 Votre panier est vide
+    <p>Ajoutez des produits pour commencer votre aventure camping ⛺</p>
+  </div>
+
+  <!-- Footer -->
+  <div class="cart-footer" *ngIf="panier.lignes?.length">
+    <div class="total">
+      <span>Total</span>
+      <span>{{ panier.totalPrice | number:'1.0-2' }} TND</span>
+    </div>
+    <button class="checkout-btn" (click)="goToConfirmation()">
+      Passer à la commande
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">Chargement...</div>
+</div>

@@ -38,4 +38,14 @@ public class PanierController {
             @RequestParam Integer quantity) {
         return panierService.updateQuantity(userId, produitId, quantity);
     }
+
+   @GetMapping("/count/{userId}")
+    public long getPanierCount(@PathVariable String userId) {
+        return panierService.getPanierCount(userId);
+    }
+
+    @DeleteMapping("/clear/{userId}")
+public PanierResponseDTO clearPanier(@PathVariable String userId) {
+    return panierService.clearPanier(userId);
+}
 }

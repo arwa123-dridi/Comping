@@ -1,12 +1,7 @@
 package tn.comping.spring.backendcomping.utils.mapper;
 
 import org.springframework.stereotype.Component;
-import tn.comping.spring.backendcomping.dto.PanierRequestDTO;
-import tn.comping.spring.backendcomping.dto.PanierResponseDTO;
-import tn.comping.spring.backendcomping.dto.PanierLigneRequestDTO;
-import tn.comping.spring.backendcomping.dto.PanierLigneResponseDTO;
-
-
+import tn.comping.spring.backendcomping.dto.*;
 import tn.comping.spring.backendcomping.entities.*;
 
 import java.util.List;
@@ -15,7 +10,9 @@ import java.util.stream.Collectors;
 @Component
 public class PanierMapper {
 
-    // ENTITY → RESPONSE DTO
+    // =========================
+    // ENTITY → DTO
+    // =========================
     public PanierResponseDTO toDto(Panier panier) {
 
         if (panier == null) return null;
@@ -23,12 +20,15 @@ public class PanierMapper {
         return PanierResponseDTO.builder()
                 .id(panier.getId())
                 .userId(panier.getUserId())
-                .statut(panier.getStatut())
+                .statut(panier.getStatut() != null ? panier.getStatut().name() : null)
                 .totalPrice(panier.getTotalPrice())
                 .lignes(toLigneDtoList(panier.getLignes()))
                 .build();
     }
 
+    // =========================
+    // LIGNES LIST
+    // =========================
     private List<PanierLigneResponseDTO> toLigneDtoList(List<PanierLigne> lignes) {
 
         if (lignes == null) return null;
@@ -38,6 +38,9 @@ public class PanierMapper {
                 .collect(Collectors.toList());
     }
 
+    // =========================
+    // LIGNE MAPPING
+    // =========================
     private PanierLigneResponseDTO toLigneDto(PanierLigne l) {
 
         return PanierLigneResponseDTO.builder()

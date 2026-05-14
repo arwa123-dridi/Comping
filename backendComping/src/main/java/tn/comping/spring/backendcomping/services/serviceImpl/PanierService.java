@@ -12,4 +12,8 @@ public interface PanierService {
     PanierResponseDTO removeProduct(String userId, String produitId);
 
     PanierResponseDTO updateQuantity(String userId, String produitId, Integer quantity);
+
+    long getPanierCount(String userId);
+
+    PanierResponseDTO clearPanier(String userId);
 }

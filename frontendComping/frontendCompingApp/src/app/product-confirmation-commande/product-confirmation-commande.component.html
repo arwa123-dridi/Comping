@@ -1,0 +1,148 @@
+<div class="page">
+
+  <!-- BACKGROUND DECOR -->
+  <div class="bg-overlay"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge">
+      🌲 CAMPINO
+    </div>
+
+    <h1>🧾 Confirmation de commande</h1>
+    <p>Vérifiez votre panier avant de continuer votre aventure</p>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="container">
+
+    <!-- LEFT : PRODUCTS -->
+    <div class="card products">
+
+      <div class="card-title">🛒 Produits sélectionnés</div>
+
+      <!-- LOADING -->
+      <div *ngIf="loading" class="loading">
+        Chargement du panier...
+      </div>
+
+      <!-- PRODUCTS LIST -->
+      <div *ngIf="!loading && panier?.lignes?.length">
+
+        <div class="product-item" *ngFor="let item of panier.lignes">
+
+          <!-- IMAGE -->
+          <div class="img-box">
+            <img [src]="getImage(item.imageUrl)" alt="product">
+          </div>
+
+          <!-- INFO -->
+          <div class="info">
+
+            <div class="top-info">
+              <h3>{{ item.nomProduit }}</h3>
+              <span class="badge">Outdoor</span>
+            </div>
+
+            <p class="desc">
+              Équipement premium pour vos aventures camping.
+            </p>
+
+            <div class="meta">
+              <span>📦 Quantité : <b>{{ item.quantite }}</b></span>
+              <span>🚚 Livraison rapide</span>
+            </div>
+
+          </div>
+
+          <!-- PRICE -->
+          <div class="price">
+            <span>{{ item.sousTotal | number:'1.0-2' }}</span>
+            <small>TND</small>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- EMPTY CART -->
+      <div *ngIf="!loading && !panier?.lignes?.length" class="empty">
+        <div class="empty-icon">🛒</div>
+        <h3>Panier vide</h3>
+        <p>Aucun produit dans votre panier.</p>
+      </div>
+
+    </div>
+
+    <!-- RIGHT : SUMMARY -->
+    <div class="card summary">
+
+      <div class="card-title">📦 Résumé de commande</div>
+
+      <div class="row">
+        <span>Sous-total</span>
+        <span>{{ panier?.totalPrice | number:'1.0-2' }} TND</span>
+      </div>
+
+      <div class="row">
+        <span>Livraison</span>
+        <span>10.00 TND</span>
+      </div>
+
+      <div class="row">
+        <span>Taxes</span>
+        <span>Incluses</span>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="total">
+        <span>Total</span>
+        <span>{{ getTotal() | number:'1.0-2' }} TND</span>
+      </div>
+
+      <div class="delivery-box">
+        🚚 Livraison estimée : <b>2 - 4 jours</b>
+      </div>
+
+      <div class="secure-box">
+        🔒 Paiement 100% sécurisé
+      </div>
+
+      <!-- BUTTONS -->
+      <button
+        class="btn confirm"
+        (click)="confirmOrder()"
+        [disabled]="isSubmitting || !panier?.lignes?.length">
+
+        <span *ngIf="!isSubmitting">✅ Confirmer & continuer</span>
+        <span *ngIf="isSubmitting">⏳ Confirmation...</span>
+
+      </button>
+
+      <button
+        class="btn edit"
+        (click)="backToCart()"
+        [disabled]="isSubmitting">
+
+        🔄 Modifier panier
+      </button>
+
+      <button
+        class="btn cancel"
+        (click)="cancel()"
+        [disabled]="isSubmitting">
+
+        ❌ Annuler
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<app-product-panier
+  *ngIf="showCartSidebar"
+  (close)="showCartSidebar = false">
+</app-product-panier>

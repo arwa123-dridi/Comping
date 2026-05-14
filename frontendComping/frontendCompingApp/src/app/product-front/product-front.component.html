@@ -1,55 +1,60 @@
-<nav class="market-navbar">
-  <div class="nav-left">
-    <h2>🏕 Campino</h2>
-  </div>
+<div class="market-hero">
 
-  <div class="nav-links">
-    <a href="#">Accueil</a>
-    <a href="#">Marketplace</a>
-    <a href="#">Matériel</a>
-    <a href="#">Expériences</a>
-  </div>
+  <!-- NAVBAR -->
+  <nav class="market-navbar">
 
-  <div class="nav-actions">
-    <button class="btn-login">Connexion</button>
-    <button class="btn-signup">Inscription</button>
-    <!-- CART -->
-    <div class="cart-icon">
-      <span class="material-icons">shopping_cart</span>
-     <span class="cart-count">{{ cartCount }}</span>
-      <!--<span class="cart-count">{{ cartItems.length }}</span>-->
+    <div class="nav-left">
+      <h2>🏕 Campino</h2>
     </div>
+
+    <div class="nav-links">
+      <a href="#">Accueil</a>
+      <a href="#" class="active">Marketplace</a>
+      <a href="#">Matériel</a>
+      <a href="#">Expériences</a>
+    </div>
+
+    <div class="nav-actions">
+      <button class="btn-login">Connexion</button>
+      <button class="btn-signup">Inscription</button>
+
+      <div class="cart-icon" (click)="toggleCartSidebar()">
+        <span class="material-icons">shopping_cart</span>
+        <span class="cart-count">{{ cartCount }}</span>
+      </div>
+    </div>
+
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero-content">
+    <h1>Marketplace Camping</h1>
+    <p>Trouvez tout votre matériel pour vos aventures outdoor</p>
   </div>
-</nav>
 
-<div class="marketplace">
-
+</div>
 
 
+<div class="page-container">
 
   <!-- FILTER BAR -->
   <div class="filters">
 
-    <!-- SEARCH -->
     <div class="search-box">
-      <span>🔍</span>
+      <span class="material-icons">search</span>
       <input type="text" placeholder="Rechercher un produit..." [(ngModel)]="searchTerm" (input)="applyFilters()" />
     </div>
 
-    <!-- CATEGORY -->
     <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
       <option value="">Toutes catégories</option>
-      <option *ngFor="let c of categories" [value]="c">
-        {{ c }}
-      </option>
+      <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
     </select>
 
-    <!-- STATUS -->
     <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
       <option value="">Tous statuts</option>
       <option value="DISPONIBLE">Disponible</option>
       <option value="STOCK_FAIBLE">Stock faible</option>
-      <option value="RUPTURE_STOCK">Rupture de stock</option>
+      <option value="RUPTURE_STOCK">Rupture</option>
     </select>
 
   </div>
@@ -60,4 +65,63 @@
     </app-product-card>
   </div>
 
+  <!-- EMPTY -->
+  <div class="empty" *ngIf="filteredProduits.length === 0">
+    <span class="material-icons">search_off</span>
+    <p>Aucun produit trouvé</p>
+  </div>
+
 </div>
+
+<!-- CART SIDEBAR -->
+<div class="cart-sidebar" *ngIf="showCartSidebar">
+  <app-product-panier (close)="showCartSidebar = false"></app-product-panier>
+</div>
+
+<!-- FOOTER -->
+<footer class="market-footer">
+  <div class="footer-container">
+
+    <!-- Logo & About -->
+    <div class="footer-section">
+      <h2>🏕 Campino</h2>
+      <p>Votre marketplace pour tout le matériel de camping et outdoor. Découvrez, achetez et partez à l’aventure !</p>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="footer-section">
+      <h3>Liens rapides</h3>
+      <ul>
+        <li><a href="#">Accueil</a></li>
+        <li><a href="#">Marketplace</a></li>
+        <li><a href="#">Matériel</a></li>
+        <li><a href="#">Expériences</a></li>
+      </ul>
+    </div>
+
+    <!-- Support -->
+    <div class="footer-section">
+      <h3>Support</h3>
+      <ul>
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Politique de confidentialité</a></li>
+      </ul>
+    </div>
+
+    <!-- Social Media -->
+    <div class="footer-section">
+      <h3>Suivez-nous</h3>
+      <div class="social-icons">
+        <a href="#"><span class="material-icons">facebook</span></a>
+        <a href="#"><span class="material-icons">instagram</span></a>
+        <a href="#"><span class="material-icons">twitter</span></a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2026 Campino. Tous droits réservés.</p>
+  </div>
+</footer>
