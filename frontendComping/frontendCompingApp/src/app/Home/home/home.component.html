@@ -22,16 +22,31 @@
   <nav>
     <a routerLink="/emplacements">Emplacements</a>
     <a routerLink="/materiel">Matériel</a>
-    <!-- ========== AJOUT 1 : RANDONNÉES ========== -->
+    <!-- ==========  RANDONNÉES ========== -->
     <a routerLink="/sorties"> Randonnées</a>
-    <!-- ========== AJOUT 2 : ÉQUIPES ========== -->
+    <!-- ==========  ÉQUIPES ========== -->
     <a routerLink="/equipes"> Équipes</a>
     <a routerLink="/experiences">Expériences</a>
     <a routerLink="/blog">Blog</a>
   </nav>
-  <div class="header-btns">
-    <a routerLink="/login" class="btn-ghost">Connexion</a>
-    <a routerLink="/signup" class="btn-fill">Inscription</a>
+   <div class="header-btns">
+    <!-- Non connecté -->
+     
+    <ng-container *ngIf="!isConnected()">
+      <a routerLink="/login"  class="btn-ghost">Connexion</a>
+      <a routerLink="/signup" class="btn-fill">Inscription</a>
+    </ng-container>
+ 
+    <!-- Connecté USER -->
+    <ng-container *ngIf="isConnected() && !isAdminOrOrg()">
+      <a routerLink="/planning"  class="btn-ghost">Mon Planning</a>
+      <a routerLink="/profile"   class="btn-fill">Mon profil</a>
+    </ng-container>
+ 
+    <!-- Connecté ADMIN / ORGANISATEUR -->
+    <ng-container *ngIf="isConnected() && isAdminOrOrg()">
+      <a routerLink="/admin/dashboard" class="btn-fill">Dashboard</a>
+    </ng-container>
   </div>
 </header>
 
@@ -189,9 +204,11 @@
       <h5>PLATEFORME</h5>
       <a routerLink="/emplacements">Emplacements</a>
       <a routerLink="/materiel">Location matériel</a>
-      <!-- ========== AJOUT 4 : LIENS DANS FOOTER ========== -->
+      <!-- ========== LIENS DANS FOOTER ========== -->
       <a routerLink="/sorties"> Randonnées</a>
       <a routerLink="/equipes"> Équipes</a>
+     <a routerLink="/checklist-ia">Checklist</a>
+     <a routerLink="/planning">Mon Planning</a>
       <a routerLink="/experiences">Expériences</a>
       <a routerLink="/blog">Blog</a>
     </div>
@@ -224,4 +241,5 @@
       <a routerLink="/privacy" style="color:rgba(255,255,255,0.25);text-decoration:none;">Confidentialité</a>
     </p>
   </div>
+  
 </footer>

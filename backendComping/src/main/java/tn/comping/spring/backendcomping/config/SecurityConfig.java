@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
 
@@ -24,45 +25,52 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-
-
-        http.cors(cors -> cors.configurationSource(request -> {
-                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("http://localhost:4200"));
-                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    corsConfig.setAllowedHeaders(List.of("*"));
-                    return corsConfig;
+        http
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of("http://localhost:4200"));
+                    config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
+                    config.setAllowCredentials(true);
+                    return config;
                 }))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+
+                        //  Spring doit pouvoir accéder à son propre /error sinon boucle 403
+                        .requestMatchers("/error").permitAll()
+
                         // Routes publiques
                         .requestMatchers(
-                                "/",
                                 "/api/auth/**",
                                 "/api/sorties/**",
                                 "/api/equipes/**",
                                 "/api/upload/**",
+                                "/api/weather/**",
+                                "/api/checklist/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
                                 "/api/demandes-transport/**",
                                 "/api/creneaux-livraison/**",
                                 "/api/incidents/**",
-                                "/api/conventions-partenaires/**",
-                                "/api/weather/**",
-                                "/api/checklist/**")
-                            .permitAll()
+                                "/api/conventions-partenaires/**"
+                        ).permitAll()
+
+                        //  Planning + Recommandations = authentifié
+                        .requestMatchers(
+                                "/api/planning/**",
+                                "/api/recommandations/**"
+                        ).authenticated()
 
                         // Rôles spécifiques
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/moderateur/**").hasRole("MODERATEUR")
-                        .requestMatchers("/api/organisateur/**").hasRole("ORGANISATEUR")
+                        .requestMatchers("/api/moderateur/**").hasAnyRole("MODERATEUR","ADMIN")
+                        .requestMatchers("/api/organisateur/**").hasAnyRole("ORGANISATEUR","ADMIN")
+                        .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR","ADMIN")
+                        .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR","ADMIN")
+                        .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR","ADMIN")
 
-                        // Avis – MODERATEUR ou ADMIN
-                        .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
-                        .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
-                        .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
-                        // Tout le reste nécessite authentification
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

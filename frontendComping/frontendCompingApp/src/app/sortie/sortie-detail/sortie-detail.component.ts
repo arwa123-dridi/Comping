@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SortieService } from '../../services/sortie.service';
+import { EquipeService } from '../../services/equipe.service';
 import { SortieResponse } from '../../models/sortie.model';
 
 @Component({
@@ -17,6 +18,7 @@ export class SortieDetailComponent implements OnInit {
   error: string | null = null;
   inscriptionEnCours = false;
   equipeNom = '';
+  userId: string | null = null;
 
   private readonly heroImages = [
     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80',
@@ -28,10 +30,12 @@ export class SortieDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private sortieService: SortieService
+    private sortieService: SortieService,
+    private equipeService: EquipeService
   ) {}
 
   ngOnInit(): void {
+    this.userId = localStorage.getItem('userId');
     const id = this.route.snapshot.paramMap.get('id');
     if (id) this.loadSortie(id);
     else { this.error = 'ID non trouvé'; this.loading = false; }
@@ -82,7 +86,21 @@ export class SortieDetailComponent implements OnInit {
     return Math.max(0, (this.sortie?.capaciteMax || 0) - this.nombreParticipants);
   }
 
-  // ── Helpers ───────────────────────────────────────────────
+  isSortiePasseeOuCompletee(): boolean {
+    if (!this.sortie) return false;
+    // Sortie passée?
+    const maintenant = new Date();
+    if (new Date(this.sortie.dateDebut) < maintenant) return true;
+    // Sortie complète?
+    return this.placesDisponibles === 0;
+  }
+
+  getSortieStatus(): string {
+    if (!this.sortie) return '';
+    if (new Date(this.sortie.dateDebut) < new Date()) return 'passée';
+    if (this.placesDisponibles === 0) return 'complète';
+    return 'disponible';
+  }
 
   getDuree(): string {
     if (!this.sortie?.dateDebut || !this.sortie?.dateFin) return 'Non spécifiée';
@@ -106,19 +124,38 @@ export class SortieDetailComponent implements OnInit {
 
   inscrire(): void {
     if (!this.sortie || this.placesDisponibles <= 0) return;
-    const token = localStorage.getItem('authToken');
-    if (!token) { this.router.navigate(['/login']); return; }
+    const token  = localStorage.getItem('authToken');
+    const userId = localStorage.getItem('userId');
+    if (!token || !userId || userId === 'undefined') {
+      this.router.navigate(['/login']); return;
+    }
 
     this.inscriptionEnCours = true;
     this.sortieService.inscrire(this.sortie.id).subscribe({
       next: () => {
-        this.loadSortie(this.sortie!.id);
         this.inscriptionEnCours = false;
-        alert('✅ Inscription réussie !');
+        this.loadSortie(this.sortie!.id);
+        // Auto-join équipe si la sortie en a une
+        if (this.sortie?.equipeId && this.userId) {
+          const userNom = localStorage.getItem('userNom') || 'Utilisateur';
+          this.equipeService.ajouterMembre(this.sortie.equipeId, this.userId, userNom).subscribe({
+            next: () => {},
+            error: () => {} // silencieux si équipe déjà rejointe
+          });
+        }
       },
       error: (err) => {
-        alert(err.error?.message || 'Erreur lors de l\'inscription.');
         this.inscriptionEnCours = false;
+        if (err.status === 409) {
+          alert('ℹ️ Vous êtes déjà inscrit à cette sortie.');
+          this.loadSortie(this.sortie!.id); // Refresh pour sync l'état
+        } else if (err.status === 401 || err.status === 403) {
+          this.router.navigate(['/login']);
+        } else if (err.status === 0) {
+          alert('❌ Serveur inaccessible. Vérifiez que le backend tourne sur le port 8087.');
+        } else {
+          alert(err.error?.message || 'Erreur lors de l\'inscription. Code: ' + err.status);
+        }
       }
     });
   }
@@ -132,13 +169,13 @@ export class SortieDetailComponent implements OnInit {
   }
 
   modifier(): void {
-    this.router.navigate(['/sorties/edit', this.sortie?.id]);
+    this.router.navigate(['/admin/sorties/edit', this.sortie?.id]);
   }
 
   supprimer(): void {
     if (!this.sortie || !confirm('⚠️ Supprimer définitivement cette randonnée ?')) return;
     this.sortieService.deleteSortie(this.sortie.id).subscribe({
-      next: () => this.router.navigate(['/sorties']),
+      next: () => this.router.navigate(['/admin/sorties']),
       error: () => alert('Erreur lors de la suppression.')
     });
   }

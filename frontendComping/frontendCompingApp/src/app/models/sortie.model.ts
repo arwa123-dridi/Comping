@@ -15,6 +15,7 @@ export interface SortieResponse {
     statut: string;
     organisateurId: string;
     organisateurNom: string;
+    organisateurPrenom?: string;
     equipeId?: string;
     equipeNom?: string;
     nombreParticipants: number;
@@ -23,6 +24,7 @@ export interface SortieResponse {
     equipementRequis?: string;
     assistanceMedicale?: boolean;
     distanceKm?: number;
+    imageUrl?: string;          //  URL Cloudinary
 }
 
 export interface SortieRequest {
@@ -42,5 +44,5 @@ export interface SortieRequest {
     organisateurNom: string;
     equipeId?: string;
     distanceKm?: number;
-  imageUrl?: string;
+    imageUrl?: string;
 }

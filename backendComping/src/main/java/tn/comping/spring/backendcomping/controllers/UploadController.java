@@ -1,4 +1,4 @@
-/*package tn.comping.spring.backendcomping.controllers;
+package tn.comping.spring.backendcomping.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,4 +25,4 @@ public class UploadController {
             return ResponseEntity.status(500).body(Map.of("error", "Upload failed"));
         }
     }
-}*/
+}

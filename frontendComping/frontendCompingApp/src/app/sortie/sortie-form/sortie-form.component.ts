@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { finalize } from 'rxjs/operators';
 import { SortieService } from '../../services/sortie.service';
 import { EquipeService } from '../../services/equipe.service';
 import { SortieRequest, SortieResponse } from '../../models/sortie.model';
@@ -26,11 +25,10 @@ export class SortieFormComponent implements OnInit {
   equipes: EquipeResponse[] = [];
   equipesLoading = false;
 
-  // ========== GESTION IMAGE CLOUDINARY ==========
   selectedImage: File | null = null;
   imageUploading = false;
-  existingImageUrl: string | null = null; // pour l'édition
-  // ===========================================
+  imagePreviewUrl: string | null = null;
+  existingImageUrl: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -49,7 +47,7 @@ export class SortieFormComponent implements OnInit {
       lieuArrivee:       [''],
       region:            [''],
       difficulte:        ['MOYEN', Validators.required],
-      capaciteMax:       [10,  [Validators.required, Validators.min(1), Validators.max(50)]],
+      capaciteMax:       [10,  [Validators.required, Validators.min(1), Validators.max(200)]],
       prixParPersonne:   [0,   Validators.min(0)],
       equipementRequis:  [''],
       assistanceMedicale:[false],
@@ -63,10 +61,7 @@ export class SortieFormComponent implements OnInit {
   ngOnInit(): void {
     this.loadEquipes();
     this.sortieId = this.route.snapshot.paramMap.get('id');
-    if (this.sortieId) {
-      this.isEdit = true;
-      this.loadSortie();
-    }
+    if (this.sortieId) { this.isEdit = true; this.loadSortie(); }
   }
 
   get f() { return this.sortieForm.controls; }
@@ -88,138 +83,109 @@ export class SortieFormComponent implements OnInit {
     this.isLoading = true;
     this.sortieService.getSortieById(this.sortieId!).subscribe({
       next: (data: SortieResponse) => {
-        const fmt = (d: any): string => {
-          if (!d) return '';
-          return new Date(d).toISOString().slice(0, 16);
-        };
+        const fmt = (d: any): string => d ? new Date(d).toISOString().slice(0, 16) : '';
         this.sortieForm.patchValue({
-          titre:             data.titre,
-          description:       data.description,
-          dateDebut:         fmt(data.dateDebut),
-          dateFin:           fmt(data.dateFin),
-          lieuDepart:        data.lieuDepart,
-          lieuArrivee:       data.lieuArrivee || '',
-          region:            data.region || '',
-          difficulte:        data.difficulte,
-          capaciteMax:       data.capaciteMax,
-          prixParPersonne:   data.prixParPersonne || 0,
-          equipementRequis:  data.equipementRequis || '',
-          assistanceMedicale:data.assistanceMedicale || false,
-          equipeId:          data.equipeId || '',
-          distanceKm:        data.distanceKm || 0,
-          organisateurId:    data.organisateurId,
-          organisateurNom:   data.organisateurNom
+          titre: data.titre, description: data.description,
+          dateDebut: fmt(data.dateDebut), dateFin: fmt(data.dateFin),
+          lieuDepart: data.lieuDepart, lieuArrivee: data.lieuArrivee || '',
+          region: data.region || '', difficulte: data.difficulte,
+          capaciteMax: data.capaciteMax, prixParPersonne: data.prixParPersonne || 0,
+          equipementRequis: data.equipementRequis || '',
+          assistanceMedicale: data.assistanceMedicale || false,
+          equipeId: data.equipeId || '', distanceKm: data.distanceKm || 0,
+          organisateurId: data.organisateurId, organisateurNom: data.organisateurNom
         });
-        // Récupérer l'URL de l'image existante pour l'édition
         this.existingImageUrl = (data as any).imageUrl || null;
+        if (this.existingImageUrl) this.imagePreviewUrl = this.existingImageUrl;
         this.isLoading = false;
       },
       error: () => { this.error = 'Impossible de charger la randonnée.'; this.isLoading = false; }
     });
   }
 
-  // ========== GESTION IMAGE ==========
- 
-  imagePreviewUrl: string | null = null;
-
-onFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  if (input.files && input.files.length) {
-    this.selectedImage = input.files[0];
-    if (this.imagePreviewUrl) {
-      URL.revokeObjectURL(this.imagePreviewUrl);
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      this.selectedImage = input.files[0];
+      if (this.imagePreviewUrl && !this.existingImageUrl) URL.revokeObjectURL(this.imagePreviewUrl);
+      this.imagePreviewUrl = URL.createObjectURL(this.selectedImage);
     }
-    this.imagePreviewUrl = URL.createObjectURL(this.selectedImage);
   }
-}
 
-clearImage(): void {
-  if (this.imagePreviewUrl) {
-    URL.revokeObjectURL(this.imagePreviewUrl);
+  clearImage(): void {
+    if (this.imagePreviewUrl && !this.existingImageUrl) URL.revokeObjectURL(this.imagePreviewUrl);
     this.imagePreviewUrl = null;
+    this.selectedImage = null;
+    this.existingImageUrl = null;
+    const fi = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fi) fi.value = '';
   }
-  this.selectedImage = null;
-  this.existingImageUrl = null;
-  const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-  if (fileInput) fileInput.value = '';
-}
 
-  uploadImage(): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (!this.selectedImage) {
-        resolve(this.existingImageUrl || '');
-        return;
-      }
+  /** Upload image — OPTIONNEL : si échec on retourne chaîne vide, pas d'erreur bloquante */
+  private uploadImageOptional(): Promise<string> {
+    return new Promise((resolve) => {
+      if (!this.selectedImage) { resolve(this.existingImageUrl || ''); return; }
       this.imageUploading = true;
       const formData = new FormData();
       formData.append('file', this.selectedImage);
-
       const headers = new HttpHeaders({ 'Authorization': `Bearer ${localStorage.getItem('authToken')}` });
       this.http.post<{ url: string }>('http://localhost:8087/api/upload/image', formData, { headers })
-        .pipe(finalize(() => this.imageUploading = false))
         .subscribe({
-          next: (res) => resolve(res.url),
-          error: (err) => reject(err)
+          next: (res) => { this.imageUploading = false; resolve(res.url); },
+          error: () => {
+            this.imageUploading = false;
+            // ✅ Pas d'erreur bloquante — on continue sans image
+            console.warn('Upload image échoué — sortie créée sans image');
+            resolve(this.existingImageUrl || '');
+          }
         });
     });
   }
 
-  // ========== SOUMISSION ==========
   async onSubmit(): Promise<void> {
     if (this.sortieForm.invalid) {
       this.sortieForm.markAllAsTouched();
       this.error = 'Veuillez corriger les erreurs avant de continuer.';
       return;
     }
-
     this.isLoading = true;
     this.error = null;
 
-    try {
-      let imageUrl = '';
-      if (this.selectedImage || this.existingImageUrl) {
-        imageUrl = await this.uploadImage();
+    // Upload image optionnel — jamais bloquant
+    const imageUrl = await this.uploadImageOptional();
+
+    const v = this.sortieForm.value;
+    const sortieData: SortieRequest = {
+      titre: v.titre, description: v.description,
+      dateDebut: new Date(v.dateDebut),
+      dateFin: v.dateFin ? new Date(v.dateFin) : undefined,
+      lieuDepart: v.lieuDepart, lieuArrivee: v.lieuArrivee,
+      region: v.region, difficulte: v.difficulte,
+      capaciteMax: Number(v.capaciteMax),
+      prixParPersonne: Number(v.prixParPersonne),
+      equipementRequis: v.equipementRequis,
+      assistanceMedicale: v.assistanceMedicale,
+      equipeId: v.equipeId,
+      distanceKm: Number(v.distanceKm),
+      organisateurId: localStorage.getItem('userId') || '',
+      organisateurNom: localStorage.getItem('userNom') || 'Organisateur',
+      imageUrl
+    };
+
+    const req$ = this.isEdit && this.sortieId
+      ? this.sortieService.updateSortie(this.sortieId, sortieData)
+      : this.sortieService.createSortie(sortieData);
+
+    req$.subscribe({
+      next: (result) => {
+        this.isLoading = false;
+        const id = result.id || this.sortieId;
+        this.router.navigate(['/admin/sorties', id]);
+      },
+      error: (err) => {
+        this.error = err.error?.message || (this.isEdit ? 'Erreur mise à jour.' : 'Erreur création.');
+        this.isLoading = false;
       }
-
-      const v = this.sortieForm.value;
-      const sortieData: SortieRequest = {
-        titre:             v.titre,
-        description:       v.description,
-        dateDebut:         new Date(v.dateDebut),
-        dateFin:           v.dateFin ? new Date(v.dateFin) : undefined,
-        lieuDepart:        v.lieuDepart,
-        lieuArrivee:       v.lieuArrivee,
-        region:            v.region,
-        difficulte:        v.difficulte,
-        capaciteMax:       Number(v.capaciteMax),
-        prixParPersonne:   Number(v.prixParPersonne),
-        equipementRequis:  v.equipementRequis,
-        assistanceMedicale: v.assistanceMedicale,
-        equipeId:          v.equipeId,
-        distanceKm:        Number(v.distanceKm),
-        organisateurId:    localStorage.getItem('userId') || '',
-        organisateurNom:   localStorage.getItem('userNom') || 'Organisateur',
-        imageUrl:          imageUrl
-      };
-
-      const request$ = this.isEdit && this.sortieId
-        ? this.sortieService.updateSortie(this.sortieId, sortieData)
-        : this.sortieService.createSortie(sortieData);
-
-      request$.subscribe({
-        next: (result) => {
-          this.isLoading = false;
-          const id = result.id || this.sortieId;
-          this.router.navigate(['/sorties', id]);
-        },
-        error: (err) => {
-          this.error = err.error?.message || (this.isEdit ? 'Erreur mise à jour.' : 'Erreur création.');
-          this.isLoading = false;
-        }
-      });
-    } catch (err) {
-      this.error = "Erreur lors de l'upload de l'image.";
-      this.isLoading = false;
-    }
+    });
   }
 }

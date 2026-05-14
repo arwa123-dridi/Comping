@@ -3,71 +3,76 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
-export interface LoginDTORequest {
-  email:    string;
-  password: string;
-}
-
-export interface LoginDTOResponse {
-  id:        any;
-  userId:    any;
-  role:      string;
-  roles:     string[];
-  email:     string;
-  lastName:  string;
-  firstName: string;
-  token:     string;
-  username:  string;
-}
+export interface LoginDTORequest  { email: string; password: string; }
+export interface LoginDTOResponse { token: string; }
 
 @Injectable({ providedIn: 'root' })
 export class SigninService {
 
-  private apiUrl = 'http://localhost:8087/api/auth/login';
+  private readonly API = 'http://localhost:8087/api/auth/login';
 
   constructor(private http: HttpClient) {}
 
   login(dto: LoginDTORequest): Observable<LoginDTOResponse> {
-    return this.http.post<LoginDTOResponse>(this.apiUrl, dto, {
+    return this.http.post<LoginDTOResponse>(this.API, dto, {
       headers: { 'Content-Type': 'application/json' }
-    }).pipe(
-      tap(res => this.saveSession(res))
-    );
+    }).pipe(tap(res => this.saveSession(res, dto.email)));
   }
 
-  /**  Sauvegarde TOUT en localStorage — gardes peuvent maintenant lire userRole */
-  saveSession(res: LoginDTOResponse): void {
-    const role = res.role
-      ?? res.roles?.[0]
-      ?? 'USER';
+  saveSession(res: LoginDTOResponse, loginEmail = ''): void {
+    if (!res?.token) return;
+
+    const payload   = this.decodeJwt(res.token);
+    const userId    = payload?.['id']        ?? '';
+    const userRole  = payload?.['role']      ?? 'USER';
+    const userEmail = payload?.['sub']       ?? loginEmail;
+    // Certains JWT incluent firstName/lastName dans les claims
+    const firstName = payload?.['firstName'] ?? payload?.['prenom'] ?? '';
+    const lastName  = payload?.['lastName']  ?? payload?.['nom']    ?? '';
+    // userNom = nom complet si dispo, sinon partie de l'email avant @
+    const userNom   = (firstName || lastName)
+      ? `${firstName} ${lastName}`.trim()
+      : userEmail.split('@')[0];
 
     localStorage.setItem('authToken',   res.token);
-    localStorage.setItem('userId',      String(res.userId ?? res.id));
-    localStorage.setItem('userEmail',   res.email);
-    localStorage.setItem('userRole',    role);           // ← MANQUAIT
-    localStorage.setItem('userPrenom',  res.firstName);
-    localStorage.setItem('userNom',     res.lastName);
+    localStorage.setItem('userId',      String(userId));
+    localStorage.setItem('userEmail',   userEmail);
+    localStorage.setItem('userRole',    userRole);
+    localStorage.setItem('userNom',     userNom);
+    localStorage.setItem('userPrenom',  firstName);
 
-    // Expiration token : 24h
     const expiry = new Date();
     expiry.setHours(expiry.getHours() + 24);
     localStorage.setItem('tokenExpiry', expiry.toISOString());
+
+    console.log('[Auth] userId:', userId, '| role:', userRole, '| nom:', userNom);
+  }
+
+  decodeJwt(token: string): Record<string, any> | null {
+    try {
+      const parts  = token.split('.');
+      if (parts.length !== 3) return null;
+      const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64 + '=='.slice(0, (4 - base64.length % 4) % 4);
+      return JSON.parse(atob(padded));
+    } catch { return null; }
   }
 
   logout(): void {
-    ['authToken','userId','userEmail','userRole','userPrenom','userNom','tokenExpiry']
+    ['authToken','userId','userEmail','userRole','userNom','userPrenom','tokenExpiry']
       .forEach(k => localStorage.removeItem(k));
   }
 
-  getToken():  string | null { return localStorage.getItem('authToken'); }
-  getUserId(): string | null { return localStorage.getItem('userId'); }
-  getRole():   string | null { return localStorage.getItem('userRole'); }
-
+  getToken():     string | null { return localStorage.getItem('authToken'); }
+  getUserId():    string | null { return localStorage.getItem('userId'); }
+  getRole():      string | null { return localStorage.getItem('userRole'); }
   isConnected():    boolean { return !!this.getToken(); }
-  isOrganisateur(): boolean { return this.getRole() === 'ORGANISATEUR'; }
-  isAdmin():        boolean { return this.getRole() === 'ADMIN'; }
-  isUser():         boolean {
-    const r = this.getRole();
-    return r === 'USER' || r === 'ROLE_USER';
+  isOrganisateur(): boolean {
+    const r = this.getRole() ?? '';
+    return r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR';
+  }
+  isAdmin(): boolean {
+    const r = this.getRole() ?? '';
+    return r === 'ADMIN' || r === 'ROLE_ADMIN';
   }
 }

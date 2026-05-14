@@ -144,7 +144,7 @@
 
         <!-- Bouton inscription -->
         <ng-container *ngIf="!isOrganisateur">
-          <button *ngIf="!isParticipant && placesDisponibles > 0"
+          <button *ngIf="!isParticipant && placesDisponibles > 0 && !isSortiePasseeOuCompletee()"
                   class="btn-inscrire-big"
                   (click)="inscrire()"
                   [disabled]="inscriptionEnCours">
@@ -161,6 +161,11 @@
           <button *ngIf="!isParticipant && placesDisponibles === 0" class="btn-complet" disabled>
             😔 Randonnée complète
           </button>
+
+          <button *ngIf="isSortiePasseeOuCompletee() && !isParticipant" class="btn-complet" disabled>
+            {{ isSortiePassee() ? '⏰ Sort passée' : '😔 Complet' }   
+            </button>
+          
         </ng-container>
       </div>
 

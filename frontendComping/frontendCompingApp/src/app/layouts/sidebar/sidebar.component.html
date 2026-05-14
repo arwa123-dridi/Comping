@@ -1,11 +1,9 @@
 <div class="sidebar" [class.collapsed]="isCollapsed">
 
-  <!-- HEADER / LOGO -->
+  <!-- LOGO -->
   <div class="sidebar-header">
-
-    <!-- Icône SVG toujours visible -->
     <div class="logo-icon">
-      <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="36" height="36" viewBox="0 0 38 38" fill="none">
         <rect width="38" height="38" rx="10" fill="#162c40"/>
         <path d="M26 9a5 5 0 0 1-5 5 5 5 0 0 0 5 5 5 5 0 0 0 0-10z" fill="#facc15"/>
         <polygon points="4,30 13,14 22,30" fill="#2d6a4f"/>
@@ -13,134 +11,172 @@
         <rect x="4" y="30" width="30" height="3" rx="1.5" fill="#0a2818"/>
       </svg>
     </div>
-
-    <!-- Texte caché par CSS en collapsed -->
-    <div class="logo-text">
-      CAMPI<span>NO</span>
-    </div>
-
-    <!-- Bouton toggle TOUJOURS visible -->
-    <button class="toggle-btn" (click)="toggleSidebar()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-        <line x1="3" y1="6" x2="21" y2="6"/>
-        <line x1="3" y1="12" x2="21" y2="12"/>
-        <line x1="3" y1="18" x2="21" y2="18"/>
-      </svg>
-    </button>
-
+    <span class="logo-text">CAMPI<span class="logo-accent">NO</span></span>
   </div>
 
-  <!-- MENU Randonner Module -->
   <nav class="menu">
 
-    <!-- Dashboard -->
-    <a routerLink="/dashboard" routerLinkActive="active" title="Dashboard User">
-      <span class="icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7"/>
-          <rect x="14" y="3" width="7" height="7"/>
-          <rect x="3" y="14" width="7" height="7"/>
-          <rect x="14" y="14" width="7" height="7"/>
-        </svg>
-      </span>
-      <span class="label">Dashboard</span>
-    </a>
+    <!-- ═══ USER UNIQUEMENT ═══ -->
+    <ng-container *ngIf="isUser()">
 
-    <!-- Randonnées User -->
-    <a *ngIf="isUser()" routerLink="/sorties" routerLinkActive="active" title="Randonnées">
-      <span class="icon">
+      <div class="menu-section-label">Mon espace</div>
+
+      <a routerLink="/dashboard" routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact:true}" title="Tableau de bord">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2L4.5 13.5L8.5 21l8-8L20.5 10.5z"/>
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
         </svg>
-      </span>
-      <span class="label">Randonnées</span>
-    </a>
+        <span>Tableau de bord</span>
+      </a>
 
-    <!-- Équipes User -->
-    <a *ngIf="isUser()" routerLink="/equipes" routerLinkActive="active" title="Équipes">
-      <span class="icon">
+      <a routerLink="/sorties" routerLinkActive="active" title="Randonnées">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-          <circle cx="8.5" cy="7" r="4"/>
-          <polyline points="17 11 19 13 23 9"/>
+          <path d="M8 3L3 15h5l-1 6 9-12H11l2-6z"/>
         </svg>
-      </span>
-      <span class="label">Équipes</span>
-    </a>
+        <span>Randonnées</span>
+      </a>
 
-<!-- Checklist IA Securite -->
-<a routerLink="/checklist-ia" routerLinkActive="active">
-  🤖 IA Checklist Sécurité
-</a>
-    <!-- Organizer Dashboard -->
-<a *ngIf="userRole === 'ORGANISATEUR'" routerLink="/dashboard/organizer" routerLinkActive="active">
-      <span class="icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2L4.5 13.5L8.5 21l8-8L20.5 10.5z"/>
-        </svg>
-      </span>
-      <span class="label">Dashboard Organisateur</span>
-    </a>
-
-    <!-- Admin Dashboard -->
-<a *ngIf="isAdmin()" routerLink="/admin/dashboard" routerLinkActive="active">
-      <span class="icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2L4.5 13.5L8.5 21l8-8L20.5 10.5z"/>
-        </svg>
-      </span>
-      <span class="label">Dashboard Admin</span>
-    </a>
-
-    <!-- Randonnées Admin -->
-    <a *ngIf="isAdmin()" routerLink="/sorties" routerLinkActive="active" title="Gérer Randonnées">
-      <span class="icon">
+      <a routerLink="/equipes" routerLinkActive="active" title="Mes équipes">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
-          <circle cx="10" cy="8" r="4"/>
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
         </svg>
-      </span>
-      <span class="label">Gérer Randonnées</span>
-    </a>
+        <span>Mes équipes</span>
+      </a>
 
-    <!-- Équipes Admin -->
-    <a *ngIf="isAdmin()" routerLink="/equipes" routerLinkActive="active" title="Gérer Équipes">
-      <span class="icon">
+      <div class="menu-section-label">Outils IA</div>
+
+      <a routerLink="/dashboard/recommandations" routerLinkActive="active" title="Recommandations">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
         </svg>
-      </span>
-      <span class="label">Gérer Équipes</span>
-    </a>
+        <span>Recommandations</span>
+      </a>
 
-    <!-- Existing generic links -->
-    <a routerLink="/admin/emplacements" routerLinkActive="active" title="Emplacements">
-      <span class="icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-          <circle cx="12" cy="10" r="3"/>
+      <a routerLink="/dashboard/planning" routerLinkActive="active" title="Mon Planning">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
         </svg>
-      </span>
-      <span class="label">Utilisateurs</span>
-    </a>
+        <span>Mon Planning</span>
+      </a>
 
-    <a routerLink="/admin/materiel" routerLinkActive="active" title="Matériel">
-      <span class="icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <path d="M16 10a4 4 0 0 1-8 0"/>
+      <a routerLink="/dashboard/checklist-ia" routerLinkActive="active" title="Checklist IA">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
         </svg>
-      </span>
-      <span class="label">Activities</span>
-    </a>
+        <span>🤖 Checklist IA</span>
+      </a>
+
+      <div class="menu-section-label">Compte</div>
+
+      <a routerLink="/profile" routerLinkActive="active" title="Mon profil">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Mon profil</span>
+      </a>
+
+      <button class="menu-logout" (click)="logout()" title="Déconnexion">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span>Déconnexion</span>
+      </button>
+
+    </ng-container>
+
+    <!-- ═══ ORGA / ADMIN ═══ -->
+    <ng-container *ngIf="isOrga()">
+
+      <div class="menu-section-label">Back Office</div>
+
+      <a routerLink="/admin/dashboard" routerLinkActive="active" title="Dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+        </svg>
+        <span>Dashboard</span>
+      </a>
+
+      <a routerLink="/admin/sorties" routerLinkActive="active" title="Randonnées">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3L3 15h5l-1 6 9-12H11l2-6z"/>
+        </svg>
+        <span>Randonnées</span>
+      </a>
+
+      <a routerLink="/admin/equipes" routerLinkActive="active" title="Équipes">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Équipes</span>
+      </a>
+
+      <div class="menu-section-label">Outils IA</div>
+
+      <a routerLink="/admin/planning" routerLinkActive="active" title="Planning">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span>Planning IA</span>
+      </a>
+
+      <a routerLink="/admin/checklist-ia" routerLinkActive="active" title="Checklist IA">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        <span>🤖 Checklist IA</span>
+      </a>
+
+      <!-- Admin uniquement -->
+      <ng-container *ngIf="isAdmin()">
+        <div class="menu-section-label">Administration</div>
+        <a routerLink="/admin/admin-board" routerLinkActive="active" title="Administration">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M12 14c-5 0-8 2-8 4v1h16v-1c0-2-3-4-8-4z"/>
+          </svg>
+          <span>Administration</span>
+        </a>
+      </ng-container>
+
+      <div class="menu-section-label">Compte</div>
+
+      <a routerLink="/profile" routerLinkActive="active" title="Mon profil">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Mon profil</span>
+      </a>
+
+      <button class="menu-logout" (click)="logout()" title="Déconnexion">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span>Déconnexion</span>
+      </button>
+
+    </ng-container>
 
   </nav>
-
 </div>

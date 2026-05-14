@@ -31,6 +31,7 @@ export class PlanningSrComponent implements OnInit {
   filteredMonth: SortiePlanifieeDTO[] = [];
   loading       = false;
   error:         string | null = null;
+  serverDown     = false;          // ← Ajouté pour détecter panne serveur
   viewMode: ViewMode           = 'calendrier';
   selectedCard: SortiePlanifieeDTO | null = null;
   validating    = false;
@@ -62,6 +63,7 @@ export class PlanningSrComponent implements OnInit {
   load(): void {
     this.loading = true;
     this.error   = null;
+    this.serverDown = false;
     this.cdr.markForCheck();
 
     this.planningService.getPlanning(this.userId).subscribe({
@@ -71,9 +73,16 @@ export class PlanningSrComponent implements OnInit {
         this.buildCalendar();
         this.cdr.markForCheck();
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.error   = 'Impossible de charger le planning. Vérifiez que le serveur tourne.';
+        // Détection panne serveur (statut 0 = réseau inaccessible)
+        if (err.status === 0) {
+          this.serverDown = true;
+          this.error = '❌ Serveur inaccessible. Vérifiez que le backend tourne sur le port 8087.';
+        } else {
+          this.serverDown = false;
+          this.error = 'Impossible de charger le planning. Vérifiez que le serveur tourne.';
+        }
         this.cdr.markForCheck();
       }
     });
@@ -172,6 +181,8 @@ export class PlanningSrComponent implements OnInit {
 
   confirmerSortie(sortieId: string): void {
     this.validating = true;
+    this.error = null;
+    this.serverDown = false;
     this.planningService.validerSortie(this.userId, sortieId).subscribe({
       next: (res) => {
         this.validating  = false;
@@ -182,7 +193,12 @@ export class PlanningSrComponent implements OnInit {
       },
       error: (err) => {
         this.validating = false;
-        this.error = err.error?.message ?? "Erreur lors de l'inscription.";
+        if (err.status === 0) {
+          this.serverDown = true;
+          this.error = '❌ Serveur inaccessible. Vérifiez que le backend tourne.';
+        } else {
+          this.error = err.error?.message ?? "Erreur lors de l'inscription.";
+        }
         this.cdr.markForCheck();
       }
     });

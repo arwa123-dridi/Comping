@@ -107,4 +107,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   get currentLabel(): string {
     return this.slides[this.currentSlide].label;
   }
+
+ 
+  isConnected(): boolean {
+    return !!localStorage.getItem('authToken');
+  }
+ 
+  isAdminOrOrg(): boolean {
+    const r = localStorage.getItem('userRole') ?? '';
+    return r === 'ADMIN'        || r === 'ROLE_ADMIN'
+        || r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR';
+  }
 }

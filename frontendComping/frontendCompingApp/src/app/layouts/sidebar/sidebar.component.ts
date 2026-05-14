@@ -1,30 +1,36 @@
-import { Component } from '@angular/core';
-
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { SigninService } from '../../services/signin.service';
 
 @Component({
   selector: 'app-sidebar',
+  standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
+  @Input() set collapsed(v: boolean) { this.isCollapsed = v; }
   isCollapsed = false;
+  role = 'USER';
 
-  get userRole(): string {
-    return localStorage.getItem('userRole') || 'USER';
+  constructor(private signinService: SigninService, private router: Router) {}
+
+  ngOnInit(): void {
+    this.role = localStorage.getItem('userRole') ?? 'USER';
   }
 
   isAdmin(): boolean {
-    return this.userRole === 'ADMIN';
+    return ['ADMIN','ROLE_ADMIN'].includes(this.role);
   }
-
-  isUser(): boolean {
-    return this.userRole === 'USER' || this.userRole === 'ORGANISATEUR';
+  isOrga(): boolean {
+    return ['ORGANISATEUR','ROLE_ORGANISATEUR'].includes(this.role) || this.isAdmin();
   }
+  isUser(): boolean { return !this.isOrga(); }
 
-  toggleSidebar() {
-    this.isCollapsed = !this.isCollapsed;
+  logout(): void {
+    this.signinService.logout();
+    this.router.navigate(['/login']);
   }
 }

@@ -1,106 +1,86 @@
-// src/app/app.routes.ts — VERSION FINALE COMPLÈTE
+// src/app/app.routes.ts — VERSION SIMPLIFIÉE (un seul layout)
 import { Routes } from '@angular/router';
 
-// ── Auth / Layout ─────────────────────────────────────────────────────────────
 import { SignupComponent }               from './signup/signup.component';
-import { SigninComponent }               from './signin/signin.component';
 import { HomeComponent }                 from './Home/home/home.component';
 import { ProfileComponent }              from './profile/profile.component';
+import { SigninComponent }               from './signin/signin.component';
 import { AdminLayoutComponent }          from './layouts/admin-layout/admin-layout.component';
-
-// ── Dashboards ────────────────────────────────────────────────────────────────
 import { DashboardComponent }            from './admin/dashboard/dashboard.component';
-import { DashboardUserComponent }        from './dashboard/dashboard-user/dashboard-user.component';
-import { DashboardOrganizerComponent }   from './dashboard/dashboard-organizer/dashboard-organizer.component';
-import { DashboardAdminComponent }       from './dashboard/dashboard-admin/dashboard-admin.component';
 
-// ── Sorties ───────────────────────────────────────────────────────────────────
 import { SortieListComponent }           from './sortie/sortie-list/sortie-list.component';
 import { SortieFormComponent }           from './sortie/sortie-form/sortie-form.component';
 import { SortieDetailComponent }         from './sortie/sortie-detail/sortie-detail.component';
-
-// ── Équipes ───────────────────────────────────────────────────────────────────
 import { EquipeListComponent }           from './equipe/equipe-list/equipe-list.component';
 import { EquipeFormComponent }           from './equipe/equipe-form/equipe-form.component';
 import { EquipeDetailComponent }         from './equipe/equipe-detail/equipe-detail.component';
 
-// ── Module Amal — IA Checklist + Planning SR + Recommandations ────────────────
-import { ChecklistIaComponent }          from './checklist-ia/checklist-ia.component';
+import { DashboardUserComponent }        from './dashboard/dashboard-user/dashboard-user.component';
+import { DashboardOrganizerComponent }   from './dashboard/dashboard-organizer/dashboard-organizer.component';
+import { DashboardAdminComponent }       from './dashboard/dashboard-admin/dashboard-admin.component';
 
-// ── Guards ────────────────────────────────────────────────────────────────────
+import { ChecklistIaComponent }          from './checklist-ia/checklist-ia.component';
+import { PlanningSrComponent }           from './planning-sr/planning-sr.component';
 import { AuthGuard }                     from './guards/auth.guard';
 import { AdminGuard }                    from './guards/admin.guard';
-import { OrganizerGuard }               from './guards/organizer.guard';  //  fichier créé
+import { OrganizerGuard }               from './guards/organizer.guard';
 import { SortieRecommandationsComponent } from './sortie/sortie-recommandations/sortie-recommandations-module';
-import { PlanningSrComponent } from './planning-sr/planning-sr.component';
-// ═════════════════════════════════════════════════════════════════════════════
+
 export const routes: Routes = [
 
-  // ── Page d'accueil ──────────────────────────────────────────────────────────
+  // ── PUBLIQUES ───────────────────────────────────────────────
   { path: '',        redirectTo: 'Campino', pathMatch: 'full' },
   { path: 'Campino', component: HomeComponent },
+  { path: 'signup',  component: SignupComponent },
+  { path: 'login',   component: SigninComponent },
 
-  // ── Auth ────────────────────────────────────────────────────────────────────
-  { path: 'signup', component: SignupComponent },
-  { path: 'login',  component: SigninComponent },
-
-  // ── Profil (accessible à tout utilisateur connecté) ─────────────────────────
+  // Profil standalone (accessible depuis partout via /profile)
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // SORTIES (randonnées)
-  // USER        : consulter liste, voir détail, s'inscrire, se désinscrire
-  // ORGANISATEUR: créer, modifier, supprimer (+ actions user)
-  // ═══════════════════════════════════════════════════════════════════════════
-  { path: 'sorties',            component: SortieListComponent   },                               // PUBLIC — tout le monde peut voir
-  { path: 'sorties/create',     component: SortieFormComponent,   canActivate: [OrganizerGuard] }, // ORGANISATEUR seulement
-  { path: 'sorties/edit/:id',   component: SortieFormComponent,   canActivate: [OrganizerGuard] }, // ORGANISATEUR seulement
-  { path: 'sorties/:id',        component: SortieDetailComponent  },                               // PUBLIC — inscription gérée dans le composant
+  // Pages publiques (sans sidebar)
+  { path: 'sorties',     component: SortieListComponent   },
+  { path: 'sorties/:id', component: SortieDetailComponent },
+  { path: 'equipes',     component: EquipeListComponent   },
+  { path: 'equipes/:id', component: EquipeDetailComponent },
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ÉQUIPES
-  // USER        : voir liste, voir détail, rejoindre, quitter
-  // ORGANISATEUR: créer, modifier, supprimer équipe (+ ses membres)
-  // ═══════════════════════════════════════════════════════════════════════════
-  { path: 'equipes',            component: EquipeListComponent   },                               // PUBLIC
-  { path: 'equipes/create',     component: EquipeFormComponent,   canActivate: [OrganizerGuard] }, // ORGANISATEUR
-  { path: 'equipes/edit/:id',   component: EquipeFormComponent,   canActivate: [OrganizerGuard] }, // ORGANISATEUR
-  { path: 'equipes/:id',        component: EquipeDetailComponent  },                               // PUBLIC — rejoindre/quitter dans le composant
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // DASHBOARDS
-  // ═══════════════════════════════════════════════════════════════════════════
-  { path: 'dashboard',           component: DashboardUserComponent,      canActivate: [AuthGuard] },       // USER connecté
-  { path: 'dashboard/organizer', component: DashboardOrganizerComponent, canActivate: [OrganizerGuard] },  // ORGANISATEUR
-  { path: 'admin/dashboard',     component: DashboardAdminComponent,     canActivate: [AdminGuard] },      // ADMIN
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ADMIN (layout enfant)
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ── ESPACE CONNECTÉ (AdminLayout réutilisé pour TOUS les rôles) ─
   {
-    path: 'admin',
+    path: 'dashboard',
     component: AdminLayoutComponent,
-    canActivate: [AdminGuard],
+    canActivate: [AuthGuard],          // ← AuthGuard suffit (user + orga + admin)
     children: [
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'profil',    component: ProfileComponent   },
-      { path: '',          redirectTo: 'dashboard', pathMatch: 'full' }
+      { path: '',              component: DashboardUserComponent },
+      { path: 'recommandations', component: SortieRecommandationsComponent },
+      { path: 'planning',        component: PlanningSrComponent },
+      { path: 'checklist-ia',    component: ChecklistIaComponent },
     ]
   },
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // MODULE AMAL — IA Checklist + Planning SR + Recommandations
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ── BACK OFFICE ORGANISATEUR / ADMIN ────────────────────────
+  {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    canActivate: [OrganizerGuard],
+    children: [
+      { path: '',          redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
 
-  // Checklist IA météo (accessible à tout connecté + visiteur pour démo)
-  { path: 'checklist-ia',    component: ChecklistIaComponent },
+      // Sorties — ordre OBLIGATOIRE : create/edit AVANT :id
+      { path: 'sorties',          component: SortieListComponent   },
+      { path: 'sorties/create',   component: SortieFormComponent   },
+      { path: 'sorties/edit/:id', component: SortieFormComponent   },
+      { path: 'sorties/:id',      component: SortieDetailComponent },
 
-  // SR1 — Recommandations de sorties selon profil (USER connecté)
-  { path: 'recommandations', component: SortieRecommandationsComponent, canActivate: [AuthGuard] },
+      // Équipes — ordre OBLIGATOIRE : create/edit AVANT :id
+      { path: 'equipes',          component: EquipeListComponent   },
+      { path: 'equipes/create',   component: EquipeFormComponent   },
+      { path: 'equipes/edit/:id', component: EquipeFormComponent   },
+      { path: 'equipes/:id',      component: EquipeDetailComponent },
 
-  // SR2 — Planning intelligent calendrier selon historique (USER connecté)
-  { path: 'planning',        component: PlanningSrComponent,            canActivate: [AuthGuard] },
+      { path: 'organizer',   component: DashboardOrganizerComponent },
+      { path: 'admin-board', component: DashboardAdminComponent, canActivate: [AdminGuard] },
+    ]
+  },
 
-  // ── Wildcard ────────────────────────────────────────────────────────────────
   { path: '**', redirectTo: 'Campino' }
 ];

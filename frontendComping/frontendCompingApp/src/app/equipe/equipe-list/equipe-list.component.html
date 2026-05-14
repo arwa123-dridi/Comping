@@ -11,7 +11,8 @@
       <h1 class="hero-title">Rejoignez une<br><span class="hero-accent">aventure collective</span></h1>
       <p class="hero-sub">Créez ou rejoignez des équipes de randonnée partageant les mêmes passions</p>
       <div class="hero-actions">
-        <button class="btn-hero-primary" routerLink="/equipes/create">
+        <!-- ✅ Cacher bouton créer pour users -->
+        <button *ngIf="isOrganizer" class="btn-hero-primary" routerLink="/admin/equipes/create">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
@@ -149,7 +150,7 @@
       <div class="empty-icon">👥</div>
       <h3>Aucune équipe {{ activeFilter !== 'ALL' ? 'dans cette catégorie' : 'disponible' }}</h3>
       <p>Créez une équipe et invitez vos amis !</p>
-      <button routerLink="/equipes/create" class="btn-empty">✨ Créer une équipe</button>
+      <button routerLink="/admin/equipes/create" class="btn-empty">✨ Créer une équipe</button>
     </div>
 
   </div>

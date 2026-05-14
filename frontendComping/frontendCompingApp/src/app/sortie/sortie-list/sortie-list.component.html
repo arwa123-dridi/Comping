@@ -1,9 +1,6 @@
-<!-- ============================================================
-     SORTIE LIST — CAMPINO   (Randonnées)
-     ============================================================ -->
 <div class="sorties-page">
 
-  <!-- ══ HERO ══════════════════════════════════════════════════ -->
+  <!-- ══ HERO ══ -->
   <div class="sorties-hero">
     <div class="hero-bg-overlay"></div>
     <div class="hero-content">
@@ -11,13 +8,14 @@
       <h1 class="hero-title">Explorez la Tunisie<br><span class="hero-accent">à votre rythme</span></h1>
       <p class="hero-sub">Des sentiers pour tous les niveaux · Guides locaux · Aventures inoubliables</p>
       <div class="hero-actions">
-        <button class="btn-hero-primary" routerLink="/sorties/create">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <button *ngIf="isOrganizer" class="btn-hero-primary" routerLink="/admin/sorties/create">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
           Proposer une sortie
         </button>
         <button class="btn-hero-ghost" routerLink="/equipes">👥 Voir les équipes</button>
       </div>
-      <!-- Stats rapides -->
       <div class="hero-stats">
         <div class="hstat"><span class="hstat-n">{{ sorties.length }}</span><span class="hstat-l">Sorties</span></div>
         <div class="hstat-div"></div>
@@ -28,7 +26,12 @@
     </div>
   </div>
 
-  <!-- ══ FILTRES (pills) ═══════════════════════════════════════ -->
+  <!-- ══ RECOMMANDATIONS IA (juste après le hero, avant les filtres) ══ -->
+  <div *ngIf="!loading && sorties.length > 0" class="reco-section-wrapper">
+    <app-sortie-recommandations [allSorties]="sorties"></app-sortie-recommandations>
+  </div>
+
+  <!-- ══ FILTRES ══ -->
   <div class="filters-bar">
     <div class="filters-inner">
       <button class="filter-pill" [class.active]="activeFilter === 'ALL'" (click)="setFilter('ALL')">
@@ -46,7 +49,7 @@
     </div>
   </div>
 
-  <!-- ══ CONTENU ════════════════════════════════════════════════ -->
+  <!-- ══ CONTENU ══ -->
   <div class="sorties-body">
 
     <!-- Loading -->
@@ -57,8 +60,7 @@
 
     <!-- Erreur -->
     <div *ngIf="error && !loading" class="state-error">
-      <span>⚠️</span>
-      <p>{{ error }}</p>
+      <span>⚠️</span><p>{{ error }}</p>
       <button (click)="loadSorties()">Réessayer</button>
     </div>
 
@@ -70,16 +72,18 @@
            [class.card-moyen]="s.difficulte === 'MOYEN'"
            [class.card-difficile]="s.difficulte === 'DIFFICILE'">
 
-        <!-- Image + badges -->
-        <div class="card-img" [style.backgroundImage]="'url(' + getImageUrl(s.titre) + ')'">
+        <!-- Image -->
+        <div class="card-img" [style.backgroundImage]="'url(' + getImageUrl(s) + ')'">
           <div class="card-img-overlay"></div>
-          <span class="diff-badge" [class.diff-facile]="s.difficulte==='FACILE'"
-                                    [class.diff-moyen]="s.difficulte==='MOYEN'"
-                                    [class.diff-difficile]="s.difficulte==='DIFFICILE'">
+          <span class="diff-badge"
+                [class.diff-facile]="s.difficulte==='FACILE'"
+                [class.diff-moyen]="s.difficulte==='MOYEN'"
+                [class.diff-difficile]="s.difficulte==='DIFFICILE'">
             {{ getDiffLabel(s.difficulte) }}
           </span>
           <span class="dist-badge">{{ s.distanceKm || '?' }} km</span>
           <span *ngIf="isOrganisateur(s.organisateurId)" class="org-badge">👑 Vous</span>
+          <span *ngIf="isInscrit(s)" class="inscrit-badge">✓ Inscrit</span>
         </div>
 
         <!-- Corps -->
@@ -91,6 +95,7 @@
           </div>
           <div class="card-meta">
             <span>👤 {{ s.organisateurNom || 'Organisateur' }}</span>
+            <span *ngIf="s.prixParPersonne && s.prixParPersonne > 0">💰 {{ s.prixParPersonne }} TND</span>
           </div>
 
           <!-- Jauge participants -->
@@ -112,15 +117,24 @@
 
           <!-- Actions -->
           <div class="card-actions">
-            <button class="btn-detail" (click)="viewDetail(s.id)">Voir →</button>
-            <button *ngIf="!isOrganisateur(s.organisateurId)"
-                    class="btn-inscrire"
-                    [class.btn-complet]="getNombreParticipants(s) >= s.capaciteMax"
-                    [disabled]="getNombreParticipants(s) >= s.capaciteMax"
-                    (click)="inscrire(s.id)">
-              {{ getNombreParticipants(s) >= s.capaciteMax ? 'Complet' : "S'inscrire" }}
-            </button>
-            <span *ngIf="isOrganisateur(s.organisateurId)" class="org-label">Votre sortie</span>
+            <button class="btn-detail" (click)="viewDetail(s.id)">Détails →</button>
+
+            <!-- Organisateur de la sortie -->
+            <span *ngIf="isOrganisateur(s.organisateurId)" class="org-label">
+              <a *ngIf="isOrganizer" [routerLink]="['/admin/sorties/edit', s.id]" class="btn-edit-card">✏️ Modifier</a>
+            </span>
+
+            <!-- User normal -->
+            <ng-container *ngIf="!isOrganisateur(s.organisateurId)">
+              <span *ngIf="isInscrit(s)" class="inscrit-label">✓ Inscrit</span>
+              <button *ngIf="!isInscrit(s)"
+                      class="btn-inscrire"
+                      [class.btn-complet]="getNombreParticipants(s) >= s.capaciteMax"
+                      [disabled]="getNombreParticipants(s) >= s.capaciteMax"
+                      (click)="inscrire(s.id)">
+                {{ getNombreParticipants(s) >= s.capaciteMax ? '🔒 Complet' : "S'inscrire" }}
+              </button>
+            </ng-container>
           </div>
         </div>
 
@@ -132,15 +146,8 @@
       <div class="empty-icon">🏔️</div>
       <h3>Aucune randonnée {{ activeFilter !== 'ALL' ? 'dans ce niveau' : 'disponible' }}</h3>
       <p>Soyez le premier à proposer une aventure !</p>
-      <button routerLink="/sorties/create" class="btn-empty">✨ Créer une sortie</button>
+      <button *ngIf="isOrganizer" routerLink="/admin/sorties/create" class="btn-empty">✨ Créer une sortie</button>
     </div>
 
   </div>
-
-  <!-- ══ SECTION RECOMMANDATIONS (Workflow 1) ══════════════════ -->
-  <app-sortie-recommandations
-    *ngIf="!loading && sorties.length > 0"
-    [allSorties]="sorties">
-  </app-sortie-recommandations>
-
 </div>

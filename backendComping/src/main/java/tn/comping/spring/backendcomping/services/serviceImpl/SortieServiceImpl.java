@@ -1,20 +1,18 @@
 package tn.comping.spring.backendcomping.services.serviceImpl;
 
-import tn.comping.spring.backendcomping.dto.SortieRequestDTO;
-import tn.comping.spring.backendcomping.dto.SortieResponseDTO;
-import tn.comping.spring.backendcomping.dto.ParticipationDTO;
-import tn.comping.spring.backendcomping.entities.*;
-import tn.comping.spring.backendcomping.repositories.SortieRepository;
-import tn.comping.spring.backendcomping.repositories.ParticipationRepository;
-import tn.comping.spring.backendcomping.repositories.EquipeRepository;
-import tn.comping.spring.backendcomping.repositories.SignupRepository;
-import tn.comping.spring.backendcomping.services.serviceImpl.ISortieService;
-import tn.comping.spring.backendcomping.utils.mapper.SortieMapper;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tn.comping.spring.backendcomping.dto.ParticipationDTO;
+import tn.comping.spring.backendcomping.dto.SortieRequestDTO;
+import tn.comping.spring.backendcomping.dto.SortieResponseDTO;
+import tn.comping.spring.backendcomping.entities.*;
+import tn.comping.spring.backendcomping.repositories.EquipeRepository;
+import tn.comping.spring.backendcomping.repositories.ParticipationRepository;
+import tn.comping.spring.backendcomping.repositories.SignupRepository;
+import tn.comping.spring.backendcomping.repositories.SortieRepository;
+import tn.comping.spring.backendcomping.utils.mapper.SortieMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -49,9 +47,12 @@ public class SortieServiceImpl implements ISortieService {
         sortie.setOrganisateur(organisateur);
 
         // Lier à une équipe si spécifiée
-        if (dto.getEquipeId() != null && !dto.getEquipeId().isEmpty()) {
-            Equipe equipe = equipeRepository.findById(dto.getEquipeId())
-                    .orElseThrow(() -> new RuntimeException("Équipe non trouvée"));
+        if (dto.getEquipeId() != null) {
+            Equipe equipe = equipeRepository.findById(dto.getEquipeId()).orElseThrow();
+            // Vérifier que l'organisateur de l'équipe == organisateur de la sortie
+            if (!equipe.getOrganisateur().getId().equals(dto.getOrganisateurId())) {
+                throw new RuntimeException("Vous ne pouvez pas lier une équipe dont vous n'êtes pas l'organisateur");
+            }
             sortie.setEquipe(equipe);
         }
 

@@ -37,6 +37,14 @@ export class EquipeFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // ✅ RESTRICTION: Seuls les organisateurs peuvent créer/modifier des équipes
+    const userRole = localStorage.getItem('userRole');
+    if (userRole !== 'ORGANISATEUR' && userRole !== 'ROLE_ORGANISATEUR' && userRole !== 'ADMIN') {
+      alert('⛔ Seuls les organisateurs peuvent créer ou modifier une équipe.');
+      this.router.navigate(['/equipes']);
+      return;
+    }
+
     this.equipeId = this.route.snapshot.paramMap.get('id');
     if (this.equipeId) {
       this.isEdit = true;
@@ -96,7 +104,7 @@ export class EquipeFormComponent implements OnInit {
     next: (result) => {
       this.loading = false;
       const id = (result as any).id || this.equipeId;
-      this.router.navigate(['/equipes', id]);
+      this.router.navigate(['/admin/equipes', id]);
     },
     error: (err) => {
       console.log("BACKEND ERROR:", err);

@@ -11,6 +11,7 @@ import {
   ChecklistResponse,
   WeatherDTO
 } from '../services/checklist.service';
+import { SortieService } from '../services/sortie.service';
 
 // ─── Villes tunisiennes ───────────────────────────────────────────────────────
 
@@ -94,6 +95,9 @@ export class ChecklistIaComponent implements OnInit, OnChanges {
   selectedDate  = '';
   difficulte    = 2;
   cities        = TUNISIAN_CITIES;
+  userId: string | null = null;
+  sorties_participees: any[] = [];
+  sortie_selectionnee: any = null;
 
   manualReq: ChecklistRequest = {
     temperature: 24, precipitation: 0, wind_speed: 10, humidity: 60, difficulte: 2
@@ -116,12 +120,20 @@ export class ChecklistIaComponent implements OnInit, OnChanges {
 
   constructor(
     private checklistService: ChecklistService,
+    private sortieService: SortieService,
     private cdr: ChangeDetectorRef
   ) {}
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
+    this.userId = localStorage.getItem('userId');
+    
+    // Charger les sorties passées de l'utilisateur
+    if (this.userId) {
+      this.loadSortiesParticipees();
+    }
+
     if (this.sortieVille)      { this.selectedCity  = this.sortieVille;               this.mode = 'auto'; }
     if (this.sortieDateDebut)  { this.selectedDate  = this.sortieVille?.slice(0,10) ?? ''; }
     if (this.sortieDifficulte) { this.difficulte    = this.sortieDifficulte; }
@@ -133,6 +145,33 @@ export class ChecklistIaComponent implements OnInit, OnChanges {
     if (this.selectedCity && this.selectedDate) {
       this.fetchWeatherPreview();
     }
+  }
+
+  // ── Charger sorties passées de l'utilisateur
+  loadSortiesParticipees(): void {
+    this.sortieService.getAllSorties().subscribe({
+      next: (sorties) => {
+        this.sorties_participees = sorties.filter(s => {
+          const isParticipant = (s.participantIds || []).map(String).includes(String(this.userId));
+          const isPassed = new Date(s.dateDebut) < new Date();
+          return isParticipant && isPassed;
+        });
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.sorties_participees = [];
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  selectSortieForChecklist(sortie: any): void {
+    this.sortie_selectionnee = sortie;
+    this.selectedCity = sortie.lieuDepart;
+    this.selectedDate = new Date(sortie.dateDebut).toISOString().split('T')[0];
+    this.mode = 'auto';
+    this.fetchWeatherPreview();
+    this.cdr.markForCheck();
   }
 
   ngOnChanges(ch: SimpleChanges): void {

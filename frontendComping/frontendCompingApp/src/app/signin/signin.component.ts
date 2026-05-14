@@ -1,10 +1,9 @@
-// signin.component.ts 
-
+// src/app/signin/signin.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { SigninService, LoginDTOResponse } from '../services/signin.service';
+import { SigninService } from '../services/signin.service';
 
 @Component({
   selector: 'app-signin',
@@ -16,67 +15,44 @@ import { SigninService, LoginDTOResponse } from '../services/signin.service';
 export class SigninComponent {
   email        = '';
   password     = '';
-  rememberMe   = false;
+  rememberMe   = false;   // ✅ restauré — utilisé par le HTML
   showPassword = false;
   isLoading    = false;
   errorMsg     = '';
 
   constructor(private signinService: SigninService, private router: Router) {}
 
-  togglePassword(): void {
-    this.showPassword = !this.showPassword;
-  }
+  togglePassword(): void { this.showPassword = !this.showPassword; }
 
   onSubmit(): void {
     this.errorMsg = '';
-
     if (!this.email || !this.password) {
       this.errorMsg = 'Veuillez remplir tous les champs.';
       return;
     }
-
     this.isLoading = true;
-
-    const dto = { email: this.email, password: this.password };
-    this.signinService.login(dto).subscribe({
-      next: (res: LoginDTOResponse) => {
-        console.log('Login réussi', res);
-
-        // Stockage du token
-        localStorage.setItem('authToken', res.token);
-
-        //  Récupération des informations utilisateur 
-        const userId = res.id || res.userId || '';
-        const userEmail = res.email || this.email;
-        const userNom = `${res.firstName || ''} ${res.lastName || ''}`.trim() || res.username || 'Utilisateur';
-        const userRole = res.role || (res.roles && res.roles[0]) || 'USER';
-
-        localStorage.setItem('userId', userId);
-        localStorage.setItem('userEmail', userEmail);
-        localStorage.setItem('userNom', userNom);
-        localStorage.setItem('userRole', userRole);
-
-        // Redirection en fonction du rôle
-        let redirectUrl = '/dashboard'; 
-        if (userRole === 'ADMIN') {
-          redirectUrl = '/admin/dashboard';
-        } else if (userRole === 'ORGANISATEUR') {
-          redirectUrl = '/dashboard';
-        } else {
-          redirectUrl = '/dashboard';
+    this.signinService.login({ email: this.email, password: this.password })
+      .subscribe({
+        next: () => {
+          this.isLoading = false;
+          const role = localStorage.getItem('userRole') ?? 'USER';
+          if (role === 'ADMIN'        || role === 'ROLE_ADMIN' ||
+              role === 'ORGANISATEUR' || role === 'ROLE_ORGANISATEUR') {
+            this.router.navigate(['/admin/dashboard']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
+        },
+        error: (err) => {
+          this.isLoading = false;
+          if (err.status === 401 || err.status === 403) {
+            this.errorMsg = 'Email ou mot de passe incorrect.';
+          } else if (err.status === 0) {
+            this.errorMsg = 'Serveur inaccessible (port 8087).';
+          } else {
+            this.errorMsg = err.error?.message ?? 'Erreur de connexion.';
+          }
         }
-
-        console.log('Redirection vers :', redirectUrl);
-        this.router.navigate([redirectUrl]);
-
-        this.isLoading = false;
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.errorMsg = 'Email ou mot de passe incorrect.';
-        console.error('Erreur login', err);
-        //
-      }
-    });
+      });
   }
 }
