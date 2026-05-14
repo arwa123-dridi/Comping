@@ -28,29 +28,46 @@ export class SigninComponent {
     this.showPassword = !this.showPassword;
   }
 
-  onSubmit(): void {
-    this.errorMsg = '';
+ onSubmit(): void {
+  this.errorMsg = '';
 
-    if (!this.email || !this.password) {
-      this.errorMsg = 'Veuillez remplir tous les champs.';
-      return;
-    }
-
-    this.isLoading = true;
-
-    const dto = { email: this.email, password: this.password };
-    this.signinService.login(dto).subscribe({
-      next: (res: LoginDTOResponse) => {
-        this.isLoading = false;
-        console.log('Login réussi', res);
-        this.signinService.saveToken(res.token);
-        console.log("TOKEN IN LOCALSTORAGE:", localStorage.getItem('authToken'));
-      },
-      error: (err) => {
-        this.isLoading = false;
-        this.errorMsg = 'Email ou mot de passe incorrect.';
-        console.error('Erreur login', err);
-      }
-    });
+  if (!this.email || !this.password) {
+    this.errorMsg = 'Veuillez remplir tous les champs.';
+    return;
   }
+
+  this.isLoading = true;
+
+  const dto = { email: this.email, password: this.password };
+
+  this.signinService.login(dto).subscribe({
+    next: (res: LoginDTOResponse) => {
+      this.isLoading = false;
+      console.log('Login réussi', res);
+
+      this.signinService.saveToken(res.token);
+
+      console.log("TOKEN IN LOCALSTORAGE:", localStorage.getItem('authToken'));
+    },
+
+   error: (err) => {
+  this.isLoading = false;
+
+  console.log("FULL ERROR:", err);
+
+  const message = err?.error?.message;
+
+  if (err.status === 403 || message === "ACCOUNT_DISABLED") {
+    this.errorMsg = "Votre compte est désactivé";
+  } 
+  else if (err.status === 401 || message === "INVALID_PASSWORD") {
+    this.errorMsg = "Email ou mot de passe incorrect.";
+  } 
+  else {
+    this.errorMsg = "Erreur serveur. Veuillez réessayer.";
+  }
+    }
+  });
+}
+
 }
