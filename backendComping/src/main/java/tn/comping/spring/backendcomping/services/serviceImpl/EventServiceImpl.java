@@ -2,8 +2,10 @@ package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import tn.comping.spring.backendcomping.config.JwtUtils;
 import tn.comping.spring.backendcomping.config.SecurityUtils;
 import tn.comping.spring.backendcomping.dto.EventRequestDTO;
@@ -98,25 +100,25 @@ public class EventServiceImpl implements  EventService{
 
     @Override
     public EventResponseDTO participate(String eventId) {
-        // 1. Récupérer user connecté
         String userId = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
+
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Event introuvable"));
 
         if (event.getParticipantIds() == null) {
             event.setParticipantIds(new java.util.ArrayList<>());
         }
+
         if (event.getParticipantIds().size() >= event.getCapacite()) {
-            throw new RuntimeException("Event complet");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Event complet");
         }
 
         if (event.getParticipantIds().contains(userId)) {
-            throw new RuntimeException("Déjà inscrit à cet event");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Déjà inscrit à cet event");
         }
-
-
 
         event.getParticipantIds().add(userId);
 
