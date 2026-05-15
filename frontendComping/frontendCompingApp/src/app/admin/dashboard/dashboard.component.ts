@@ -5,6 +5,9 @@ import { SortieService } from '../../services/sortie.service';
 import { EquipeService } from '../../services/equipe.service';
 import { SortieResponse } from '../../models/sortie.model';
 import { EquipeResponse } from '../../models/equipe.model';
+import { Observable } from 'rxjs/internal/Observable';
+import { UserService } from '../../services/user.service';
+import { EventService } from '../../services/event.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -14,7 +17,8 @@ import { EquipeResponse } from '../../models/equipe.model';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
-
+totalUsers: number = 0;
+totalEvents = 0;
   // ── State ───────────────────────────────────────────
   sorties: SortieResponse[] = [];
   equipes: EquipeResponse[] = [];
@@ -37,7 +41,9 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private sortieService: SortieService,
-    private equipeService: EquipeService
+    private equipeService: EquipeService,
+     private userService: UserService,
+     private eventService: EventService
   ) {}
 
   ngOnInit(): void {
@@ -91,7 +97,22 @@ export class DashboardComponent implements OnInit {
       },
       error: () => { this.loading = false; }
     });
-
+this.userService.getTotalUsers().subscribe({
+  next: (count) => {
+    this.totalUsers = count;
+  },
+  error: () => {
+    this.totalUsers = 0;
+  }
+});
+this.eventService.getTotalEvents().subscribe({
+  next: (count) => {
+    this.totalEvents = count;
+  },
+  error: (err) => {
+    console.error('Erreur total events', err);
+  }
+});
     // Charger équipes
     this.equipeService.getAllEquipes().subscribe({
       next: (data) => {
@@ -145,4 +166,5 @@ export class DashboardComponent implements OnInit {
   getInitiales(nom: string): string {
     return (nom || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   }
+
 }

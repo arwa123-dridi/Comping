@@ -112,4 +112,11 @@ cancelParticipation(eventId: string): Observable<any> {
     }
   );
 }
+getTotalEvents(): Observable<number> {
+  const token = localStorage.getItem('authToken');
+
+  return this.http.get<number>(`${this.apiUrl}/count`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+}
 }
