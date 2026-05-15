@@ -67,6 +67,11 @@ public class SignupServiceImpl implements SignupService {
         return new LoginDTOResponse(token);
     }
 
+    @Override
+    public long getTotalUsers() {
+        return signupRepository.count();
+    }
+
 
 }
 

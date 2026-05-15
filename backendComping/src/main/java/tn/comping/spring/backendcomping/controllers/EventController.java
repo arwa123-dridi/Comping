@@ -72,4 +72,8 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> cancel(@PathVariable String eventId) {
         return ResponseEntity.ok(eventService.cancelParticipation(eventId));
     }
+    @GetMapping("/count")
+    public long getTotalEvents() {
+        return eventService.countEvents();
+    }
 }

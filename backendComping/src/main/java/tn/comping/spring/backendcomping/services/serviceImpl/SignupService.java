@@ -10,6 +10,6 @@ public interface SignupService {
 
     SignupEntity registerUser(SignupDTO dto);
     LoginDTOResponse login(LoginDTORequest request);
-
+    long getTotalUsers();
 
 }

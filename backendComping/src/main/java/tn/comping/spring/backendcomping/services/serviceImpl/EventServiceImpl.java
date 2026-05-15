@@ -142,4 +142,9 @@ public class EventServiceImpl implements  EventService{
 
         return EventMapper.toDto(eventRepository.save(event));
     }
+
+    @Override
+    public long countEvents() {
+        return eventRepository.count();
+    }
 }
