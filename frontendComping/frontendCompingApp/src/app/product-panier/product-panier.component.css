@@ -195,3 +195,26 @@
   color:#9a9a9a;
 }
 .loading { text-align:center; padding:20px; }
+
+.product-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.promo-badge {
+  background: linear-gradient(45deg, #ff416c, #ff4b2b);
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.promo-timer {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #ff3b30;
+}

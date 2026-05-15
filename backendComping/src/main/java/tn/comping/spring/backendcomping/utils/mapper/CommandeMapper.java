@@ -1,12 +1,19 @@
 package tn.comping.spring.backendcomping.utils.mapper;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import tn.comping.spring.backendcomping.dto.*;
 import tn.comping.spring.backendcomping.entities.*;
+import tn.comping.spring.backendcomping.repositories.SignupRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
+@RequiredArgsConstructor
 public class CommandeMapper {
+
+        private final SignupRepository signupRepository;
 
         // =========================
         // REQUEST → ENTITY
@@ -33,10 +40,18 @@ public class CommandeMapper {
         // =========================
         // ENTITY → RESPONSE
         // =========================
-        public static CommandeResponseDTO toResponse(CommandeProduct commande) {
+        public CommandeResponseDTO toResponse(CommandeProduct commande) {
 
                 if (commande == null)
                         return null;
+
+                // 🔎 Fetch livreur from DB using ID
+                SignupEntity livreur = null;
+                if (commande.getLivreurId() != null) {
+                        if (commande.getLivreurId() != null && !commande.getLivreurId().isEmpty()) {
+                                livreur = signupRepository.findById(commande.getLivreurId()).orElse(null);
+                        }
+                }
 
                 AdresseLivraison a = commande.getAdresseLivraison();
 
@@ -44,13 +59,15 @@ public class CommandeMapper {
                                 .id(commande.getId())
                                 .userId(commande.getUserId())
 
-                                // ✔ FIX: return FULL OBJECT OR FLAT (choose ONE)
+                                // 📍 Address
                                 .adresseLivraison(a != null ? mapAdresse(a) : null)
 
+                                // 💰 Pricing
                                 .totalProduits(commande.getTotalProduits())
                                 .fraisLivraison(commande.getFraisLivraison())
                                 .totalCommande(commande.getTotalCommande())
 
+                                // 🔁 ENUM → STRING
                                 .modePaiement(commande.getModePaiement() != null
                                                 ? commande.getModePaiement().name()
                                                 : null)
@@ -58,14 +75,28 @@ public class CommandeMapper {
                                 .modeLivraison(commande.getModeLivraison() != null
                                                 ? commande.getModeLivraison().name()
                                                 : null)
-
-                                .statut(commande.getStatutCommande() != null
-                                                ? commande.getStatutCommande().name()
-                                                : null)
+                                .statutCommande(
+                                                commande.getStatutCommande() != null
+                                                                ? commande.getStatutCommande().name()
+                                                                : null)
 
                                 .dateCommande(commande.getDateCommande())
 
-                                .lignes(toResponseLines(commande.getLignes()))
+                                // 🚚 LIVREUR INFOS (NEW ⭐⭐⭐)
+                                .livreurId(commande.getLivreurId())
+                                .livreurNom(
+                                                livreur != null
+                                                                ? livreur.getFirstName() + " " + livreur.getLastName()
+                                                                : "Non assigné")
+                                .livreurEmail(
+                                                livreur != null ? livreur.getEmail() : "")
+
+                                // 📦 Lignes
+                                .lignes(
+                                                commande.getLignes() != null
+                                                                ? toResponseLines(commande.getLignes())
+                                                                : List.of())
+
                                 .build();
         }
 

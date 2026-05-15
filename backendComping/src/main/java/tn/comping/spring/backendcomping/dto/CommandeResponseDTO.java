@@ -25,9 +25,13 @@ public class CommandeResponseDTO {
 
     private String modePaiement;
     private String modeLivraison;
-    private String statut;
+   private String statutCommande;
 
     private LocalDateTime dateCommande;
+
+    private String livreurId;
+    private String livreurNom;
+    private String livreurEmail;
 
     private List<CommandeLigneResponseDTO> lignes;
 }

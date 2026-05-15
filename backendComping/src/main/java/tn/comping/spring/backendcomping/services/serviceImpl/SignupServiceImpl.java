@@ -13,8 +13,13 @@ import tn.comping.spring.backendcomping.dto.LoginDTOResponse;
 import tn.comping.spring.backendcomping.dto.SignupDTO;
 import tn.comping.spring.backendcomping.repositories.SignupRepository;
 import tn.comping.spring.backendcomping.utils.mapper.SignupMapper;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import tn.comping.spring.backendcomping.entities.Role;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 
 @Service
@@ -59,4 +64,8 @@ public class SignupServiceImpl implements SignupService {
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
+    @Override
+    public List<SignupEntity> getLivreurs() {
+        return signupRepository.findByRole(Role.LIVREUR);
+    }
 }

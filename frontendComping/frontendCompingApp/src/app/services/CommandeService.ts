@@ -53,34 +53,70 @@ export class CommandeService {
           modePaiement: c.modePaiement,
           modeLivraison: c.modeLivraison,
 
-          statutCommande: c.statut as StatutCommande,
+          statutCommande: c.statutCommande, // 🔥 FIXED (was c.statut)
 
-          dateCommande: new Date(c.dateCommande)
+          dateCommande: new Date(c.dateCommande),
+
+          // 🚚 IMPORTANT FIX
+          livreurId: c.livreurId,
+          livreurNom: c.livreurNom,
+          livreurEmail: c.livreurEmail,
+
+          // 📦 IMPORTANT FIX
+          lignes: c.lignes ?? []
         }))
       )
     );
   }
 
   getCommandesByUser(userId: string): Observable<Commande[]> {
-  return this.http.get<any[]>(`${this.api}/user/${userId}`).pipe(
-    map((data: any[]): Commande[] =>
-      data.map((c): Commande => ({
-        id: c.id,
-        userId: c.userId,
-        totalProduits: c.totalProduits,
-        fraisLivraison: c.fraisLivraison,
-        totalCommande: c.totalCommande,
-        modePaiement: c.modePaiement,
-        modeLivraison: c.modeLivraison,
-        statutCommande: c.statut,
-        dateCommande: c.dateCommande
-      }))
-    )
-  );
-}
+    return this.http.get<any[]>(`${this.api}/user/${userId}`).pipe(
+      map((data: any[]): Commande[] =>
+        data.map((c): Commande => ({
+          id: c.id,
+          userId: c.userId,
+          totalProduits: c.totalProduits,
+          fraisLivraison: c.fraisLivraison,
+          totalCommande: c.totalCommande,
+          modePaiement: c.modePaiement,
+          modeLivraison: c.modeLivraison,
+          statutCommande: c.statutCommande,
+          dateCommande: c.dateCommande
+        }))
+      )
+    );
+  }
 
-getCommandeById(id: string){
-  return this.http.get<Commande>(`${this.api}/commandById/${id}`);
-}
+  getCommandeById(id: string) {
+    return this.http.get<Commande>(`${this.api}/commandById/${id}`);
+  }
+
+  assignLivreur(commandeId: string, livreurId: string): Observable<any> {
+    return this.http.put(
+      `${this.api}/${commandeId}/assign/${livreurId}`,
+      {}
+    );
+  }
+
+  // 📦 ALL COMMANDS OF LIVREUR
+  getCommandesByLivreur(livreurId: string) {
+    return this.http.get<Commande[]>(
+      `${this.api}/livreur/${livreurId}`
+    );
+  }
+
+  // 🚚 ACTIVE (not delivered yet)
+  getActiveCommandesByLivreur(livreurId: string) {
+    return this.http.get<Commande[]>(
+      `${this.api}/livreur/${livreurId}/active`
+    );
+  }
+
+  markLivree(commandeId: string, livreurId: string): Observable<any> {
+    return this.http.put(
+      `${this.api}/${commandeId}/livree/${livreurId}`,
+      {}
+    );
+  }
 
 }

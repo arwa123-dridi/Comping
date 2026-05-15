@@ -1,4 +1,6 @@
 package tn.comping.spring.backendcomping.entities;
+import java.time.LocalDateTime;
+
 import lombok.*;
 
 @Getter
@@ -19,4 +21,8 @@ public class PanierLigne {
     private String imageUrl;
 
     private Double sousTotal;
+
+    private Boolean promoActive;
+
+    private LocalDateTime promoEnd;
 }

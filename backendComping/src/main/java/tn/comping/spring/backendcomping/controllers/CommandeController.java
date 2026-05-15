@@ -65,4 +65,26 @@ public class CommandeController {
     public ResponseEntity<CommandeResponseDTO> getCommandeById(@PathVariable String id) {
         return ResponseEntity.ok(commandeService.getCommandeById(id));
     }
+
+    @GetMapping("/livreur/{livreurId}")
+    public List<CommandeResponseDTO> getByLivreur(@PathVariable String livreurId) {
+        return commandeService.getCommandesByLivreur(livreurId);
+    }
+
+    @GetMapping("/livreur/{livreurId}/active")
+    public List<CommandeResponseDTO> getActive(@PathVariable String livreurId) {
+        return commandeService.getCommandesNonLivreesByLivreur(livreurId);
+    }
+
+    @PutMapping("/{commandeId}/assign/{livreurId}")
+    public CommandeResponseDTO assign(@PathVariable String commandeId,
+            @PathVariable String livreurId) {
+        return commandeService.assignLivreurToCommande(commandeId, livreurId);
+    }
+
+    @PutMapping("/{commandeId}/livree/{livreurId}")
+    public CommandeResponseDTO livree(@PathVariable String commandeId,
+            @PathVariable String livreurId) {
+        return commandeService.markAsLivree(commandeId, livreurId);
+    }
 }

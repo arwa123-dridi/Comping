@@ -15,7 +15,8 @@ public class PanierMapper {
     // =========================
     public PanierResponseDTO toDto(Panier panier) {
 
-        if (panier == null) return null;
+        if (panier == null)
+            return null;
 
         return PanierResponseDTO.builder()
                 .id(panier.getId())
@@ -31,7 +32,8 @@ public class PanierMapper {
     // =========================
     private List<PanierLigneResponseDTO> toLigneDtoList(List<PanierLigne> lignes) {
 
-        if (lignes == null) return null;
+        if (lignes == null)
+            return null;
 
         return lignes.stream()
                 .map(this::toLigneDto)
@@ -50,6 +52,8 @@ public class PanierMapper {
                 .quantite(l.getQuantite())
                 .imageUrl(l.getImageUrl())
                 .sousTotal(l.getSousTotal())
+                .promoActive(l.getPromoActive())
+                .promoEnd(l.getPromoEnd())
                 .build();
     }
 }

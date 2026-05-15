@@ -18,4 +18,12 @@ public interface CommandeService {
     void deleteCommande(String id);
 
     CommandeResponseDTO getCommandeById(String id);
+
+    List<CommandeResponseDTO> getCommandesByLivreur(String livreurId);
+
+    List<CommandeResponseDTO> getCommandesNonLivreesByLivreur(String livreurId);
+
+    CommandeResponseDTO assignLivreurToCommande(String commandeId, String livreurId);
+
+    CommandeResponseDTO markAsLivree(String commandeId, String livreurId);
 }

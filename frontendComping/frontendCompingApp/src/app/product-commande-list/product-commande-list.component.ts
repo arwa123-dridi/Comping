@@ -7,6 +7,9 @@ import { Router } from '@angular/router';
 import { Commande } from '../models/commande.model';
 import { CommandeService } from '../services/CommandeService';
 import { FormsModule } from '@angular/forms';
+import { User } from '../models/user.model';
+import { AuthUserService } from '../services/signup.service';
+
 
 @Component({
   selector: 'app-product-commande-list',
@@ -26,14 +29,28 @@ export class ProductCommandeListComponent implements OnInit {
   selectedDate: string = '';
 
   filteredCommandes: Commande[] = [];
+
+  livreurs: User[] = [];
+  selectedCommandeForAssign: Commande | null = null;
+  selectedLivreurId: string = '';
+  modalType: 'DETAIL' | 'ASSIGN' | null = null;
   constructor(
     private commandeService: CommandeService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private userService: AuthUserService
   ) { }
 
   ngOnInit(): void {
     this.loadCommandes();
+    this.loadLivreurs();
+  }
+
+  loadLivreurs() {
+    this.userService.getLivreurs().subscribe({
+      next: (data) => this.livreurs = data,
+      error: () => this.toastr.error("Erreur chargement livreurs ❌")
+    });
   }
 
   // 📥 LOAD ORDERS
@@ -42,8 +59,11 @@ export class ProductCommandeListComponent implements OnInit {
 
     this.commandeService.getAllCommandes().subscribe({
       next: (data) => {
+
+        console.log("COMMANDES => ", data);
+
         this.commandes = data;
-        this.filteredCommandes = data; // 👈 important
+        this.filteredCommandes = data;
         this.loading = false;
       },
       error: () => {
@@ -54,30 +74,31 @@ export class ProductCommandeListComponent implements OnInit {
   }
 
   applyFilters() {
-  this.filteredCommandes = this.commandes.filter(c => {
+    this.filteredCommandes = this.commandes.filter(c => {
 
-    const matchStatus =
-      this.selectedStatus ? c.statutCommande === this.selectedStatus : true;
+      const matchStatus =
+        this.selectedStatus ? c.statutCommande === this.selectedStatus : true;
 
-    const matchSearch =
-      this.searchText
-        ? c.userId.toLowerCase().includes(this.searchText.toLowerCase())
-        : true;
+      const matchSearch =
+        this.searchText
+          ? c.userId.toLowerCase().includes(this.searchText.toLowerCase())
+          : true;
 
-    const matchDate =
-      this.selectedDate
-        ? new Date(c.dateCommande).toDateString() === new Date(this.selectedDate).toDateString()
-        : true;
+      const matchDate =
+        this.selectedDate
+          ? new Date(c.dateCommande).toDateString() === new Date(this.selectedDate).toDateString()
+          : true;
 
-    return matchStatus && matchSearch && matchDate;
-  });
-}
+      return matchStatus && matchSearch && matchDate;
+    });
+  }
 
   // 👁 VIEW DETAILS
   viewCommande(id: string) {
     this.commandeService.getCommandeById(id).subscribe({
       next: (cmd) => {
-        this.selectedCommande = cmd; // ⭐ opens popup
+        this.selectedCommande = cmd;
+        this.modalType = 'DETAIL';
       },
       error: () => this.toastr.error('Erreur chargement commande ❌')
     });
@@ -99,6 +120,38 @@ export class ProductCommandeListComponent implements OnInit {
   // ❌ CLOSE POPUP
   closeModal() {
     this.selectedCommande = null;
+    this.modalType = null;
+  }
+
+  // 🚚 OPEN ASSIGN LIVREUR POPUP
+  openAssignLivreur(commande: Commande) {
+    this.selectedCommandeForAssign = commande;
+    this.selectedLivreurId = '';
+    this.modalType = 'ASSIGN';
+  }
+  // ❌ CLOSE ASSIGN POPUP
+  closeAssignPopup() {
+    this.selectedCommandeForAssign = null;
+    this.selectedLivreurId = '';
+    this.modalType = null;
+  }
+
+  assignLivreur() {
+    if (!this.selectedCommandeForAssign || !this.selectedLivreurId) {
+      this.toastr.warning("Choisissez un livreur !");
+      return;
+    }
+
+    this.commandeService
+      .assignLivreur(this.selectedCommandeForAssign.id, this.selectedLivreurId)
+      .subscribe({
+        next: () => {
+          this.toastr.success("Livreur assigné 🚚");
+          this.closeAssignPopup();
+          this.loadCommandes();
+        },
+        error: () => this.toastr.error("Erreur assignation ❌")
+      });
   }
 
 }

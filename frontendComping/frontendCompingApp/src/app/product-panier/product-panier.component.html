@@ -18,8 +18,13 @@
       <img [src]="getImage(item.imageUrl)" alt="{{ item.nomProduit }}" class="item-img">
 
       <div class="info">
-        <h4>{{ item.nomProduit }}</h4>
-        <p class="price">{{ item.prixUnitaire | number:'1.0-2' }} TND</p>
+        <h4 class="product-title">
+          {{ item.nomProduit }}
+          <span *ngIf="item.promoActive" class="promo-badge">PROMO</span>
+        </h4>
+        <div *ngIf="item.promoActive" class="promo-timer">
+          ⏳ Ends in: {{ promoTimers[item.produitId] || '00:00:00' }}
+        </div>
 
         <div class="qty">
           <button (click)="decrease(item)">−</button>

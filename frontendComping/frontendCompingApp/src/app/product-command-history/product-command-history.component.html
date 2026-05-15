@@ -67,13 +67,7 @@
 
         <div class="actions">
 
-          <!-- show only when CONFIRMEE -->
-          <button 
-            *ngIf="cmd.statutCommande === StatutCommande.CONFIRMEE"
-            class="btn-livree"
-            (click)="marquerCommeLivree(cmd)">
-            Marquer comme livrée
-          </button>
+       
 
           <button class="btn" (click)="selectedOrder = cmd">
             View Details

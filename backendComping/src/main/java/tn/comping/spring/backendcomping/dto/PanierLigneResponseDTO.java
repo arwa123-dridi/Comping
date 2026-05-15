@@ -1,5 +1,7 @@
 package tn.comping.spring.backendcomping.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.*;
 
 @Getter
@@ -20,4 +22,8 @@ public class PanierLigneResponseDTO {
     private String imageUrl;
 
     private Double sousTotal;
+
+     private Boolean promoActive;
+
+    private LocalDateTime promoEnd;
 }

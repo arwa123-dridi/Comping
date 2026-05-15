@@ -8,8 +8,8 @@ import tn.comping.spring.backendcomping.entities.*;
 import tn.comping.spring.backendcomping.repositories.CommandeRepository;
 import tn.comping.spring.backendcomping.repositories.PanierRepository;
 import tn.comping.spring.backendcomping.repositories.ProduitRepository;
+import tn.comping.spring.backendcomping.repositories.SignupRepository;
 import tn.comping.spring.backendcomping.utils.mapper.CommandeMapper;
-import tn.comping.spring.backendcomping.repositories.ProduitRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +25,8 @@ public class CommandeServiceImpl implements CommandeService {
         private final DeliveryFeeService deliveryFeeService;
         private final PricingService pricingService;
         private final ProduitServiceImpl produitService;
+        private final SignupRepository signupRepository;
+        private final CommandeMapper commandeMapper;
 
         // =========================================================
         // 🟢 CREATE ORDER FROM ACTIVE PANIER (CHECKOUT)
@@ -90,6 +92,15 @@ public class CommandeServiceImpl implements CommandeService {
                 commande.setStatutCommande(StatutCommande.CONFIRMEE);
                 commande.setDateCommande(LocalDateTime.now());
 
+                /* 🚚 AUTO ASSIGN LIVREUR BY CITY */
+                String villeCommande = dto.getAdresseLivraison().getVille();
+                String livreurId = findLivreurByCity(villeCommande);
+                SignupEntity livreur = signupRepository.findById(livreurId)
+                                .orElseThrow(() -> new RuntimeException("Livreur introuvable"));
+
+                commande.setLivreurId(livreur.getId());
+                commande.setStatutCommande(StatutCommande.EXPEDIEE);
+
                 // 8️⃣ SAVE ORDER
                 CommandeProduct savedCommande = commandeRepository.save(commande);
 
@@ -98,7 +109,7 @@ public class CommandeServiceImpl implements CommandeService {
                 panierRepository.save(panier);
 
                 // 🔟 RETURN DTO
-                return CommandeMapper.toResponse(savedCommande);
+                return commandeMapper.toResponse(savedCommande);
         }
 
         // =========================================================
@@ -106,9 +117,10 @@ public class CommandeServiceImpl implements CommandeService {
         // =========================================================
         @Override
         public List<CommandeResponseDTO> getAllCommandes() {
+
                 return commandeRepository.findAll()
                                 .stream()
-                                .map(CommandeMapper::toResponse)
+                                .map(commandeMapper::toResponse)
                                 .collect(Collectors.toList());
         }
 
@@ -119,7 +131,7 @@ public class CommandeServiceImpl implements CommandeService {
         public List<CommandeResponseDTO> getCommandesByUser(String userId) {
                 return commandeRepository.findByUserId(userId)
                                 .stream()
-                                .map(CommandeMapper::toResponse)
+                                .map(commandeMapper::toResponse)
                                 .collect(Collectors.toList());
         }
 
@@ -166,7 +178,7 @@ public class CommandeServiceImpl implements CommandeService {
                 commande.setStatutCommande(nouveauStatut);
 
                 CommandeProduct updated = commandeRepository.save(commande);
-                return CommandeMapper.toResponse(updated);
+                return commandeMapper.toResponse(updated);
         }
 
         // =========================================================
@@ -186,6 +198,72 @@ public class CommandeServiceImpl implements CommandeService {
                 CommandeProduct commande = commandeRepository.findById(id)
                                 .orElseThrow(() -> new RuntimeException("Commande introuvable"));
 
-                return CommandeMapper.toResponse(commande);
+                return commandeMapper.toResponse(commande);
         }
+
+        @Override
+        public List<CommandeResponseDTO> getCommandesByLivreur(String livreurId) {
+
+                return commandeRepository.findByLivreurId(livreurId)
+                                .stream()
+                                .map(commandeMapper::toResponse)
+                                .collect(Collectors.toList());
+        }
+
+        @Override
+        public CommandeResponseDTO assignLivreurToCommande(String commandeId, String livreurId) {
+
+                CommandeProduct commande = commandeRepository.findById(commandeId)
+                                .orElseThrow(() -> new RuntimeException("Commande introuvable"));
+
+                commande.setLivreurId(livreurId);
+                commande.setStatutCommande(StatutCommande.EXPEDIEE);
+
+                CommandeProduct saved = commandeRepository.save(commande);
+
+                return commandeMapper.toResponse(saved);
+        }
+
+        @Override
+        public List<CommandeResponseDTO> getCommandesNonLivreesByLivreur(String livreurId) {
+
+                return commandeRepository
+                                .findByLivreurIdAndStatutCommandeNot(livreurId, StatutCommande.LIVREE)
+                                .stream()
+                                .map(commandeMapper::toResponse)
+                                .collect(Collectors.toList());
+        }
+
+        @Override
+        public CommandeResponseDTO markAsLivree(String commandeId, String livreurId) {
+
+                CommandeProduct commande = commandeRepository.findById(commandeId)
+                                .orElseThrow(() -> new RuntimeException("Commande introuvable"));
+
+                // security check
+                if (commande.getLivreurId() == null ||
+                                !commande.getLivreurId().equals(livreurId)) {
+                        throw new RuntimeException("Vous n'êtes pas assigné à cette commande");
+                }
+
+                commande.setStatutCommande(StatutCommande.LIVREE);
+
+                CommandeProduct updated = commandeRepository.save(commande);
+
+                return commandeMapper.toResponse(updated);
+        }
+
+        private String findLivreurByCity(String villeCommande) {
+
+                List<SignupEntity> livreurs = signupRepository.findByRoleAndAddressContainingIgnoreCase(
+                                Role.LIVREUR, villeCommande);
+
+                if (livreurs.isEmpty()) {
+                        throw new RuntimeException(
+                                        "Aucun livreur disponible pour la ville: " + villeCommande);
+                }
+
+                return livreurs.get(0).getId(); // choose first
+        }
+
 }

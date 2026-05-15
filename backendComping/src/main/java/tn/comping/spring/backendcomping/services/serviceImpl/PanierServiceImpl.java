@@ -10,6 +10,7 @@ import tn.comping.spring.backendcomping.utils.mapper.PanierMapper;
 
 import java.util.ArrayList;
 import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class PanierServiceImpl implements PanierService {
@@ -17,6 +18,7 @@ public class PanierServiceImpl implements PanierService {
     private final PanierRepository panierRepository;
     private final ProduitRepository produitRepository;
     private final PanierMapper panierMapper;
+    private final ProduitInter produitService;
 
     @Override
     public PanierResponseDTO addProductToPanier(PanierRequestDTO request) {
@@ -34,6 +36,8 @@ public class PanierServiceImpl implements PanierService {
 
             Produit p = produitRepository.findById(item.getProduitId())
                     .orElseThrow(() -> new RuntimeException("Produit not found"));
+            Double finalPrice = produitService.calculateFinalPrice(p);
+            boolean promoActive = !finalPrice.equals(p.getPrixProduit());
 
             // 🔥 CHECK IF PRODUCT ALREADY EXISTS IN CART
             PanierLigne existingLine = panier.getLignes()
@@ -46,18 +50,21 @@ public class PanierServiceImpl implements PanierService {
 
                 // UPDATE EXISTING LINE
                 existingLine.setQuantite(existingLine.getQuantite() + item.getQuantite());
-                existingLine.setSousTotal(existingLine.getPrixUnitaire() * existingLine.getQuantite());
-
+                existingLine.setPrixUnitaire(finalPrice); // refresh price in case promo started
+                existingLine.setSousTotal(finalPrice * existingLine.getQuantite());
+                existingLine.setPromoActive(promoActive);
             } else {
 
                 // CREATE NEW LINE
                 PanierLigne newLine = PanierLigne.builder()
                         .produitId(p.getId())
                         .nomProduit(p.getNomProduit())
-                        .prixUnitaire(p.getPrixProduit())
+                        .prixUnitaire(finalPrice)
                         .quantite(item.getQuantite())
                         .imageUrl(p.getImageUrl())
-                        .sousTotal(p.getPrixProduit() * item.getQuantite())
+                        .promoActive(promoActive) // ⭐ ADD
+                        .promoEnd(p.getPromoEnd()) 
+                        .sousTotal(finalPrice * item.getQuantite())
                         .build();
 
                 panier.getLignes().add(newLine);
@@ -100,10 +107,16 @@ public class PanierServiceImpl implements PanierService {
                 .findByUserIdAndStatut(userId, PanierStatut.ACTIVE)
                 .orElseThrow(() -> new RuntimeException("Panier not found"));
 
+        Produit produit = produitRepository.findById(produitId)
+                .orElseThrow(() -> new RuntimeException("Produit not found"));
+
+        Double finalPrice = produitService.calculateFinalPrice(produit);
+
         for (PanierLigne l : panier.getLignes()) {
             if (l.getProduitId().equals(produitId)) {
+                l.setPrixUnitaire(finalPrice); // ⭐ refresh promo price
                 l.setQuantite(quantity);
-                l.setSousTotal(l.getPrixUnitaire() * quantity);
+                l.setSousTotal(finalPrice * quantity);
             }
         }
 
@@ -131,19 +144,19 @@ public class PanierServiceImpl implements PanierService {
     }
 
     @Override
-public PanierResponseDTO clearPanier(String userId) {
+    public PanierResponseDTO clearPanier(String userId) {
 
-    Panier panier = panierRepository
-            .findByUserIdAndStatut(userId, PanierStatut.ACTIVE)
-            .orElseThrow(() -> new RuntimeException("Panier not found"));
+        Panier panier = panierRepository
+                .findByUserIdAndStatut(userId, PanierStatut.ACTIVE)
+                .orElseThrow(() -> new RuntimeException("Panier not found"));
 
-    // 🧹 remove all products
-    panier.getLignes().clear();
-    panier.setTotalPrice(0.0);
+        // 🧹 remove all products
+        panier.getLignes().clear();
+        panier.setTotalPrice(0.0);
 
-    Panier saved = panierRepository.save(panier);
+        Panier saved = panierRepository.save(panier);
 
-    return panierMapper.toDto(saved);
-}
+        return panierMapper.toDto(saved);
+    }
 
 }

@@ -77,9 +77,9 @@
 
       <!-- QUANTITY (optional future upgrade) -->
       <div class="qty-box">
-        <button>-</button>
-        <span>1</span>
-        <button>+</button>
+        <button (click)="decreaseQty()">-</button>
+        <span>{{ quantity }}</span>
+        <button (click)="increaseQty()">+</button>
       </div>
 
       <!-- ACTIONS -->
@@ -101,7 +101,5 @@
 
 </div>
 
-<app-product-panier
-  *ngIf="showCartSidebar"
-  (close)="showCartSidebar = false">
+<app-product-panier *ngIf="showCartSidebar" (close)="showCartSidebar = false">
 </app-product-panier>

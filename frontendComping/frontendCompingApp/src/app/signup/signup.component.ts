@@ -35,7 +35,8 @@ export class SignupComponent implements AfterViewInit {
     'BOUTIQUE',
     'ORGANISATEUR',
     'PARTENAIRE_logistique',
-    'USER'
+    'USER',
+    'LIVREUR'
   ];
 
 

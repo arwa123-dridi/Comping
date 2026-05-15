@@ -15,12 +15,7 @@
     <!-- FILTERS -->
     <div class="filters">
 
-      <input
-        type="text"
-        placeholder="🔍 Search client..."
-        [(ngModel)]="searchText"
-        (input)="applyFilters()"
-      />
+      <input type="text" placeholder="🔍 Search client..." [(ngModel)]="searchText" (input)="applyFilters()" />
 
       <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
         <option value="">All status</option>
@@ -32,11 +27,7 @@
         <option value="ANNULEE">ANNULEE</option>
       </select>
 
-      <input
-        type="date"
-        [(ngModel)]="selectedDate"
-        (change)="applyFilters()"
-      />
+      <input type="date" [(ngModel)]="selectedDate" (change)="applyFilters()" />
 
     </div>
 
@@ -58,6 +49,8 @@
             <th>Livraison</th>
             <th>Total</th>
             <th>Statut</th>
+            <th>Livreur</th>
+            <th>Produits</th>
             <th class="text-center">Actions</th>
           </tr>
         </thead>
@@ -85,6 +78,44 @@
               }">
                 {{ c.statutCommande }}
               </span>
+
+            <td>
+
+              <div *ngIf="c.livreurNom && c.livreurNom !== 'Non assigné'; else noLivreur">
+
+                🚚 {{ c.livreurNom }}
+
+                <br>
+
+                <small>{{ c.livreurEmail }}</small>
+
+              </div>
+
+              <ng-template #noLivreur>
+                <span class="badge yellow">Non assigné</span>
+              </ng-template>
+
+            </td>
+
+            <!-- PRODUITS -->
+            <td>
+
+              <div *ngIf="c.lignes && c.lignes.length > 0; else noProducts">
+
+                <div *ngFor="let l of c.lignes">
+
+              
+
+                  {{ l.nomProduit }} × {{ l.quantite }}
+
+                </div>
+
+              </div>
+
+              <ng-template #noProducts>
+                <span>Aucun produit</span>
+              </ng-template>
+
             </td>
 
             <td class="actions">
@@ -94,6 +125,8 @@
               <button class="btn edit" (click)="changeStatut(c.id, $event)" value="CONFIRMEE">✔</button>
 
               <button class="btn delete" (click)="changeStatut(c.id, $event)" value="ANNULEE">✖</button>
+
+              <button class="btn assign" (click)="openAssignLivreur(c)">🚚</button>
 
             </td>
 
@@ -114,33 +147,109 @@
 </div>
 
 <!-- POPUP -->
-<div class="modal-overlay" *ngIf="selectedCommande">
+<!-- 📦 DETAIL MODAL -->
+<!-- 📦 DETAIL MODAL -->
+<div class="modal-overlay" *ngIf="modalType === 'DETAIL' && selectedCommande as cmd">
 
   <div class="modal-card">
 
     <div class="modal-header">
       <h2>📦 Détails commande</h2>
-      <button class="close-btn" (click)="closeModal()">✖</button>
+
+      <button class="close-btn" (click)="closeModal()">
+        ✖
+      </button>
     </div>
 
     <div class="modal-body">
 
-      <p><b>Client :</b> {{ selectedCommande.userId }}</p>
-      <p><b>Date :</b> {{ selectedCommande.dateCommande | date:'full' }}</p>
-      <p><b>Paiement :</b> {{ selectedCommande.modePaiement }}</p>
-      <p><b>Livraison :</b> {{ selectedCommande.modeLivraison }}</p>
-      <p><b>Statut :</b> {{ selectedCommande.statutCommande }}</p>
+      <div class="detail-row">
+        <span>Client :</span>
+        <b>{{ cmd.userId }}</b>
+      </div>
+
+      <div class="detail-row">
+        <span>Date :</span>
+        <b>{{ cmd.dateCommande | date:'full' }}</b>
+      </div>
+
+      <div class="detail-row">
+        <span>Paiement :</span>
+        <b>{{ cmd.modePaiement }}</b>
+      </div>
+
+      <div class="detail-row">
+        <span>Livraison :</span>
+        <b>{{ cmd.modeLivraison }}</b>
+      </div>
+
+      <div class="detail-row">
+        <span>Statut :</span>
+
+        <span class="badge" [ngClass]="{
+                'yellow': cmd.statutCommande === 'EN_ATTENTE',
+                'green': cmd.statutCommande === 'CONFIRMEE',
+                'blue': cmd.statutCommande === 'EN_PREPARATION',
+                'purple': cmd.statutCommande === 'EXPEDIEE',
+                'dark': cmd.statutCommande === 'LIVREE',
+                'red': cmd.statutCommande === 'ANNULEE'
+              }">
+
+          {{ cmd.statutCommande }}
+
+        </span>
+      </div>
 
       <hr>
 
-      <div class="total-box">
-        <p>💰 Produits : {{ selectedCommande.totalProduits }} TND</p>
-        <p>🚚 Livraison : {{ selectedCommande.fraisLivraison }} TND</p>
-        <h3>🧾 Total : {{ selectedCommande.totalCommande }} TND</h3>
+      <div class="detail-total">
+        Total :
+        <span>{{ cmd.totalCommande | number:'1.2-2' }} TND</span>
       </div>
 
     </div>
 
   </div>
+</div>
 
+<!-- POPUP DETAILS -->
+...
+
+
+<!-- 🚚 ASSIGN LIVREUR MODAL (PLACE HERE) -->
+<!-- 🚚 ASSIGN LIVREUR MODAL -->
+<div class="modal-overlay" *ngIf="modalType === 'ASSIGN' && selectedCommandeForAssign as cmd">
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+      <h2>🚚 Assigner un livreur</h2>
+      <button class="close-btn" (click)="closeAssignPopup()">✖</button>
+    </div>
+
+    <div class="modal-body">
+
+      <p><b>Commande :</b> #{{ cmd.id }}</p>
+      <p><b>Client :</b> {{ cmd.userId }}</p>
+
+      <label class="label">Choisir livreur</label>
+
+      <select class="select-livreur" [(ngModel)]="selectedLivreurId">
+
+        <option value="">-- Sélectionner un livreur --</option>
+
+        <option *ngFor="let l of livreurs" [value]="l.id">
+          🚚 {{ l.firstName }} {{ l.lastName }} — {{ l.email }}
+        </option>
+
+      </select>
+
+      <button class="assign-confirm" (click)="assignLivreur()" [disabled]="!selectedLivreurId">
+
+        Confirmer assignation
+      </button>
+
+    </div>
+
+  </div>
 </div>

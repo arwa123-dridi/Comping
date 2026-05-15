@@ -18,6 +18,7 @@ export class ProductDetailPageComponent implements OnInit {
   product: any;
   loading = true;
   defaultImage = 'assets/default-product.png';
+  quantity: number = 1;
 
   constructor(
     private route: ActivatedRoute,
@@ -25,19 +26,19 @@ export class ProductDetailPageComponent implements OnInit {
     private cartService: CartService, private router: Router
   ) { }
 
-ngOnInit(): void {
-  this.loadProduct();
+  ngOnInit(): void {
+    this.loadProduct();
 
-  // 🔥 listen to real-time updates
-  this.cartService.cartCount$.subscribe(count => {
-    this.cartCount = count;
-  });
+    // 🔥 listen to real-time updates
+    this.cartService.cartCount$.subscribe(count => {
+      this.cartCount = count;
+    });
 
-  const userId = this.getUserIdFromToken();
-  if (userId) {
-    this.cartService.refreshCartCount(userId);
+    const userId = this.getUserIdFromToken();
+    if (userId) {
+      this.cartService.refreshCartCount(userId);
+    }
   }
-}
 
   private getUserIdFromToken(): string | null {
     const token = localStorage.getItem('authToken');
@@ -93,27 +94,37 @@ ngOnInit(): void {
   }
 
   // 🛒 ADD TO CART
- addToCart() {
-  const token = localStorage.getItem('authToken');
-  if (!token) return;
+  addToCart() {
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
 
-  const payload = JSON.parse(atob(token.split('.')[1]));
-  const userId = payload.id;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const userId = payload.id;
 
-  this.cartService.addToCart(userId, this.product.id, 1)
-    .subscribe({
-      next: () => {
-        alert('Produit ajouté 🛒');
+    this.cartService.addToCart(userId, this.product.id, this.quantity)
+      .subscribe({
+        next: () => {
+          alert('Produit ajouté 🛒');
 
-        // 🔥 refresh badge instantly
-        this.cartService.refreshCartCount(userId);
+          // 🔥 refresh badge instantly
+          this.cartService.refreshCartCount(userId);
 
-        // open sidebar
-        this.showCartSidebar = true;
-      }
-    });
-}
-goToMarketplace() {
-  this.router.navigate(['/marketplace']);
-}
+          // open sidebar
+          this.showCartSidebar = true;
+        }
+      });
+  }
+  goToMarketplace() {
+    this.router.navigate(['/marketplace']);
+  }
+
+  increaseQty() {
+    this.quantity++;
+  }
+
+  decreaseQty() {
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
+  }
 }

@@ -1,5 +1,7 @@
 package tn.comping.spring.backendcomping.services.serviceImpl;
 
+import java.util.List;
+
 import tn.comping.spring.backendcomping.dto.LoginDTORequest;
 import tn.comping.spring.backendcomping.dto.LoginDTOResponse;
 import tn.comping.spring.backendcomping.dto.SignupDTO;
@@ -13,4 +15,5 @@ public interface SignupService {
 
     SignupEntity getUserById(String id);
 
+    List<SignupEntity> getLivreurs();
 }

@@ -82,21 +82,6 @@ export class ProductCommandHistoryComponent implements OnInit {
   }
 }
 
-marquerCommeLivree(cmd: Commande) {
 
-  if (!confirm('Confirmer la livraison de cette commande ?')) return;
-
-  this.commandeService.updateStatut(cmd.id, StatutCommande.LIVREE)
-    .subscribe({
-      next: () => {
-        // 🔥 update instantly in UI
-        cmd.statutCommande = StatutCommande.LIVREE;
-      },
-      error: (err) => {
-        console.error('Erreur mise à jour statut', err);
-        alert('Impossible de mettre la commande en LIVREE');
-      }
-    });
-}
 
 }

@@ -182,6 +182,7 @@
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  animation: popIn 0.2s ease;
 }
 
 .modal-header {
@@ -257,4 +258,162 @@
   .filters select {
     width: 100%;
   }
+}
+
+/* ============================= */
+/* 🚚 LIVREUR ASSIGN MODAL */
+/* ============================= */
+
+
+/* ANIMATION */
+@keyframes popIn {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* HEADER */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.modal-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* CLOSE BUTTON */
+.close-btn {
+  border: none;
+  background: #f1f5f9;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  background: #e2e8f0;
+  transform: rotate(90deg);
+}
+
+/* LABEL */
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #334155;
+  font-size: 14px;
+}
+
+/* SELECT LIVREUR */
+.select-livreur {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  background: #fff;
+  transition: 0.2s;
+  margin-bottom: 20px;
+}
+
+.select-livreur:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  outline: none;
+}
+
+/* CONFIRM BUTTON */
+.assign-confirm {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.assign-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+.assign-confirm:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* SMALL INFO TEXT */
+.modal-body p {
+  margin-bottom: 10px;
+  color: #475569;
+}
+
+.modal-body b {
+  color: #0f172a;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+.detail-row span:first-child {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.detail-row b {
+  color: #0f172a;
+}
+
+.detail-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.detail-total span {
+  color: #16a34a;
+}
+
+.products-preview {
+  font-size: 13px;
+  color: #444;
+}
+
+.product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
 }

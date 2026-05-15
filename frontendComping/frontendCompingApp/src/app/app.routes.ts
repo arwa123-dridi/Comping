@@ -26,6 +26,7 @@ import { ProductDetailPageComponent } from './product-detail-page/product-detail
 import { ProductConfirmationCommandeComponent } from './product-confirmation-commande/product-confirmation-commande.component';
 import { ProductCommandeListComponent } from './product-commande-list/product-commande-list.component';
 import { ProductCommandHistoryComponent } from './product-command-history/product-command-history.component';
+import { ProductLivreur } from './product-livreur/product-livreur';
 
 
 export const routes: Routes = [
@@ -73,5 +74,10 @@ export const routes: Routes = [
     {
     path: 'commandHistory',
     component: ProductCommandHistoryComponent
+  },
+
+    {
+    path: 'livraison',
+    component: ProductLivreur
   },
 ];
