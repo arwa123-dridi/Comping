@@ -119,4 +119,30 @@ getTotalEvents(): Observable<number> {
     headers: token ? { Authorization: `Bearer ${token}` } : {}
   });
 }
+validateEvent(id: string): Observable<any> {
+  const token = localStorage.getItem('authToken');
+
+  return this.http.patch(
+    `${this.apiUrl}/${id}/valider`,
+    {},
+    {
+      headers: token
+        ? { Authorization: `Bearer ${token}` }
+        : {}
+    }
+  );
+}
+rejectEvent(id: string): Observable<any> {
+  const token = localStorage.getItem('authToken');
+
+  return this.http.patch(
+    `${this.apiUrl}/${id}/reject`,
+    {},
+    {
+      headers: token
+        ? { Authorization: `Bearer ${token}` }
+        : {}
+    }
+  );
+}
 }

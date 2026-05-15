@@ -52,8 +52,8 @@ if (token) {
 }
     this.eventService.getAllEvents().subscribe({
       next: (data) => {
-         this.allEvents = data;
-        this.events = data;
+        this.allEvents = this.applyRoleFilter(data);
+    this.events = this.allEvents;
 
       },
       error: (err) => console.error('Erreur chargement événements', err)
@@ -64,8 +64,8 @@ if (token) {
 loadEvents(): void {
   this.eventService.getAllEvents().subscribe({
     next: (data) => {
-      this.allEvents = data;
-      this.events = data;
+      this.allEvents = this.applyRoleFilter(data);
+      this.events = this.allEvents;
     },
     error: (err) => console.error('Erreur chargement événements', err)
   });
@@ -272,5 +272,14 @@ showPopup(type: 'success' | 'error' | 'warning', title: string, message: string)
 
 closePopup() {
   this.popupVisible = false;
+}
+private applyRoleFilter(events: AppEvent[]): AppEvent[] {
+  const role = this.userRole?.toUpperCase();
+
+  if (role === 'USER') {
+    return events.filter(e => e.statut !== 'EN_ATTENTE');
+  }
+
+  return events; // ORGANISATEUR / ADMIN voit tout
 }
 }
