@@ -76,4 +76,12 @@ public class EventController {
     public long getTotalEvents() {
         return eventService.countEvents();
     }
+    @PatchMapping("/{id}/valider")
+    public EventResponseDTO valider(@PathVariable String id) {
+        return eventService.validerEvent(id);
+    }
+    @PatchMapping("/{id}/reject")
+    public EventResponseDTO reject(@PathVariable String id) {
+        return eventService.rejectEvent(id);
+    }
 }

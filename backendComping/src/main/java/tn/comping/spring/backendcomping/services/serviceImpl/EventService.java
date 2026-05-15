@@ -15,5 +15,7 @@ public interface EventService {
     long countByStatut(String statut);
     EventResponseDTO participate(String eventId);
     EventResponseDTO cancelParticipation(String eventId);
+    EventResponseDTO validerEvent(String id);
     long countEvents();
+    EventResponseDTO rejectEvent(String id);
 }

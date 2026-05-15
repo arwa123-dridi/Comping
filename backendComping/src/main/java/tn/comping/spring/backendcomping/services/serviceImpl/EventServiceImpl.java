@@ -11,6 +11,7 @@ import tn.comping.spring.backendcomping.config.SecurityUtils;
 import tn.comping.spring.backendcomping.dto.EventRequestDTO;
 import tn.comping.spring.backendcomping.dto.EventResponseDTO;
 import tn.comping.spring.backendcomping.entities.Event;
+import tn.comping.spring.backendcomping.entities.StatutEvent;
 import tn.comping.spring.backendcomping.repositories.ActivityRepository;
 import tn.comping.spring.backendcomping.repositories.EventRepository;
 import tn.comping.spring.backendcomping.utils.mapper.ActivityMapper;
@@ -32,6 +33,7 @@ public class EventServiceImpl implements  EventService{
         String userId = securityUtils.getCurrentUserId();
         Event event = EventMapper.toEntity(dto);
         event.setOrganisateurId(userId);
+        event.setStatut(StatutEvent.EN_ATTENTE);
         return EventMapper.toDto(eventRepository.save(event));
     }
 
@@ -144,7 +146,27 @@ public class EventServiceImpl implements  EventService{
     }
 
     @Override
+    public EventResponseDTO validerEvent(String id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+
+        event.setStatut(StatutEvent.VALIDE);
+
+        return EventMapper.toDto(eventRepository.save(event));
+    }
+
+    @Override
     public long countEvents() {
         return eventRepository.count();
+    }
+
+    @Override
+    public EventResponseDTO rejectEvent(String id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+
+        event.setStatut(StatutEvent.REJETE);
+
+        return EventMapper.toDto(eventRepository.save(event));
     }
 }
