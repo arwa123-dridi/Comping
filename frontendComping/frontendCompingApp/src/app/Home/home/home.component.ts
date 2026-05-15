@@ -116,6 +116,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   isAdminOrOrg(): boolean {
     const r = localStorage.getItem('userRole') ?? '';
     return r === 'ADMIN'        || r === 'ROLE_ADMIN'
-        || r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR';
+        || r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR'
+         || r === 'USER' || r === 'ROLE_USER';
+        
   }
+  
 }

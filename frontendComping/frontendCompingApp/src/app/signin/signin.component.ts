@@ -47,11 +47,10 @@ export class SigninComponent {
         const role = localStorage.getItem('userRole') ?? 'USER';
 
         // Redirection selon le rôle (version de ta branche)
-        if (role === 'ADMIN' || role === 'ROLE_ADMIN' ||
-            role === 'ORGANISATEUR' || role === 'ROLE_ORGANISATEUR') {
+        if (role === 'ADMIN' || role === 'ROLE_ADMIN' ) {
           this.router.navigate(['/admin/dashboard']);
         } else {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate(['/Campino']);
         }
       },
       error: (err) => {
