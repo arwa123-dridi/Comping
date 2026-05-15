@@ -120,5 +120,12 @@ export class HomeComponent implements OnInit, OnDestroy {
          || r === 'USER' || r === 'ROLE_USER';
         
   }
+  handleEventClick(event: Event) {
+  if (!this.isConnected()) {
+    event.preventDefault();
+    // optionnel :
+    // this.router.navigate(['/login']);
+  }
+}
   
 }

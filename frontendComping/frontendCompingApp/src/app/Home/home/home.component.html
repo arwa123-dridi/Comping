@@ -23,13 +23,13 @@
     <a routerLink="/emplacements">Emplacements</a>
     <a routerLink="/materiel">Matériel</a>
 
-  <a
-  [routerLink]="isConnected() ? '/events/list' : '/login'"
+<a
+  routerLink="/events/list"
   [class.disabled]="!isConnected()"
+  (click)="handleEventClick($event)"
 >
   Evénements
 </a>
-
     <!-- ==========  RANDONNÉES ========== -->
     <a routerLink="/sorties"> Randonnées</a>
     <!-- ==========  ÉQUIPES ========== -->
