@@ -733,3 +733,42 @@ nav a:hover::after { transform: scaleX(1); }
   .cal-legend { gap: 10px; }
   .cal-stats { gap: 6px; }
 }
+
+/* ── STEPPER NOMBRE DE PERSONNES ─────────────────────────────────────────── */
+.stepper-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.stepper-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--txt);
+  transition: all .2s;
+  line-height: 1;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.stepper-btn:hover {
+  border-color: var(--vert);
+  color: var(--vert);
+  background: rgba(61,168,89,0.06);
+}
+
+.stepper-val {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--bleu);
+  min-width: 20px;
+  text-align: center;
+}

@@ -27,6 +27,11 @@ public class ReservationController {
         return service.getReservationById(id);
     }
 
+    @GetMapping("/user/{userId}")
+    public List<ReservationResponse> getByUser(@PathVariable String userId) {
+    return service.getHistoriqueUtilisateur(userId);
+}
+
     @GetMapping("/historique/{utilisateurId}")
     public List<ReservationResponse> getHistorique(@PathVariable String utilisateurId) {
         return service.getHistoriqueUtilisateur(utilisateurId);

@@ -7,4 +7,5 @@ export interface Reservation {
   statut:        string;
   montantTotal:  number;
   modePaiement:  string;
+  nombrePersonnes: number;
 }

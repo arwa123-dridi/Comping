@@ -46,6 +46,7 @@
   {{ $any(site).statut || 'actif' }}
 </span>
           </td>
+          
           <td class="actions">
             <button class="btn-edit" (click)="openEditModal(site)">✏️ Modifier</button>
             <button class="btn-block" (click)="blockSite(site.id)">🚫 Bloquer</button>

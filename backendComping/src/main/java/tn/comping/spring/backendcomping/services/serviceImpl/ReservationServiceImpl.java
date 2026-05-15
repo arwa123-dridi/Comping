@@ -6,6 +6,7 @@ import tn.comping.spring.backendcomping.dto.*;
 import tn.comping.spring.backendcomping.entities.*;
 import tn.comping.spring.backendcomping.repositories.*;
 import tn.comping.spring.backendcomping.utils.mapper.ReservationMapper;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,66 +21,122 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public List<ReservationResponse> getAllReservations() {
-        return repository.findAll().stream().map(mapper::toResponse).collect(Collectors.toList());
+        return repository.findAll()
+                .stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     public ReservationResponse getReservationById(String id) {
-        return repository.findById(id).map(mapper::toResponse)
+        return repository.findById(id)
+                .map(mapper::toResponse)
                 .orElseThrow(() -> new RuntimeException("Réservation non trouvée : " + id));
     }
 
     @Override
-public ReservationResponse createReservation(ReservationRequest request) {
-    if (request.getSiteCampingId() == null || request.getSiteCampingId().isBlank())
-        throw new RuntimeException("siteCampingId est obligatoire");
+    public ReservationResponse createReservation(ReservationRequest request) {
 
-    SiteCamping site = siteCampingRepository.findById(request.getSiteCampingId())
-            .orElseThrow(() -> new RuntimeException("Site non trouvé : " + request.getSiteCampingId()));
+        // 1️⃣ validation
+        if (request.getSiteCampingId() == null || request.getSiteCampingId().isBlank()) {
+            throw new RuntimeException("siteCampingId est obligatoire");
+        }
 
-    if (!site.isDisponible())
-        throw new RuntimeException("Site non disponible");
+        // 2️⃣ récupérer site camping
+        SiteCamping site = siteCampingRepository.findById(request.getSiteCampingId())
+                .orElseThrow(() -> new RuntimeException("Site non trouvé : " + request.getSiteCampingId()));
 
-    Reservation reservation = mapper.toEntity(request);
-    reservation.setStatut(StatutReservation.EN_ATTENTE);
-    Reservation saved = repository.save(reservation);
+        if (!site.isDisponible()) {
+            throw new RuntimeException("Site non disponible");
+        }
 
-    // ✅ Email dans try-catch — ne bloque plus la réservation
-    try {
-        emailService.envoyerConfirmation(saved);
-    } catch (Exception e) {
-        System.err.println("⚠️ Email non envoyé (ignoré en dev) : " + e.getMessage());
+        // 3️⃣ calcul durée
+        long days = java.time.temporal.ChronoUnit.DAYS.between(
+                request.getDateDebut().toInstant(),
+                request.getDateFin().toInstant()
+        );
+
+        if (days <= 0) days = 1;
+
+        // 4️⃣ calcul prix
+        double total = days * site.getTarifs();
+
+        // 5️⃣ mapping
+        Reservation reservation = mapper.toEntity(request);
+
+        // 6️⃣ set backend values (IMPORTANT)
+        reservation.setMontantTotal(total);
+        reservation.setStatut(StatutReservation.EN_ATTENTE);
+        reservation.setNombrePersonnes(
+            request.getNombrePersonnes() != null ? request.getNombrePersonnes() : 1
+        );
+
+
+
+        // 7️⃣ save
+        Reservation saved = repository.save(reservation);
+
+        // 8️⃣ email (non bloquant)
+        try {
+            emailService.envoyerConfirmation(saved);
+        } catch (Exception e) {
+            System.err.println("⚠️ Email error: " + e.getMessage());
+        }
+
+        return mapper.toResponse(saved);
     }
 
-    return mapper.toResponse(saved);  // ← retourne toujours 200 OK
-}
+    @Override
+    public Reservation updateReservation(String id, Reservation request) {
 
-@Override
-public Reservation updateReservation(String id, Reservation request) {
-    Reservation existing = repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Réservation non trouvée : " + id));
+        Reservation existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Réservation non trouvée : " + id));
 
-    if (request.getSiteCampingId() != null) 
-        existing.setSiteCampingId(request.getSiteCampingId());
-    if (request.getDateDebut() != null)     
-        existing.setDateDebut(request.getDateDebut());
-    if (request.getDateFin() != null)       
-        existing.setDateFin(request.getDateFin());
-    if (request.getModePaiement() != null)  
-        existing.setModePaiement(request.getModePaiement());
-    if (request.getStatut() != null)        
-        existing.setStatut(request.getStatut());
-    
-    existing.setMontantTotal(request.getMontantTotal());
+        // update fields
+        if (request.getSiteCampingId() != null)
+            existing.setSiteCampingId(request.getSiteCampingId());
 
-    return repository.save(existing);
-}
+        if (request.getDateDebut() != null)
+            existing.setDateDebut(request.getDateDebut());
+
+        if (request.getDateFin() != null)
+            existing.setDateFin(request.getDateFin());
+
+        if (request.getModePaiement() != null)
+            existing.setModePaiement(request.getModePaiement());
+
+        if (request.getStatut() != null)
+            existing.setStatut(request.getStatut());
+        
+        if (request.getNombrePersonnes() != null)
+            existing.setNombrePersonnes(request.getNombrePersonnes());
+
+        // ❌ IMPORTANT : NE PAS FAIRE CA
+        // existing.setMontantTotal(request.getMontantTotal());
+
+        // 8️⃣ recalcul prix sécurisé
+        SiteCamping site = siteCampingRepository.findById(existing.getSiteCampingId())
+                .orElseThrow(() -> new RuntimeException("Site non trouvé"));
+
+        long days = java.time.temporal.ChronoUnit.DAYS.between(
+                existing.getDateDebut().toInstant(),
+                existing.getDateFin().toInstant()
+        );
+
+        if (days <= 0) days = 1;
+
+        existing.setMontantTotal(days * site.getTarifs());
+
+        return repository.save(existing);
+    }
 
     @Override
     public ReservationResponse updateStatut(String id, StatutReservation statut) {
         Reservation reservation = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Réservation non trouvée : " + id));
+
         reservation.setStatut(statut);
+
         return mapper.toResponse(repository.save(reservation));
     }
 
@@ -91,6 +148,8 @@ public Reservation updateReservation(String id, Reservation request) {
     @Override
     public List<ReservationResponse> getHistoriqueUtilisateur(String utilisateurId) {
         return repository.findByUtilisateurId(utilisateurId)
-                .stream().map(mapper::toResponse).collect(Collectors.toList());
+                .stream()
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
     }
 }

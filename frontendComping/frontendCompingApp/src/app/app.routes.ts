@@ -22,6 +22,7 @@ import { ProductFrontComponent } from './product-front/product-front.component';
 import { ProductDetailComponent } from './product-detail/product-detail.component';
 import { CampingSiteComponent } from './admin/camping-site/camping-site';
 import { PaiementComponent } from './paiement/paiement';
+import { ReservationsCamping } from './admin/reservations-camping/reservations-camping';
 
 
 export const routes: Routes = [
@@ -46,6 +47,7 @@ export const routes: Routes = [
       { path: 'users', component: UsersComponent },
       { path: 'events', component: EventComponent },
       { path: 'camping-sites', component: CampingSiteComponent },
+      { path: 'reservations-camping', component: ReservationsCamping },
     ]
   },
   { path: 'productTable', component: ProductListComponent},

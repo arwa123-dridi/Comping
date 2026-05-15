@@ -87,7 +87,7 @@
         <label>Filtrer par site de camping</label>
         <select [(ngModel)]="calendarSiteId" (ngModelChange)="onCalendarSiteChange()">
           <option value="">— Tous les sites —</option>
-          <option *ngFor="let s of sites" [value]="s.id">{{ s.nom }}</option>
+          <option *ngFor="let s of availableSites" [value]="s.id">{{ s.nom }}</option>
         </select>
       </div>
 
@@ -348,6 +348,8 @@
           <option *ngFor="let s of sites" [value]="s.id">{{ s.nom }}</option>
         </select>
       </div>
+      
+
 
       <div class="form-row">
         <div class="form-group">
@@ -361,10 +363,8 @@
       </div>
 
       <div class="form-row">
-        <div class="form-group">
-          <label>Montant (DT)</label>
-          <input [(ngModel)]="newReservation.montantTotal" type="number" min="0">
-        </div>
+        
+
         <div class="form-group">
           <label>Paiement</label>
           <select [(ngModel)]="newReservation.modePaiement">
@@ -424,11 +424,25 @@
 
       <div class="form-group">
         <label>Site de Camping</label>
-        <select [(ngModel)]="editReservation.siteCampingId">
+        <select [(ngModel)]="newReservation.siteCampingId">
           <option value="" disabled>Choisir un emplacement...</option>
           <option *ngFor="let s of sites" [value]="s.id">{{ s.nom }}</option>
         </select>
       </div>
+
+<div class="form-group">
+  <label>Nombre de personnes</label>
+  <div class="stepper-row">
+    <button type="button" class="stepper-btn"
+      (click)="editReservation.nombrePersonnes = (editReservation.nombrePersonnes || 1) > 1 
+               ? (editReservation.nombrePersonnes || 1) - 1 : 1">−</button>
+    <span class="stepper-val">{{ editReservation.nombrePersonnes || 1 }}</span>
+    <button type="button" class="stepper-btn"
+      (click)="editReservation.nombrePersonnes = (editReservation.nombrePersonnes || 1) + 1">+</button>
+  </div>
+</div>
+
+      
 
       <div class="form-row">
         <div class="form-group">
@@ -442,10 +456,8 @@
       </div>
 
       <div class="form-row">
-        <div class="form-group">
-          <label>Montant (DT)</label>
-          <input [(ngModel)]="editReservation.montantTotal" type="number" min="0">
-        </div>
+        
+
         <div class="form-group">
           <label>Paiement</label>
           <select [(ngModel)]="editReservation.modePaiement">

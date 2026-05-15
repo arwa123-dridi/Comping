@@ -28,6 +28,7 @@ export interface CalCell {
 })
 export class ReservationsComponent implements OnInit {
 
+  availableSites: SiteCamping[] = [];
   // ── Réservations & filtres ─────────────────────────────────────────────
   reservations: Reservation[] = [];
   filteredReservations: Reservation[] = [];
@@ -53,9 +54,10 @@ export class ReservationsComponent implements OnInit {
     siteCampingId: '',
     dateDebut: '',
     dateFin: '',
-    montantTotal: 0,
     statut: 'EN_ATTENTE',
-    modePaiement: 'CARTE'
+    modePaiement: 'CARTE',
+    nombrePersonnes: 1,
+     
   };
 
   // ── Calendrier ─────────────────────────────────────────────────────────
@@ -102,7 +104,7 @@ export class ReservationsComponent implements OnInit {
   refreshData(): void {
     this.loading = true;
 
-    this.reservationService.getAll().subscribe({
+    this.reservationService.getHistorique(this.currentUser.id).subscribe({
       next: (data) => {
         this.reservations = data;
         this.applyFilter();
@@ -115,6 +117,7 @@ export class ReservationsComponent implements OnInit {
     this.siteService.getAll().subscribe({
       next: (data) => {
         this.sites = data;
+         this.availableSites = this.sites.filter(s => s.disponible === true);
         this.buildCalendar(); // reconstruire si les sites arrivent après
       },
       error: (err) => console.error('Erreur sites :', err)
@@ -200,7 +203,7 @@ export class ReservationsComponent implements OnInit {
   addReservation(): void {
     this.reservationService.create(this.newReservation).subscribe({
       next: () => {
-        this.getAll();
+        this.refreshData();
         this.closeModal();
         this.newReservation = {
           utilisateurId: this.currentUser?.id || '',
@@ -209,7 +212,8 @@ export class ReservationsComponent implements OnInit {
           dateFin: '',
           montantTotal: 0,
           statut: 'EN_ATTENTE',
-          modePaiement: 'CARTE'
+          modePaiement: 'CARTE',
+          nombrePersonnes: 1,
         };
       },
       error: (err) => console.error(err)
@@ -226,7 +230,7 @@ export class ReservationsComponent implements OnInit {
     if (!this.pendingDeleteId) return;
     this.reservationService.delete(this.pendingDeleteId).subscribe({
       next: () => {
-        this.getAll();
+        this.refreshData();
         this.cancelDelete();
       },
       error: (err) => console.error(err)
@@ -262,7 +266,7 @@ export class ReservationsComponent implements OnInit {
     if (!this.editingId) return;
     this.reservationService.update(this.editingId, this.editReservation).subscribe({
       next: () => {
-        this.getAll();
+        this.refreshData();
         this.closeEditModal();
       },
       error: (err) => console.error(err)
