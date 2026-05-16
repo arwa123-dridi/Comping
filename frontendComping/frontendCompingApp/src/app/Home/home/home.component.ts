@@ -1,14 +1,11 @@
-import {Component, OnInit, OnDestroy, ViewEncapsulation} from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { SigninService } from '../../services/signin.service';
-import { EmergencyChatbotComponent } from '../../admin/emergency-chatbot/emergency-chatbot.component';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, EmergencyChatbotComponent],
+  imports: [CommonModule, RouterModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   encapsulation: ViewEncapsulation.None
@@ -17,11 +14,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   currentSlide = 0;
   private timer: any;
-  private authSub?: Subscription;
-  isLoggedIn = false;
-  chatbotOpen = false;
-
-  constructor(private readonly signinService: SigninService) {}
 
   slides = [
     { url: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1200&q=80', label: '🏕️ Forêt · Ain Draham' },
@@ -35,8 +27,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   services = [
     { icon: '🏕️', title: 'Emplacements', desc: 'Trouvez l\'emplacement idéal parmi nos 240+ sites sélectionnés' },
     { icon: '🎒', title: 'Location matériel', desc: 'Tentes, sacs de couchage et équipements livrés sur place' },
-    { icon: '🌄', title: 'Randonnées guidées', desc: 'Explorez la nature avec nos guides expérimentés certifiés' },
+    { icon: '🌄', title: 'Randonnées guidées', desc: 'Explorez la nature avec nos guides expérimentés certifiés', link: '/sorties' },
     { icon: '🔥', title: 'Expériences survie', desc: 'Apprenez les techniques de survie et de vie en plein air' },
+    { icon: '👥', title: 'Équipes de randonnée', desc: 'Rejoignez des groupes et partagez vos aventures', link: '/equipes' },
   ];
 
   destinations = [
@@ -46,16 +39,55 @@ export class HomeComponent implements OnInit, OnDestroy {
     { name: 'Chott el-Jérid', sub: 'Désert · Sud · Expérience unique', tag: '12 emplacements', gradient: 'linear-gradient(135deg,#0d1f3d,#1b2a4a)' },
   ];
 
+  randonneesRecommandees = [
+    {
+      id: '1',
+      titre: 'Djebel Chélia',
+      description: 'Randonnée difficile dans les magnifiques montagnes de l\'Aurès.',
+      difficulte: 'DIFFICILE',
+      lieuDepart: 'Batna',
+      dateDebut: new Date('2025-06-14'),
+      nombreParticipants: 12,
+      capaciteMax: 15
+    },
+    {
+      id: '2',
+      titre: 'Forêt de Feija',
+      description: 'Belle balade en forêt au cœur du parc national.',
+      difficulte: 'FACILE',
+      lieuDepart: 'Ain Draham',
+      dateDebut: new Date('2025-06-18'),
+      nombreParticipants: 8,
+      capaciteMax: 20
+    },
+    {
+      id: '3',
+      titre: 'Lac Ichkeul',
+      description: 'Découverte du patrimoine naturel tunisien.',
+      difficulte: 'MOYEN',
+      lieuDepart: 'Bizerte',
+      dateDebut: new Date('2025-06-22'),
+      nombreParticipants: 20,
+      capaciteMax: 20
+    },
+    {
+      id: '4',
+      titre: 'Gorges de Selja',
+      description: 'Randonnée difficile à travers les gorges spectaculaires.',
+      difficulte: 'DIFFICILE',
+      lieuDepart: 'Kebili',
+      dateDebut: new Date('2025-07-01'),
+      nombreParticipants: 3,
+      capaciteMax: 12
+    }
+  ];
+
   ngOnInit(): void {
-    this.authSub = this.signinService.isLoggedIn$().subscribe(status => {
-      this.isLoggedIn = status;
-    });
     this.startSlideshow();
   }
 
   ngOnDestroy(): void {
     clearInterval(this.timer);
-    this.authSub?.unsubscribe();
   }
 
   startSlideshow(): void {
@@ -72,11 +104,18 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.currentSlide = (this.currentSlide + 1) % this.slides.length;
   }
 
-  toggleChatbot(): void {
-    this.chatbotOpen = !this.chatbotOpen;
-  }
-
   get currentLabel(): string {
     return this.slides[this.currentSlide].label;
+  }
+
+ 
+  isConnected(): boolean {
+    return !!localStorage.getItem('authToken');
+  }
+ 
+  isAdminOrOrg(): boolean {
+    const r = localStorage.getItem('userRole') ?? '';
+    return r === 'ADMIN'        || r === 'ROLE_ADMIN'
+        || r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR';
   }
 }

@@ -1,6 +1,9 @@
 package tn.comping.spring.backendcomping.controllers;
 
 
+import lombok.RequiredArgsConstructor;
+
+
 import java.util.List;
 
 import org.springframework.http.HttpStatus;

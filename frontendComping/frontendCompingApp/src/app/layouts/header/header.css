@@ -1,0 +1,109 @@
+/* ── HEADER ─────────────────────────────────────────────────────────────────── */
+header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 50px;
+  background: rgba(27, 42, 74, 0.97);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.logo {
+  display: flex; align-items: center; gap: 12px;
+  text-decoration: none;
+}
+.logo-icon {
+  width: 46px; height: 46px;
+  border-radius: 10px; overflow: hidden;
+}
+.logo-name {
+  font-weight: 600; font-size: 22px;
+  color: #fff; letter-spacing: 1px;
+}
+.logo-name span { color: var(--vert); }
+
+nav a {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none; font-size: 14px;
+  margin: 0 18px; transition: color .2s;
+}
+nav a:hover { color: var(--jaune); }
+
+.header-btns { display: flex; gap: 10px; }
+
+.btn-ghost {
+  padding: 8px 22px;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px; color: #fff; font-size: 13px;
+  background: transparent; cursor: pointer;
+  text-decoration: none; transition: all .2s;
+}
+.btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
+
+.btn-fill {
+  padding: 8px 22px; border: none;
+  border-radius: 8px; background: var(--vert);
+  color: #fff; font-size: 13px; font-weight: 600;
+  cursor: pointer; text-decoration: none; transition: all .2s;
+}
+.btn-fill:hover { background: #32934a; }
+
+.cart-icon {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-left: 18px;
+}
+
+.cart-icon .material-icons {
+  font-size: 26px;
+  color: white;
+}
+
+/* 🔴 badge */
+.cart-count {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: #ef4444;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+  min-width: 18px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  animation: pop 0.25s ease;
+}
+
+/* small animation when updating */
+@keyframes pop {
+  0% { transform: scale(0.6); }
+  100% { transform: scale(1); }
+}
+
+/* hover effect */
+.cart-icon:hover .material-icons {
+  color: #22c55e;
+  transform: scale(1.1);
+  transition: 0.2s ease;
+}
+.cart-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+
+.cart-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 380px;
+  height: 100%;
+  background: white;
+  z-index: 1000;
+  overflow-y: auto;
+}

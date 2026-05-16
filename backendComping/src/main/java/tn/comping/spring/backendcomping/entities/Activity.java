@@ -1,15 +1,17 @@
 package tn.comping.spring.backendcomping.entities;
 
+
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import java.util.List;
 
 @Document(collection = "activity")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder //pour un constructeur par defaut
 @ToString
 public class Activity {
 
@@ -21,9 +23,11 @@ public class Activity {
     private String duree ;
     private String capacite;
 
-    private String categorie;
-    private List<String> tags;
+
     private String niveauDifficulte;
     private String trancheAge;
     private String saison;
+    private List<String> tags;
+
+
 }

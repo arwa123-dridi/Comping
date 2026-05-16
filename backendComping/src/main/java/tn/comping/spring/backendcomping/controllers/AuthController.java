@@ -2,12 +2,15 @@ package tn.comping.spring.backendcomping.controllers;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.server.ResponseStatusException;
 import tn.comping.spring.backendcomping.dto.LoginDTORequest;
 import tn.comping.spring.backendcomping.dto.LoginDTOResponse;
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
+import tn.comping.spring.backendcomping.utils.Constants;
 
 import jakarta.servlet.http.HttpServletRequest;
 import tn.comping.spring.backendcomping.config.JwtUtils; 
@@ -18,7 +21,7 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 @Slf4j
-@CrossOrigin(origins = {"http://localhost:4200", "http://localhost", "http://127.0.0.1"})
+@CrossOrigin(origins = "http://localhost:4200")
 public class AuthController {
     private  final SignupService signupService;
     private final JwtUtils jwtUtils;
@@ -26,9 +29,18 @@ public class AuthController {
     public ResponseEntity<?> loginUser(@RequestBody LoginDTORequest dto) {
         try {
             LoginDTOResponse response = signupService.login(dto);
-            return ResponseEntity.ok(Map.of("token", response.getToken()));
+            return ResponseEntity.ok(response);
+        } catch (ResponseStatusException e) {
+
+            return ResponseEntity
+                    .status(e.getStatusCode())
+                    .body(Map.of("message", e.getReason()));
+
         } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body(Map.of("error", e.getMessage() != null ? e.getMessage() : "Invalid credentials"));
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
         }
     }
 

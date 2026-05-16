@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Sortie {
+
     @Id
     private String id;
 
@@ -32,15 +33,15 @@ public class Sortie {
     private Boolean assistanceMedicale;
     private StatutSortie statut;
 
-    // ✅ REMPLACÉ : Référence à l'organisateur (au lieu des IDs simples)
+    //  URL image Cloudinary (null si pas d'image)
+    private String imageUrl;
+
     @DBRef
     private SignupEntity organisateur;
 
-    // ✅ RELATION : Référence à l'équipe
     @DBRef
     private Equipe equipe;
 
-    // ✅ GARDÉ : Liste des IDs des participants (simplifié)
     @Builder.Default
     private List<String> participantIds = new ArrayList<>();
 

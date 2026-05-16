@@ -22,10 +22,11 @@ public class JwtUtils {
         byte[] keyBytes = jwtSecret.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
     }
-    public String generateToken(String email, Role role){
+    public String generateToken(String email,String id, Role role){
 
         return Jwts.builder()
                 .setSubject(email)
+                .claim("id", id)
                 .claim("role", role.name())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime()+jwtExpirationMs))
@@ -42,11 +43,19 @@ public class JwtUtils {
                 .getBody()
                 .getSubject();
     }
+    public String getIdFromToken(String token){
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("id", String.class);
+    }
     public boolean validateJwtToken(String token){
 
         try{
             if (blacklistedTokens.contains(token)) return false;
-            
+
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
         }
@@ -65,6 +74,4 @@ public class JwtUtils {
     public void blacklistToken(String token) {
         blacklistedTokens.add(token);
     }
-    public String getIdFromToken(String token) { return Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody().getSubject(); }
 }
-

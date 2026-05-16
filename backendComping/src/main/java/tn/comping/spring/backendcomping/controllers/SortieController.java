@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 @RestController
 @RequestMapping("/api/sorties")
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class SortieController {
     private final ISortieService sortieService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ORGANISATEUR')")
     public ResponseEntity<SortieResponseDTO> createSortie(@Valid @RequestBody SortieRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(sortieService.createSortie(dto));
@@ -35,6 +37,7 @@ public class SortieController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ORGANISATEUR')")
     public ResponseEntity<SortieResponseDTO> updateSortie(
             @PathVariable String id,
             @Valid @RequestBody SortieRequestDTO dto) {
@@ -42,6 +45,7 @@ public class SortieController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ORGANISATEUR')")
     public ResponseEntity<Void> deleteSortie(@PathVariable String id) {
         sortieService.deleteSortie(id);
         return ResponseEntity.noContent().build();

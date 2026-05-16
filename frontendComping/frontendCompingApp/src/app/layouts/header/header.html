@@ -1,0 +1,69 @@
+<!-- HEADER -->
+<header>
+    <a routerLink="/" class="logo">
+        <div class="logo-icon">
+            <svg viewBox="0 0 46 46" xmlns="http://www.w3.org/2000/svg">
+                <rect width="46" height="46" rx="10" fill="#1b2a4a" />
+                <circle cx="34" cy="9" r="5" fill="#F5C842" />
+                <circle cx="37" cy="7" r="4" fill="#1b2a4a" />
+                <polygon points="3,34 10,20 17,34" fill="#1b4d1b" />
+                <polygon points="13,34 23,15 33,34" fill="#1b4d1b" />
+                <polygon points="27,34 36,20 45,34" fill="#1b4d1b" />
+                <polygon points="15,34 23,17 31,34" fill="#2e7d32" />
+                <polygon points="20,34 23,25 26,34" fill="#e53935" />
+                <rect x="0" y="34" width="46" height="4" fill="#2e7d32" />
+                <rect x="0" y="40" width="12" height="6" fill="#e53935" />
+                <rect x="12" y="40" width="11" height="6" fill="#F5C842" />
+                <rect x="23" y="40" width="11" height="6" fill="#2e7d32" />
+                <rect x="34" y="40" width="12" height="6" fill="#1b2a4a" />
+            </svg>
+        </div>
+        <span class="logo-name">CAMPI<span>NO</span></span>
+    </a>
+    <nav>
+        <a routerLink="/emplacements">Emplacements</a>
+
+        <a routerLink="/marketplace">Matériel</a>
+        <a routerLink="/commandHistory">Mes Commandes</a>
+
+        <a routerLink="/events/list">Evénements</a>
+
+        <!-- ==========  RANDONNÉES ========== -->
+        <a routerLink="/sorties"> Randonnées</a>
+        <!-- ==========  ÉQUIPES ========== -->
+        <a routerLink="/equipes"> Équipes</a>
+
+        <a routerLink="/experiences">Expériences</a>
+        <a routerLink="/blog">Blog</a>
+    </nav>
+    <div class="header-btns">
+        <!-- Non connecté -->
+
+        <ng-container *ngIf="!isConnected()">
+            <a routerLink="/login" class="btn-ghost">Connexion</a>
+            <a routerLink="/signup" class="btn-fill">Inscription</a>
+        </ng-container>
+
+        <!-- Connecté USER -->
+        <ng-container *ngIf="isConnected() && !isAdminOrOrg()">
+            <a routerLink="/planning" class="btn-ghost">Mon Planning</a>
+            <a routerLink="/profile" class="btn-fill">Mon profil</a>
+        </ng-container>
+
+        <!-- Connecté ADMIN / ORGANISATEUR -->
+        <ng-container *ngIf="isConnected() && isAdminOrOrg()">
+            <a routerLink="/admin/dashboard" class="btn-fill">Dashboard</a>
+        </ng-container>
+
+        <div class="cart-icon" (click)="toggleCart()">
+            <span class="material-icons">shopping_cart</span>
+
+            <span class="cart-count" *ngIf="cartCount > 0">
+                {{ cartCount }}
+            </span>
+        </div>
+
+    </div>
+</header>
+<app-product-panier *ngIf="showCartSidebar" (close)="closeCart()">
+</app-product-panier>

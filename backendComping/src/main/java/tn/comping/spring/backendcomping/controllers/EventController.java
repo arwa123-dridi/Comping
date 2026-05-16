@@ -50,4 +50,26 @@ public class EventController {
         eventService.deleteEvent(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping(Constants.COUNT_VALID)
+    public ResponseEntity<Long> countValide() {
+        return ResponseEntity.ok(eventService.countByStatut("VALIDE"));
+    }
+
+    @GetMapping(Constants.COUNT_DONE)
+    public ResponseEntity<Long> countTermine() {
+        return ResponseEntity.ok(eventService.countByStatut("TERMINE"));
+    }
+
+    @GetMapping(Constants.COUNT_CANCELLED)
+    public ResponseEntity<Long> countAnnule() {
+        return ResponseEntity.ok(eventService.countByStatut("ANNULE"));
+    }
+    @PostMapping(Constants.PARTICIPATE)
+    public ResponseEntity<EventResponseDTO> participate(@PathVariable String eventId) {
+        return ResponseEntity.ok(eventService.participate(eventId));
+    }
+    @DeleteMapping(Constants.CANCEL_PARTICIPATION)
+    public ResponseEntity<EventResponseDTO> cancel(@PathVariable String eventId) {
+        return ResponseEntity.ok(eventService.cancelParticipation(eventId));
+    }
 }

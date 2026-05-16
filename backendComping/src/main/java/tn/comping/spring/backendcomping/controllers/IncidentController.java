@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
 import tn.comping.spring.backendcomping.dto.IncidentRequest;
 import tn.comping.spring.backendcomping.dto.IncidentResponse;
 import tn.comping.spring.backendcomping.services.serviceImpl.IncidentService;
@@ -24,7 +23,7 @@ public class IncidentController {
     // POST http://localhost:8087/api/incidents
     @PostMapping(Constants.CREATE_INCIDENT)
     public ResponseEntity<IncidentResponse> createIncident(
-            @Valid @RequestBody IncidentRequest dto) {
+            @RequestBody IncidentRequest dto) {
         log.info("Creating Incident: {}", dto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(service.createIncident(dto));
@@ -49,7 +48,7 @@ public class IncidentController {
     @PutMapping(Constants.UPDATE_INCIDENT)
     public ResponseEntity<IncidentResponse> updateIncident(
             @PathVariable String id,
-            @Valid @RequestBody IncidentRequest dto) {
+            @RequestBody IncidentRequest dto) {
         log.info("Updating Incident id: {}", id);
         return ResponseEntity.ok(service.updateIncident(id, dto));
     }

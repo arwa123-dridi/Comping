@@ -1,6 +1,7 @@
 package tn.comping.spring.backendcomping.dto;
 
 import lombok.*;
+import tn.comping.spring.backendcomping.entities.Avis;
 import tn.comping.spring.backendcomping.entities.StatutAvis;
 import tn.comping.spring.backendcomping.entities.TypeCible;
 import java.util.Date;

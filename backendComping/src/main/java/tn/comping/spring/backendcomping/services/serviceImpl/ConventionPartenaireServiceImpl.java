@@ -8,6 +8,8 @@ import tn.comping.spring.backendcomping.entities.ConventionPartenaire;
 import tn.comping.spring.backendcomping.repositories.ConventionPartenaireRepository;
 //import tn.comping.spring.backendcomping.services.serviceImpl.ConventionPartenaireService;
 import tn.comping.spring.backendcomping.utils.mapper.ConventionPartenaireMapper;
+
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 

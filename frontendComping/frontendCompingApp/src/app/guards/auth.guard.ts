@@ -26,8 +26,8 @@ export class AuthGuard implements CanActivate {
       });
     }
 
-    // userId valide (pas vide, pas "undefined")
-    if (token) {
+    //  userId valide (pas vide, pas "undefined")
+    if (token && userId && userId !== '' && userId !== 'undefined') {
       return true;
     }
 

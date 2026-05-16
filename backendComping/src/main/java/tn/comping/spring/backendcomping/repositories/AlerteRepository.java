@@ -9,5 +9,4 @@ import java.util.List;
 public interface AlerteRepository extends MongoRepository<Alerte, String> {
     List<Alerte> findBySiteCampingId(String siteCampingId);
     List<Alerte> findByStatut(String statut);
-    List<Alerte> findBySiteCampingIdAndStatut(String siteCampingId, String statut);
 }

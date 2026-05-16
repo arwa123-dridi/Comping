@@ -3,7 +3,6 @@ package tn.comping.spring.backendcomping.controllers;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
 import tn.comping.spring.backendcomping.dto.*;
 import tn.comping.spring.backendcomping.services.serviceImpl.AlerteService;
 import java.util.List;
@@ -17,23 +16,15 @@ public class AlerteController {
     private final AlerteService service;
 
     @GetMapping
-    public List<AlerteResponse> getAll(@RequestParam(required = false) String siteCampingId,
-                                       @RequestParam(required = false) String statut) {
-        return service.getAlertesByCritere(siteCampingId, statut);
-    }
+    public List<AlerteResponse> getAll() { return service.getAllAlertes(); }
 
     @GetMapping("/site/{siteCampingId}")
     public List<AlerteResponse> getBySite(@PathVariable String siteCampingId) {
         return service.getAlertesBySite(siteCampingId);
     }
 
-    @GetMapping("/actives")
-    public List<AlerteResponse> getActives() {
-        return service.getAlertesByCritere(null, "ACTIVE");
-    }
-
     @PostMapping
-    public AlerteResponse declencher(@Valid @RequestBody AlerteRequest request) {
+    public AlerteResponse declencher(@RequestBody AlerteRequest request) {
         return service.declencherAlerte(request);
     }
 
@@ -41,16 +32,6 @@ public class AlerteController {
     public AlerteResponse updateStatut(@PathVariable String id,
                                        @RequestParam String statut) {
         return service.updateStatut(id, statut);
-    }
-
-    @PatchMapping("/{id}/prendre-en-charge")
-    public AlerteResponse prendreEnCharge(@PathVariable String id) {
-        return service.prendreEnCharge(id);
-    }
-
-    @PatchMapping("/{id}/cloturer")
-    public AlerteResponse cloturer(@PathVariable String id) {
-        return service.cloturer(id);
     }
 
     @DeleteMapping("/{id}")

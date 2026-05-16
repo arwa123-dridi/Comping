@@ -14,4 +14,6 @@ public class ReservationResponse {
     private StatutReservation statut;
     private double montantTotal;
     private String modePaiement;
+
+    
 }

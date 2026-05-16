@@ -3,7 +3,7 @@ package tn.comping.spring.backendcomping.dto;
 import lombok.*;
 
 import java.util.Date;
-import java.util.List;
+import java.time.LocalTime;
 
 @Data
 @NoArgsConstructor
@@ -16,15 +16,4 @@ public class IncidentResponse {
     private String descrition;
     private Date dateDeclaration;
     private boolean resolu;
-    
-    // Enhanced fields
-    private String priorite;
-    private String assigneId;
-    private String categorie;
-    private Integer estimatedResolutionMinutes;
-    private Date dateResolution;
-    private String resolution;
-    private Integer impactScore;
-    private List<String> tags;
-    private String location;
-    private String reporterId;}
+}

@@ -14,10 +14,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AlerteServiceImpl implements AlerteService {
 
-    private static final String STATUT_ACTIVE = "ACTIVE";
-    private static final String STATUT_EN_COURS = "EN_COURS";
-    private static final String STATUT_CLOTUREE = "CLOTUREE";
-
     private final AlerteRepository repository;
     private final AlerteMapper mapper;
 
@@ -25,7 +21,7 @@ public class AlerteServiceImpl implements AlerteService {
     public AlerteResponse declencherAlerte(AlerteRequest request) {
         Alerte alerte = mapper.toEntity(request);
         alerte.setDateDeclenchement(new Date());
-        alerte.setStatut(STATUT_ACTIVE);
+        alerte.setStatut("ACTIVE");
         return mapper.toResponse(repository.save(alerte));
     }
 
@@ -33,26 +29,6 @@ public class AlerteServiceImpl implements AlerteService {
     public List<AlerteResponse> getAlertesBySite(String siteCampingId) {
         return repository.findBySiteCampingId(siteCampingId).stream()
                 .map(mapper::toResponse).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<AlerteResponse> getAlertesByCritere(String siteCampingId, String statut) {
-        if (siteCampingId != null && !siteCampingId.isBlank() && statut != null && !statut.isBlank()) {
-            return repository.findBySiteCampingIdAndStatut(siteCampingId, statut).stream()
-                    .map(mapper::toResponse).collect(Collectors.toList());
-        }
-
-        if (siteCampingId != null && !siteCampingId.isBlank()) {
-            return repository.findBySiteCampingId(siteCampingId).stream()
-                    .map(mapper::toResponse).collect(Collectors.toList());
-        }
-
-        if (statut != null && !statut.isBlank()) {
-            return repository.findByStatut(statut).stream()
-                    .map(mapper::toResponse).collect(Collectors.toList());
-        }
-
-        return getAllAlertes();
     }
 
     @Override
@@ -72,15 +48,5 @@ public class AlerteServiceImpl implements AlerteService {
                 .orElseThrow(() -> new RuntimeException("Alerte non trouvée : " + id));
         alerte.setStatut(statut);
         return mapper.toResponse(repository.save(alerte));
-    }
-
-    @Override
-    public AlerteResponse prendreEnCharge(String id) {
-        return updateStatut(id, STATUT_EN_COURS);
-    }
-
-    @Override
-    public AlerteResponse cloturer(String id) {
-        return updateStatut(id, STATUT_CLOTUREE);
     }
 }

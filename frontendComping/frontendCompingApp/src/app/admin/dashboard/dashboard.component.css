@@ -8,13 +8,11 @@
 /* ─── PAGE ────────────────────────────────────────── */
 .dashboard {
   padding: 28px;
-  background: var(--bg-color);
+  background: #f1f5f9;
   min-height: calc(100vh - 68px);
   display: flex;
   flex-direction: column;
   gap: 24px;
-  color: var(--text-primary);
-  transition: background 0.3s;
 }
 
 /* ─── BANNER ──────────────────────────────────────── */
@@ -22,7 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(135deg, var(--sidebar-bg) 0%, #1b4332 60%, #14532d 100%);
+  background: linear-gradient(135deg, #0f1f2e 0%, #1b4332 60%, #14532d 100%);
   border-radius: 20px;
   padding: 28px 32px;
   color: #fff;
@@ -237,15 +235,13 @@
 
 /* ─── CARD ────────────────────────────────────────── */
 .card {
-  background: var(--card-bg);
+  background: #fff;
   border-radius: 18px;
   padding: 20px 24px;
-  border: 1px solid var(--border-color);
+  border: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  color: var(--text-primary);
-  transition: background 0.3s, border-color 0.3s;
 }
 
 .card-header {
@@ -260,18 +256,18 @@
   gap: 8px;
   font-size: 15px;
   font-weight: 800;
-  color: var(--text-primary);
+  color: #0f1f2e;
 }
 
 .card-title svg {
   width: 18px;
   height: 18px;
-  stroke: var(--accent-color);
+  stroke: #4ade80;
 }
 
 .tab-group {
   display: flex;
-  background: color-mix(in srgb, var(--card-bg) 88%, var(--bg-color));
+  background: #f1f5f9;
   border-radius: 10px;
   padding: 3px;
   gap: 2px;
@@ -291,18 +287,9 @@
 }
 
 .tab.active {
-  background: var(--bg-color);
-  color: var(--text-primary);
+  background: #fff;
+  color: #0f1f2e;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-
-body.dark .tab-group {
-  background: rgba(148, 163, 184, 0.08);
-}
-
-body.dark .tab.active {
-  background: var(--card-bg);
-  color: var(--text-primary);
 }
 
 /* ─── TABLE ───────────────────────────────────────── */
@@ -314,20 +301,20 @@ body.dark .tab.active {
 .resa-table th {
   font-size: 11px;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #94a3b8;
   text-align: left;
   padding: 0 0 10px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .resa-table td {
   padding: 11px 0;
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-color);
+  color: #334155;
+  border-bottom: 1px solid #f8fafc;
 }
 
 .client {
@@ -379,7 +366,7 @@ body.dark .tab.active {
   align-items: center;
   gap: 12px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #f8fafc;
   position: relative;
 }
 
@@ -430,17 +417,17 @@ body.dark .tab.active {
 .act-body p {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #334155;
   margin: 0 0 2px;
 }
 
 .act-body strong {
-  color: var(--text-primary);
+  color: #0f1f2e;
 }
 
 .act-body span {
   font-size: 11px;
-  color: var(--text-secondary);
+  color: #94a3b8;
   font-weight: 500;
 }
 

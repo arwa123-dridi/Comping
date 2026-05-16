@@ -43,7 +43,6 @@ public class EquipeMapper {
 
         if(entity.getOrganisateur() != null){
             dto.setOrganisateurId(entity.getOrganisateur().getId());
-            dto.setOrganisateurPrenom(entity.getOrganisateur().getFirstName());
             dto.setOrganisateurNom(entity.getOrganisateur().getLastName());
         }
 
