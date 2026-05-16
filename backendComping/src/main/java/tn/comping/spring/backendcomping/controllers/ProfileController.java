@@ -9,7 +9,10 @@ import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.repositories.SignupRepository;
 import tn.comping.spring.backendcomping.services.serviceImpl.IProfileService;
 import jakarta.validation.Valid;
+<<<<<<< HEAD
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
+=======
+>>>>>>> origin/ahmed
 import tn.comping.spring.backendcomping.utils.Constants;
 
 import java.util.List;
@@ -73,8 +76,11 @@ public class ProfileController {
 
         return ResponseEntity.ok(updatedUser);
     }
+<<<<<<< HEAD
     @GetMapping("/count")
     public long getTotalUsers() {
         return signupService.getTotalUsers();
     }
+=======
+>>>>>>> origin/ahmed
 }

@@ -9,7 +9,10 @@ import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
 import tn.comping.spring.backendcomping.dto.SignupDTO;
 
+<<<<<<< HEAD
 import java.util.List;
+=======
+>>>>>>> origin/ahmed
 import java.util.Map;
 
 @RestController
@@ -34,6 +37,7 @@ public class SignupController {
         }
     }
 
+<<<<<<< HEAD
     @GetMapping("getUserById/{id}")
     public SignupEntity getUserById(@PathVariable String id) {
         return signupService.getUserById(id);
@@ -43,5 +47,7 @@ public class SignupController {
     public ResponseEntity<List<SignupEntity>> getLivreurs() {
         return ResponseEntity.ok(signupService.getLivreurs());
     }
+=======
+>>>>>>> origin/ahmed
 
 }

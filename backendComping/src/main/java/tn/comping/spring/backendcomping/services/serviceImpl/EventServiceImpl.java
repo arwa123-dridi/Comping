@@ -1,17 +1,25 @@
 package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
+<<<<<<< HEAD
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+=======
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+>>>>>>> origin/ahmed
 import tn.comping.spring.backendcomping.config.JwtUtils;
 import tn.comping.spring.backendcomping.config.SecurityUtils;
 import tn.comping.spring.backendcomping.dto.EventRequestDTO;
 import tn.comping.spring.backendcomping.dto.EventResponseDTO;
 import tn.comping.spring.backendcomping.entities.Event;
+<<<<<<< HEAD
 import tn.comping.spring.backendcomping.entities.StatutEvent;
+=======
+>>>>>>> origin/ahmed
 import tn.comping.spring.backendcomping.repositories.ActivityRepository;
 import tn.comping.spring.backendcomping.repositories.EventRepository;
 import tn.comping.spring.backendcomping.utils.mapper.ActivityMapper;
@@ -27,13 +35,19 @@ public class EventServiceImpl implements  EventService{
     private final EventRepository eventRepository;
     private final ActivityRepository activityRepository;
     private final SecurityUtils securityUtils;
+<<<<<<< HEAD
     private  final CarteFideliteService carteFideliteService;
+=======
+>>>>>>> origin/ahmed
     @Override
     public EventResponseDTO createEvent(EventRequestDTO dto) {
         String userId = securityUtils.getCurrentUserId();
         Event event = EventMapper.toEntity(dto);
         event.setOrganisateurId(userId);
+<<<<<<< HEAD
         event.setStatut(StatutEvent.EN_ATTENTE);
+=======
+>>>>>>> origin/ahmed
         return EventMapper.toDto(eventRepository.save(event));
     }
 
@@ -102,6 +116,7 @@ public class EventServiceImpl implements  EventService{
 
     @Override
     public EventResponseDTO participate(String eventId) {
+<<<<<<< HEAD
         String userId = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
@@ -109,10 +124,19 @@ public class EventServiceImpl implements  EventService{
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() ->
                         new ResponseStatusException(HttpStatus.NOT_FOUND, "Event introuvable"));
+=======
+        // 1. Récupérer user connecté
+        String userId = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+>>>>>>> origin/ahmed
 
         if (event.getParticipantIds() == null) {
             event.setParticipantIds(new java.util.ArrayList<>());
         }
+<<<<<<< HEAD
 
         if (event.getParticipantIds().size() >= event.getCapacite()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Event complet");
@@ -120,12 +144,23 @@ public class EventServiceImpl implements  EventService{
 
         if (event.getParticipantIds().contains(userId)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Déjà inscrit à cet event");
+=======
+        if (event.getParticipantIds().size() >= event.getCapacite()) {
+            throw new RuntimeException("Event complet");
+        }
+
+        if (event.getParticipantIds().contains(userId)) {
+            throw new RuntimeException("Déjà inscrit à cet event");
+>>>>>>> origin/ahmed
         }
 
         event.getParticipantIds().add(userId);
 
         Event saved = eventRepository.save(event);
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/ahmed
         return EventMapper.toDto(saved);
     }
 
@@ -144,6 +179,7 @@ public class EventServiceImpl implements  EventService{
 
         return EventMapper.toDto(eventRepository.save(event));
     }
+<<<<<<< HEAD
 
     @Override
     public EventResponseDTO validerEvent(String id) {
@@ -169,4 +205,6 @@ public class EventServiceImpl implements  EventService{
 
         return EventMapper.toDto(eventRepository.save(event));
     }
+=======
+>>>>>>> origin/ahmed
 }

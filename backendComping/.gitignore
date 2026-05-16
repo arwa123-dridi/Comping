@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 {
   "info": {
     "name": "Campino API - Module Randonnée",
@@ -572,3 +573,7 @@ echo "backendComping/target/"t a r g e t /  
  
 >>>>>>> origin/amal-melki
 target/
+=======
+# build files
+target/
+>>>>>>> origin/ahmed

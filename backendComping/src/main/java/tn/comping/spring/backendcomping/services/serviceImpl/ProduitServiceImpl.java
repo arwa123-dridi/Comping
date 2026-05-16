@@ -15,7 +15,10 @@ import tn.comping.spring.backendcomping.services.serviceImpl.EmailServiceProduct
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+<<<<<<< HEAD
 import java.time.LocalDateTime;
+=======
+>>>>>>> origin/ahmed
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,13 +31,19 @@ public class ProduitServiceImpl implements ProduitInter {
 
     // ⭐ upload folder
     private final String UPLOAD_DIR = "uploads/products/";
+<<<<<<< HEAD
 
     // ================= ADD PRODUIT WITH IMAGE =================
     @Override
     public ResponseProduitDTO addProduit(RequestProduitDTO produitDTO, MultipartFile image) {
+=======
+>>>>>>> origin/ahmed
 
-        Produit produit = ProduitMapper.toEntity(produitDTO);
+    // ================= ADD PRODUIT WITH IMAGE =================
+   @Override
+public ResponseProduitDTO addProduit(RequestProduitDTO produitDTO, MultipartFile image) {
 
+<<<<<<< HEAD
         // upload image
         if (image != null && !image.isEmpty()) {
             String imageUrl = uploadImage(image);
@@ -52,22 +61,44 @@ public class ProduitServiceImpl implements ProduitInter {
         return ProduitMapper.toResponseDTO(savedProduit, finalPrice, promoActive);
     }
 
+=======
+    Produit produit = ProduitMapper.toEntity(produitDTO);
+
+    // upload image
+    if (image != null && !image.isEmpty()) {
+        String imageUrl = uploadImage(image);
+        produit.setImageUrl(imageUrl);
+    }
+
+    // 🆕 calculate stock status BEFORE saving
+    updateStatutProduit(produit);
+
+    Produit savedProduit = produitRepository.save(produit);
+
+    return ProduitMapper.toResponseDTO(savedProduit);
+}
+>>>>>>> origin/ahmed
     // ================= GET ALL =================
     @Override
     public List<ResponseProduitDTO> getAllProduits() {
         return produitRepository.findAll()
                 .stream()
+<<<<<<< HEAD
                 .map(produit -> {
                     boolean promoActive = isPromoActive(produit);
                     double finalPrice = calculateFinalPrice(produit);
                     return ProduitMapper.toResponseDTO(produit, finalPrice, promoActive);
                 })
+=======
+                .map(ProduitMapper::toResponseDTO)
+>>>>>>> origin/ahmed
                 .collect(Collectors.toList());
     }
 
     // ================= GET BY ID =================
     @Override
     public ResponseProduitDTO getProduitById(String id) {
+<<<<<<< HEAD
         Produit produit = produitRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produit not found with id: " + id));
         boolean promoActive = isPromoActive(produit);
@@ -152,9 +183,39 @@ public class ProduitServiceImpl implements ProduitInter {
         } catch (IOException e) {
             throw new RuntimeException("Error uploading image");
         }
+=======
+        Produit produit = produitRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Produit not found with id: " + id));
+        return ProduitMapper.toResponseDTO(produit);
+>>>>>>> origin/ahmed
     }
 
+    // ================= UPDATE WITH IMAGE =================
     @Override
+public ResponseProduitDTO updateProduit(String id, RequestProduitDTO produitDTO, MultipartFile image) {
+
+    Produit produit = produitRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Produit not found"));
+
+    ProduitMapper.updateEntityFromDTO(produitDTO, produit);
+
+    // replace image if needed
+    if (image != null && !image.isEmpty()) {
+        String imageUrl = uploadImage(image);
+        produit.setImageUrl(imageUrl);
+    }
+
+    // 🆕 recalculate status after update
+    updateStatutProduit(produit);
+
+    Produit updatedProduit = produitRepository.save(produit);
+
+    return ProduitMapper.toResponseDTO(updatedProduit);
+}
+
+    // ================= DELETE =================
+    @Override
+<<<<<<< HEAD
     public List<ResponseProduitDTO> searchProduitsByName(String nomProduit) {
         return produitRepository.findByNomProduitContainingIgnoreCase(nomProduit)
                 .stream()
@@ -217,4 +278,52 @@ public class ProduitServiceImpl implements ProduitInter {
                 now.isBefore(produit.getPromoEnd());
     }
 
+=======
+    public String deleteProduit(String id) {
+        produitRepository.deleteById(id);
+        return "Produit deleted successfully";
+    }
+
+    // ================= IMAGE UPLOAD METHOD =================
+    private String uploadImage(MultipartFile file) {
+        try {
+            File folder = new File(UPLOAD_DIR);
+            if (!folder.exists())
+                folder.mkdirs();
+
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            Path path = Paths.get(UPLOAD_DIR + fileName);
+
+            Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
+            return "/uploads/products/" + fileName;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error uploading image");
+        }
+    }
+
+    @Override
+    public List<ResponseProduitDTO> searchProduitsByName(String nomProduit) {
+        return produitRepository.findByNomProduitContainingIgnoreCase(nomProduit)
+                .stream()
+                .map(ProduitMapper::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+    //updatestatutProduit
+    private void updateStatutProduit(Produit produit) {
+
+    if (produit.getQuantiteStock() == null) return;
+
+    if (produit.getQuantiteStock() == 0) {
+        produit.setStatut(statutProduit.RUPTURE_STOCK);
+    }
+    else if (produit.getQuantiteStock() <= produit.getSeuilAlerteStock()) {
+        produit.setStatut(statutProduit.STOCK_FAIBLE);
+    }
+    else {
+        produit.setStatut(statutProduit.Disponible);
+    }
+}
+>>>>>>> origin/ahmed
 }

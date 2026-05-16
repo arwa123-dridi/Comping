@@ -13,9 +13,14 @@ public interface SignupService {
 
     LoginDTOResponse login(LoginDTORequest request);
 
+<<<<<<< HEAD
     SignupEntity getUserById(String id);
 
     long getTotalUsers();
 
     List<SignupEntity> getLivreurs();
 }
+=======
+
+}
+>>>>>>> origin/ahmed

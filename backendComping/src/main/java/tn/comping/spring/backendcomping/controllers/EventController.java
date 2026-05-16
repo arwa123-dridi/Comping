@@ -72,6 +72,7 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> cancel(@PathVariable String eventId) {
         return ResponseEntity.ok(eventService.cancelParticipation(eventId));
     }
+<<<<<<< HEAD
     @GetMapping("/count")
     public long getTotalEvents() {
         return eventService.countEvents();
@@ -84,4 +85,6 @@ public class EventController {
     public EventResponseDTO reject(@PathVariable String id) {
         return eventService.rejectEvent(id);
     }
+=======
+>>>>>>> origin/ahmed
 }

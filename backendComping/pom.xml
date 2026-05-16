@@ -44,23 +44,29 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
+<<<<<<< HEAD
         <dependency>
          <groupId>org.springframework.boot</groupId>
          <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
+=======
+>>>>>>> origin/ahmed
         <!-- Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+<<<<<<< HEAD
         <!-- WebFlux (for reactive programming) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
+=======
+>>>>>>> origin/ahmed
         <!-- DevTools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -108,6 +114,7 @@
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
+<<<<<<< HEAD
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -127,6 +134,21 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
+=======
+
+        <!-- Mail -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
+        <dependency>
+    <groupId>com.stripe</groupId>
+    <artifactId>stripe-java</artifactId>
+    <version>24.3.0</version>
+        </dependency>
+        
+>>>>>>> origin/ahmed
         <!-- Jakarta Persistence API -->
         <dependency>
             <groupId>jakarta.persistence</groupId>
@@ -134,23 +156,32 @@
             <version>3.1.0</version>
         </dependency>
 
+<<<<<<< HEAD
         <dependency>
             <groupId>jakarta.inject</groupId>
             <artifactId>jakarta.inject-api</artifactId>
             <version>2.0.1</version>
         </dependency>
+=======
+>>>>>>> origin/ahmed
         <!-- Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+<<<<<<< HEAD
 <!-- Security Test -->
+=======
+
+
+>>>>>>> origin/ahmed
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+<<<<<<< HEAD
  <!-- Cloudinary -->
         <dependency>
             <groupId>com.cloudinary</groupId>
@@ -158,6 +189,8 @@
             <version>2.0.0</version>
         </dependency>
 
+=======
+>>>>>>> origin/ahmed
     </dependencies>
 
     <build>
@@ -190,6 +223,9 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                <mainClass>
+            tn.comping.spring.backendcomping.BackendCompingApplication
+        </mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

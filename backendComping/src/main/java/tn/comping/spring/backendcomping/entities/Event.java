@@ -33,6 +33,18 @@ public class Event {
     private String categorie;
     private LocalDateTime createdAt;
     private List<String> activityIds;
+<<<<<<< HEAD
+=======
+
+    // ✅ AJOUTS POUR L'IA
+    private List<String> tags;
+    private String niveauDifficulte;
+    private String trancheAge;
+    private double latitude;
+    private double longitude;
+    private String saison;
+    private int dureeEnHeures;
+>>>>>>> origin/ahmed
 
     // ✅ AJOUTS POUR L'IA
     private List<String> tags;

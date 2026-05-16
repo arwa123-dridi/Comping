@@ -58,16 +58,21 @@ public class EventMapper {
                 .lieu(entity.getLieu())
 
                 .organisateurId(entity.getOrganisateurId())
+<<<<<<< HEAD
                 .participantIds(
                         entity.getParticipantIds() != null
                                 ? entity.getParticipantIds()
                                 : new ArrayList<>()
                 )
+=======
+
+>>>>>>> origin/ahmed
 
                 .nombreParticipants(nbParticipants)
                 .placesRestantes(entity.getCapacite() - nbParticipants)
                 .dejaInscrit(false)
                 .categorie(entity.getCategorie())
+<<<<<<< HEAD
                 .niveauDifficulte(entity.getNiveauDifficulte())
                 .trancheAge(entity.getTrancheAge())
                 .latitude(entity.getLatitude())
@@ -75,6 +80,9 @@ public class EventMapper {
                 .saison(entity.getSaison())
                 .dureeEnHeures(entity.getDureeEnHeures())
                 .tags(entity.getTags())
+=======
+
+>>>>>>> origin/ahmed
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

@@ -24,4 +24,8 @@ public class EquipeResponseDTO {
 
     private Integer nombreSorties;
     private List<String> sortiesTitres;
+    public void setOrganisateurPrenom(String firstName) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setOrganisateurPrenom'");
+    }
 }

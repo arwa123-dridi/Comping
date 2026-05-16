@@ -52,9 +52,13 @@ public class SignupServiceImpl implements SignupService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND"));
 
 
+<<<<<<< HEAD
         if (!user.isStatut()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "ACCOUNT_DISABLED");
         }
+=======
+            String token = jwtUtils.generateToken(user.getEmail(),user.getId(),user.getRole());
+>>>>>>> origin/ahmed
 
         boolean passwordMatches;
         try {
@@ -87,4 +91,6 @@ public class SignupServiceImpl implements SignupService {
     public List<SignupEntity> getLivreurs() {
         return signupRepository.findByRole(Role.LIVREUR);
     }
+
+
 }

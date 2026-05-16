@@ -40,6 +40,7 @@
     <a routerLink="/experiences">Expériences</a>
     <a routerLink="/blog">Blog</a>
   </nav>
+<<<<<<< HEAD
    <div class="header-btns">
     <!-- Non connecté -->
      
@@ -59,6 +60,14 @@
   <div class="admin-auth-btns">
     <a routerLink="/signup" class="btn-fill">Inscription</a>
     <a routerLink="/login" class="btn-fill">Connexion</a>
+=======
+  
+
+  <div class="header-btns" *ngIf="isLoggedIn()">
+    <button class="btn-ghost" (click)="logout()">
+      Déconnexion
+    </button>
+>>>>>>> origin/ahmed
   </div>
 </ng-container>
   </div>
@@ -80,7 +89,7 @@
       et vivez des expériences inoubliables en pleine nature.
     </p>
     <div class="split-cta">
-      <a routerLink="/emplacements" class="cta-primary">Réserver maintenant</a>
+      <a routerLink="/reservations" class="cta-primary">Réserver maintenant</a>
       <a routerLink="/materiel" class="cta-secondary">Voir le matériel</a>
     </div>
     <div class="split-stats">

@@ -31,9 +31,13 @@ public class Produit {
     private Integer quantiteStock; // current quantity in stock
     private Integer seuilAlerteStock; // low stock threshold
     private String imageUrl;
+<<<<<<< HEAD
     private Double promoPrice;
 
     private LocalDateTime promoStart;
     private LocalDateTime promoEnd;
     
+=======
+
+>>>>>>> origin/ahmed
 }

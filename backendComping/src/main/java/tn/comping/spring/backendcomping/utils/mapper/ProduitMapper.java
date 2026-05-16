@@ -21,11 +21,14 @@ public class ProduitMapper {
                 .quantiteStock(dto.getQuantiteStock())
                 .seuilAlerteStock(dto.getSeuilAlerteStock())
 
+<<<<<<< HEAD
                 // 🔥 PROMO MAPPING
                 .promoPrice(dto.getPromoPrice())
                 .promoStart(dto.getPromoStart())
                 .promoEnd(dto.getPromoEnd())
 
+=======
+>>>>>>> origin/ahmed
                 // ⚠ statut will be calculated automatically later
                 .build();
     }
@@ -33,10 +36,14 @@ public class ProduitMapper {
     // =====================================================
     // ENTITY → RESPONSE DTO (for frontend)
     // =====================================================
+<<<<<<< HEAD
     public static ResponseProduitDTO toResponseDTO(
             Produit produit,
             Double finalPrice,
             Boolean promoActive) {
+=======
+    public static ResponseProduitDTO toResponseDTO(Produit produit) {
+>>>>>>> origin/ahmed
         return ResponseProduitDTO.builder()
                 .id(produit.getId())
                 .nomProduit(produit.getNomProduit())
@@ -46,6 +53,7 @@ public class ProduitMapper {
                 .statut(produit.getStatut())
                 .imageUrl(produit.getImageUrl())
 
+<<<<<<< HEAD
                 // STOCK
                 .quantiteStock(produit.getQuantiteStock())
                 .seuilAlerteStock(produit.getSeuilAlerteStock())
@@ -59,6 +67,12 @@ public class ProduitMapper {
                 .prixFinal(finalPrice)
                 .hasPromotion(promoActive)
 
+=======
+                // 🆕 STOCK MANAGEMENT
+                .quantiteStock(produit.getQuantiteStock())
+                .seuilAlerteStock(produit.getSeuilAlerteStock())
+
+>>>>>>> origin/ahmed
                 .build();
     }
 
@@ -78,10 +92,13 @@ public class ProduitMapper {
         produit.setQuantiteStock(dto.getQuantiteStock());
         produit.setSeuilAlerteStock(dto.getSeuilAlerteStock());
 
+<<<<<<< HEAD
         // 🔥 VERY IMPORTANT FOR UPDATE
         produit.setPromoPrice(dto.getPromoPrice());
         produit.setPromoStart(dto.getPromoStart());
         produit.setPromoEnd(dto.getPromoEnd());
+=======
+>>>>>>> origin/ahmed
         // ❌ DO NOT update statut here
         // It will be recalculated automatically by StockService
     }

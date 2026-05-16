@@ -57,7 +57,11 @@
             <option [ngValue]="null" disabled>Select Role</option>
 
             <!-- Actual roles -->
+<<<<<<< HEAD
             <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+=======
+            <option *ngFor="let role of roles.slice(1)" [value]="role">{{ role }}</option>
+>>>>>>> origin/ahmed
           </select>
         </label>
 

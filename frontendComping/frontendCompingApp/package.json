@@ -18,7 +18,11 @@
     "@angular/platform-browser": "^19.2.0",
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
+<<<<<<< HEAD
     "jspdf": "^4.2.1",
+=======
+    "@stripe/stripe-js": "^9.5.0",
+>>>>>>> origin/ahmed
     "ngx-toastr": "^17.0.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

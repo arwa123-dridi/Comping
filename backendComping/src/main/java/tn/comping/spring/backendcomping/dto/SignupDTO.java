@@ -22,6 +22,7 @@ public class SignupDTO {
 
     //public SignupDTO() {}
 
+<<<<<<< HEAD
 
     public String getlastName() {
        return lastName;
@@ -29,6 +30,11 @@ public class SignupDTO {
 
 
 
+=======
+    public String getlastName() {
+       return lastName;
+   }
+>>>>>>> origin/ahmed
 
     //public String getEmail() {
     //   return email;

@@ -1,5 +1,6 @@
 // src/app/app.routes.ts — FUSION COMPLÈTE (aucune perte)
 import { Routes } from '@angular/router';
+<<<<<<< HEAD
 
 
 
@@ -57,12 +58,39 @@ import { RecommendationEvent }      from './client/recommendation-event/recommen
 import { ActivityComponent }        from './admin/activity/activity';
 
 export const routes: Routes = [
+=======
+import { SignupComponent } from './signup/signup.component';
+import { HomeComponent } from './Home/home/home.component';
+import { ProfileComponent } from './profile/profile.component'; 
+import { SigninComponent } from './signin/signin.component';
+import { ReservationsComponent } from './reservations/reservations.component';
+import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
+import { DashboardComponent } from './admin/dashboard/dashboard.component';
+import { UsersComponent } from './admin/users/users.component';
+import { EventComponent } from './admin/event/event.component';
+import { AddEventComponent } from './client/add-event/add-event.component';
+import { ListEventComponent } from './client/list-event/list-event.component';
+import { EditeEventComponent } from './client/edite-event/edite-event.component';
+import { ActivityCreateComponent } from './client/activity-create/activity-create.component';
+import { ListActivityComponent } from './client/list-activity/list-activity.component';
+import { EditActivityComponent } from './client/edit-activity/edit-activity.component';
+
+import { ProductListComponent } from './product-list/product-list.component';
+import { ProductCardComponent } from './product-card/product-card.component';
+import { ProductFrontComponent } from './product-front/product-front.component';
+import { ProductDetailComponent } from './product-detail/product-detail.component';
+import { CampingSiteComponent } from './admin/camping-site/camping-site';
+import { PaiementComponent } from './paiement/paiement';
+import { ReservationsCamping } from './admin/reservations-camping/reservations-camping';
+
+>>>>>>> origin/ahmed
 
   // ──────────────────────────────────────────────────────────────
   // ROUTES PUBLIQUES (fusion des deux versions)
   // ──────────────────────────────────────────────────────────────
   { path: '',        redirectTo: 'Campino', pathMatch: 'full' },
   { path: 'Campino', component: HomeComponent },
+<<<<<<< HEAD
   { path: 'signup',  component: SignupComponent },
   { path: 'login',   component: SigninComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] }, // gardé de USER
@@ -103,11 +131,37 @@ export const routes: Routes = [
     ]
   },
 
+=======
+  { path: 'signup', component: SignupComponent },
+  { path: 'profile', component: ProfileComponent }, 
+  {path: 'reservations', component: ReservationsComponent},  
+  { path: '', redirectTo: 'Campino', pathMatch: 'full' },
+  { path: 'login', component: SigninComponent },
+  { path: 'paiement/:id', component:   PaiementComponent },
+   { path: 'events/add', component: AddEventComponent },
+     { path: 'events/list', component: ListEventComponent },
+       { path: 'events/edit/:id', component: EditeEventComponent },
+         { path: 'activities/add', component: ActivityCreateComponent },
+            { path: 'activities/list', component: ListActivityComponent },
+             { path: 'activities/edit/:id', component: EditActivityComponent },
+   {
+    path: 'admin',
+    component: AdminLayoutComponent,
+    children: [
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'users', component: UsersComponent },
+      { path: 'events', component: EventComponent },
+      { path: 'camping-sites', component: CampingSiteComponent },
+      { path: 'reservations-camping', component: ReservationsCamping },
+    ]
+  },
+>>>>>>> origin/ahmed
   { path: 'productTable', component: ProductListComponent},
     { path: 'marketplace', component: ProductFrontComponent},
 {
     path: 'products/:id',
     component: ProductDetailComponent
+<<<<<<< HEAD
   },
   { path: 'edit-product/:id', component: EditProductComponent },
   
@@ -173,4 +227,7 @@ export const routes: Routes = [
   // Route wildcard (redirection)
   { path: '**', redirectTo: 'Campino' }
 
+=======
+  }
+>>>>>>> origin/ahmed
 ];

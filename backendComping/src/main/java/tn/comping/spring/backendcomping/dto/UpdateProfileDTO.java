@@ -19,6 +19,21 @@ public class UpdateProfileDTO {
         @Size(min = 8, max = 15, message = "Téléphone invalide")
         private String telephone;
 
+<<<<<<< HEAD
         private String address;
         private String photo;
     }
+=======
+    private String photo; // nouvelle photo
+
+    public Object getLastName() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getLastName'");
+    }
+
+    public String getFirstName() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getFirstName'");
+    }
+}
+>>>>>>> origin/ahmed

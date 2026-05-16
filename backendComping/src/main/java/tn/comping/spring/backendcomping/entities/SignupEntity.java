@@ -24,11 +24,21 @@ public class SignupEntity {
     private Role role;
 
     private String photo;// URL de la photo
+<<<<<<< HEAD
     @Builder.Default
     private boolean statut = true;
 
 
 
 
+=======
+    private boolean statut = true;
+>>>>>>> origin/ahmed
 
+  
+ 
+
+  
+
+   
 }

@@ -37,5 +37,13 @@ public class SortieResponseDTO {
     private Integer nombreParticipants;
     private List<String> participantIds;
     private LocalDateTime dateCreation;
+<<<<<<< HEAD
     private String utilisateurPrenom;
 }
+=======
+    public void setOrganisateurPrenom(String firstName) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setOrganisateurPrenom'");
+    }
+}
+>>>>>>> origin/ahmed

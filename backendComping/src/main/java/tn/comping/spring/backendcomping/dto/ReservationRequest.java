@@ -10,4 +10,5 @@ public class ReservationRequest {
     private Date dateDebut;
     private Date dateFin;
     private String modePaiement;
+    private Integer nombrePersonnes=1;
 }

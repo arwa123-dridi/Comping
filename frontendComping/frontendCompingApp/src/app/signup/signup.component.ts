@@ -1,18 +1,33 @@
+<<<<<<< HEAD
 import { AfterViewInit, Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+=======
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+>>>>>>> origin/ahmed
 import { CommonModule, NgIf } from '@angular/common';
 import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-signup',
+<<<<<<< HEAD
   standalone: true,
   imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css']
 })
 export class SignupComponent implements AfterViewInit, OnInit {
+=======
+  //standalone: true,
+  imports: [ReactiveFormsModule, HttpClientModule, CommonModule, NgIf],
+  templateUrl: './signup.component.html',
+  styleUrls: ['./signup.component.css']
+})
+export class SignupComponent implements AfterViewInit {
+>>>>>>> origin/ahmed
   @ViewChild('slidesWrapper') slidesWrapper!: ElementRef<HTMLDivElement>;
   slides = [
     { url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470' },
@@ -36,6 +51,7 @@ export class SignupComponent implements AfterViewInit, OnInit {
     'BOUTIQUE',
     'ORGANISATEUR',
     'PARTENAIRE_logistique',
+<<<<<<< HEAD
     'USER',
     'LIVREUR'
   ];
@@ -44,6 +60,13 @@ export class SignupComponent implements AfterViewInit, OnInit {
 
   constructor(private fb: FormBuilder, private http: HttpClient, private cd: ChangeDetectorRef,private router: Router) {
 
+=======
+    'USER'
+  ];
+
+
+  constructor(private fb: FormBuilder, private http: HttpClient, private cd: ChangeDetectorRef) {
+>>>>>>> origin/ahmed
 
     this.signupForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -106,10 +129,17 @@ export class SignupComponent implements AfterViewInit, OnInit {
     }, 4000);
   }
 
+<<<<<<< HEAD
 ngOnInit() {
     this.signupForm.valueChanges.subscribe(() => {
       this.passwordMatchValidator(this.signupForm);
     });
+=======
+
+
+  get f() {
+    return this.signupForm.controls;
+>>>>>>> origin/ahmed
   }
 
   get f() {
@@ -137,6 +167,7 @@ ngOnInit() {
     this.errorMessage = '';
     this.successMessage = '';
 
+<<<<<<< HEAD
 // Clean optional fields (avoid sending empty strings)
     const formValue = this.signupForm.value;
 
@@ -148,23 +179,40 @@ ngOnInit() {
       telephone: formValue.telephone || null,
       address: formValue.address || null,
       role: formValue.role
+=======
+    // Clean optional fields (avoid sending empty strings)
+    const formValue = this.signupForm.value;
+
+    const signupData = {
+      ...formValue,
+      telephone: formValue.telephone || null,
+      address: formValue.address || null
+>>>>>>> origin/ahmed
     };
 
     console.log('Signup data being sent to backend:', signupData); // <-- log cleaned data
 
+<<<<<<< HEAD
     const headers = { 'Content-Type': 'application/json' };
     this.http.post<{ id: string, email: string, role: string }>('http://localhost:8087/api/auth/registerUser', signupData, { headers })
+=======
+    this.http.post('http://localhost:8087/api/auth/registerUser', signupData)
+>>>>>>> origin/ahmed
       .subscribe({
         next: (res) => {
           console.log('Backend response:', res);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/ahmed
           this.isLoading = false;
           this.signupForm.reset({ role: 'USER' });
 
           // 👉 open popup
           this.showSuccessPopup = true;
           this.cd.detectChanges();
+<<<<<<< HEAD
 
           localStorage.setItem('userId', res.id);
           localStorage.setItem('userEmail', res.email);
@@ -181,6 +229,12 @@ ngOnInit() {
         error: (err) => {
           console.error('Signup failed', err);
           this.errorMessage = err.error || 'Erreur inscription. Email existe peut-être déjà.';
+=======
+        },
+
+        error: (err) => {
+          console.error('Signup failed', err); // <-- already logging errors
+>>>>>>> origin/ahmed
           this.isLoading = false;
         }
       });

@@ -162,6 +162,10 @@ public class EquipeServiceImpl implements IEquipeService {
 
         if (equipe.getOrganisateur() != null) {
             dto.setOrganisateurId(equipe.getOrganisateur().getId());
+<<<<<<< HEAD
+=======
+            dto.setOrganisateurPrenom(equipe.getOrganisateur().getFirstName());
+>>>>>>> origin/ahmed
             dto.setOrganisateurNom(equipe.getOrganisateur().getLastName());
         }
 
