@@ -72,4 +72,16 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> cancel(@PathVariable String eventId) {
         return ResponseEntity.ok(eventService.cancelParticipation(eventId));
     }
+    @GetMapping("/count")
+    public long getTotalEvents() {
+        return eventService.countEvents();
+    }
+    @PatchMapping("/{id}/valider")
+    public EventResponseDTO valider(@PathVariable String id) {
+        return eventService.validerEvent(id);
+    }
+    @PatchMapping("/{id}/reject")
+    public EventResponseDTO reject(@PathVariable String id) {
+        return eventService.rejectEvent(id);
+    }
 }

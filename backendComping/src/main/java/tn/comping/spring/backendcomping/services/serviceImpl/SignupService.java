@@ -15,5 +15,7 @@ public interface SignupService {
 
     SignupEntity getUserById(String id);
 
+    long getTotalUsers();
+
     List<SignupEntity> getLivreurs();
 }

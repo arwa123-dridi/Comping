@@ -2,13 +2,16 @@ package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import tn.comping.spring.backendcomping.config.JwtUtils;
 import tn.comping.spring.backendcomping.config.SecurityUtils;
 import tn.comping.spring.backendcomping.dto.EventRequestDTO;
 import tn.comping.spring.backendcomping.dto.EventResponseDTO;
 import tn.comping.spring.backendcomping.entities.Event;
+import tn.comping.spring.backendcomping.entities.StatutEvent;
 import tn.comping.spring.backendcomping.repositories.ActivityRepository;
 import tn.comping.spring.backendcomping.repositories.EventRepository;
 import tn.comping.spring.backendcomping.utils.mapper.ActivityMapper;
@@ -30,6 +33,7 @@ public class EventServiceImpl implements  EventService{
         String userId = securityUtils.getCurrentUserId();
         Event event = EventMapper.toEntity(dto);
         event.setOrganisateurId(userId);
+        event.setStatut(StatutEvent.EN_ATTENTE);
         return EventMapper.toDto(eventRepository.save(event));
     }
 
@@ -98,25 +102,25 @@ public class EventServiceImpl implements  EventService{
 
     @Override
     public EventResponseDTO participate(String eventId) {
-        // 1. Récupérer user connecté
         String userId = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
+
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Event introuvable"));
 
         if (event.getParticipantIds() == null) {
             event.setParticipantIds(new java.util.ArrayList<>());
         }
+
         if (event.getParticipantIds().size() >= event.getCapacite()) {
-            throw new RuntimeException("Event complet");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Event complet");
         }
 
         if (event.getParticipantIds().contains(userId)) {
-            throw new RuntimeException("Déjà inscrit à cet event");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Déjà inscrit à cet event");
         }
-
-
 
         event.getParticipantIds().add(userId);
 
@@ -137,6 +141,31 @@ public class EventServiceImpl implements  EventService{
         if (event.getParticipantIds() != null) {
             event.getParticipantIds().remove(userId);
         }
+
+        return EventMapper.toDto(eventRepository.save(event));
+    }
+
+    @Override
+    public EventResponseDTO validerEvent(String id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+
+        event.setStatut(StatutEvent.VALIDE);
+
+        return EventMapper.toDto(eventRepository.save(event));
+    }
+
+    @Override
+    public long countEvents() {
+        return eventRepository.count();
+    }
+
+    @Override
+    public EventResponseDTO rejectEvent(String id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+
+        event.setStatut(StatutEvent.REJETE);
 
         return EventMapper.toDto(eventRepository.save(event));
     }

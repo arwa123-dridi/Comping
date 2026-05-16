@@ -409,4 +409,13 @@ footer { background: #0a1120; padding: 60px 60px 28px; }
   transform: translateX(4px);
   color: var(--bleu);
 }
-
+.disabled {
+  pointer-events: none;
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.admin-auth-btns {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}

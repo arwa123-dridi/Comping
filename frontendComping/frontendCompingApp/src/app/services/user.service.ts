@@ -43,5 +43,14 @@ updateUserStatus(id: string, statut: boolean) {
     }
   );
 }
+getTotalUsers(): Observable<number> {
+  const token = localStorage.getItem('authToken');
+
+  return this.http.get<number>(`${this.apiUrl}/count`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+}
 
 }

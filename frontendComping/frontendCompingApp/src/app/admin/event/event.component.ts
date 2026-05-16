@@ -43,18 +43,23 @@ selectedEventId: string | null = null;
     });
   }
 
-  toggleStatut(event: EventModel): void {
-    const newStatut = event.statut === 'ACTIF' ? 'INACTIF' : 'ACTIF';
+ validate(event: EventModel): void {
+  this.eventService.validateEvent(event.idEvent!).subscribe({
+    next: () => {
+      event.statut = 'VALIDE';
+      this.applyFilters();
+    }
+  });
+}
 
-    this.eventService.toggleStatut(event.idEvent!, newStatut).subscribe({
-      next: () => {
-        event.statut = newStatut;
-        this.applyFilters();
-      },
-      error: (err) => console.error('Erreur toggle statut', err)
-    });
-  }
-
+reject(event: EventModel): void {
+  this.eventService.rejectEvent(event.idEvent!).subscribe({
+    next: () => {
+      event.statut = 'REJETE';
+      this.applyFilters();
+    }
+  });
+}
  openDeletePopup(id: string): void {
   this.selectedEventId = id;
   this.showDeletePopup = true;

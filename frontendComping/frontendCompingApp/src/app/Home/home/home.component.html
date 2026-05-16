@@ -19,14 +19,19 @@
     </div>
     <span class="logo-name">CAMPI<span>NO</span></span>
   </a>
-  <nav>
+  <nav >
     <a routerLink="/emplacements">Emplacements</a>
 
     <a routerLink="/marketplace">Matériel</a>
 
 
-    <a routerLink="/events/list">Evénements</a>
-
+<a
+  routerLink="/events/list"
+  [class.disabled]="!isConnected()"
+  (click)="handleEventClick($event)"
+>
+  Evénements
+</a>
     <!-- ==========  RANDONNÉES ========== -->
     <a routerLink="/sorties"> Randonnées</a>
     <!-- ==========  ÉQUIPES ========== -->
@@ -51,9 +56,14 @@
  
     <!-- Connecté ADMIN / ORGANISATEUR -->
     <ng-container *ngIf="isConnected() && isAdminOrOrg()">
-      <a routerLink="/admin/dashboard" class="btn-fill">Dashboard</a>
-    </ng-container>
+  <div class="admin-auth-btns">
+    <a routerLink="/signup" class="btn-fill">Inscription</a>
+    <a routerLink="/login" class="btn-fill">Connexion</a>
   </div>
+</ng-container>
+  </div>
+
+  
 </header>
 
 <!-- SPLIT HERO -->

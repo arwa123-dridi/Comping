@@ -49,14 +49,19 @@
             </span>
           </td>
           <td class="actions">
-            <label class="toggle">
-              <input
-                type="checkbox"
-                [checked]="event.statut === 'VALIDE'"
-                (change)="toggleStatut(event)"
-              />
-              <span class="slider"></span>
-            </label>
+            <button
+    class="btn-validate"
+    (click)="validate(event)"
+    [disabled]="event.statut !== 'EN_ATTENTE'">
+    ✔ Valider
+  </button>
+
+  <button
+    class="btn-reject"
+    (click)="reject(event)"
+    [disabled]="event.statut !== 'EN_ATTENTE'">
+    ❌ Rejeter
+  </button>
             
             <button class="btn-del" (click)="openDeletePopup(event.idEvent!)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

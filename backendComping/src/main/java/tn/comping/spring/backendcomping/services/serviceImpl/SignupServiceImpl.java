@@ -79,6 +79,11 @@ public class SignupServiceImpl implements SignupService {
     }
 
     @Override
+    public long getTotalUsers() {
+        return signupRepository.count();
+    }
+
+    @Override
     public List<SignupEntity> getLivreurs() {
         return signupRepository.findByRole(Role.LIVREUR);
     }
