@@ -5,11 +5,12 @@ import { CartService } from '../services/cart.service';
 import { CommandeService, CommandeRequestDTO } from '../services/CommandeService';
 import { StatutCommande } from '../models/statut-commande';
 import { ProductPanierComponent } from "../product-panier/product-panier.component";
+import { Header } from "../layouts/header/header";
 
 @Component({
   selector: 'app-product-confirmation-commande',
   standalone: true,
-  imports: [CommonModule, ProductPanierComponent],
+  imports: [CommonModule, ProductPanierComponent, Header],
   templateUrl: './product-confirmation-commande.component.html',
   styleUrls: ['./product-confirmation-commande.component.css'],
 })

@@ -16,6 +16,12 @@
   --smoke: #f0ede8;
   --text: #1e1a16;
   --text-muted: #6b5f52;
+    --vert: #3da859;
+  --bleu: #1b2a4a;
+  --ciel: #1f73a3;
+  --jaune: #f5e642;
+  --orange: #f29027;
+  --rose: #e02f2f;
 }
 
 body {
@@ -23,4 +29,8 @@ body {
   font-family: 'DM Sans', sans-serif;
   background: var(--parchment);
   color: var(--text);
+}
+
+router-outlet + * {
+  margin-top: 80px;
 }

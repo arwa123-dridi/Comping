@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { CartService } from '../services/cart.service';
 import { ProductPanierComponent } from "../product-panier/product-panier.component";
+import { Header } from "../layouts/header/header";
 
 @Component({
   selector: 'app-product-detail-page',
   standalone: true,
-  imports: [CommonModule, ProductPanierComponent],
+  imports: [CommonModule, ProductPanierComponent, Header],
   templateUrl: './product-detail-page.component.html',
   styleUrls: ['./product-detail-page.component.css'],
 })
@@ -127,4 +128,25 @@ export class ProductDetailPageComponent implements OnInit {
       this.quantity--;
     }
   }
+
+  isPromotionActive(): boolean {
+    if (!this.product?.promoPrice || !this.product?.promoStart || !this.product?.promoEnd)
+      return false;
+
+    const now = Date.now();
+    const start = new Date(this.product.promoStart).getTime();
+    const end = new Date(this.product.promoEnd).getTime();
+
+    return now >= start && now <= end;
+  }
+
+  // discount %
+  get discountPercent(): number {
+    if (!this.isPromotionActive()) return 0;
+
+    return Math.round(
+      (1 - this.product.promoPrice / this.product.prixProduit) * 100
+    );
+  }
+  
 }

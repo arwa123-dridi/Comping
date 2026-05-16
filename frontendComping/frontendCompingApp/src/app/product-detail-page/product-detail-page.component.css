@@ -6,7 +6,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start; /* so the card starts from the top instead of center */
-  padding: 100px 20px 50px 20px; /* top padding increased */
+  padding: 200px 20px 50px 20px; /* top padding increased */
   background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
   font-family: 'Inter', sans-serif;
   transition: background 0.3s ease;
@@ -355,4 +355,29 @@
   font-size: 11px;
   padding: 2px 6px;
   border-radius: 50%;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #9ca3af;
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+.new-price {
+  color: #16a34a;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.promo-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #ef4444;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 12px;
 }

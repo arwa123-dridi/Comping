@@ -1,28 +1,4 @@
-<!-- NAVBAR -->
-<nav class="market-navbar">
-
-  <div class="nav-left">
-    <h2>🏕 Campino</h2>
-  </div>
-
-  <div class="nav-links">
-    <a routerLink="/">Accueil</a>
-    <a routerLink="/market" class="active">Marketplace</a>
-    <a href="#">Matériel</a>
-    <a href="#">Expériences</a>
-  </div>
-
-  <div class="nav-actions">
-    <button class="btn-login">Connexion</button>
-    <button class="btn-signup">Inscription</button>
-
-    <div class="cart-icon" (click)="toggleCartSidebar()">
-      <span class="material-icons">shopping_cart</span>
-      <span class="cart-count">{{ cartCount }}</span>
-    </div>
-  </div>
-
-</nav>
+<app-header></app-header>
 
 <div class="product-detail-container">
 
@@ -43,7 +19,9 @@
       <div class="badge">
         {{ product.categorieProduit }}
       </div>
-
+      <span *ngIf="isPromotionActive()" class="promo-badge">
+        🔥 -{{ discountPercent }}%
+      </span>
     </div>
 
     <!-- RIGHT CONTENT -->
@@ -58,10 +36,30 @@
       <!-- PRICE + STATUS -->
       <div class="price-row">
 
+        <!-- PRICE -->
         <div class="price">
-          {{ product.prixProduit }} <span>TND</span>
+
+          <!-- PROMO PRICE -->
+          <ng-container *ngIf="isPromotionActive(); else normalPrice">
+
+            <span class="old-price">
+              {{ product.prixProduit }} <span>TND</span>
+            </span>
+
+            <span class="new-price">
+              {{ product.promoPrice }} <span>TND</span>
+            </span>
+
+          </ng-container>
+
+          <!-- NORMAL PRICE -->
+          <ng-template #normalPrice>
+            {{ product.prixProduit }} <span>TND</span>
+          </ng-template>
+
         </div>
 
+        <!-- STATUS -->
         <span class="status" [ngClass]="product.statut">
           {{ product.statut }}
         </span>

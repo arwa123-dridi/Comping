@@ -7,11 +7,12 @@ import { FormsModule } from '@angular/forms';
 import { StatutCommande } from '../models/statut-commande';
 import { ModePaiement } from '../models/mode-paiement';
 import { ModeLivraison } from '../models/mode-livraison';
+import { Header } from "../layouts/header/header";
 
 @Component({
   selector: 'app-product-checkout',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Header],
   templateUrl: './product-checkout.component.html',
   styleUrls: ['./product-checkout.component.css'],
 })

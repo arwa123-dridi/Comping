@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductCardComponent } from '../product-card/product-card.component';
 import { ProductPanierComponent } from '../product-panier/product-panier.component';
 import { CartService } from '../services/cart.service';
+import { Header } from "../layouts/header/header";
 
 @Component({
   selector: 'app-product-front',
@@ -14,8 +15,9 @@ import { CartService } from '../services/cart.service';
     HttpClientModule,
     FormsModule,
     ProductCardComponent,
-    ProductPanierComponent
-  ],
+    ProductPanierComponent,
+    Header
+],
   templateUrl: './product-front.component.html',
   styleUrls: ['./product-front.component.css']
 })

@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CommandeService } from '../services/CommandeService';
 import { Commande } from '../models/commande.model';
-import { StatutCommande } from '../models/statut-commande'; // ⭐ IMPORT ENUM
+import { StatutCommande } from '../models/statut-commande';
+import { Header } from "../layouts/header/header"; // ⭐ IMPORT ENUM
 
 @Component({
   selector: 'app-product-command-history',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, Header],
   templateUrl: './product-command-history.component.html',
   styleUrl: './product-command-history.component.css',
 })
