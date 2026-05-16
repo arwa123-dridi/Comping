@@ -1,0 +1,83 @@
+:host {
+  display: block;
+}
+
+.urgence-page {
+  min-height: 100vh;
+  background: #f1f5f9;
+  padding: 24px;
+}
+
+.urgence-card {
+  max-width: 760px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid #dbe5ef;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+h1 {
+  margin: 0 0 6px;
+  color: #1b2a4a;
+}
+
+p {
+  color: #475569;
+}
+
+.urgence-form {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label {
+  font-weight: 700;
+  color: #1b2a4a;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+button {
+  margin-top: 6px;
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 14px;
+  background: #3da859;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.msg {
+  margin: 0;
+  font-weight: 600;
+}
+
+.msg.success {
+  color: #15803d;
+}
+
+.msg.error {
+  color: #dc2626;
+}

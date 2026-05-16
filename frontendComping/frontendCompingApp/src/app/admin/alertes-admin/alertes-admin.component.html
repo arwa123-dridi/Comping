@@ -1,0 +1,51 @@
+<div class="alertes-page">
+  <div class="header">
+    <h2>Centre de gestion des alertes</h2>
+    <p>Surveillez les incidents et gérez leur cycle de traitement.</p>
+  </div>
+
+  <div class="filters">
+    <input type="text" [(ngModel)]="siteCampingIdFilter" placeholder="Filtrer par siteCampingId" />
+    <select [(ngModel)]="statutFilter">
+      <option value="">Tous les statuts</option>
+      <option value="ACTIVE">ACTIVE</option>
+      <option value="EN_COURS">EN_COURS</option>
+      <option value="CLOTUREE">CLOTUREE</option>
+    </select>
+    <button (click)="loadAlertes()">Filtrer</button>
+  </div>
+
+  <div class="loading" *ngIf="loading">Chargement des alertes...</div>
+
+  <div class="cards" *ngIf="!loading">
+    <div class="card" *ngFor="let alerte of alertes">
+      <div class="top-row">
+        <strong>{{ alerte.titre }}</strong>
+        <span class="badge">{{ alerte.statut }}</span>
+      </div>
+
+      <p><strong>Type:</strong> {{ alerte.type }}</p>
+      <p><strong>Site:</strong> {{ alerte.siteCampingId }}</p>
+      <p><strong>Position:</strong> {{ alerte.position }}</p>
+      <p><strong>Description:</strong> {{ alerte.description }}</p>
+      <p><strong>Déclenchée:</strong> {{ alerte.dateDeclenchement | date: 'short' }}</p>
+
+      <div class="weather-info" *ngIf="getWeatherForAlerte(alerte.id)">
+        <p><strong>Météo:</strong> {{ getWeatherForAlerte(alerte.id)?.temperature }}°C, {{ getWeatherForAlerte(alerte.id)?.precipitation }}mm pluie</p>
+      </div>
+
+      <div class="actions">
+        <button class="secondary" (click)="prendreEnCharge(alerte)" [disabled]="alerte.statut !== 'ACTIVE'">
+          Prendre en charge
+        </button>
+        <button class="primary" (click)="cloturer(alerte)" [disabled]="alerte.statut === 'CLOTUREE'">
+          Clôturer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty" *ngIf="!loading && alertes.length === 0">
+    Aucune alerte trouvée avec les filtres actuels.
+  </div>
+</div>

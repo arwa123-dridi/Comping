@@ -1,0 +1,100 @@
+<div class="incidents-page">
+  <div class="header">
+    <div>
+      <h2>Gestion des Incidents (Version Stable)</h2>
+      <p>Suivez et gérez tous les incidents du camping.</p>
+    </div>
+    <button class="btn-add" (click)="openForm()">+ Ajouter Incident</button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <select [(ngModel)]="statutFilter" (change)="loadIncidents()">
+      <option value="">Tous les statuts</option>
+      <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+    </select>
+    <button (click)="loadIncidents()" class="btn-refresh">Actualiser</button>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading" *ngIf="loading">Chargement des incidents...</div>
+
+  <!-- Incidents Grid -->
+  <div class="cards" *ngIf="!loading">
+    <div class="card" *ngFor="let incident of incidents" [style.border-left]="'4px solid ' + getStatusColor(incident.statut)">
+      <div class="card-header">
+        <div>
+          <h3>{{ incident.type }}</h3>
+          <span class="badge" [style.background-color]="getStatusColor(incident.statut)">{{ incident.statut }}</span>
+        </div>
+        <span class="resolved-badge" *ngIf="incident.resolu">✓ Résolu</span>
+      </div>
+
+      <p class="description">{{ incident.descrition }}</p>
+
+      <div class="meta">
+        <small><strong>Date:</strong> {{ incident.dateDeclaration | date: 'short' }}</small>
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" (click)="editIncident(incident)">Modifier</button>
+        <button class="btn-success" (click)="markAsResolved(incident)" [disabled]="incident.resolu">
+          Marquer comme résolu
+        </button>
+        <button class="btn-danger" (click)="deleteIncident(incident)">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty" *ngIf="!loading && incidents.length === 0">
+    <p>Aucun incident trouvé avec les filtres actuels.</p>
+  </div>
+
+  <!-- Modal Form -->
+  <div class="modal" *ngIf="showForm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>{{ editingIncident ? 'Modifier' : 'Ajouter' }} Incident</h3>
+        <button class="btn-close" (click)="closeForm()">✕</button>
+      </div>
+
+      <form [formGroup]="incidentForm" (ngSubmit)="submitForm()" class="form">
+        <div class="form-group">
+          <label for="type">Type d'incident</label>
+          <select id="type" formControlName="type">
+            <option value="">Sélectionnez un type</option>
+            <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="statut">Statut</label>
+          <select id="statut" formControlName="statut">
+            <option *ngFor="let s of statuts" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            formControlName="descrition"
+            rows="4"
+            placeholder="Décrivez l'incident en détail..."
+          ></textarea>
+        </div>
+
+        <div class="form-group checkbox">
+          <input type="checkbox" id="resolu" formControlName="resolu" />
+          <label for="resolu">Marquer comme résolu</label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeForm()">Annuler</button>
+          <button type="submit" class="btn-submit">{{ editingIncident ? 'Mettre à jour' : 'Créer' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

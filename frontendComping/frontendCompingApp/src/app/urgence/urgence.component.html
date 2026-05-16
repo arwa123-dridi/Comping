@@ -1,0 +1,42 @@
+<div class="urgence-page">
+  <div class="urgence-card">
+    <h1>Urgence / Alerte / Help</h1>
+    <p>Déclenchez une alerte en cas d'incident ou de besoin d'assistance sur site.</p>
+
+    <form [formGroup]="alerteForm" (ngSubmit)="submitAlerte()" class="urgence-form">
+      <div class="row">
+        <label for="siteCampingId">ID Site Camping</label>
+        <input id="siteCampingId" type="text" formControlName="siteCampingId" placeholder="ex: SITE-001" />
+      </div>
+
+      <div class="row">
+        <label for="type">Type d'alerte</label>
+        <select id="type" formControlName="type">
+          <option *ngFor="let type of types" [value]="type">{{ type }}</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label for="titre">Titre</label>
+        <input id="titre" type="text" formControlName="titre" placeholder="Ex: Blessure légère pendant la randonnée" />
+      </div>
+
+      <div class="row">
+        <label for="description">Description</label>
+        <textarea id="description" rows="4" formControlName="description" placeholder="Décrivez la situation rapidement..."></textarea>
+      </div>
+
+      <div class="row">
+        <label for="position">Position</label>
+        <input id="position" type="text" formControlName="position" placeholder="Ex: 36.8065, 10.1815" />
+      </div>
+
+      <button type="submit" [disabled]="loading">
+        {{ loading ? 'Envoi...' : 'Déclencher l\'alerte' }}
+      </button>
+
+      <p class="msg success" *ngIf="successMessage">{{ successMessage }}</p>
+      <p class="msg error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    </form>
+  </div>
+</div>

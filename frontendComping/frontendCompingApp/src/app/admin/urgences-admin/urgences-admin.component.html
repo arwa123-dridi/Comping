@@ -1,0 +1,331 @@
+<div class="urgences-container">
+  <div class="header">
+    <h2>Gestion des Urgences</h2>
+    <button class="btn btn-primary" (click)="openForm()">+ Nouvelle Urgence</button>
+  </div>
+
+  <!-- Alert Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <!-- Weather Strip - Live Summary -->
+  <div class="weather-strip" *ngIf="currentWeather">
+    <img [src]="'https://openweathermap.org/img/wn/' + currentWeather.iconCode + '.png'"
+         [alt]="currentWeather.description" />
+    <span>{{ forecastResponse?.cityName }} —
+          {{ currentWeather.temperature | number:'1.0-0' }}°C,
+          {{ currentWeather.description }},
+          Vent {{ currentWeather.windSpeed | number:'1.0-0' }} m/s</span>
+  </div>
+
+  <!-- Weather Map Section -->
+  <section class="weather-map-section">
+    <header class="hero-card">
+      <div>
+        <p class="eyebrow">Google Maps + OpenWeatherMap</p>
+        <h1>Carte météo interactive</h1>
+        <p class="subtitle">Cherchez une ville en Tunisie ou ailleurs, placez un marqueur et consultez le forecast en temps réel.</p>
+      </div>
+
+      <div class="search-bar">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Ex. Tunis, Sousse, Djerba"
+          (keyup.enter)="searchLocation()"
+        />
+        <button type="button" (click)="searchLocation()">Rechercher</button>
+      </div>
+    </header>
+
+    <div class="content-grid">
+      <div class="map-panel">
+        <div #mapCanvas class="map-canvas"></div>
+        <div class="map-fallback" *ngIf="mapLoadError">
+          {{ mapLoadError }}
+        </div>
+      </div>
+
+      <aside class="weather-panel">
+        <div class="panel-header">
+          <div>
+            <p class="panel-label">Météo actuelle</p>
+            <h2>{{ forecastResponse?.cityName || currentLocationLabel }}</h2>
+          </div>
+          <span class="status-pill" *ngIf="(loading$ | async); else readyState">Chargement...</span>
+          <ng-template #readyState>
+            <span class="status-pill ready">Prêt</span>
+          </ng-template>
+        </div>
+
+        <p class="error" *ngIf="(error$ | async) as errorMsg">{{ errorMsg }}</p>
+
+        <ng-container *ngIf="currentWeather as weather">
+          <div class="current-weather">
+            <img [src]="'https://openweathermap.org/img/wn/' + weather.iconCode + '@2x.png'" [alt]="weather.description" />
+            <div>
+              <div class="temperature">{{ weather.temperature | number:'1.0-0' }}°C</div>
+              <p>{{ weather.description }}</p>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div>
+              <span>Ressenti</span>
+              <strong>{{ weather.feelsLike | number:'1.0-0' }}°C</strong>
+            </div>
+            <div>
+              <span>Humidité</span>
+              <strong>{{ weather.humidity }}%</strong>
+            </div>
+            <div>
+              <span>Vent</span>
+              <strong>{{ weather.windSpeed | number:'1.0-0' }} m/s</strong>
+            </div>
+            <div>
+              <span>Min / Max</span>
+              <strong>{{ weather.minTemperature | number:'1.0-0' }}° / {{ weather.maxTemperature | number:'1.0-0' }}°</strong>
+            </div>
+          </div>
+        </ng-container>
+
+        <div class="forecast-list" *ngIf="forecastResponse?.forecast?.length">
+          <h3>Prévisions sur 5 jours</h3>
+
+          <div class="forecast-card" *ngFor="let item of forecastResponse?.forecast; trackBy: trackByDate">
+            <div>
+              <p class="forecast-date">{{ item.date }}</p>
+              <p class="forecast-desc">{{ item.description }}</p>
+            </div>
+            <img [src]="'https://openweathermap.org/img/wn/' + item.iconCode + '.png'" [alt]="item.description" />
+            <div class="forecast-temps">
+              <strong>{{ item.minTemperature | number:'1.0-0' }}°</strong>
+              <span>{{ item.maxTemperature | number:'1.0-0' }}°</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
+      <label>Statut:</label>
+      <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <option value="TOUS">Tous</option>
+        <option *ngFor="let status of statutOptions" [value]="status">{{ status }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Niveau d'Urgence:</label>
+      <select [(ngModel)]="filterNiveau" (change)="applyFilters()">
+        <option value="TOUS">Tous</option>
+        <option *ngFor="let niveau of niveauOptions" [value]="niveau">{{ niveau }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Form Modal -->
+  <div *ngIf="showForm" class="modal-overlay" (click)="closeForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ isEditing ? 'Modifier Urgence' : 'Nouvelle Urgence' }}</h3>
+        <button class="close-btn" (click)="closeForm()">×</button>
+      </div>
+
+      <form [formGroup]="urgenceForm" (ngSubmit)="submitForm()" class="urgence-form">
+        <div class="form-group">
+          <label>Titre *</label>
+          <input type="text" formControlName="titre" placeholder="Titre de l'urgence">
+          <small *ngIf="urgenceForm.get('titre')?.invalid && urgenceForm.get('titre')?.touched" class="error">
+            Titre requis (3-100 caractères)
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea formControlName="description" placeholder="Description détaillée"></textarea>
+          <small *ngIf="urgenceForm.get('description')?.invalid && urgenceForm.get('description')?.touched" class="error">
+            Description requise (10-1000 caractères)
+          </small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Niveau d'Urgence *</label>
+            <select formControlName="niveauUrgence">
+              <option *ngFor="let niveau of niveauOptions" [value]="niveau">{{ niveau }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Priorité *</label>
+            <select formControlName="priorite">
+              <option *ngFor="let priorite of prioriteOptions" [value]="priorite">{{ priorite }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Catégorie *</label>
+            <select formControlName="categorie">
+              <option *ngFor="let cat of categorieOptions" [value]="cat">{{ cat }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Minutes avant Résolution *</label>
+            <input type="number" formControlName="estimatedMinutesBeforeResolution" min="1" max="1440">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Site Camping ID *</label>
+            <input type="text" formControlName="siteCampingId">
+          </div>
+          <div class="form-group">
+            <label>User ID *</label>
+            <input type="text" formControlName="userId">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Reporter ID *</label>
+            <input type="text" formControlName="reporterId">
+          </div>
+          <div class="form-group">
+            <label>Score d'Impact (1-10) *</label>
+            <input type="number" formControlName="impactScore" min="1" max="10">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nom Contact *</label>
+            <input type="text" formControlName="contactName">
+          </div>
+          <div class="form-group">
+            <label>Téléphone *</label>
+            <input type="tel" formControlName="contactPhone" placeholder="+216...">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" formControlName="contactEmail">
+          </div>
+          <div class="form-group">
+            <label>Coût Estimé</label>
+            <input type="number" formControlName="estimatedCost">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Location (lat,lon)</label>
+          <input type="text" formControlName="location" placeholder="-8.76,36.80">
+        </div>
+
+        <div class="form-group">
+          <label>Tags (séparés par virgules)</label>
+          <input type="text" formControlName="tags" placeholder="tag1, tag2, tag3">
+        </div>
+
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea formControlName="notes" placeholder="Notes supplémentaires"></textarea>
+        </div>
+
+        <div class="weather-advisory" *ngIf="currentWeather">
+          <strong>Conditions actuelles :</strong>
+          {{ currentWeather.temperature | number:'1.0-0' }}°C —
+          {{ currentWeather.description }} —
+          Humidité {{ currentWeather.humidity }}%
+          <span *ngIf="currentWeather.windSpeed > 15" class="text-warning">
+            ⚠ Vent fort, prévoir délai supplémentaire
+          </span>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="!urgenceForm.valid || loading">
+            {{ loading ? 'Chargement...' : (isEditing ? 'Mettre à jour' : 'Créer') }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Urgences List -->
+  <div class="urgences-list">
+    <div *ngIf="loading" class="loading">Chargement...</div>
+
+    <div *ngIf="!loading && urgences.length === 0" class="empty-state">
+      Aucune urgence trouvée
+    </div>
+
+    <div *ngFor="let urgence of urgences" class="urgence-card">
+      <div class="card-header">
+        <h4>{{ urgence.titre }}</h4>
+        <div class="badges">
+          <span class="badge" [class]="'badge-' + getStatusColor(urgence.statut)">
+            {{ urgence.statut }}
+          </span>
+          <span class="badge" [class]="'badge-' + getUrgencyColor(urgence.niveauUrgence)">
+            {{ urgence.niveauUrgence }}
+          </span>
+          <span class="badge badge-info">{{ urgence.categorie }}</span>
+          <span class="badge badge-weather"
+                *ngIf="getWeatherRiskForUrgence(urgence) as risk">
+            ☁ {{ risk }}
+          </span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <p>{{ urgence.description }}</p>
+        <div class="urgence-details">
+          <div class="detail">
+            <strong>Contact:</strong>
+            <span>{{ urgence.contactName }} - {{ urgence.contactPhone }}</span>
+          </div>
+          <div class="detail">
+            <strong>Créée:</strong>
+            <span>{{ urgence.dateCreation | date:'short' }}</span>
+          </div>
+          <div class="detail">
+            <strong>Expiration:</strong>
+            <span>{{ urgence.dateExpiration | date:'short' }}</span>
+          </div>
+          <div class="detail" *ngIf="urgence.assigneId">
+            <strong>Assignée à:</strong>
+            <span>{{ urgence.assigneId }}</span>
+          </div>
+          <div class="detail">
+            <strong>Impact:</strong>
+            <span>{{ urgence.impactScore }}/10</span>
+          </div>
+          <div class="detail" *ngIf="urgence.resolution">
+            <strong>Résolution:</strong>
+            <span>{{ urgence.resolution }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn btn-sm btn-info" (click)="editUrgence(urgence)">Modifier</button>
+        <button class="btn btn-sm btn-warning" (click)="assign(urgence, urgence.assigneId || '')" 
+                *ngIf="urgence.statut === 'ATTENDANT'">
+          Assigner
+        </button>
+        <button class="btn btn-sm btn-success" (click)="resolve(urgence, urgence.resolution || '')"
+                *ngIf="urgence.statut === 'ACCEPTE'">
+          Résoudre
+        </button>
+        <button class="btn btn-sm btn-danger" (click)="delete(urgence)">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>

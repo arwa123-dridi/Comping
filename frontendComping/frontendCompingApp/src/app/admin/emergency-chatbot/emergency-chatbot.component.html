@@ -1,0 +1,103 @@
+<div class="chatbot-container">
+  <!-- Header -->
+  <div class="chatbot-header">
+    <div class="header-content">
+      <h2>
+        <span class="icon">🤖</span>
+        Assistant IA Sécurité & Camping
+      </h2>
+      <p class="status" [ngClass]="{'available': isLLMAvailable, 'unavailable': !isLLMAvailable}">
+        {{ isLLMAvailable ? '● En ligne' : '● Hors ligne' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Context Selector -->
+  <div class="context-selector">
+    <label for="context-select">Contexte:</label>
+    <select 
+      id="context-select"
+      [(ngModel)]="currentContext" 
+      (change)="onContextChange(currentContext)"
+      [style.borderColor]="getContextColor()"
+    >
+      <option *ngFor="let ctx of contexts" [value]="ctx.value">
+        {{ ctx.label }}
+      </option>
+    </select>
+    <button 
+      class="refresh-btn" 
+      (click)="checkLLMHealth()"
+      title="Vérifier le statut"
+    >
+      🔄
+    </button>
+    <button 
+      class="clear-btn" 
+      (click)="clearChat()"
+      title="Effacer la conversation"
+    >
+      🗑️
+    </button>
+  </div>
+
+  <!-- Chat Messages -->
+  <div class="chat-messages" #chatContainer>
+    <div *ngFor="let msg of messages" [ngClass]="{'user-message': msg.isUserMessage, 'ai-message': !msg.isUserMessage, 'system-message': msg.message === 'System'}">
+      <div class="message-bubble">
+        <div *ngIf="!msg.isUserMessage" class="ai-avatar">🤖</div>
+        <div class="message-content">
+          <p class="message-text">{{ msg.response }}</p>
+          <span class="message-time" *ngIf="msg.displayTime">{{ msg.displayTime }}</span>
+          <span class="processing-time" *ngIf="msg.processingTimeMs && !msg.isUserMessage">
+            ({{ msg.processingTimeMs }}ms)
+          </span>
+        </div>
+        <div *ngIf="msg.isUserMessage" class="user-avatar">👤</div>
+      </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="loading-message">
+      <div class="spinner"></div>
+      <span>L'IA réfléchit...</span>
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="chat-input-area">
+    <div class="input-group">
+      <textarea
+        #messageInput
+        [(ngModel)]="inputMessage"
+        (keypress)="onKeyPress($event)"
+        placeholder="Posez vos questions sur la sécurité, les urgences ou le camping..."
+        class="message-input"
+        [disabled]="isLoading"
+        rows="3"
+      ></textarea>
+      <button
+        (click)="sendMessage()"
+        [disabled]="!inputMessage.trim() || isLoading"
+        class="send-btn"
+        title="Envoyer (Entrée)"
+      >
+        📤 Envoyer
+      </button>
+    </div>
+    <div class="input-help-text">
+      ℹ️ Astuce : Maj+Entrée pour une nouvelle ligne, Entrée pour envoyer
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="chatbot-footer">
+    <p>
+      <strong>Modèle :</strong> GPT-OSS 20B via Ollama
+      <br>
+      <strong>Contexte :</strong> {{ currentContext | uppercase }}
+      <br>
+      <strong>Statut :</strong> {{ isLLMAvailable ? 'Prêt ✓' : 'Indisponible ✗' }}
+    </p>
+  </div>
+</div>

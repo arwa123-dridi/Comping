@@ -1,0 +1,210 @@
+﻿<div class="securite-container">
+  <div class="header">
+    <h2>Gestion de la Sécurité</h2>
+    <button class="btn btn-primary" (click)="openForm()">+ Nouvelle Mesure</button>
+  </div>
+
+  <!-- Alert Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-group">
+      <label>Statut:</label>
+      <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <option value="TOUS">Tous</option>
+        <option *ngFor="let status of statutOptions" [value]="status">{{ status }}</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Risque:</label>
+      <select [(ngModel)]="filterRisk" (change)="applyFilters()">
+        <option value="TOUS">Tous</option>
+        <option *ngFor="let risk of riskLevelOptions" [value]="risk">{{ risk }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Form Modal -->
+  <div *ngIf="showForm" class="modal-overlay" (click)="closeForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ isEditing ? 'Modifier Mesure' : 'Nouvelle Mesure de Sécurité' }}</h3>
+        <button class="close-btn" (click)="closeForm()">×</button>
+      </div>
+
+      <form [formGroup]="securiteForm" (ngSubmit)="submitForm()" class="securite-form">
+        <div class="form-group">
+          <label>Titre *</label>
+          <input type="text" formControlName="titre" placeholder="Titre de la mesure">
+        </div>
+
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea formControlName="description" placeholder="Description détaillée"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type de Mesure *</label>
+            <select formControlName="typeMesure">
+              <option *ngFor="let type of typeMesureOptions" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Niveau de Sécurité *</label>
+            <select formControlName="niveauSecurite">
+              <option *ngFor="let niveau of niveauSecuriteOptions" [value]="niveau">{{ niveau }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type de Surveillance *</label>
+            <select formControlName="monitoringType">
+              <option *ngFor="let type of monitoringTypeOptions" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Zone Sécurisée *</label>
+            <input type="text" formControlName="zoneSecurisee" placeholder="Nom de la zone">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Site Camping ID *</label>
+            <input type="text" formControlName="siteCampingId">
+          </div>
+          <div class="form-group">
+            <label>Responsable ID *</label>
+            <input type="text" formControlName="responsableId">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Score de Sécurité (1-10) *</label>
+            <input type="number" formControlName="securityScore" min="1" max="10">
+          </div>
+          <div class="form-group">
+            <label>Score de Risque (1-10) *</label>
+            <input type="number" formControlName="riskScore" min="1" max="10">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Budget Alloué</label>
+          <input type="number" formControlName="budgetAlloue" placeholder="Montant en TND">
+        </div>
+
+        <div class="form-group">
+          <label>Équipements (séparés par virgules)</label>
+          <input type="text" formControlName="equipmentUsed" placeholder="Caméra, Alarme, Capteur...">
+        </div>
+
+        <div class="form-group">
+          <label>Localisations de Surveillance (séparées par virgules)</label>
+          <input type="text" formControlName="monitoringLocations" placeholder="Entrance, Main Gate, Pool...">
+        </div>
+
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea formControlName="notes" placeholder="Notes supplémentaires"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="!securiteForm.valid || loading">
+            {{ loading ? 'Chargement...' : (isEditing ? 'Mettre à jour' : 'Créer') }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="closeForm()">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Securite List -->
+  <div class="securites-list">
+    <div *ngIf="loading" class="loading">Chargement...</div>
+
+    <div *ngIf="!loading && securites.length === 0" class="empty-state">
+      Aucune mesure de sécurité trouvée
+    </div>
+
+    <div *ngFor="let securite of securites" class="securite-card">
+      <div class="card-header">
+        <h4>{{ securite.titre }}</h4>
+        <div class="badges">
+          <span class="badge" [class]="'badge-' + getStatusColor(securite.statut)">
+            {{ securite.statut }}
+          </span>
+          <span class="badge" [class]="'badge-' + getRiskColor(securite.riskLevel)">
+            {{ securite.riskLevel }}
+          </span>
+          <span class="badge badge-info">{{ securite.niveauSecurite }}</span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <p>{{ securite.description }}</p>
+        <div class="securite-details">
+          <div class="detail">
+            <strong>Type:</strong>
+            <span>{{ securite.typeMesure }}</span>
+          </div>
+          <div class="detail">
+            <strong>Zone:</strong>
+            <span>{{ securite.zoneSecurisee }}</span>
+          </div>
+          <div class="detail">
+            <strong>Créée:</strong>
+            <span>{{ securite.dateCreation | date:'short' }}</span>
+          </div>
+          <div class="detail">
+            <strong>Responsable:</strong>
+            <span>{{ securite.responsableId }}</span>
+          </div>
+          <div class="detail">
+            <strong>Sécurité:</strong>
+            <span>{{ securite.securityScore }}/10</span>
+          </div>
+          <div class="detail">
+            <strong>Monitoring:</strong>
+            <span>{{ securite.monitoringType }}</span>
+          </div>
+          <div class="detail" *ngIf="securite.budgetAlloue">
+            <strong>Budget:</strong>
+            <span>{{ securite.budgetAlloue }} TND</span>
+          </div>
+          <div class="detail" *ngIf="securite.numberOfIncidentsDetected">
+            <strong>Incidents:</strong>
+            <span>{{ securite.numberOfIncidentsDetected }}</span>
+          </div>
+        </div>
+
+        <div *ngIf="securite.equipmentUsed && securite.equipmentUsed.length > 0" class="equipment">
+          <strong>Équipements:</strong>
+          <div class="equipment-list">
+            <span *ngFor="let eq of securite.equipmentUsed" class="equipment-tag">{{ eq }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn btn-sm btn-info" (click)="editSecurite(securite)">Modifier</button>
+        <button class="btn btn-sm btn-warning" (click)="startMonitoring(securite)"
+                *ngIf="securite.statut === 'PLANIFIEE'">
+          Démarrer
+        </button>
+        <button class="btn btn-sm btn-success" (click)="completeMonitoring(securite)"
+                *ngIf="securite.statut === 'EN_COURS'">
+          Compléter
+        </button>
+        <button class="btn btn-sm btn-danger" (click)="delete(securite)">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
