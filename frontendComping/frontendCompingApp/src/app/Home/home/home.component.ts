@@ -111,8 +111,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.slides[this.currentSlide].label;
   }
 
-<<<<<<< HEAD
- 
   isConnected(): boolean {
     return !!localStorage.getItem('authToken');
   }
@@ -125,16 +123,15 @@ export class HomeComponent implements OnInit, OnDestroy {
         
   }
   handleEventClick(event: Event) {
-  if (!this.isConnected()) {
-    event.preventDefault();
-    // optionnel :
-    // this.router.navigate(['/login']);
-=======
-   isLoggedIn(): boolean {
+    if (!this.isConnected()) {
+      event.preventDefault();
+    }
+  }
+
+  isLoggedIn(): boolean {
     return !!this.signinService.getToken();
   }
 
-  
   logout(): void {
     this.signinService.logout().subscribe({
       next: () => {
@@ -146,8 +143,5 @@ export class HomeComponent implements OnInit, OnDestroy {
         window.location.href = '/login';
       }
     });
->>>>>>> origin/ahmed
   }
-}
-  
 }

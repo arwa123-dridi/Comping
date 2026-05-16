@@ -1,8 +1,5 @@
 // src/app/app.routes.ts — FUSION COMPLÈTE (aucune perte)
 import { Routes } from '@angular/router';
-<<<<<<< HEAD
-
-
 
 import { EditProductComponent } from './edit-product/edit-product.component';
 import { ProductPanierComponent } from './product-panier/product-panier.component';
@@ -20,6 +17,10 @@ import { ProfileComponent }       from './profile/profile.component';
 import { SigninComponent }        from './signin/signin.component';
 import { AdminLayoutComponent }   from './layouts/admin-layout/admin-layout.component';
 import { DashboardComponent }     from './admin/dashboard/dashboard.component';
+import { ReservationsComponent }  from './reservations/reservations.component';
+import { PaiementComponent }      from './paiement/paiement';
+import { CampingSiteComponent }   from './admin/camping-site/camping-site';
+import { ReservationsCamping }    from './admin/reservations-camping/reservations-camping';
 
 // Composants de la branche USER (version principale)
 import { SortieListComponent }           from './sortie/sortie-list/sortie-list.component';
@@ -58,42 +59,16 @@ import { RecommendationEvent }      from './client/recommendation-event/recommen
 import { ActivityComponent }        from './admin/activity/activity';
 
 export const routes: Routes = [
-=======
-import { SignupComponent } from './signup/signup.component';
-import { HomeComponent } from './Home/home/home.component';
-import { ProfileComponent } from './profile/profile.component'; 
-import { SigninComponent } from './signin/signin.component';
-import { ReservationsComponent } from './reservations/reservations.component';
-import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
-import { DashboardComponent } from './admin/dashboard/dashboard.component';
-import { UsersComponent } from './admin/users/users.component';
-import { EventComponent } from './admin/event/event.component';
-import { AddEventComponent } from './client/add-event/add-event.component';
-import { ListEventComponent } from './client/list-event/list-event.component';
-import { EditeEventComponent } from './client/edite-event/edite-event.component';
-import { ActivityCreateComponent } from './client/activity-create/activity-create.component';
-import { ListActivityComponent } from './client/list-activity/list-activity.component';
-import { EditActivityComponent } from './client/edit-activity/edit-activity.component';
-
-import { ProductListComponent } from './product-list/product-list.component';
-import { ProductCardComponent } from './product-card/product-card.component';
-import { ProductFrontComponent } from './product-front/product-front.component';
-import { ProductDetailComponent } from './product-detail/product-detail.component';
-import { CampingSiteComponent } from './admin/camping-site/camping-site';
-import { PaiementComponent } from './paiement/paiement';
-import { ReservationsCamping } from './admin/reservations-camping/reservations-camping';
-
->>>>>>> origin/ahmed
-
   // ──────────────────────────────────────────────────────────────
   // ROUTES PUBLIQUES (fusion des deux versions)
   // ──────────────────────────────────────────────────────────────
   { path: '',        redirectTo: 'Campino', pathMatch: 'full' },
   { path: 'Campino', component: HomeComponent },
-<<<<<<< HEAD
   { path: 'signup',  component: SignupComponent },
   { path: 'login',   component: SigninComponent },
-  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] }, // gardé de USER
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'reservations', component: ReservationsComponent, canActivate: [AuthGuard] },
+  { path: 'paiement/:id', component: PaiementComponent, canActivate: [AuthGuard] },
 
   // Routes "client" de la collègue (events, activities) – publiques (sans guard)
   { path: 'events/add',      component: AddEventComponent },
@@ -103,12 +78,20 @@ import { ReservationsCamping } from './admin/reservations-camping/reservations-c
   { path: 'activities/list', component: ListActivityComponent },
   { path: 'activities/edit/:id', component: EditActivityComponent },
   { path: 'success',         component: SuccessEvent },
-{ path: 'recommendation', component: RecommendationEvent },
+  { path: 'recommendation', component: RecommendationEvent },
 
   // Routes marketplace (collègue)
   { path: 'productTable',  component: ProductListComponent },
   { path: 'marketplace',   component: ProductFrontComponent },
   { path: 'products/:id',  component: ProductDetailComponent },
+  { path: 'edit-product/:id', component: EditProductComponent },
+  { path: 'panier', component: ProductPanierComponent },
+  { path: 'command', component: ProductCheckoutComponent },
+  { path: 'product/:id', component: ProductDetailPageComponent },
+  { path: 'confirm-order', component: ProductConfirmationCommandeComponent },
+  { path: 'commandList', component: ProductCommandeListComponent },
+  { path: 'commandHistory', component: ProductCommandHistoryComponent },
+  { path: 'livraison', component: ProductLivreur },
 
   // Routes publiques "sorties" et "equipes" (USER) – sans layout
   { path: 'sorties',          component: SortieListComponent   },
@@ -131,73 +114,15 @@ import { ReservationsCamping } from './admin/reservations-camping/reservations-c
     ]
   },
 
-=======
-  { path: 'signup', component: SignupComponent },
-  { path: 'profile', component: ProfileComponent }, 
-  {path: 'reservations', component: ReservationsComponent},  
-  { path: '', redirectTo: 'Campino', pathMatch: 'full' },
-  { path: 'login', component: SigninComponent },
-  { path: 'paiement/:id', component:   PaiementComponent },
-   { path: 'events/add', component: AddEventComponent },
-     { path: 'events/list', component: ListEventComponent },
-       { path: 'events/edit/:id', component: EditeEventComponent },
-         { path: 'activities/add', component: ActivityCreateComponent },
-            { path: 'activities/list', component: ListActivityComponent },
-             { path: 'activities/edit/:id', component: EditActivityComponent },
-   {
-    path: 'admin',
-    component: AdminLayoutComponent,
-    children: [
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'users', component: UsersComponent },
-      { path: 'events', component: EventComponent },
-      { path: 'camping-sites', component: CampingSiteComponent },
-      { path: 'reservations-camping', component: ReservationsCamping },
-    ]
-  },
->>>>>>> origin/ahmed
-  { path: 'productTable', component: ProductListComponent},
-    { path: 'marketplace', component: ProductFrontComponent},
-{
-    path: 'products/:id',
-    component: ProductDetailComponent
-<<<<<<< HEAD
-  },
-  { path: 'edit-product/:id', component: EditProductComponent },
-  
-  { path: 'panier', component: ProductPanierComponent },
-   { path: 'command', component: ProductCheckoutComponent },
-     { path: 'product/:id', component: ProductDetailPageComponent },
- {
-    path: 'confirm-order',
-    component: ProductConfirmationCommandeComponent
-  },
-
-   {
-    path: 'commandList',
-    component: ProductCommandeListComponent
-  },
-
-    {
-    path: 'commandHistory',
-    component: ProductCommandHistoryComponent
-  },
-
-    {
-    path: 'livraison',
-    component: ProductLivreur
-  },
-
-
   // ──────────────────────────────────────────────────────────────
   // BACK OFFICE ADMIN / ORGANISATEUR (fusion des deux)
   //   - Garde les enfants de la version USER (sorties, equipes, organizer, admin-board)
-  //   - Ajoute les enfants de la collègue (users, events, activities)
+  //   - Ajoute les enfants de la collègue (users, events, activities, camping-sites, reservations-camping)
   // ──────────────────────────────────────────────────────────────
   {
     path: 'admin',
     component: AdminLayoutComponent,
-    canActivate: [OrganizerGuard],      // garde de USER (orga ou admin)
+    canActivate: [OrganizerGuard],
     children: [
       // Dashboard principal
       { path: '',          redirectTo: 'dashboard', pathMatch: 'full' },
@@ -221,13 +146,11 @@ import { ReservationsCamping } from './admin/reservations-camping/reservations-c
       { path: 'users',     component: UsersComponent     },
       { path: 'events',    component: EventComponent     },
       { path: 'activities', component: ActivityComponent },
+      { path: 'camping-sites', component: CampingSiteComponent },
+      { path: 'reservations-camping', component: ReservationsCamping },
     ]
   },
 
   // Route wildcard (redirection)
   { path: '**', redirectTo: 'Campino' }
-
-=======
-  }
->>>>>>> origin/ahmed
 ];
