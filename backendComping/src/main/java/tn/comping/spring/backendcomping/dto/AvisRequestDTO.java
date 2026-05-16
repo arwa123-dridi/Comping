@@ -1,0 +1,17 @@
+package tn.comping.spring.backendcomping.dto;
+
+import lombok.*;
+import tn.comping.spring.backendcomping.entities.TypeCible;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class AvisRequestDTO {
+
+    private int note;
+    private String commentaire;
+    private String cibleId;
+    private TypeCible typeCible;
+    private String parentAvisId;
+}
