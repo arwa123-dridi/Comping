@@ -2,9 +2,33 @@
 
   <!-- HEADER -->
   <div class="page-header">
-    <div>
-      <h2>Liste des utilisateurs</h2>
-      <p class="subtitle">{{ filteredUsers.length }} utilisateur(s) trouvé(s)</p>
+    <div class="header-left">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div>
+        <h2>Liste des utilisateurs</h2>
+        <p class="subtitle">{{ filteredUsers.length }} utilisateur(s) trouvé(s)</p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-chip">
+        <span class="stat-dot sd-green"></span>
+        <span>{{ activeCount }} Actifs</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-dot sd-blue"></span>
+        <span>{{ adminCount }} Admins</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-dot sd-gray"></span>
+        <span>{{ inactiveCount }} Inactifs</span>
+      </div>
     </div>
   </div>
 
@@ -13,14 +37,11 @@
 
     <div class="filter-input">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
       </svg>
-      <input
-        type="text"
-        placeholder="Filtrer par nom..."
-        [(ngModel)]="filterNom"
-        (input)="filterUsers()"
-      />
+      <input type="text" placeholder="Filtrer par nom..."
+        [(ngModel)]="filterNom" (input)="filterUsers()" />
       <button class="clear-btn" *ngIf="filterNom" (click)="filterNom=''; filterUsers()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -30,14 +51,11 @@
 
     <div class="filter-input">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
       </svg>
-      <input
-        type="text"
-        placeholder="Filtrer par prénom..."
-        [(ngModel)]="filterPrenom"
-        (input)="filterUsers()"
-      />
+      <input type="text" placeholder="Filtrer par prénom..."
+        [(ngModel)]="filterPrenom" (input)="filterUsers()" />
       <button class="clear-btn" *ngIf="filterPrenom" (click)="filterPrenom=''; filterUsers()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -72,9 +90,7 @@
     <table class="users-table">
       <thead>
         <tr>
-          <th>Photo</th>
-          <th>Nom</th>
-          <th>Prénom</th>
+          <th>Utilisateur</th>
           <th>Email</th>
           <th>Téléphone</th>
           <th>Rôle</th>
@@ -83,34 +99,63 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of filteredUsers">
-          <td><img
-  [src]="user.photo ? user.photo : '/User-Profile.png'"
-  alt="photo"
-  class="avatar"
-/></td>
-          <td class="bold">{{ user.lastName }}</td>
-          <td>{{ user.firstName }}</td>
-          <td class="email">{{ user.email }}</td>
-          <td>{{ user.telephone }}</td>
+        <tr *ngFor="let user of filteredUsers" [class.row-inactive]="!user.statut">
+
           <td>
-           <span class="role-pill"
-      [class.admin]="user.role === 'ADMIN'"
-      [class.user]="user.role !== 'ADMIN'">
-  {{ user.role }}
-</span>
+            <div class="user-cell">
+              <div class="avatar-wrap">
+                <img *ngIf="user.photo" [src]="user.photo" alt="photo" class="avatar" />
+                <div *ngIf="!user.photo" class="avatar-fallback" [style.background]="getAvatarColor(user)">
+                  {{ user.firstName?.charAt(0) }}{{ user.lastName?.charAt(0) }}
+                </div>
+                <span class="status-ring" [class.sr-active]="user.statut" [class.sr-inactive]="!user.statut"></span>
+              </div>
+              <div>
+                <div class="user-name">{{ user.lastName }}</div>
+                <div class="user-firstname">{{ user.firstName }}</div>
+              </div>
+            </div>
           </td>
+
+          <td class="email-cell">{{ user.email }}</td>
+
           <td>
-  <span class="status-pill" [class.active]="user.statut" [class.inactive]="!user.statut">
-    {{ user.statut ? 'Actif' : 'Inactif' }}
-  </span>
-</td>
+            <div class="phone-cell">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              {{ user.telephone }}
+            </div>
+          </td>
+
+          <td>
+            <span class="role-pill"
+              [class.rp-admin]="user.role === 'ADMIN'"
+              [class.rp-user]="user.role !== 'ADMIN'">
+              <span class="rp-dot"></span>
+              {{ user.role | titlecase }}
+            </span>
+          </td>
+
+          <td>
+            <span class="status-pill" [class.sp-active]="user.statut" [class.sp-inactive]="!user.statut">
+              <span class="sp-dot"></span>
+              {{ user.statut ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+
           <td>
             <div class="actions">
-             <label class="switch">
-               <input type="checkbox" [checked]="user.statut" (change)="toggleStatus(user)"/>
-              <span class="slider"></span>
-             </label>  
+              <label class="switch">
+                <input type="checkbox" [checked]="user.statut" (change)="toggleStatus(user)" />
+                <span class="slider"></span>
+              </label>
+              <button class="btn-edit" title="Modifier">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
               <button class="btn-delete" (click)="deleteUser(user)" title="Supprimer">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="3 6 5 6 21 6"/>
@@ -124,11 +169,16 @@
         </tr>
 
         <tr *ngIf="filteredUsers.length === 0">
-          <td colspan="7" class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-            <p>Aucun utilisateur ne correspond aux filtres</p>
+          <td colspan="6" class="empty-state">
+            <div class="empty-inner">
+              <div class="empty-icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                </svg>
+              </div>
+              <p class="empty-title">Aucun utilisateur trouvé</p>
+              <p class="empty-sub">Modifiez vos filtres pour afficher des résultats</p>
+            </div>
           </td>
         </tr>
       </tbody>

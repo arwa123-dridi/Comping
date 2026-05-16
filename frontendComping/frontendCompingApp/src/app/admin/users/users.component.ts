@@ -15,7 +15,9 @@ export class UsersComponent implements OnInit {
 
   users: User[] = [];
   filteredUsers: User[] = [];
-
+activeCount = 0;
+adminCount = 0;
+inactiveCount = 0;
   filterNom = '';
   filterPrenom = '';
   filterRole = '';
@@ -53,6 +55,9 @@ export class UsersComponent implements OnInit {
       const matchRole = !role || u.role === role;
       return matchNom && matchPrenom && matchRole;
     });
+      this.activeCount   = this.filteredUsers.filter(u => u.statut).length;
+  this.inactiveCount = this.filteredUsers.filter(u => !u.statut).length;
+  this.adminCount    = this.filteredUsers.filter(u => u.role === 'ADMIN').length;
   }
 
   // Reset filtres
@@ -109,5 +114,16 @@ export class UsersComponent implements OnInit {
       console.error('Erreur lors du changement de statut', err);
     }
   });
+}
+getAvatarColor(user: any): string {
+  const colors = [
+    'linear-gradient(135deg,#6366f1,#8b5cf6)',
+    'linear-gradient(135deg,#0ea5e9,#0284c7)',
+    'linear-gradient(135deg,#f59e0b,#d97706)',
+    'linear-gradient(135deg,#10b981,#059669)',
+    'linear-gradient(135deg,#f43f5e,#e11d48)',
+  ];
+  const i = (user.firstName?.charCodeAt(0) || 0) % colors.length;
+  return colors[i];
 }
 }
