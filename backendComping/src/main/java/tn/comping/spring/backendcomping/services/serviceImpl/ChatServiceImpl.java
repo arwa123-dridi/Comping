@@ -450,12 +450,20 @@ public class ChatServiceImpl implements ChatService {
 
         messagingTemplate.convertAndSend("/topic/conversations/" + conversationId + "/call", signalMsg);
 
-        // Notification d'appel entrant pour tous les participants
-        getParticipants(conv).stream()
-                .filter(pid -> !pid.equals(senderKey))
-                .forEach(pid -> messagingTemplate.convertAndSend("/topic/user/" + pid + "/notifications",
-                        Map.of("type", "INCOMING_CALL", "callType", normalizedCallType,
-                               "conversationId", conversationId, "from", senderKey)));
+        // Notify of incoming call only for OFFER signals, not ANSWER/ICE/CALL_ENDED
+        boolean isOffer = false;
+        try {
+            JsonNode node = objectMapper.readTree(signalData);
+            isOffer = "OFFER".equals(node.path("type").asText(""));
+        } catch (Exception ignored) {}
+
+        if (isOffer) {
+            getParticipants(conv).stream()
+                    .filter(pid -> !pid.equals(senderKey))
+                    .forEach(pid -> messagingTemplate.convertAndSend("/topic/user/" + pid + "/notifications",
+                            Map.of("type", "INCOMING_CALL", "callType", normalizedCallType,
+                                   "conversationId", conversationId, "from", senderKey)));
+        }
     }
 
     // =========================================================

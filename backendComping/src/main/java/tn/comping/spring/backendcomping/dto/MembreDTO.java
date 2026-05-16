@@ -9,7 +9,6 @@ public class MembreDTO {
     private String email;
     private Boolean estOrganisateur;
     public void setPrenom(String firstName) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'setPrenom'");
     }
 }

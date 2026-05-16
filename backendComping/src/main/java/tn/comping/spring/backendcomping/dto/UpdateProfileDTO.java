@@ -1,14 +1,20 @@
 package tn.comping.spring.backendcomping.dto;
 
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
 @Data
 public class UpdateProfileDTO {
 
-    @Size(min = 3, max = 50, message = "Le nom doit faire entre 3 et 50 caractères")
-    private String name;
+    @JsonProperty("prenom")
+    @Size(min = 2, max = 50, message = "Le prénom doit faire entre 2 et 50 caractères")
+    private String firstName;
+
+    @JsonProperty("nom")
+    @Size(min = 2, max = 50, message = "Le nom doit faire entre 2 et 50 caractères")
+    private String lastName;
 
     @Email(message = "Email invalide")
     private String email;
@@ -16,17 +22,8 @@ public class UpdateProfileDTO {
     @Size(min = 8, max = 15, message = "Téléphone invalide")
     private String telephone;
 
+    @JsonProperty("adresse")
     private String address;
 
-    private String photo; // nouvelle photo
-
-    public Object getLastName() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getLastName'");
-    }
-
-    public String getFirstName() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getFirstName'");
-    }
+    private String photo;
 }

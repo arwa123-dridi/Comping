@@ -16,6 +16,6 @@ app-admin-header {
 
 /* CONTENT */
 .content {
-  flex: 1; /* ✅ prend tout l’espace restant */
+  flex: 1; /* ✅ prend tout l'espace restant */
   padding: 20px;
 }

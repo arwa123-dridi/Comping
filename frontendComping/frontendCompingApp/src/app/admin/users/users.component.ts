@@ -69,45 +69,46 @@ export class UsersComponent implements OnInit {
   }
 
   // Confirmer suppression
- confirmDelete(): void {
-  if (!this.userToDelete) return;
+  confirmDelete(): void {
+    if (!this.userToDelete) return;
 
-  const id = this.userToDelete.id;
+    const id = this.userToDelete.id;
 
-  this.userService.deleteUser(id).subscribe({
-    next: () => {
-      // 1. Mettre à jour la liste
-      this.users = this.users.filter(u => u.id !== id);
+    this.userService.deleteUser(id).subscribe({
+      next: () => {
+        // 1. Mettre à jour la liste
+        this.users = this.users.filter(u => u.id !== id);
 
-      // 2. Réappliquer les filtres
-      this.filterUsers();
+        // 2. Réappliquer les filtres
+        this.filterUsers();
 
-      // 3. Forcer la fermeture de la modal
-    setTimeout(() => {
-    this.userToDelete = null;
-  });
-    },
-    error: (err) => {
-      console.error('Erreur lors de la suppression', err);
-    }
-  });
-}
+        // 3. Forcer la fermeture de la modal
+        setTimeout(() => {
+          this.userToDelete = null;
+        });
+      },
+      error: (err) => {
+        console.error('Erreur lors de la suppression', err);
+      }
+    });
+  }
+
   // Annuler
   cancelDelete(): void {
     this.userToDelete = null;
   }
 
-
+  // Changer le statut d'un utilisateur
   toggleStatus(user: User): void {
-  const updatedStatus = !user.statut;
+    const updatedStatus = !user.statut;
 
-  this.userService.updateUserStatus(user.id, updatedStatus).subscribe({
-    next: () => {
-      user.statut = updatedStatus;
-    },
-    error: (err) => {
-      console.error('Erreur lors du changement de statut', err);
-    }
-  });
-}
+    this.userService.updateUserStatus(user.id, updatedStatus).subscribe({
+      next: () => {
+        user.statut = updatedStatus;
+      },
+      error: (err) => {
+        console.error('Erreur lors du changement de statut', err);
+      }
+    });
+  }
 }

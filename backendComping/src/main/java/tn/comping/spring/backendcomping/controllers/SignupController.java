@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
 import tn.comping.spring.backendcomping.dto.SignupDTO;
@@ -13,7 +12,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-
 public class SignupController {
 
     private final SignupService signupService;
@@ -32,6 +30,4 @@ public class SignupController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
-
 }

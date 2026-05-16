@@ -20,7 +20,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -34,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authHeader.substring(7); // enlever "Bearer "
+        String token = authHeader.substring(7);
 
         if (jwtUtils.validateJwtToken(token)) {
             String email = jwtUtils.getEmailFromToken(token);
@@ -53,5 +52,4 @@ public class JwtFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
 }

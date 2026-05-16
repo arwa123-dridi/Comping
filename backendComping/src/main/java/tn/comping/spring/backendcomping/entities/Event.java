@@ -42,5 +42,5 @@ public class Event {
     private double longitude;
     private String saison;
     private int dureeEnHeures;
-
+    private int pointsRecompense= 50; ;
 }

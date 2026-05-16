@@ -17,7 +17,7 @@ import { CommunitySidebarComponent } from '../shared/community-sidebar/community
   styleUrls: ['./avis.component.css']
 })
 export class AvisComponent implements OnInit, OnDestroy {
-  // Paramètres de modération IA (UI-only)
+  // Préférences de modération IA — stockées localement pour l'UI, non encore synchronisées avec le backend
   aiSettings = {
     autoValidate5stars: true,
     detectInappropriate: true,
@@ -105,6 +105,7 @@ export class AvisComponent implements OnInit, OnDestroy {
     this.loadAvis();
   }
 
+  // Chaque onglet appelle un endpoint différent : les avis "tous" ne montrent que les VALIDES, "mes-avis" montre tous les statuts
   loadAvis(): void {
     this.loading = true;
     this.error = '';
@@ -132,6 +133,7 @@ export class AvisComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Filtrage chaîné : statut d'abord (seulement dans "mes-avis"), puis recherche textuelle sur commentaire + nom
   applyFilters(): void {
     let filtered = [...this.avis];
 
@@ -223,6 +225,7 @@ export class AvisComponent implements OnInit, OnDestroy {
     this.editingAvis = null;
   }
 
+  // Modifier un avis le repasse en EN_ATTENTE — il doit être revalidé par un admin
   confirmEdit(): void {
     if (!this.editingAvis) return;
     if (!this.editForm.commentaire.trim()) { this.error = 'Le commentaire est obligatoire.'; return; }

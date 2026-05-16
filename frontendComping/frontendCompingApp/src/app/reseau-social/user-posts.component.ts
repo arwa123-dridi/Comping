@@ -10,6 +10,7 @@ import { CommunityService, PostResponse } from '../services/community.service';
   templateUrl: './user-posts.component.html',
   styleUrls: ['./user-posts.component.css']
 })
+// Vue profil public d'un campeur : affiche uniquement ses posts PUBLIC/AMIS visibles par l'utilisateur connecté
 export class UserPostsComponent implements OnInit {
   posts: PostResponse[] = [];
   userId = '';

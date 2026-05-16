@@ -7,7 +7,7 @@ import {
   CommunityService, MessageResponse, ConversationResponse
 } from '../services/community.service';
 import { VoiceRecorderService } from '../services/voice-recorder.service';
-import { WebRtcService } from '../services/webrtc.service';
+import { WebRtcService, CallDeclinedEvent } from '../services/webrtc.service';
 
 @Component({
   selector: 'app-chat-conversation',
@@ -102,6 +102,26 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
         this.callerName = state.remoteUserName || '';
       })
     );
+
+    // Listen to declined calls → insert a system message in the chat
+    this.subs.push(
+      this.webrtc.callDeclined$.subscribe((event: CallDeclinedEvent) => {
+        const isMine = event.byEmail === this.community.getCurrentEmail();
+        const displayName = isMine ? 'Vous' : (this.getOtherName() || event.byEmail);
+        const fake: MessageResponse = {
+          id: 'declined-' + Date.now(),
+          conversationId: this.conversationId,
+          expediteurId: event.byEmail,
+          expediteurNom: displayName,
+          contenu: event.callType,
+          typeMessage: 'CALL_DECLINED',
+          dateCreation: new Date().toISOString(),
+          lu: true
+        } as any;
+        this.messages = [...this.messages, fake];
+        this.shouldScroll = true;
+      })
+    );
   }
 
   private switchConversation(id: string): void {
@@ -163,6 +183,7 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
     this.fetchAllMessages(0, []);
   }
 
+  // Chargement paginé (100 msgs/page) pour ne pas bloquer le rendu sur les longues conversations
   private fetchAllMessages(page: number, accumulated: MessageResponse[]): void {
     const PAGE_SIZE = 100;
     this.community.getMessages(this.conversationId, page, PAGE_SIZE).subscribe({
@@ -434,6 +455,10 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
     }
   }
 
+  declineCall(): void {
+    this.webrtc.declineCall();
+  }
+
   endCall(): void {
     this.webrtc.endCall();
   }
@@ -455,6 +480,7 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
            message.expediteurNom === this.currentUserKey;
   }
 
+  // Fenêtre de modification/suppression limitée à 10 min après envoi — contrainte aussi vérifiée côté serveur
   canMutateMessage(message: MessageResponse): boolean {
     if (!message || !this.isMine(message) || this.isCallMessage(message)) return false;
     const created = new Date(message.dateCreation).getTime();
@@ -466,9 +492,19 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
   }
 
   formatCallMessage(message: MessageResponse): string {
-    if (message.typeMessage?.includes('AUDIO')) return '📞 Appel audio';
-    if (message.typeMessage?.includes('VIDEO')) return '📹 Appel vidéo';
-    return '📞 Appel';
+    if (message.typeMessage === 'CALL_DECLINED') {
+      const label = message.contenu === 'VIDEO' ? 'vidéo' : 'audio';
+      return `Appel ${label} refusé`;
+    }
+    if (message.typeMessage?.includes('AUDIO')) return 'Appel audio';
+    if (message.typeMessage?.includes('VIDEO')) return 'Appel vidéo';
+    return 'Appel';
+  }
+
+  callMessageIcon(message: MessageResponse): string {
+    if (message.typeMessage === 'CALL_DECLINED') return '📵';
+    if (message.typeMessage?.includes('AUDIO')) return '📞';
+    return '📹';
   }
 
   formatDuration(seconds: number): string {
@@ -502,9 +538,14 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
 
   formatTime(dateStr: string): string {
     if (!dateStr) return '';
-    return new Date(dateStr).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const d = new Date(dateStr);
+    const today = new Date();
+    const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    if (d.toDateString() === today.toDateString()) return time;
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' · ' + time;
   }
 
+  // Affiche un séparateur de date entre deux messages de jours différents pour grouper la conversation
   shouldShowDateSeparator(index: number): boolean {
     if (index === 0) return true;
     const prev = new Date(this.messages[index - 1].dateCreation);
@@ -633,6 +674,7 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
     });
   }
 
+  // Routage des événements WebSocket : MESSAGE_UPDATED/DELETED sont des mutations, les CALL* sont des signaux WebRTC, le reste sont de nouveaux messages
   private handleRealtimeBody(body: string): void {
     try {
       const payload = JSON.parse(body);
@@ -651,7 +693,9 @@ export class ChatConversationComponent implements OnInit, OnDestroy, AfterViewCh
         return;
       }
       if (payload.typeMessage?.includes('CALL') || payload.callData) {
-        // Geré via WebRtcService
+        if (payload.callData) {
+          this.webrtc.handleSignal(payload.callData, this.conversationId).catch(() => {});
+        }
         return;
       }
       const exists = this.messages.some(m => m.id === payload.id);

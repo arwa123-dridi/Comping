@@ -394,11 +394,9 @@ export class CommunityService {
   }
 
   // ============================================================
-  // POSTS
-  // ============================================================
-  // ============================================================
   // ABONNEMENTS (follow/unfollow)
   // ============================================================
+  // L'id d'un campeur = son email — cohérent avec auteurId des posts et expediteurId des messages
   getCampeurs(): Observable<CampeurInfo[]> {
     return this.http.get<any[]>(`${this.baseUrl}/api/users`, { headers: this.authHeaders() }).pipe(
       map(users => users
@@ -456,6 +454,7 @@ export class CommunityService {
     return this.http.post<PostResponse>(`${this.baseUrl}/api/posts`, payload, { headers: this.authHeaders() });
   }
 
+  // FormData nécessaire car le back attend multipart/form-data : le JSON du post + les fichiers images séparés
   createPostWithImages(payload: PostRequest, images: File[]): Observable<PostResponse> {
     const formData = new FormData();
     formData.append('post', JSON.stringify(payload));
@@ -613,6 +612,7 @@ export class CommunityService {
       `${this.baseUrl}/api/chat/attachment`, formData, { headers: this.authHeaders() });
   }
 
+  // La signalisation WebRTC (OFFER/ANSWER/ICE) transite par HTTP puis est relayée via WebSocket côté serveur
   sendCallSignal(conversationId: string, signalData: string, callType: 'AUDIO' | 'VIDEO' = 'VIDEO'): Observable<void> {
     return this.http.post<void>(
       `${this.baseUrl}/api/chat/call/${conversationId}/signal?callType=${callType}`,
@@ -645,6 +645,7 @@ export class CommunityService {
     this._appNotifs.next([]);
   }
 
+  // Alimente la cloche de notifications (max 50 entrées) — USER_STATUS exclu car c'est un statut temps réel, pas une action
   private pushAppNotification(raw: SocialNotification): void {
     if (raw.type === 'USER_STATUS') return; // statut en ligne = pas de cloche
     const labels: Partial<Record<SocialNotification['type'], string>> = {
@@ -680,6 +681,7 @@ export class CommunityService {
     return token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : new HttpHeaders();
   }
 
+  // Décodage côté client uniquement (pas de /me API) — le payload JWT contient sub=email, id, role
   private decodeToken(): JwtPayload | null {
     const token = localStorage.getItem('authToken');
     if (!token) return null;

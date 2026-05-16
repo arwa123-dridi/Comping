@@ -1,7 +1,6 @@
 package tn.comping.spring.backendcomping.utils.mapper;
 
 import tn.comping.spring.backendcomping.entities.SignupEntity;
-
 import tn.comping.spring.backendcomping.dto.SignupDTO;
 
 public class SignupMapper {
@@ -12,12 +11,13 @@ public class SignupMapper {
 
         return SignupEntity.builder()
                 .firstName(dto.getFirstName())
-                .lastName(dto.getlastName())
+                .lastName(dto.getLastName())
                 .email(dto.getEmail())
                 .password(dto.getPassword())
                 .telephone(dto.getTelephone())
                 .address(dto.getAddress())
                 .role(dto.getRole())
+                .statut(dto.isStatut())
                 .build();
     }
 
@@ -33,6 +33,7 @@ public class SignupMapper {
                 .telephone(entity.getTelephone())
                 .address(entity.getAddress())
                 .role(entity.getRole())
+                .statut(entity.isStatut())
                 .build();
     }
 }

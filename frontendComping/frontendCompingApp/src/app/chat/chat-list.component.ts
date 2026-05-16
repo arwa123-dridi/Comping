@@ -55,7 +55,7 @@ export class ChatListComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Real-time online status update
+    // Mise à jour optimiste du statut en ligne sans rechargement API — poussé par WebSocket depuis le backend
     this.subs.push(
       this.community.userStatusChanges$.subscribe(({ userId, online }) => {
         this.conversations.forEach(c => {
@@ -231,6 +231,7 @@ export class ChatListComponent implements OnInit, OnDestroy {
     return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
   }
 
+  // Aperçu tronqué des membres d'un groupe pour éviter l'overflow dans la liste
   participantPreview(conv: ConversationResponse): string {
     if (!conv.groupe || !conv.participantNoms) return '';
     if (conv.participantNoms.length <= 3) return conv.participantNoms.join(', ');
@@ -243,6 +244,7 @@ export class ChatListComponent implements OnInit, OnDestroy {
     return parts.filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase() || userId[0].toUpperCase();
   }
 
+  // En conversation directe, l'autre participant n'est pas toujours participant2 (dépend de qui a initié)
   private otherParticipantId(conv: ConversationResponse): string {
     const current = this.community.getCurrentEmail();
     return conv.participant1Id === current ? (conv.participant2Id || '') : (conv.participant1Id || '');

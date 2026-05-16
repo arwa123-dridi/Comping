@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class ProfileServiceImpl implements IProfileService { // ✅ IMPLEMENTS l'interface
+public class ProfileServiceImpl implements IProfileService { //✅ IMPLEMENTS l'interface
 
     private final SignupRepository signupRepository;
     private final PasswordEncoder passwordEncoder;

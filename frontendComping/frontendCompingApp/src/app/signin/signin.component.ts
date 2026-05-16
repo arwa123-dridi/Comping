@@ -20,10 +20,10 @@ export class SigninComponent {
   isLoading    = false;
   errorMsg     = '';
 
-
-  constructor(private signinService: SigninService,
-              private router: Router,
-              private route: ActivatedRoute
+  constructor(
+    private signinService: SigninService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   togglePassword(): void {
@@ -45,20 +45,46 @@ export class SigninComponent {
       next: (res: LoginDTOResponse) => {
         this.isLoading = false;
         console.log('Login réussi', res);
-        this.signinService.saveToken(res.token);
-        console.log("TOKEN IN LOCALSTORAGE:", localStorage.getItem('authToken'));
-        void this.router.navigateByUrl(this.getReturnUrl());
+        
+        // Récupération du rôle depuis le localStorage (déjà sauvegardé par le service)
+        const role = localStorage.getItem('userRole') ?? 'USER';
+
+        // Si returnUrl présent (ex: venant de social home), priorité absolue
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        if (returnUrl && returnUrl.startsWith('/')) {
+          this.router.navigateByUrl(returnUrl);
+          return;
+        }
+
+        // Redirection par défaut selon le rôle
+        if (role === 'ADMIN' || role === 'ROLE_ADMIN' ||
+            role === 'ORGANISATEUR' || role === 'ROLE_ORGANISATEUR') {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMsg = 'Email ou mot de passe incorrect.';
         console.error('Erreur login', err);
+
+        const message = err?.error?.message;
+
+        // Gestion d'erreur enrichie
+        if (err.status === 403 || message === "ACCOUNT_DISABLED") {
+          this.errorMsg = "Votre compte est désactivé";
+        } 
+        else if (err.status === 401 || message === "INVALID_PASSWORD") {
+          this.errorMsg = "Email ou mot de passe incorrect.";
+        } 
+        else if (err.status === 0) {
+          this.errorMsg = "Serveur inaccessible (port 8087).";
+        } 
+        else {
+          this.errorMsg = err.error?.message ?? "Erreur de connexion.";
+        }
       }
     });
   }
 
-  private getReturnUrl(): string {
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-    return returnUrl && returnUrl.startsWith('/') ? returnUrl : '/Campino';
-  }
 }

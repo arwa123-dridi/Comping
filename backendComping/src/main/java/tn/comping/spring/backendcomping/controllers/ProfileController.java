@@ -27,10 +27,11 @@ public class ProfileController {
     }
 
     @PutMapping("/{userId}/profile")
-    public ResponseEntity<SignupEntity> updateProfile(
+    public ResponseEntity<String> updateProfile(
             @PathVariable String userId,
             @Valid @RequestBody UpdateProfileDTO dto) {
-        return ResponseEntity.ok(profileService.updateProfile(userId, dto));
+        profileService.updateProfile(userId, dto);
+        return ResponseEntity.ok("Profil mis à jour avec succès");
     }
 
     @PutMapping("/{userId}/password")
@@ -44,31 +45,32 @@ public class ProfileController {
     public ResponseEntity<String> updatePhoto(
             @PathVariable String userId,
             @RequestBody Map<String, String> request) {
-        String photoUrl = request.get("photo");  // ← Récupère la photo du body
+        String photoUrl = request.get("photo");
         return ResponseEntity.ok(profileService.updatePhoto(userId, photoUrl));
     }
+
     @GetMapping("/by-email/{email}")
     public ResponseEntity<SignupEntity> getUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(profileService.getUserByEmail(email));
     }
+
     @GetMapping(Constants.GET_ALL_USERS)
     public ResponseEntity<List<SignupEntity>> getAllUsers() {
         return ResponseEntity.ok(profileService.getAllUsers());
     }
+
     @DeleteMapping(Constants.DELETE_USER)
     public ResponseEntity<String> deleteUser(@PathVariable String userId) {
         profileService.deleteUser(userId);
         return ResponseEntity.ok("Utilisateur supprimé");
     }
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<SignupEntity> updateStatus(
             @PathVariable String id,
             @RequestBody Map<String, Boolean> body) {
-
         boolean statut = body.get("statut");
-
         SignupEntity updatedUser = profileService.updateStatus(id, statut);
-
         return ResponseEntity.ok(updatedUser);
     }
 }

@@ -95,6 +95,19 @@ export class PostsFeedComponent implements OnInit, OnDestroy {
     return this.community.isAdmin();
   }
 
+  get isOrganizer(): boolean {
+    return this.community.isAdmin() || this.community.isOrganisateur();
+  }
+
+  goToCreateEvent(): void {
+    if (this.isOrganizer) {
+      void this.router.navigate(['/events/add']);
+    } else {
+      this.error = 'Accès réservé aux organisateurs.';
+      setTimeout(() => this.error = '', 4000);
+    }
+  }
+
   ngOnInit(): void {
     this.community.connectNotificationsSocket();
     this.loadFeed();
@@ -244,6 +257,7 @@ export class PostsFeedComponent implements OnInit, OnDestroy {
     return new Set(this.posts.map(post => post.auteurId).filter(Boolean)).size;
   }
 
+  // Changer de mode réinitialise le hashtag actif et recharge le fil depuis l'API correspondante
   setFeedMode(mode: FeedMode): void {
     this.showOverview = false;
     this.feedMode = mode;
@@ -570,6 +584,7 @@ export class PostsFeedComponent implements OnInit, OnDestroy {
     return d.toLocaleDateString('fr-FR');
   }
 
+  // Agrège les hashtags de tous les posts du fil courant — pas un appel API, calculé en mémoire sur la fenêtre chargée
   private computeTrendingHashtags(): void {
     const counts: Record<string, number> = {};
     this.posts.forEach(p => (p.hashtags || []).forEach(h => counts[h] = (counts[h] || 0) + 1));
@@ -579,6 +594,7 @@ export class PostsFeedComponent implements OnInit, OnDestroy {
       .slice(0, 8);
   }
 
+  // Stories = auteurs distincts du fil (hors soi-même) — simule la fonctionnalité stories des réseaux sociaux
   get stories(): {id: string; nom: string; photo?: string}[] {
     const me = this.community.getCurrentEmail();
     const seen = new Set<string>();
@@ -626,6 +642,7 @@ export class PostsFeedComponent implements OnInit, OnDestroy {
     void this.router.navigate(['/community/user', userId]);
   }
 
+  // trendScore est calculé côté backend (likes + commentaires + réactions pondérés) — on trie ici pour l'affichage
   private computeRecommandations(): void {
     this.recommandations = [...this.posts]
       .filter(p => (p.trendScore || 0) > 0)
@@ -661,6 +678,7 @@ export class PostsFeedComponent implements OnInit, OnDestroy {
   }
 
   // ─── @MENTION ───────────────────────────────────────
+  // Détection du @ en fin de saisie pour déclencher l'autocomplete de mention — regex sur le dernier mot commençant par @
   onCommentInput(postId: string, event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.commentDrafts[postId] = value;

@@ -71,7 +71,7 @@
     </div>
     <div class="call-actions">
       <button class="accept-call" (click)="acceptCall()" title="Accepter">✓</button>
-      <button class="reject-call" (click)="endCall()" title="Refuser">✕</button>
+      <button class="reject-call" (click)="declineCall()" title="Refuser">✕</button>
     </div>
   </section>
 
@@ -117,8 +117,9 @@
       </div>
 
       <!-- Call message -->
-      <div class="call-event-message" *ngIf="isCallMessage(message)">
-        <span class="call-event-icon">{{ message.typeMessage.includes('AUDIO') ? '📞' : '📹' }}</span>
+      <div class="call-event-message" *ngIf="isCallMessage(message)"
+           [class.call-declined]="message.typeMessage === 'CALL_DECLINED'">
+        <span class="call-event-icon">{{ callMessageIcon(message) }}</span>
         <span>{{ message.expediteurNom }} · {{ formatCallMessage(message) }}</span>
         <span class="call-event-time">{{ formatTime(message.dateCreation) }}</span>
       </div>

@@ -511,6 +511,12 @@
 .call-event-icon { font-size: 14px; }
 .call-event-time { margin-left: auto; font-size: 11px; opacity: .65; }
 
+.call-event-message.call-declined {
+  background: #fff5f5;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
 /* ── Message row ─────────────────────────────────── */
 .message-row {
   display: flex;

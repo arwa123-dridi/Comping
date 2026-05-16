@@ -1,12 +1,13 @@
+<app-fidelite-component *ngIf="userRole !== 'ORGANISATEUR'"></app-fidelite-component>
 <div class="page">
   <header class="main-header">
     <div class="header-content">
       <div class="title-section">
         <h1>Événements disponibles</h1>
         <span class="count-badge">{{ events.length }} expéditions trouvées</span>
-        
         <div class="header-actions">
-          <button class="btn-primary" (click)="onCreateEvent()">
+           <ng-container *ngIf="userRole === 'ORGANISATEUR'">
+          <button class="btn-primary"  (click)="onCreateEvent()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -19,9 +20,13 @@
             </svg>
             Nouvelle activité
           </button>
-          <a routerLink="/activities/list" class="btn-outline nav-link">
+          </ng-container>
+            <a routerLink="/activities/list" class="btn-outline nav-link">
             📋 Liste des activités
           </a>
+           <a routerLink="/recommendation" class="btn-ai nav-link" *ngIf="userRole === 'USER'">
+    🤖 Events pour moi
+  </a>
         </div>
       </div>
 
@@ -105,13 +110,55 @@
           </div>
 
           <div class="action-buttons">
-            <button class="icon-btn edit" (click)="editEvent(event)" title="Modifier">
+             <button class="icon-btn details" (click)="openDetails(event)" title="Voir détails">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+  </button>
+   <!-- ✅ Bouton Participer -->
+  <button class="icon-btn participate" 
+          (click)="participate(event.idEvent)" *ngIf="userRole === 'USER'"
+          title="Participer"
+          [disabled]="event.statut !== 'VALIDE'">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+      <circle cx="9" cy="7" r="4"></circle>
+      <line x1="19" y1="8" x2="19" y2="14"></line>
+      <line x1="22" y1="11" x2="16" y2="11"></line>
+    </svg>
+  </button>
+  <!-- ✅ Bouton Payer -->
+<button class="icon-btn pay" 
+        (click)="payEvent(event.idEvent)" *ngIf="userRole === 'USER'"
+        title="Payer"
+        [disabled]="event.statut !== 'VALIDE'">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+    <line x1="1" y1="10" x2="23" y2="10"></line>
+  </svg>
+</button>
+  <!-- ✅ Bouton Annuler participation -->
+<button class="icon-btn cancel-participate"
+        (click)="event.idEvent && cancelParticipation(event.idEvent)"
+        *ngIf="userRole === 'USER'"
+        title="Annuler participation"
+        [disabled]="event.statut !== 'VALIDE'">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+    <circle cx="9" cy="7" r="4"></circle>
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+</button>
+            <button class="icon-btn edit" (click)="editEvent(event)" *ngIf="userRole === 'ORGANISATEUR'" title="Modifier">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
               </svg>
             </button>
-            <button class="icon-btn delete" (click)="deleteEvent(event.idEvent)" title="Supprimer">
+            <button class="icon-btn delete" (click)="deleteEvent(event.idEvent)" *ngIf="userRole === 'ORGANISATEUR'" title="Supprimer">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -127,4 +174,180 @@
     <div class="empty-icon">🏕️</div>
     <p>Aucune aventure prévue pour le moment.</p>
   </div>
+  <!-- ✅ MODALE DÉTAILS -->
+<div class="modal-overlay" *ngIf="selectedEvent" (click)="closeDetails()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+
+    <!-- Barre de statut colorée -->
+    <div class="modal-top-bar" [ngClass]="getTopBarClass(selectedEvent.statut)"></div>
+
+    <!-- Header modale -->
+    <div class="modal-header">
+      <div>
+        <h2 class="modal-titre">{{ selectedEvent.titre }}</h2>
+        <span class="badge" [ngClass]="getStatutClass(selectedEvent.statut)">
+          {{ selectedEvent.statut }}
+        </span>
+      </div>
+      <button class="close-btn" (click)="closeDetails()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body modale -->
+    <div class="modal-body">
+
+  <!-- Description -->
+  <div class="detail-section">
+    <h4 class="section-label">📝 Description</h4>
+    <p class="detail-text">{{ selectedEvent.description }}</p>
+  </div>
+
+  <!-- Grille principale -->
+  <div class="detail-grid">
+    <div class="detail-item">
+      <span class="detail-icon">👥</span>
+      <div>
+        <span class="detail-label">Capacité</span>
+        <span class="detail-value">{{ selectedEvent.capacite }} places</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">💰</span>
+      <div>
+        <span class="detail-label">Prix</span>
+        <span class="detail-value price-highlight">{{ selectedEvent.prix | number:'1.2-2' }} DT / pers.</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">📍</span>
+      <div>
+        <span class="detail-label">Lieu</span>
+        <span class="detail-value">{{ selectedEvent.lieu }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">🏷️</span>
+      <div>
+        <span class="detail-label">Catégorie</span>
+        <span class="detail-value">{{ selectedEvent.categorie }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">📅</span>
+      <div>
+        <span class="detail-label">Date début</span>
+        <span class="detail-value">{{ selectedEvent.dateDebut | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">🏁</span>
+      <div>
+        <span class="detail-label">Date fin</span>
+        <span class="detail-value">{{ selectedEvent.dateFin | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">⏱️</span>
+      <div>
+        <span class="detail-label">Durée</span>
+        <span class="detail-value">{{ selectedEvent.dureeEnHeures }}h</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">🌤️</span>
+      <div>
+        <span class="detail-label">Saison</span>
+        <span class="detail-value">{{ selectedEvent.saison }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">💪</span>
+      <div>
+        <span class="detail-label">Niveau difficulté</span>
+        <span class="detail-value">{{ selectedEvent.niveauDifficulte }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">🎂</span>
+      <div>
+        <span class="detail-label">Tranche d'âge</span>
+        <span class="detail-value">{{ selectedEvent.trancheAge }} ans</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">🗺️</span>
+      <div>
+        <span class="detail-label">Coordonnées GPS</span>
+        <span class="detail-value">{{ selectedEvent.latitude }}, {{ selectedEvent.longitude }}</span>
+      </div>
+    </div>
+
+    <div class="detail-item">
+      <span class="detail-icon">📆</span>
+      <div>
+        <span class="detail-label">Créé le</span>
+        <span class="detail-value">{{ selectedEvent.createdAt | date:'dd/MM/yyyy' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tags -->
+  <div class="detail-section" *ngIf="selectedEvent.tags?.length">
+    <h4 class="section-label">🔖 Tags</h4>
+    <div class="tags-row">
+      <span class="tag-pill" *ngFor="let tag of selectedEvent.tags">{{ tag }}</span>
+    </div>
+  </div>
+
+  <!-- Activités -->
+  <div class="detail-section" *ngIf="selectedEvent.activities?.length">
+    <h4 class="section-label">🏃 Activités associées</h4>
+    <div class="activities-row">
+      <span class="activity-tag" *ngFor="let act of selectedEvent.activities">
+        <span class="tag-dot"></span>
+        {{ act.nom }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Participants -->
+  <div class="detail-section">
+    <h4 class="section-label">🙋 Participants inscrits</h4>
+    <p class="detail-text" *ngIf="!selectedEvent.participantIds?.length">
+      Aucun participant pour le moment.
+    </p>
+    <p class="detail-text" *ngIf="selectedEvent.participantIds?.length">
+      {{ selectedEvent.participantIds.length }} participant(s) inscrit(s)
+    </p>
+       <ul>
+  
+    </ul>
+  </div>
+
+</div>
+
+    <!-- Footer modale -->
+    <div class="modal-footer">
+      <button class="btn-outline-dark" (click)="closeDetails()">Fermer</button>
+      <button class="btn-primary" *ngIf="userRole === 'ORGANISATEUR'" (click)="editEvent(selectedEvent); closeDetails()">
+        ✏️ Modifier
+      </button>
+    </div>
+
+  </div>
+</div>
 </div>

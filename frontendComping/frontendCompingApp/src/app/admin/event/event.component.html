@@ -4,6 +4,7 @@
     <h2>Liste des événements</h2>
     <p class="subtitle">{{ filteredEvents.length }} événement(s) trouvé(s)</p>
   </div>
+
   <div class="filters">
     <div class="filter-input">
       <i class="pi pi-search"></i>
@@ -57,32 +58,35 @@
               />
               <span class="slider"></span>
             </label>
-            <button class="btn-del" (click)="openDeletePopup(event.idEvent!)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                  <path d="M10 11v6"/><path d="M14 11v6"/>
-                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                </svg>
-            </button>
 
+            <button class="btn-del" (click)="openDeletePopup(event.idEvent!)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6"/>
+                <path d="M14 11v6"/>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              </svg>
+            </button>
           </td>
-      </tr>
+        </tr>
         <tr *ngIf="filteredEvents.length === 0">
           <td colspan="6" class="empty">Aucun événement trouvé.</td>
         </tr>
       </tbody>
     </table>
   </div>
-<div class="modal-overlay" *ngIf="showDeletePopup">
-  <div class="modal">
-    <h3>Confirmer la suppression</h3>
-    <p>Êtes-vous sûr de vouloir supprimer cet événement ?</p>
 
-    <div class="modal-actions">
-      <button class="btn-cancel" (click)="closePopup()">Annuler</button>
-      <button class="btn-confirm" (click)="confirmDelete()">Supprimer</button>
+  <!-- Modal de confirmation de suppression -->
+  <div class="modal-overlay" *ngIf="showDeletePopup">
+    <div class="modal">
+      <h3>Confirmer la suppression</h3>
+      <p>Êtes-vous sûr de vouloir supprimer cet événement ?</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closePopup()">Annuler</button>
+        <button class="btn-confirm" (click)="confirmDelete()">Supprimer</button>
+      </div>
     </div>
   </div>
-</div>
+
 </div>

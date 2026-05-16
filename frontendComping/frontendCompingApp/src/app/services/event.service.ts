@@ -20,7 +20,7 @@ console.log("TOKEN:", token);
     headers: token
       ? { Authorization: `Bearer ${token}` }
       : {}
-  });
+  })
   }
 
   toggleStatut(id: string, statut: string): Observable<EventModel> {
@@ -93,4 +93,23 @@ getEventById(id: string): Observable<EventModel> {
       headers: token ? { Authorization: `Bearer ${token}` } : {}
     });
   }
+participate(eventId: string): Observable<any> {
+  const token = localStorage.getItem('authToken');
+  return this.http.post(
+    `${this.apiUrl}/${eventId}/participate`,
+    {},  // body vide
+    {    // options
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    }
+  );
+}
+cancelParticipation(eventId: string): Observable<any> {
+  const token = localStorage.getItem('authToken');
+  return this.http.delete(
+    `${this.apiUrl}/${eventId}/cancel`,
+    {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    }
+  );
+}
 }

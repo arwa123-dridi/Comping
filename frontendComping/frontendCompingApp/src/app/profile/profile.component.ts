@@ -1,282 +1,232 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { SortieService } from '../services/sortie.service';
+import { EquipeService } from '../services/equipe.service';
+import { SigninService } from '../services/signin.service';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, HttpClientModule, CommonModule], // ✅ Même imports que ta collègue
+  imports: [ReactiveFormsModule, CommonModule, HttpClientModule, RouterModule],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
 export class ProfileComponent implements OnInit {
-  
+
   profileForm: FormGroup;
   passwordForm: FormGroup;
-  
-  successMessage: string = '';
-  errorMessage: string = '';
-  
-  userId: string = '';
-  userEmail: string = '';
-  userPhoto: string = 'assets/default-avatar.png';
-  
-  isLoading: boolean = false;
+
+  successMessage = '';
+  errorMessage = '';
+  userId = '';
+  userEmail = '';
+  userPhoto = 'assets/default-avatar.png';
+  userInitiales = 'U';
+  userRole = 'USER';
+  isLoading = false;
+
+  // Stats réelles
+  totalSorties = 0;
+  totalEquipes = 0;
+  totalSortiesCompletees = 0;
+  niveauPrincipal = '—';
+  statsLoading = true;
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private sortieService: SortieService,
+    private equipeService: EquipeService,
+    private signinService: SigninService
   ) {
-    // Formulaire d'informations personnelles
     this.profileForm = this.fb.group({
-      name: ['', [Validators.minLength(3)]],
-      email: ['', [Validators.email]],
-      telephone: [''],
-      address: ['']
+      firstName: ['', [Validators.minLength(2), Validators.maxLength(50)]],
+      lastName:  ['', [Validators.minLength(2), Validators.maxLength(50)]],
+      email:     ['', [Validators.email]],
+      telephone: ['', [Validators.minLength(8), Validators.maxLength(15)]],
+      address:   ['']
     });
 
-    // Formulaire de changement de mot de passe
     this.passwordForm = this.fb.group({
-      oldPassword: ['', [Validators.required, Validators.minLength(6)]],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
+      oldPassword:     ['', [Validators.required, Validators.minLength(6)]],
+      newPassword:     ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(6)]]
     }, { validators: this.passwordMatchValidator });
   }
 
   ngOnInit(): void {
     this.loadUserFromToken();
+    this.loadStats();
   }
 
   passwordMatchValidator(g: FormGroup) {
-    const newPassword = g.get('newPassword')?.value;
-    const confirmPassword = g.get('confirmPassword')?.value;
-    return newPassword === confirmPassword ? null : { mismatch: true };
+    return g.get('newPassword')?.value === g.get('confirmPassword')?.value ? null : { mismatch: true };
+  }
+
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      'Content-Type': 'application/json'
+    });
   }
 
   loadUserFromToken(): void {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      this.router.navigate(['/login']);
-      return;
-    }
+    this.userId    = localStorage.getItem('userId') ?? '';
+    this.userEmail = localStorage.getItem('userEmail') ?? '';
+    this.userRole  = localStorage.getItem('userRole') ?? 'USER';
+    const nom    = localStorage.getItem('userNom') ?? '';
+    const prenom = localStorage.getItem('userPrenom') ?? '';
+    const fn = prenom || nom.split(' ')[0] || '';
+    const ln = nom.split(' ').slice(1).join(' ') || '';
+    this.profileForm.patchValue({ firstName: fn, lastName: ln, email: this.userEmail });
 
-    try {
-      // Décoder le token JWT
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      this.userEmail = payload.sub;
-      
-      // Récupérer l'utilisateur par email
-      this.http.get<any>(`http://localhost:8087/api/users/by-email/${this.userEmail}`)
-        .subscribe({
-          next: (user) => {
-            this.userId = user.id;
-            this.loadUserProfile();
-          },
-          error: (err) => {
-            console.error('Erreur récupération utilisateur', err);
-            this.router.navigate(['/login']);
-          }
-        });
-    } catch (e) {
-      console.error('Token invalide', e);
-      this.router.navigate(['/login']);
-    }
+    const full = (fn || ln) ? `${fn} ${ln}`.trim() : (this.userEmail.split('@')[0] || 'U');
+    this.userInitiales = full.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
+
+    if (!this.userId) return;
+    this.http.get<any>(`http://localhost:8087/api/users/${this.userId}`, { headers: this.getHeaders() })
+      .subscribe({
+        next: (u) => {
+          this.profileForm.patchValue({
+            firstName: u.prenom || u.firstName || fn,
+            lastName:  u.nom || u.lastName || ln,
+            email:     u.email || this.userEmail,
+            telephone: u.telephone || '',
+            address:   u.adresse || u.address || ''
+          });
+          if (u.photo) this.userPhoto = u.photo;
+        },
+        error: () => {}
+      });
   }
 
-  loadUserProfile(): void {
-  this.isLoading = true;
-  
-  this.http.get<any>(`http://localhost:8087/api/users/${this.userId}`)
-    .subscribe({
-      next: (user) => {
-        console.log('Utilisateur reçu:', user); // ← GARDE
-        
-        this.profileForm.patchValue({
-          name: user.name,
-          email: user.email,
-          telephone: user.telephone,
-          address: user.address
-        });
-        
-        // ❌ SUPPRIME CETTE LIGNE
-        // this.userName = user.name; 
-        
-        this.userPhoto = user.photo || 'assets/default-avatar.png';
-        this.isLoading = false;
+  loadStats(): void {
+    this.statsLoading = true;
+    const uid = this.userId || localStorage.getItem('userId') || '';
+    if (!uid) { this.statsLoading = false; return; }
+
+    // Load sorties
+    this.sortieService.getAllSorties().subscribe({
+      next: (sorties) => {
+        const mySorties = sorties.filter(s =>
+          (s.participantIds ?? []).map(String).includes(String(uid))
+        );
+        this.totalSorties = mySorties.length;
+        this.totalSortiesCompletees = mySorties.filter(s => new Date(s.dateDebut) < new Date()).length;
+
+        // Niveau dominant
+        const freq: Record<string, number> = {};
+        mySorties.forEach(s => freq[s.difficulte] = (freq[s.difficulte] || 0) + 1);
+        const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
+        this.niveauPrincipal = top ? ({ 
+          FACILE: '🥾 Facile', 
+          MOYEN: '🧗 Modéré', 
+          DIFFICILE: '⛰️ Difficile' 
+        }[top[0]] || top[0]) : '—';
+        this.statsLoading = false;
       },
-      error: (err) => {
-        this.errorMessage = 'Erreur lors du chargement du profil';
-        this.isLoading = false;
-        console.error(err);
-      }
+      error: () => { this.statsLoading = false; }
     });
-}
+
+    // Load equipes
+    this.equipeService.getAllEquipes().subscribe({
+      next: (equipes) => {
+        this.totalEquipes = equipes.filter(e =>
+          e.membres?.some(m => String(m.id) === String(uid)) ||
+          String(e.organisateurId) === String(uid)
+        ).length;
+      },
+      error: () => {}
+    });
+  }
+
+  getRoleLabel(): string {
+    const r = this.userRole;
+    if (r === 'ADMIN' || r === 'ROLE_ADMIN') return '👑 Administrateur';
+    if (r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR') return '🏕️ Organisateur';
+    return '🥾 Randonneur';
+  }
 
   onSubmitProfile(): void {
-    if (this.profileForm.invalid) {
-      this.errorMessage = 'Veuillez corriger les erreurs';
-      return;
-    }
-
-    if (!this.userId) {
-      this.errorMessage = 'Utilisateur non identifié. Veuillez vous reconnecter.';
-      return;
-    }
-
+    if (!this.userId) { this.errorMessage = 'Utilisateur non identifié.'; return; }
     this.isLoading = true;
-    this.http.put(`http://localhost:8087/api/users/${this.userId}/profile`, this.profileForm.value)
-      .subscribe({
-        next: (user: any) => {
-          this.successMessage = 'Profil mis à jour avec succès!';
-          this.errorMessage = '';
-          this.isLoading = false;
-          if (user.email) this.userEmail = user.email;
-        },
-        error: (err: any) => {
-          console.error('Erreur mise à jour profil:', err);
-          
-          let errorMsg = 'Erreur de mise à jour du profil';
-          if (err.status === 0) {
-            errorMsg = 'Serveur indisponible. Vérifiez que le backend est démarré.';
-          } else if (err.status) {
-            errorMsg += ` (Status: ${err.status})`;
-          }
-          if (err.error && typeof err.error === 'string') {
-            errorMsg = err.error;
-          } else if (err.error && err.error.message) {
-            errorMsg = err.error.message;
-          }
-          
-          this.errorMessage = errorMsg;
-          this.successMessage = '';
-          this.isLoading = false;
-        }
-      });
+    const v = this.profileForm.value;
+    this.http.put<string>(
+      `http://localhost:8087/api/users/${this.userId}/profile`,
+      { prenom: v.firstName, nom: v.lastName, email: v.email, telephone: v.telephone, adresse: v.address },
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: (r) => {
+        this.successMessage = r || 'Profil mis à jour.';
+        localStorage.setItem('userNom', `${v.firstName} ${v.lastName}`.trim());
+        localStorage.setItem('userPrenom', v.firstName);
+        this.errorMessage = '';
+        this.isLoading = false;
+        this.userInitiales = `${v.firstName?.[0] || ''}${v.lastName?.[0] || ''}`.toUpperCase() || 'U';
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.error || err.error?.message || `Erreur (${err.status})`;
+        this.isLoading = false;
+      }
+    });
   }
 
   onSubmitPassword(): void {
-    if (this.passwordForm.invalid) {
-      this.errorMessage = 'Veuillez remplir tous les champs';
-      return;
-    }
-
-    if (!this.userId) {
-      this.errorMessage = 'Utilisateur non identifié. Veuillez vous reconnecter.';
-      return;
-    }
-
+    if (this.passwordForm.invalid) { this.errorMessage = 'Formulaire invalide.'; return; }
     this.isLoading = true;
-    this.http.put(`http://localhost:8087/api/users/${this.userId}/password`, this.passwordForm.value)
-      .subscribe({
-        next: (response: any) => {
-          this.successMessage = typeof response === 'string' ? response : 'Mot de passe modifié';
-          this.passwordForm.reset();
-          this.errorMessage = '';
-          this.isLoading = false;
-        },
-        error: (err: any) => {
-          console.error('Erreur changement mot de passe:', err);
-          
-          let errorMsg = 'Erreur de changement de mot de passe';
-          if (err.status === 0) {
-            errorMsg = 'Serveur indisponible. Vérifiez que le backend est démarré.';
-          } else if (err.status) {
-            errorMsg += ` (Status: ${err.status})`;
-          }
-          if (err.error && typeof err.error === 'string') {
-            errorMsg = err.error;
-          } else if (err.error && err.error.message) {
-            errorMsg = err.error.message;
-          }
-          
-          this.errorMessage = errorMsg;
-          this.successMessage = '';
-          this.isLoading = false;
-        }
-      });
+    this.http.put<string>(
+      `http://localhost:8087/api/users/${this.userId}/password`,
+      this.passwordForm.value,
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: (r) => {
+        this.successMessage = r || 'Mot de passe modifié avec succès.';
+        this.passwordForm.reset();
+        this.errorMessage = '';
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.error || err.error?.message || `Erreur (${err.status})`;
+        this.isLoading = false;
+      }
+    });
   }
 
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      this.errorMessage = 'Sélectionnez une image';
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      this.errorMessage = 'Image trop grande (max 5MB)';
-      return;
-    }
-
+    if (!file.type.startsWith('image/')) { this.errorMessage = 'Image invalide.'; return; }
+    if (file.size > 5 * 1024 * 1024) { this.errorMessage = 'Image trop grande (max 5MB).'; return; }
     const reader = new FileReader();
-    reader.onload = () => {
-      const base64 = reader.result as string;
-      this.updatePhoto(base64);
-    };
+    reader.onload = () => this.updatePhoto(reader.result as string);
     reader.readAsDataURL(file);
   }
 
   updatePhoto(photoBase64: string): void {
-    if (!this.userId) {
-      this.errorMessage = 'Utilisateur non identifié. Veuillez vous reconnecter.';
-      return;
-    }
-    
     this.isLoading = true;
-    
-    const body = { 
-      photo: photoBase64 
-    };
-    
-    this.http.put(`http://localhost:8087/api/users/${this.userId}/photo`, body)
-      .subscribe({
-        next: (response: any) => {
-          this.successMessage = 'Photo mise à jour avec succès';
-          this.userPhoto = photoBase64;
-          this.errorMessage = '';
-          this.isLoading = false;
-        },
-        error: (err: any) => {
-          console.error('ERREUR COMPLÈTE:', err);
-          console.error('STATUS:', err.status);
-          console.error('MESSAGE:', err.message);
-          console.error('ERROR BODY:', err.error);
-          
-          let errorMsg = 'Erreur lors de la mise à jour de la photo';
-          if (err.status === 0) {
-            errorMsg = 'Serveur indisponible. Vérifiez que le backend est démarré sur le port 8087.';
-          } else if (err.status) {
-            errorMsg += ` (Status: ${err.status})`;
-          }
-          if (err.error && typeof err.error === 'string') {
-            errorMsg = err.error;
-          } else if (err.error && err.error.message) {
-            errorMsg = err.error.message;
-          } else if (err.message) {
-            errorMsg = err.message;
-          }
-          
-          this.errorMessage = errorMsg;
-          this.successMessage = '';
-          this.isLoading = false;
-        }
-      });
+    this.http.put<string>(
+      `http://localhost:8087/api/users/${this.userId}/photo`,
+      { photo: photoBase64 },
+      { headers: this.getHeaders() }
+    ).subscribe({
+      next: (r) => {
+        this.successMessage = r || 'Photo mise à jour.';
+        this.userPhoto = photoBase64;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.error || err.error?.message || `Erreur (${err.status})`;
+        this.isLoading = false;
+      }
+    });
   }
 
   logout(): void {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      this.http.post('http://localhost:8087/api/auth/logout', {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      }).subscribe({ error: () => {} });
-    }
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('token');
+    this.signinService.logout();
     this.router.navigate(['/login']);
   }
 }

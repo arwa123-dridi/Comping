@@ -1,19 +1,24 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-
-// 👇 imports des composants
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 
 @Component({
   selector: 'app-admin-layout',
-  standalone: true, // ✅ IMPORTANT
+  standalone: true,
   imports: [
     SidebarComponent,
     AdminHeaderComponent,
     RouterOutlet
   ],
   templateUrl: './admin-layout.component.html',
-  styleUrls: ['./admin-layout.component.css'] // ✅ (s)
+  styleUrls: ['./admin-layout.component.css']
 })
-export class AdminLayoutComponent {}
+export class AdminLayoutComponent {
+  sidebarCollapsed = false;
+
+  // Méthode pour basculer l'état du sidebar (optionnelle)
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
+}

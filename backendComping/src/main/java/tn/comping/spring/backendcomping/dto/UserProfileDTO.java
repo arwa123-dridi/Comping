@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,4 +19,5 @@ public class UserProfileDTO {
     private String localisation;
     private double budget;
     private String meteo;
+    private String saison;
 }

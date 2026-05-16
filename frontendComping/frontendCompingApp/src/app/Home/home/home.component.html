@@ -22,12 +22,29 @@
   <nav>
     <a routerLink="/emplacements">Emplacements</a>
     <a routerLink="/materiel">Matériel</a>
+    <a routerLink="/events/list">Evénements</a>
+    <a routerLink="/sorties">Randonnées</a>
+    <a routerLink="/equipes">Équipes</a>
     <a routerLink="/experiences">Expériences</a>
     <a routerLink="/social-home">Rejoindre la communauté</a>
-    </nav>
+  </nav>
   <div class="header-btns">
-    <a routerLink="/login" class="btn-ghost">Connexion</a>
-    <a routerLink="/signup" class="btn-fill">Inscription</a>
+    <!-- Non connecté -->
+    <ng-container *ngIf="!isConnected()">
+      <a routerLink="/login" class="btn-ghost">Connexion</a>
+      <a routerLink="/signup" class="btn-fill">Inscription</a>
+    </ng-container>
+
+    <!-- Connecté USER -->
+    <ng-container *ngIf="isConnected() && !isAdminOrOrg()">
+      <a routerLink="/planning" class="btn-ghost">Mon Planning</a>
+      <a routerLink="/profile" class="btn-fill">Mon profil</a>
+    </ng-container>
+
+    <!-- Connecté ADMIN / ORGANISATEUR -->
+    <ng-container *ngIf="isConnected() && isAdminOrOrg()">
+      <a routerLink="/admin/dashboard" class="btn-fill">Dashboard</a>
+    </ng-container>
   </div>
 </header>
 
@@ -117,6 +134,7 @@
       <div class="strip-icon">{{ service.icon }}</div>
       <div class="strip-title">{{ service.title }}</div>
       <div class="strip-desc">{{ service.desc }}</div>
+      <a *ngIf="service.link" [routerLink]="service.link" class="service-link">Découvrir →</a>
     </div>
   </div>
 </section>
@@ -183,15 +201,16 @@
       <h5>PLATEFORME</h5>
       <a routerLink="/emplacements">Emplacements</a>
       <a routerLink="/materiel">Location matériel</a>
+      <a routerLink="/sorties">Randonnées</a>
+      <a routerLink="/equipes">Équipes</a>
+      <a routerLink="/checklist-ia">Checklist</a>
+      <a routerLink="/planning">Mon Planning</a>
       <a routerLink="/experiences">Expériences</a>
-      <a routerLink="/blog">Blog</a>
+      <a routerLink="/social-home">Rejoindre la communauté</a>
     </div>
     <div class="fg-col">
       <h5>COMPTE</h5>
       <a routerLink="/profile">Mon espace</a>
-      <a routerLink="/community">Communauté</a>
-      <a routerLink="/reviews">Avis campeurs</a>
-      <a routerLink="/messages">Messages</a>
       <a routerLink="/reservations">Réservations</a>
       <a routerLink="/become-host">Devenir hôte</a>
       <a routerLink="/faq">FAQ</a>
