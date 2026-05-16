@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { SigninService } from '../../services/signin.service';
 
 @Component({
@@ -16,7 +16,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentSlide = 0;
   private timer: any;
 
-  constructor(private signinService: SigninService) {}
+  constructor(private signinService: SigninService, private router: Router) {}
 
   slides = [
     { url: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1200&q=80', label: '🏕️ Forêt · Ain Draham' },
@@ -112,36 +112,21 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   isConnected(): boolean {
-    return !!localStorage.getItem('authToken');
+    return this.signinService.isConnected();
   }
  
   isAdminOrOrg(): boolean {
-    const r = localStorage.getItem('userRole') ?? '';
-    return r === 'ADMIN'        || r === 'ROLE_ADMIN'
-        || r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR'
-         || r === 'USER' || r === 'ROLE_USER';
-        
+    return this.signinService.isAdmin() || this.signinService.isOrganisateur();
   }
+
   handleEventClick(event: Event) {
     if (!this.isConnected()) {
       event.preventDefault();
     }
   }
 
-  isLoggedIn(): boolean {
-    return !!this.signinService.getToken();
-  }
-
   logout(): void {
-    this.signinService.logout().subscribe({
-      next: () => {
-        this.signinService.clearToken();
-        window.location.href = '/login';
-      },
-      error: () => {
-        this.signinService.clearToken();
-        window.location.href = '/login';
-      }
-    });
+    this.signinService.logout();
+    this.router.navigate(['/login']);
   }
 }
