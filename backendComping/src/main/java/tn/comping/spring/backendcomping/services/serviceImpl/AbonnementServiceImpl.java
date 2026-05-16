@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.LinkedHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -70,6 +71,14 @@ public class AbonnementServiceImpl implements AbonnementService {
     @Override
     public boolean estSuivi(String suiveurId, String suiviId) {
         return abonnementRepository.existsBySuiveurIdAndSuiviId(suiveurId, suiviId);
+    }
+
+    @Override
+    public Map<String, Long> getFollowStats(String userId) {
+        Map<String, Long> stats = new LinkedHashMap<>();
+        stats.put("followers", abonnementRepository.countBySuiviId(userId));
+        stats.put("following", abonnementRepository.countBySuiveurId(userId));
+        return stats;
     }
 
     private AbonnementResponseDTO toDTO(Abonnement a) {

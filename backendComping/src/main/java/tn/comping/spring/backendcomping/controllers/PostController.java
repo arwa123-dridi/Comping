@@ -106,11 +106,25 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostById(id, authentication.getName()));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostResponseDTO> updatePost(
             @PathVariable String id,
             @RequestBody PostRequestDTO dto,
             Authentication authentication) {
+        return ResponseEntity.ok(postService.updatePost(id, dto, authentication.getName()));
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PostResponseDTO> updatePostWithImages(
+            @PathVariable String id,
+            @RequestPart("post") String postJson,
+            @RequestPart(value = "images", required = false) List<MultipartFile> newImages,
+            Authentication authentication) throws Exception {
+        PostRequestDTO dto = objectMapper.readValue(postJson, PostRequestDTO.class);
+        List<String> uploaded = savePostImages(newImages);
+        List<String> all = new ArrayList<>(dto.getImages() != null ? dto.getImages() : List.of());
+        all.addAll(uploaded);
+        dto.setImages(all);
         return ResponseEntity.ok(postService.updatePost(id, dto, authentication.getName()));
     }
 

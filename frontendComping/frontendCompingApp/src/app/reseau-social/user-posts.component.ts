@@ -1,26 +1,40 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Component, OnInit, HostListener } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CommunityService, PostResponse } from '../services/community.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+
+type SortMode = 'recent' | 'popular';
 
 @Component({
   selector: 'app-user-posts',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './user-posts.component.html',
   styleUrls: ['./user-posts.component.css']
 })
-// Vue profil public d'un campeur : affiche uniquement ses posts PUBLIC/AMIS visibles par l'utilisateur connecté
 export class UserPostsComponent implements OnInit {
-  posts: PostResponse[] = [];
-  userId = '';
-  authorName = '';
-  loading = false;
-  error = '';
-  success = '';
 
-  availableReactions = ['👍', '❤️', '🔥', '😂', '😮', '😢'];
-  reactionPickerOpenFor: string | null = null;
+  posts: PostResponse[] = [];
+  userId         = '';
+  authorName     = '';
+  authorPhoto    = '';
+  followersCount = 0;
+  followingCount = 0;
+
+  loading       = true;
+  followLoading = false;
+  isFollowing   = false;
+  isOwnProfile  = false;
+  error         = '';
+  success       = '';
+  sortMode: SortMode = 'recent';
+  headerSticky  = false;
+
+  readonly skeletons = [1, 2, 3];
+  readonly availableReactions = ['👍', '❤️', '🔥', '😂', '😮', '😢'];
+  reactionPickerFor: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -28,50 +42,106 @@ export class UserPostsComponent implements OnInit {
     public community: CommunityService
   ) {}
 
+  @HostListener('window:scroll')
+  onScroll(): void {
+    this.headerSticky = window.scrollY > 220;
+  }
+
+  @HostListener('document:click')
+  onDocClick(): void {
+    this.reactionPickerFor = null;
+  }
+
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.userId = params.get('userId') ?? '';
-      if (this.userId) this.loadPosts();
+      this.isOwnProfile = this.userId === this.community.getCurrentEmail();
+      if (this.userId) this.loadAll();
     });
   }
 
-  loadPosts(): void {
+  loadAll(): void {
     this.loading = true;
-    this.error = '';
-    this.community.getUserPosts(this.userId).subscribe({
-      next: posts => {
-        this.posts = posts;
-        this.authorName = posts[0]?.auteurNom ?? 'Utilisateur';
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Impossible de charger les publications.';
-        this.loading = false;
-      }
+    this.error   = '';
+
+    const posts$ = this.community.getUserPosts(this.userId).pipe(
+      catchError(() => { this.error = 'Impossible de charger les publications.'; return of([]); })
+    );
+    const stats$ = this.community.getFollowStats(this.userId).pipe(
+      catchError(() => of({ followers: 0, following: 0 }))
+    );
+    const follow$ = this.isOwnProfile
+      ? of(false)
+      : this.community.checkIsFollowing(this.userId).pipe(catchError(() => of(false)));
+
+    forkJoin([posts$, stats$, follow$]).subscribe(([posts, stats, following]) => {
+      this.posts          = posts as PostResponse[];
+      this.authorName     = (posts as PostResponse[])[0]?.auteurNom   ?? 'Campeur';
+      this.authorPhoto    = (posts as PostResponse[])[0]?.auteurPhoto  ?? '';
+      this.followersCount = (stats as { followers: number; following: number }).followers;
+      this.followingCount = (stats as { followers: number; following: number }).following;
+      this.isFollowing    = following as boolean;
+      this.loading        = false;
     });
   }
 
-  toggleReaction(post: PostResponse, emoji: string, event: Event): void {
-    event.stopPropagation();
-    this.reactionPickerOpenFor = null;
-    if (post.myReaction === emoji) {
-      this.community.removeReaction(post.id).subscribe({ next: u => Object.assign(post, u) });
+  get sortedPosts(): PostResponse[] {
+    return [...this.posts].sort((a, b) =>
+      this.sortMode === 'popular'
+        ? (b.trendScore || 0) - (a.trendScore || 0)
+        : new Date(b.datePublication).getTime() - new Date(a.datePublication).getTime()
+    );
+  }
+
+  get totalLikes(): number {
+    return this.posts.reduce((s, p) => s + (p.likesCount || 0), 0);
+  }
+
+  toggleFollow(): void {
+    if (this.followLoading) return;
+    this.followLoading = true;
+
+    const wasFollowing = this.isFollowing;
+    const onSuccess = () => {
+      this.isFollowing    = !wasFollowing;
+      this.followersCount += this.isFollowing ? 1 : -1;
+      this.followLoading  = false;
+      this.success = this.isFollowing ? '✅ Vous suivez ce campeur.' : 'Abonnement retiré.';
+      setTimeout(() => this.success = '', 3000);
+    };
+    const onError = () => {
+      this.error = 'Action impossible. Réessayez.';
+      this.followLoading = false;
+    };
+
+    if (wasFollowing) {
+      this.community.unfollowUser(this.userId).subscribe({ next: onSuccess, error: onError });
     } else {
-      this.community.reactToPost(post.id, emoji).subscribe({ next: u => Object.assign(post, u) });
+      this.community.followUser(this.userId).subscribe({ next: onSuccess, error: onError });
     }
   }
 
-  toggleReactionPicker(post: PostResponse, event: Event): void {
-    event.stopPropagation();
-    this.reactionPickerOpenFor = this.reactionPickerOpenFor === post.id ? null : post.id;
+  startChat(): void {
+    this.community.getOrCreateConversation(this.userId).subscribe({
+      next: conv => void this.router.navigate(['/messages', conv.id]),
+      error: () => { this.error = 'Conversation impossible.'; }
+    });
   }
 
-  startChat(post: PostResponse, event: Event): void {
-    event.stopPropagation();
-    this.community.getOrCreateConversation(post.auteurId).subscribe({
-      next: conv => void this.router.navigate(['/messages', conv.id]),
-      error: () => this.error = 'Conversation impossible.'
-    });
+  goToEditProfile(): void { void this.router.navigate(['/profile']); }
+
+  toggleReactionPicker(post: PostResponse, e: Event): void {
+    e.stopPropagation();
+    this.reactionPickerFor = this.reactionPickerFor === post.id ? null : post.id;
+  }
+
+  toggleReaction(post: PostResponse, emoji: string, e: Event): void {
+    e.stopPropagation();
+    this.reactionPickerFor = null;
+    const req = post.myReaction === emoji
+      ? this.community.removeReaction(post.id)
+      : this.community.reactToPost(post.id, emoji);
+    req.subscribe({ next: u => Object.assign(post, u) });
   }
 
   reactionsList(post: PostResponse): { emoji: string; count: number }[] {
@@ -82,13 +152,9 @@ export class UserPostsComponent implements OnInit {
       .map(([emoji, count]) => ({ emoji, count }));
   }
 
-  totalReactions(post: PostResponse): number {
+  postTotalReactions(post: PostResponse): number {
     if (!post.reactions) return 0;
     return Object.values(post.reactions).reduce((s, c) => s + c, 0);
-  }
-
-  isMyPost(post: PostResponse): boolean {
-    return post.auteurId === this.community.getCurrentEmail();
   }
 
   initials(name: string): string {
@@ -97,18 +163,17 @@ export class UserPostsComponent implements OnInit {
 
   timeAgo(dateStr: string): string {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
-    const m = Math.floor((Date.now() - d.getTime()) / 60000);
-    if (m < 1) return 'à l\'instant';
-    if (m < 60) return `il y a ${m} min`;
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const m = Math.floor(diff / 60000);
+    if (m < 1)   return 'à l\'instant';
+    if (m < 60)  return `il y a ${m} min`;
     const h = Math.floor(m / 60);
-    if (h < 24) return `il y a ${h}h`;
+    if (h < 24)  return `il y a ${h}h`;
     const j = Math.floor(h / 24);
-    if (j < 7) return `il y a ${j}j`;
-    return d.toLocaleDateString('fr-FR');
+    if (j < 7)   return `il y a ${j}j`;
+    if (j < 30)  return `il y a ${j} jours`;
+    return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
   }
 
-  goBack(): void {
-    void this.router.navigate(['/community']);
-  }
+  goBack(): void { void this.router.navigate(['/community']); }
 }

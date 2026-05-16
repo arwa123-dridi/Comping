@@ -1,6 +1,7 @@
 tn\comping\spring\backendcomping\entities\Equipe$EquipeBuilder.class
 tn\comping\spring\backendcomping\utils\mapper\EventMapper.class
 tn\comping\spring\backendcomping\controllers\ConventionPartenaireController.class
+tn\comping\spring\backendcomping\ai\trends\TrendsAggregatorService.class
 tn\comping\spring\backendcomping\entities\PaymentEvent$PaymentEventBuilder.class
 tn\comping\spring\backendcomping\entities\stockProduit.class
 tn\comping\spring\backendcomping\repositories\CarteFideliteRepository.class
@@ -21,12 +22,14 @@ tn\comping\spring\backendcomping\repositories\AlerteRepository.class
 tn\comping\spring\backendcomping\dto\SignupDTO.class
 tn\comping\spring\backendcomping\entities\Commentaire$CommentaireBuilder.class
 tn\comping\spring\backendcomping\entities\DemandeTransport$DemandeTransportBuilder.class
+tn\comping\spring\backendcomping\ai\model\AiSuggestionLog$AiSuggestionLogBuilder.class
 tn\comping\spring\backendcomping\entities\ligneProduit.class
 tn\comping\spring\backendcomping\config\WebConfig.class
 tn\comping\spring\backendcomping\config\ChatWebSocketConfig$1.class
 tn\comping\spring\backendcomping\services\serviceImpl\SignupService.class
 tn\comping\spring\backendcomping\utils\mapper\SignupMapper.class
 tn\comping\spring\backendcomping\controllers\SortieController.class
+tn\comping\spring\backendcomping\ai\controller\AiGlobalExceptionHandler.class
 tn\comping\spring\backendcomping\dto\IncidentResponse.class
 tn\comping\spring\backendcomping\services\serviceImpl\RecomendationActivityServiceImpl.class
 tn\comping\spring\backendcomping\services\serviceImpl\CloudinaryService.class
@@ -41,6 +44,7 @@ tn\comping\spring\backendcomping\repositories\PasswordResetTokenRepository.class
 tn\comping\spring\backendcomping\services\serviceImpl\AIChecklistService.class
 tn\comping\spring\backendcomping\services\CommentaireService.class
 tn\comping\spring\backendcomping\entities\Produit.class
+tn\comping\spring\backendcomping\ai\dto\TrendItem.class
 tn\comping\spring\backendcomping\dto\SortieResponseDTO.class
 tn\comping\spring\backendcomping\repositories\ReponseAvisRepository.class
 tn\comping\spring\backendcomping\entities\Avis.class
@@ -62,6 +66,7 @@ tn\comping\spring\backendcomping\services\serviceImpl\AlerteServiceImpl.class
 tn\comping\spring\backendcomping\utils\mapper\AvisMapper.class
 tn\comping\spring\backendcomping\dto\ReponseAvisRequestDTO$ReponseAvisRequestDTOBuilder.class
 tn\comping\spring\backendcomping\services\serviceImpl\PaymentEventServiceImpl.class
+tn\comping\spring\backendcomping\ai\service\AiSuggestionService.class
 tn\comping\spring\backendcomping\controllers\ChecklistController.class
 tn\comping\spring\backendcomping\dto\WeatherDTO.class
 tn\comping\spring\backendcomping\exceptions\UnauthorizedException.class
@@ -91,6 +96,7 @@ tn\comping\spring\backendcomping\dto\DemandeTransportRequest$DemandeTransportReq
 tn\comping\spring\backendcomping\controllers\DemandeTransportController.class
 tn\comping\spring\backendcomping\dto\DemandeTransportRequest.class
 tn\comping\spring\backendcomping\dto\AbonnementResponseDTO$AbonnementResponseDTOBuilder.class
+tn\comping\spring\backendcomping\ai\trends\RedditTrendsService.class
 tn\comping\spring\backendcomping\entities\Conversation$ConversationBuilder.class
 tn\comping\spring\backendcomping\controllers\AuthController.class
 tn\comping\spring\backendcomping\services\serviceImpl\EquipeServiceImpl.class
@@ -142,6 +148,7 @@ tn\comping\spring\backendcomping\services\AbonnementService.class
 tn\comping\spring\backendcomping\dto\EventRecommandation.class
 tn\comping\spring\backendcomping\dto\ConventionPartenaireRequest.class
 tn\comping\spring\backendcomping\dto\ReponseAvisDTO$ReponseAvisDTOBuilder.class
+tn\comping\spring\backendcomping\ai\repository\AiSuggestionLogRepository.class
 tn\comping\spring\backendcomping\entities\ConventionPartenaire.class
 tn\comping\spring\backendcomping\dto\InteractionResponseDTO$InteractionResponseDTOBuilder.class
 tn\comping\spring\backendcomping\entities\Alerte.class
@@ -159,6 +166,7 @@ tn\comping\spring\backendcomping\entities\ReponseAvis$ReponseAvisBuilder.class
 tn\comping\spring\backendcomping\repositories\EquipeRepository.class
 tn\comping\spring\backendcomping\config\RestTemplateConfig.class
 tn\comping\spring\backendcomping\dto\EventResponseDTO$EventResponseDTOBuilder.class
+tn\comping\spring\backendcomping\config\CacheConfig.class
 tn\comping\spring\backendcomping\dto\EventAiDTO$EventAiDTOBuilder.class
 tn\comping\spring\backendcomping\services\serviceImpl\WeatherService.class
 tn\comping\spring\backendcomping\dto\EquipeScoreDTO$EquipeScoreDTOBuilder.class
@@ -176,6 +184,7 @@ tn\comping\spring\backendcomping\repositories\AbonnementRepository.class
 tn\comping\spring\backendcomping\entities\Incident$IncidentBuilder.class
 tn\comping\spring\backendcomping\entities\Activity$ActivityBuilder.class
 tn\comping\spring\backendcomping\services\serviceImpl\ReservationService.class
+tn\comping\spring\backendcomping\ai\dto\TopicRequest.class
 tn\comping\spring\backendcomping\dto\LoginDTOResponse.class
 tn\comping\spring\backendcomping\dto\ActivityResponse.class
 tn\comping\spring\backendcomping\controllers\ReservationController.class
@@ -200,6 +209,7 @@ tn\comping\spring\backendcomping\repositories\UserProfileRepository.class
 tn\comping\spring\backendcomping\services\serviceImpl\SignupServiceImpl.class
 tn\comping\spring\backendcomping\entities\UserProfile.class
 tn\comping\spring\backendcomping\dto\EquipeRequestDTO.class
+tn\comping\spring\backendcomping\ai\dto\PostDraft.class
 tn\comping\spring\backendcomping\dto\AbonnementResponseDTO.class
 tn\comping\spring\backendcomping\services\serviceImpl\ConventionPartenaireService.class
 tn\comping\spring\backendcomping\dto\AlerteResponse.class
@@ -207,6 +217,7 @@ tn\comping\spring\backendcomping\dto\AvisRequestDTO$AvisRequestDTOBuilder.class
 tn\comping\spring\backendcomping\dto\MessageRequestDTO.class
 tn\comping\spring\backendcomping\controllers\RecommendationEventController.class
 tn\comping\spring\backendcomping\services\serviceImpl\IncidentServiceImpl.class
+tn\comping\spring\backendcomping\controllers\PasswordResetController.class
 tn\comping\spring\backendcomping\services\serviceImpl\AbonnementServiceImpl.class
 tn\comping\spring\backendcomping\entities\commandeProduit.class
 tn\comping\spring\backendcomping\entities\PaymentEventStatus.class
@@ -220,7 +231,9 @@ tn\comping\spring\backendcomping\services\TrendingScheduler.class
 tn\comping\spring\backendcomping\dto\CreneauLivraisonRequest.class
 tn\comping\spring\backendcomping\services\serviceImpl\ProduitServiceImpl.class
 tn\comping\spring\backendcomping\entities\Participation$ParticipationBuilder.class
+tn\comping\spring\backendcomping\ai\controller\AiSuggestionController.class
 tn\comping\spring\backendcomping\controllers\PostController.class
+tn\comping\spring\backendcomping\ai\dto\TopicsResponse.class
 tn\comping\spring\backendcomping\dto\EventRequestDTO$EventRequestDTOBuilder.class
 tn\comping\spring\backendcomping\config\SecurityConfig.class
 tn\comping\spring\backendcomping\dto\SortieScoreDTO.class
@@ -246,6 +259,7 @@ tn\comping\spring\backendcomping\repositories\SortieRepository.class
 tn\comping\spring\backendcomping\services\PasswordResetService.class
 tn\comping\spring\backendcomping\utils\mapper\DemandeTransportMapper.class
 tn\comping\spring\backendcomping\services\serviceImpl\ActivityServiceImpl.class
+tn\comping\spring\backendcomping\ai\trends\RssTrendsService.class
 tn\comping\spring\backendcomping\dto\LoginDTORequest.class
 tn\comping\spring\backendcomping\entities\Activity.class
 tn\comping\spring\backendcomping\utils\mapper\ActivityMapper.class
@@ -256,6 +270,7 @@ tn\comping\spring\backendcomping\controllers\IncidentController.class
 tn\comping\spring\backendcomping\entities\Abonnement.class
 tn\comping\spring\backendcomping\entities\ReponseAvis.class
 tn\comping\spring\backendcomping\repositories\SiteCampingRepository.class
+tn\comping\spring\backendcomping\ai\model\AiSuggestionLog.class
 tn\comping\spring\backendcomping\dto\RequestProduitDTO$RequestProduitDTOBuilder.class
 tn\comping\spring\backendcomping\services\serviceImpl\StripeEventService.class
 tn\comping\spring\backendcomping\controllers\SiteCampingController.class
@@ -273,6 +288,7 @@ tn\comping\spring\backendcomping\utils\mapper\PostMapper.class
 tn\comping\spring\backendcomping\entities\Commentaire.class
 tn\comping\spring\backendcomping\services\PostService.class
 tn\comping\spring\backendcomping\dto\CreneauLivraisonRequest$CreneauLivraisonRequestBuilder.class
+tn\comping\spring\backendcomping\ai\trends\YoutubeTrendsService.class
 tn\comping\spring\backendcomping\dto\ConversationResponseDTO$ConversationResponseDTOBuilder.class
 tn\comping\spring\backendcomping\dto\ForgotPasswordRequestDTO.class
 tn\comping\spring\backendcomping\utils\mapper\CommentaireMapper.class

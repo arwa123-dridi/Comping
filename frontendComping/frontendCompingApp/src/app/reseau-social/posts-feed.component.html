@@ -80,12 +80,6 @@
 
     <!-- STORIES ROW -->
     <div class="stories-row">
-      <div class="story-item story-add">
-        <div class="story-circle">
-          <span class="story-plus">+</span>
-        </div>
-        <span class="story-name">Mon statut</span>
-      </div>
       <div class="story-item" *ngFor="let s of stories"
            (click)="openUserById(s.id, $event)" title="{{ s.nom }}">
         <div class="story-circle" [style.background]="storyColor(s.nom)">
@@ -182,8 +176,19 @@
           </svg>
           <span>Avis</span>
         </button>
+
+        <!-- ✨ Bouton IA -->
+        <button class="composer-chip ai-chip" type="button"
+                (click)="loadAiTopics()"
+                title="Générer des idées IA dans le panneau droit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+          </svg>
+          <span>Suggérer IA</span>
+        </button>
       </div>
     </section>
+
 
     <!-- BARRE RECHERCHE (secondaire) -->
     <section class="feed-toolbar">
@@ -255,8 +260,23 @@
       <!-- Edition inline -->
       <div class="edit-form" *ngIf="editingPost?.id === post.id" (click)="$event.stopPropagation()">
         <textarea rows="3" [(ngModel)]="editContent" placeholder="Modifiez votre publication..."></textarea>
+        <!-- Aperçus des images -->
+        <div class="edit-img-previews" *ngIf="editExistingImages.length || editNewImagePreviews.length">
+          <div class="edit-img-thumb" *ngFor="let url of editExistingImages; let i = index">
+            <img [src]="url" alt="" />
+            <button type="button" class="edit-img-remove" (click)="removeEditExistingImage(i)" title="Retirer">✕</button>
+          </div>
+          <div class="edit-img-thumb" *ngFor="let url of editNewImagePreviews; let i = index">
+            <img [src]="url" alt="" />
+            <button type="button" class="edit-img-remove" (click)="removeEditNewFile(i)" title="Retirer">✕</button>
+          </div>
+        </div>
+
         <div class="edit-form-row">
-          <input [(ngModel)]="editImages" placeholder="URLs d'images (séparées par virgules)" />
+          <label class="edit-img-upload-btn">
+            📷 Ajouter des photos
+            <input type="file" accept="image/*" multiple (change)="onEditFileSelect($event)" hidden />
+          </label>
           <select [(ngModel)]="editVisibilite">
             <option value="PUBLIC">🌍 Public</option>
             <option value="AMIS">👥 Amis</option>
@@ -457,33 +477,62 @@
       </div>
     </article>
 
-    <!-- Pour vous -->
-    <article class="ai-card">
+    <!-- Pour vous — Suggestions IA -->
+    <article class="ai-card ai-suggestion-card">
       <header class="ai-header">
-        <span class="ai-icon">🧠</span>
+        <span class="ai-icon">✨</span>
         <div>
           <h2>POUR VOUS</h2>
-          <small>Recommandations personnalisées</small>
+          <small>Idées de posts basées sur les tendances camping</small>
         </div>
+        <button class="ai-sidebar-refresh" *ngIf="aiStep === 'topics' || aiStep === 'draft'"
+                type="button" (click)="loadAiTopics()" title="Nouvelles suggestions">
+          🔄
+        </button>
       </header>
-      <div class="rec-list">
-        <div class="rec-post" *ngFor="let rec of recommandations" (click)="openPost(rec)">
-          <div class="rec-thumb">
-            <img *ngIf="rec.images && rec.images[0]" [src]="rec.images[0]" alt="" />
-            <span *ngIf="!rec.images || !rec.images[0]">📷</span>
-          </div>
-          <div class="rec-info">
-            <div class="rec-title">{{ rec.contenu | slice:0:55 }}{{ rec.contenu.length > 55 ? '...' : '' }}</div>
-            <div class="rec-meta">{{ rec.auteurNom }} · {{ timeAgo(rec.datePublication) }}</div>
-            <div class="ai-score">
-              <span>{{ ((rec.trendScore || 0) / 2) | number:'1.0-0' }}%</span>
-              <div class="score-bar"><div class="score-fill" [style.width.%]="(rec.trendScore || 0) / 2"></div></div>
-            </div>
-          </div>
+
+      <!-- Erreur -->
+      <div class="ai-error ai-error-sm" *ngIf="aiError">{{ aiError }}</div>
+
+      <!-- Idle : bouton de lancement -->
+      <div class="ai-sidebar-idle" *ngIf="aiStep === 'idle'">
+        <p>Découvrez des idées de publications basées sur les vraies tendances du camping mondial.</p>
+        <button class="ai-sidebar-btn" type="button" (click)="loadAiTopics()">
+          ✨ Suggérer un sujet
+        </button>
+      </div>
+
+      <!-- Chargement sujets -->
+      <div class="ai-sidebar-loading" *ngIf="aiStep === 'loading-topics'">
+        <div class="ai-spinner-sm"></div>
+        <span>Analyse des tendances…</span>
+      </div>
+
+      <!-- 3 sujets cliquables -->
+      <div class="ai-sidebar-topics" *ngIf="aiStep === 'topics'">
+        <div class="ai-sidebar-topic" *ngFor="let topic of aiTopics" (click)="selectAiTopic(topic)">
+          <span class="ai-sidebar-topic-dot">💡</span>
+          <span class="ai-sidebar-topic-text">{{ topic }}</span>
         </div>
-        <p *ngIf="recommandations.length === 0" class="empty-tags">
-          Publiez pour que l'IA affine vos recommandations.
-        </p>
+      </div>
+
+      <!-- Chargement post -->
+      <div class="ai-sidebar-loading" *ngIf="aiStep === 'loading-post'">
+        <div class="ai-spinner-sm"></div>
+        <span>Rédaction du post…</span>
+      </div>
+
+      <!-- Brouillon généré -->
+      <div class="ai-sidebar-draft" *ngIf="aiStep === 'draft' && aiDraft">
+        <div class="ai-sidebar-draft-title">{{ aiDraft.title }}</div>
+        <div class="ai-sidebar-draft-content">{{ aiDraft.content | slice:0:120 }}…</div>
+        <div class="ai-sidebar-draft-tags">
+          <span *ngFor="let h of aiDraft.hashtags | slice:0:3">{{ h }}</span>
+        </div>
+        <div class="ai-sidebar-draft-actions">
+          <button class="ai-sidebar-back" type="button" (click)="aiStep = 'topics'">← Retour</button>
+          <button class="ai-sidebar-use" type="button" (click)="applyAiDraft()">Utiliser ✓</button>
+        </div>
       </div>
     </article>
 

@@ -420,6 +420,19 @@ export class CommunityService {
       `${this.baseUrl}/api/abonnements/retirer/${encodeURIComponent(suiviId)}`, { headers: this.authHeaders() });
   }
 
+  checkIsFollowing(userId: string): Observable<boolean> {
+    return this.http
+      .get<{ suivi: boolean }>(`${this.baseUrl}/api/abonnements/est-suivi/${encodeURIComponent(userId)}`, { headers: this.authHeaders() })
+      .pipe(map(r => r.suivi));
+  }
+
+  getFollowStats(userId: string): Observable<{ followers: number; following: number }> {
+    return this.http.get<{ followers: number; following: number }>(
+      `${this.baseUrl}/api/abonnements/stats/${encodeURIComponent(userId)}`,
+      { headers: this.authHeaders() }
+    );
+  }
+
   getMyFollowing(): Observable<AbonnementResponse[]> {
     return this.http.get<AbonnementResponse[]>(
       `${this.baseUrl}/api/abonnements/mes-abonnements`, { headers: this.authHeaders() });
@@ -468,6 +481,13 @@ export class CommunityService {
 
   updatePost(id: string, payload: PostRequest): Observable<PostResponse> {
     return this.http.put<PostResponse>(`${this.baseUrl}/api/posts/${id}`, payload, { headers: this.authHeaders() });
+  }
+
+  updatePostWithImages(id: string, payload: PostRequest, newImages: File[]): Observable<PostResponse> {
+    const formData = new FormData();
+    formData.append('post', JSON.stringify(payload));
+    newImages.forEach(f => formData.append('images', f));
+    return this.http.put<PostResponse>(`${this.baseUrl}/api/posts/${id}`, formData, { headers: this.authHeaders() });
   }
 
   getUserPosts(userId: string, page = 0, size = 20): Observable<PostResponse[]> {

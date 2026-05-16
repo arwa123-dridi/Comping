@@ -51,4 +51,10 @@ public class AbonnementController {
         boolean suivi = abonnementService.estSuivi(auth.getName(), suiviId);
         return ResponseEntity.ok(Map.of("suivi", suivi));
     }
+
+    /** Statistiques abonnés/abonnements d'un utilisateur */
+    @GetMapping("/stats/{userId}")
+    public ResponseEntity<Map<String, Long>> followStats(@PathVariable String userId) {
+        return ResponseEntity.ok(abonnementService.getFollowStats(userId));
+    }
 }

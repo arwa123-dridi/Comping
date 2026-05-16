@@ -14,6 +14,8 @@ import {
   UserStatus
 } from '../services/community.service';
 import { CommunitySidebarComponent } from '../shared/community-sidebar/community-sidebar.component';
+import { AiSuggestionService } from '../services/ai-suggestion.service';
+import type { PostDraft } from '../services/ai-suggestion.service';
 
 type FeedMode = 'recents' | 'amis';
 type FlatComment = CommentaireResponse & { indent: number };
@@ -76,19 +78,28 @@ export class PostsFeedComponent implements OnInit, OnDestroy {
   editingPost: PostResponse | null = null;
   editContent = '';
   editVisibilite: 'PUBLIC' | 'AMIS' | 'PRIVE' = 'PUBLIC';
-  editImages = '';
+  editExistingImages: string[] = [];
+  editNewImageFiles: File[] = [];
+  editNewImagePreviews: string[] = [];
   saving_edit = false;
 
   followingIds = new Set<string>();
   followingList: AbonnementResponse[] = [];
   campeurs: CampeurInfo[] = [];
 
+  // ─── IA Suggestion ──────────────────────────────────────────────────────────
+  aiStep: 'idle' | 'loading-topics' | 'topics' | 'loading-post' | 'draft' = 'idle';
+  aiTopics: string[] = [];
+  aiDraft: PostDraft | null = null;
+  aiError = '';
+
   private subs: Subscription[] = [];
 
   constructor(
     public community: CommunityService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private aiSuggestion: AiSuggestionService
   ) {}
 
   get isAdmin(): boolean {
@@ -141,6 +152,71 @@ export class PostsFeedComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subs.forEach(s => s.unsubscribe());
     this.clearSelectedImages();
+  }
+
+  // ─── IA Suggestion ──────────────────────────────────────────────────────────
+
+  loadAiTopics(): void {
+    this.aiStep = 'loading-topics';
+    this.aiError = '';
+    this.aiSuggestion.getSuggestedTopics().subscribe({
+      next: topics => {
+        this.aiTopics = topics;
+        this.aiStep = 'topics';
+      },
+      error: (err) => {
+        const status = err?.status;
+        const serverMsg: string = err?.error?.error ?? '';
+        if (status === 401 || status === 403) {
+          this.aiError = 'Session expirée. Reconnectez-vous et réessayez.';
+        } else if (status === 503) {
+          this.aiError = serverMsg || 'Service IA indisponible. Vérifiez la clé GROQ_API_KEY côté serveur.';
+        } else if (status === 0) {
+          this.aiError = 'Impossible de joindre le serveur (port 8087). Vérifiez que le backend est démarré.';
+        } else {
+          this.aiError = serverMsg || `Erreur ${status ?? ''} — Réessayez dans quelques instants.`;
+        }
+        this.aiStep = 'idle';
+      }
+    });
+  }
+
+  selectAiTopic(topic: string): void {
+    this.aiStep = 'loading-post';
+    this.aiError = '';
+    this.aiSuggestion.generatePost(topic).subscribe({
+      next: draft => {
+        this.aiDraft = draft;
+        this.aiStep = 'draft';
+      },
+      error: () => {
+        this.aiError = 'Impossible de générer le post. Réessayez.';
+        this.aiStep = 'topics';
+      }
+    });
+  }
+
+  applyAiDraft(): void {
+    if (!this.aiDraft) return;
+    const hashtags = (this.aiDraft.hashtags || []).join(' ');
+    this.newPost = `${this.aiDraft.title}\n\n${this.aiDraft.content}\n\n${hashtags}`.trim();
+    this.aiStep = 'idle';
+    this.aiDraft = null;
+
+    // Scroll vers le composer et focus sur le textarea pour que l'utilisateur voie le contenu
+    setTimeout(() => {
+      const composer = document.querySelector('.composer-card') as HTMLElement;
+      if (composer) {
+        composer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        composer.classList.add('composer-ai-highlight');
+        setTimeout(() => composer.classList.remove('composer-ai-highlight'), 2000);
+      }
+      const textarea = document.querySelector('.composer-textarea') as HTMLTextAreaElement;
+      if (textarea) textarea.focus();
+    }, 50);
+
+    this.success = '✨ Post IA chargé — modifiez si besoin puis cliquez Publier.';
+    setTimeout(() => this.success = '', 5000);
   }
 
   get filteredPosts(): PostResponse[] {
@@ -335,12 +411,38 @@ export class PostsFeedComponent implements OnInit, OnDestroy {
     this.editingPost = post;
     this.editContent = post.contenu;
     this.editVisibilite = (post.visibilite as 'PUBLIC' | 'AMIS' | 'PRIVE') || 'PUBLIC';
-    this.editImages = (post.images || []).join(', ');
+    this.editExistingImages = [...(post.images || [])];
+    this.editNewImageFiles = [];
+    this.editNewImagePreviews = [];
   }
 
   cancelEdit(event: Event): void {
     event.stopPropagation();
     this.editingPost = null;
+    this.editExistingImages = [];
+    this.editNewImageFiles = [];
+    this.editNewImagePreviews = [];
+  }
+
+  onEditFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    for (const f of files) {
+      this.editNewImageFiles.push(f);
+      const reader = new FileReader();
+      reader.onload = e => this.editNewImagePreviews.push(e.target!.result as string);
+      reader.readAsDataURL(f);
+    }
+    input.value = '';
+  }
+
+  removeEditExistingImage(index: number): void {
+    this.editExistingImages.splice(index, 1);
+  }
+
+  removeEditNewFile(index: number): void {
+    this.editNewImageFiles.splice(index, 1);
+    this.editNewImagePreviews.splice(index, 1);
   }
 
   saveEdit(event: Event): void {
@@ -348,16 +450,22 @@ export class PostsFeedComponent implements OnInit, OnDestroy {
     if (!this.editingPost || !this.editContent.trim()) return;
     const payload: PostRequest = {
       contenu: this.editContent.trim(),
-      images: this.editImages.split(',').map(i => i.trim()).filter(Boolean),
+      images: [...this.editExistingImages],
       visibilite: this.editVisibilite
     };
     this.saving_edit = true;
-    this.community.updatePost(this.editingPost.id, payload).subscribe({
+    const req = this.editNewImageFiles.length > 0
+      ? this.community.updatePostWithImages(this.editingPost.id, payload, this.editNewImageFiles)
+      : this.community.updatePost(this.editingPost.id, payload);
+    req.subscribe({
       next: updated => {
         const idx = this.posts.findIndex(p => p.id === updated.id);
         if (idx !== -1) this.posts[idx] = updated;
         this.editingPost = null;
         this.saving_edit = false;
+        this.editExistingImages = [];
+        this.editNewImageFiles = [];
+        this.editNewImagePreviews = [];
         this.success = 'Post modifié.';
         setTimeout(() => this.success = '', 3000);
       },
