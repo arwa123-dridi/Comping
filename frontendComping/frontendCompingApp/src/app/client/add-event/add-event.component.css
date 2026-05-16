@@ -150,3 +150,26 @@ select[multiple] {
   from { transform: scale(0.7); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+.recommendation-box {
+  max-width: 500px;
+}
+
+.suggested-activities {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.popup-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.cancel-btn {
+  background: #777;
+}
+
+.cancel-btn:hover {
+  background: #555;
+}

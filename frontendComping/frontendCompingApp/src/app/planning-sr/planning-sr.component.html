@@ -1,0 +1,331 @@
+<!-- src/app/planning-sr/planning-sr.component.html -->
+<div class="psr-root">
+
+  <!-- ══ HERO ══════════════════════════════════════════════════════════════ -->
+  <div class="psr-hero">
+    <div class="psr-hero-content">
+      <div class="psr-hero-badge">
+        <span class="psr-hero-dot"></span>
+        Planning personnalisé
+      </div>
+      <h1 class="psr-hero-title">Vos prochaines sorties</h1>
+      <p class="psr-hero-sub">
+        Sélection intelligente selon votre historique de randonnées
+      </p>
+    </div>
+    <svg class="psr-mountains" viewBox="0 0 800 100" preserveAspectRatio="none" aria-hidden="true">
+      <polygon points="0,100 140,25 280,75 400,5 540,65 680,20 800,45 800,100" fill="rgba(255,255,255,0.07)"/>
+      <polygon points="0,100 100,55 220,90 360,35 500,80 640,40 780,70 800,30 800,100" fill="rgba(255,255,255,0.11)"/>
+    </svg>
+  </div>
+
+  <!-- ══ BANNIÈRE ERREUR (hors hero) ══════════════════════════════════════ -->
+  <div *ngIf="error && !loading" class="planning-error-banner">
+    <div class="peb-icon">{{ serverDown ? '🔌' : '⚠️' }}</div>
+    <div class="peb-content">
+      <h4>{{ serverDown ? 'Serveur hors ligne' : 'Erreur de chargement' }}</h4>
+      <p>{{ error }}</p>
+      <p *ngIf="serverDown" class="peb-hint">
+        Le backend doit tourner sur <code>localhost:8087</code>. Vérifiez Spring Boot.
+      </p>
+    </div>
+    <button class="peb-retry" (click)="load()">🔄 Réessayer</button>
+  </div>
+
+  <div class="psr-body">
+
+    <!-- Message succès -->
+    <div class="psr-success" *ngIf="successMsg" role="alert">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      {{ successMsg }}
+    </div>
+
+    <!-- ══ VUE TOGGLE ════════════════════════════════════════════════════ -->
+    <div class="psr-controls" *ngIf="!error">
+      <div class="psr-view-toggle">
+        <button class="vt-btn" [class.vt-btn--on]="viewMode==='calendrier'" (click)="setView('calendrier')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Calendrier
+        </button>
+        <button class="vt-btn" [class.vt-btn--on]="viewMode==='liste'" (click)="setView('liste')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          Liste
+        </button>
+      </div>
+      <div class="psr-stats" *ngIf="!loading && planning.length > 0">
+        <span>{{ planning.length }} sortie{{ planning.length > 1 ? 's' : '' }} recommandée{{ planning.length > 1 ? 's' : '' }}</span>
+      </div>
+    </div>
+
+    <!-- ══ SKELETON ══════════════════════════════════════════════════════ -->
+    <div class="psr-skeleton-grid" *ngIf="loading">
+      <div class="sk-card" *ngFor="let s of skeletons">
+        <div class="sk-img"></div>
+        <div class="sk-body">
+          <div class="sk-l sk-l--lg"></div>
+          <div class="sk-l sk-l--sm"></div>
+          <div class="sk-l sk-l--md"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         VUE CALENDRIER
+    ══════════════════════════════════════════════════════════════════ -->
+    <div class="psr-calendar-wrap" *ngIf="!loading && !error && viewMode==='calendrier'">
+
+      <!-- Navigation mois -->
+      <div class="cal-nav">
+        <button class="cal-nav-btn" (click)="moisPrecedent()" aria-label="Mois précédent">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        <span class="cal-month-label">{{ monthLabel() }}</span>
+        <button class="cal-nav-btn" (click)="moisSuivant()" aria-label="Mois suivant">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Légende jours -->
+      <div class="cal-header-row">
+        <span class="cal-day-name" *ngFor="let j of JOURS">{{ j }}</span>
+      </div>
+
+      <!-- Grille -->
+      <div class="cal-grid">
+        <div class="cal-week" *ngFor="let semaine of calendarGrid">
+          <div class="cal-cell"
+               *ngFor="let jour of semaine"
+               [class.cal-cell--other]="!jour.isCurrentMonth"
+               [class.cal-cell--today]="jour.isToday"
+               [class.cal-cell--has-sortie]="jour.sorties.length > 0">
+            <span class="cal-date-num">{{ jour.date.getDate() }}</span>
+            <div class="cal-sortie-badge"
+                 *ngFor="let sortie of jour.sorties"
+                 (click)="selectCard(sortie)"
+                 [class.badge--best]="sortie.estMeilleurChoix"
+                 [style.border-left-color]="scoreColor(sortie.scoreMatch)"
+                 [attr.title]="sortie.sortie.titre">
+              <span class="badge-score">{{ sortie.scoreMatch }}%</span>
+              <span class="badge-titre">{{ sortie.sortie.titre | slice:0:18 }}{{ sortie.sortie.titre.length > 18 ? '…' : '' }}</span>
+              <span class="badge-best" *ngIf="sortie.estMeilleurChoix">★</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sorties du mois -->
+      <div class="cal-month-list" *ngIf="filteredMonth.length > 0">
+        <p class="cal-month-list-title">Ce mois — {{ filteredMonth.length }} sortie{{ filteredMonth.length > 1 ? 's' : '' }}</p>
+        <div class="cal-month-cards">
+          <div class="cmc-item" *ngFor="let s of filteredMonth" (click)="selectCard(s)">
+            <div class="cmc-score-dot" [style.background]="scoreColor(s.scoreMatch)"></div>
+            <div class="cmc-info">
+              <span class="cmc-titre">{{ s.sortie.titre }}</span>
+              <span class="cmc-date">{{ formatDate(s.dateRecommandee) }}</span>
+            </div>
+            <span class="cmc-pct">{{ s.scoreMatch }}%</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         VUE LISTE
+    ══════════════════════════════════════════════════════════════════ -->
+    <div class="psr-list" *ngIf="!loading && !error && viewMode==='liste'">
+
+      <div class="psr-card"
+           *ngFor="let p of planning; let i = index"
+           (click)="selectCard(p)"
+           [class.psr-card--best]="p.estMeilleurChoix"
+           [style.animation-delay]="(i * 60) + 'ms'"
+           tabindex="0"
+           (keydown.enter)="selectCard(p)"
+           [attr.aria-label]="p.sortie.titre + ' — ' + p.scoreMatch + '% de correspondance'">
+
+        <div class="psr-best-banner" *ngIf="p.estMeilleurChoix">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          Meilleur choix
+        </div>
+
+        <div class="psr-card-img-wrap">
+          <img [src]="imageUrl(p.sortie)" [alt]="p.sortie.titre" class="psr-card-img" loading="lazy"/>
+          <div class="psr-card-diff" [class]="diffClass(p.sortie.difficulte)">{{ diffLabel(p.sortie.difficulte) }}</div>
+        </div>
+
+        <div class="psr-card-body">
+          <div class="psr-card-top">
+            <h3 class="psr-card-titre">{{ p.sortie.titre }}</h3>
+            <div class="score-ring" [title]="p.scoreMatch + '% de correspondance'">
+              <svg viewBox="0 0 44 44" width="44" height="44" aria-hidden="true">
+                <circle cx="22" cy="22" r="18" fill="none" stroke="#e5e7eb" stroke-width="4"/>
+                <circle cx="22" cy="22" r="18" fill="none"
+                        [attr.stroke]="scoreColor(p.scoreMatch)"
+                        stroke-width="4" stroke-linecap="round"
+                        [attr.stroke-dasharray]="scoreDash(p.scoreMatch)"
+                        transform="rotate(-90 22 22)"/>
+              </svg>
+              <span class="score-ring-pct">{{ p.scoreMatch }}%</span>
+            </div>
+          </div>
+
+          <div class="psr-card-meta">
+            <span class="meta-it">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              {{ formatDate(p.dateRecommandee) }}
+            </span>
+            <span class="meta-it" *ngIf="p.sortie.lieuDepart">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+              {{ p.sortie.lieuDepart }}
+            </span>
+            <span class="meta-it" *ngIf="p.sortie.distanceKm">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              {{ p.sortie.distanceKm }} km
+            </span>
+          </div>
+
+          <div class="psr-raison-tags">
+            <span class="raison-tag" *ngFor="let r of p.raisonsRecommandation">{{ r }}</span>
+          </div>
+
+          <div class="psr-card-footer">
+            <span class="psr-places">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              {{ p.placesRestantes }} place{{ p.placesRestantes > 1 ? 's' : '' }}
+            </span>
+            <span class="psr-prix" *ngIf="p.sortie.prixParPersonne">{{ p.sortie.prixParPersonne }} DT</span>
+            <span class="psr-prix psr-prix--free" *ngIf="!p.sortie.prixParPersonne">Gratuit</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Vide -->
+    <div class="psr-empty" *ngIf="!loading && !error && planning.length === 0">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="psr-empty-icon" aria-hidden="true">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <p>Aucune sortie recommandée pour le moment.</p>
+      <a routerLink="/sorties" class="psr-explore-btn">Explorer toutes les sorties →</a>
+    </div>
+
+  </div><!-- /psr-body -->
+
+  <!-- ══ PANNEAU LATÉRAL ══════════════════════════════════════════════════ -->
+  <div class="psr-overlay" *ngIf="selectedCard" (click)="closePanel()"></div>
+  <div class="psr-panel" *ngIf="selectedCard" role="dialog" aria-modal="true">
+
+    <button class="panel-close" (click)="closePanel()" aria-label="Fermer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <img [src]="imageUrl(selectedCard.sortie)" [alt]="selectedCard.sortie.titre" class="panel-img"/>
+
+    <div class="panel-body">
+      <div class="panel-best" *ngIf="selectedCard.estMeilleurChoix">★ Meilleur choix du mois</div>
+      <h2 class="panel-titre">{{ selectedCard.sortie.titre }}</h2>
+
+      <div class="panel-score-row">
+        <div class="panel-score-ring">
+          <svg viewBox="0 0 60 60" width="60" height="60" aria-hidden="true">
+            <circle cx="30" cy="30" r="24" fill="none" stroke="#e5e7eb" stroke-width="5"/>
+            <circle cx="30" cy="30" r="24" fill="none"
+                    [attr.stroke]="scoreColor(selectedCard.scoreMatch)"
+                    stroke-width="5" stroke-linecap="round"
+                    [attr.stroke-dasharray]="scoreDash(selectedCard.scoreMatch)"
+                    transform="rotate(-90 30 30)"/>
+          </svg>
+          <span class="panel-score-num">{{ selectedCard.scoreMatch }}%</span>
+        </div>
+        <div>
+          <div class="panel-score-label">Correspondance</div>
+          <div class="panel-score-desc">avec votre profil</div>
+        </div>
+      </div>
+
+      <div class="panel-info-grid">
+        <div class="panel-info-item">
+          <span class="pii-label">Date recommandée</span>
+          <span class="pii-val">{{ formatDate(selectedCard.dateRecommandee) }}</span>
+        </div>
+        <div class="panel-info-item">
+          <span class="pii-label">Lieu de départ</span>
+          <span class="pii-val">{{ selectedCard.sortie.lieuDepart || '—' }}</span>
+        </div>
+        <div class="panel-info-item">
+          <span class="pii-label">Distance</span>
+          <span class="pii-val">{{ selectedCard.sortie.distanceKm ? selectedCard.sortie.distanceKm + ' km' : '—' }}</span>
+        </div>
+        <div class="panel-info-item">
+          <span class="pii-label">Difficulté</span>
+          <span class="pii-val" [class]="diffClass(selectedCard.sortie.difficulte)">
+            {{ diffLabel(selectedCard.sortie.difficulte) }}
+          </span>
+        </div>
+        <div class="panel-info-item">
+          <span class="pii-label">Places restantes</span>
+          <span class="pii-val">{{ selectedCard.placesRestantes }}</span>
+        </div>
+        <div class="panel-info-item">
+          <span class="pii-label">Prix</span>
+          <span class="pii-val">{{ selectedCard.sortie.prixParPersonne ? selectedCard.sortie.prixParPersonne + ' DT' : 'Gratuit' }}</span>
+        </div>
+      </div>
+
+      <div class="panel-raisons">
+        <p class="panel-raisons-label">Pourquoi cette sortie ?</p>
+        <ul class="panel-raisons-list">
+          <li *ngFor="let r of selectedCard.raisonsRecommandation" class="panel-raison-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            {{ r }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="panel-actions">
+        <button class="panel-btn-confirm"
+                (click)="confirmerSortie(selectedCard.sortie.id)"
+                [disabled]="validating || selectedCard.placesRestantes === 0">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          {{ validating ? 'Inscription…' : 'Confirmer cette sortie' }}
+        </button>
+        <a [routerLink]="['/sorties', selectedCard.sortie.id]" class="panel-btn-detail">
+          Voir le détail
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -14,23 +14,28 @@ public class SortieResponseDTO {
     private LocalDateTime dateDebut;
     private LocalDateTime dateFin;
     private String lieuDepart;
+    private String lieuArrivee;
     private String region;
     private Difficulte difficulte;
     private Integer capaciteMax;
     private Integer placesDisponibles;
     private Double prixParPersonne;
     private StatutSortie statut;
+    private String equipementRequis;
+    private Boolean assistanceMedicale;
+    private Double distanceKm;
+
+    // ✅ AJOUTÉ — URL image Cloudinary
+    private String imageUrl;
 
     private String organisateurId;
     private String organisateurNom;
+    private String organisateurPrenom;
     private String equipeId;
     private String equipeNom;
 
     private Integer nombreParticipants;
     private List<String> participantIds;
     private LocalDateTime dateCreation;
-    public void setOrganisateurPrenom(String firstName) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setOrganisateurPrenom'");
-    }
+    private String utilisateurPrenom;
 }

@@ -18,4 +18,5 @@ public class UserProfileDTO {
     private String localisation;
     private double budget;
     private String meteo;
+    private String saison;
 }

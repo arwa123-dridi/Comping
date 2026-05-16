@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular
 import { ActivityService } from '../../services/activity.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-activity-create',
@@ -15,10 +16,11 @@ export class ActivityCreateComponent {
 
   activityForm!: FormGroup;
   successMessage = '';
-
+showPopup = false;
   constructor(
     private fb: FormBuilder,
-    private activityService: ActivityService
+    private activityService: ActivityService,
+     private router: Router 
   ) {}
 
   ngOnInit(): void {
@@ -27,17 +29,34 @@ export class ActivityCreateComponent {
       description: ['', Validators.required],
       type: ['', Validators.required],
       duree: ['', Validators.required],
-      capacite: ['', Validators.required]
+      capacite: ['', Validators.required],
+        niveauDifficulte: ['', Validators.required],
+    trancheAge: ['', Validators.required],
+    saison: ['', Validators.required],
+    tags: [''] // string à transformer en string[]
     });
   }
 
   onSubmit(): void {
+        const formValue = this.activityForm.value;
+
+    const activity = {
+      ...formValue,
+      tags: formValue.tags
+        ? formValue.tags.split(',').map((t: string) => t.trim())
+        : []
+    };
     if (this.activityForm.valid) {
-      this.activityService.createActivity(this.activityForm.value)
+      this.activityService.createActivity(activity)
         .subscribe({
           next: (res) => {
             this.successMessage = 'Activité créée avec succès';
+              this.showPopup = true;
             this.activityForm.reset();
+             setTimeout(() => {
+            this.showPopup = false;
+             this.router.navigate(['/activities/list']);
+          }, 2000);
           },
           error: (err) => {
             console.error(err);

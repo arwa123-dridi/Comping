@@ -5,4 +5,8 @@ export interface Activity {
   type: string;
   duree: string;
   capacite: string;
+  niveauDifficulte: string;
+  trancheAge: string;
+  saison: string;
+  tags: string[];
 }

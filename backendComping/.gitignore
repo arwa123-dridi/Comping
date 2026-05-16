@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "info": {
     "name": "Campino API - Module Randonnée",
@@ -281,3 +282,293 @@
     }
   ]
 }
+target/
+*.class
+=======
+{
+  "info": {
+    "name": "Campino API - Module Randonnée",
+    "description": "Collection complète pour tester les APIs du module randonnée et équipe",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. AUTHENTIFICATION",
+      "item": [
+        {
+          "name": "Inscription (Signup)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "http://localhost:8087/api/auth/registerUser",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Amal Melki\",\n  \"email\": \"amal.melki@test.tn\",\n  \"password\": \"password123\",\n  \"telephone\": \"+216 12 345 678\",\n  \"address\": \"Tunis, Tunisie\",\n  \"role\": \"ORGANISATEUR\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Connexion (Login)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "http://localhost:8087/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"amal.melki@test.tn\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. ÉQUIPES",
+      "item": [
+        {
+          "name": "Créer une équipe",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "http://localhost:8087/api/equipes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Club Aventures Tunisie\",\n  \"description\": \"Club de randonnée basé à Tunis - Spécialisé dans les montagnes du Nord\",\n  \"nbMembresMax\": 15,\n  \"niveau\": \"INTERMEDIAIRE\",\n  \"organisateurId\": \"user123\",\n  \"organisateurNom\": \"Amal Melki\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Lister toutes les équipes",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8087/api/equipes"
+          }
+        },
+        {
+          "name": "Équipes avec places disponibles",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8087/api/equipes/avec-place"
+          }
+        },
+        {
+          "name": "Ajouter un membre",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8087/api/equipes/{{equipeId}}/membres/{{utilisateurId}}?utilisateurNom={{nom}}"
+          }
+        },
+        {
+          "name": "Retirer un membre",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:8087/api/equipes/{{equipeId}}/membres/{{utilisateurId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. SORTIES",
+      "item": [
+        {
+          "name": "Créer une sortie - Zaghouan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "http://localhost:8087/api/sorties",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Jebel Zaghouan - Temple des Eaux\",\n  \"description\": \"Randonnée culturelle et naturelle au Jebel Zaghouan, découverte du Temple des Eaux\",\n  \"dateDebut\": \"2026-04-18T09:00:00\",\n  \"dateFin\": \"2026-04-18T14:00:00\",\n  \"lieuDepart\": \"Zaghouan - Parking du Temple\",\n  \"region\": \"Zaghouan\",\n  \"difficulte\": \"FACILE\",\n  \"capaciteMax\": 25,\n  \"prixParPersonne\": 10.0,\n  \"equipementRequis\": \"Chaussures confortables, eau, chapeau, appareil photo\",\n  \"assistanceMedicale\": false,\n  \"organisateurId\": \"user123\",\n  \"organisateurNom\": \"Amal Melki\",\n  \"equipeId\": \"{{equipeId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Créer une sortie - Chebika",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "http://localhost:8087/api/sorties",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Les Trois Oasis - Chebika, Tamerza, Mides\",\n  \"description\": \"Randonnée mythique reliant les trois oasis de montagne dans le désert tunisien\",\n  \"dateDebut\": \"2026-04-25T08:00:00\",\n  \"dateFin\": \"2026-04-25T16:00:00\",\n  \"lieuDepart\": \"Chebika - Village\",\n  \"region\": \"Tataouine\",\n  \"difficulte\": \"MOYEN\",\n  \"capaciteMax\": 15,\n  \"prixParPersonne\": 40.0,\n  \"equipementRequis\": \"Chaussures de randonnée, eau (3L), chapeau, lunettes de soleil, crème solaire\",\n  \"assistanceMedicale\": true,\n  \"organisateurId\": \"user123\",\n  \"organisateurNom\": \"Amal Melki\",\n  \"equipeId\": \"{{equipeId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Lister toutes les sorties",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8087/api/sorties"
+          }
+        },
+        {
+          "name": "Sorties par difficulté (MOYEN)",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8087/api/sorties/difficulte/MOYEN"
+          }
+        },
+        {
+          "name": "Sorties par région (Tataouine)",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8087/api/sorties?region=Tataouine"
+          }
+        },
+        {
+          "name": "Prochaines sorties",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8087/api/sorties/prochaines"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. PARTICIPATIONS",
+      "item": [
+        {
+          "name": "Inscrire un participant",
+          "request": {
+            "method": "POST",
+            "url": "http://localhost:8087/api/sorties/{{sortieId}}/inscription?utilisateurId={{userId}}&utilisateurNom={{nom}}&utilisateurEmail={{email}}"
+          }
+        },
+        {
+          "name": "Liste des participants d'une sortie",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8087/api/sorties/{{sortieId}}/participants"
+          }
+        },
+        {
+          "name": "Désinscrire un participant",
+          "request": {
+            "method": "DELETE",
+            "url": "http://localhost:8087/api/sorties/{{sortieId}}/inscription/{{userId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. MODULES COLLÈGUES",
+      "item": [
+        {
+          "name": "Événements - Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "http://localhost:8087/api/events",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Festival de la Randonnée\",\n  \"description\": \"Festival annuel de randonnée en Tunisie\",\n  \"prix\": 50.0,\n  \"capacite\": 100,\n  \"statut\": \"VALIDE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Événements - Liste",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8087/api/events"
+          }
+        },
+        {
+          "name": "Produits - Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "http://localhost:8087/api/produits/addProduct",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nomProduit\": \"Tente de camping 4 places\",\n  \"descriptionProduit\": \"Tente imperméable pour 4 personnes, idéale pour le camping\",\n  \"prixProduit\": 299.99,\n  \"stockProduit\": 15,\n  \"typeProduit\": \"CAMPING\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Produits - Liste",
+          "request": {
+            "method": "GET",
+            "url": "http://localhost:8087/api/produits/allProduct"
+          }
+        },
+        {
+          "name": "Activités - Créer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "http://localhost:8087/api/activities/create",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Atelier orientation\",\n  \"description\": \"Apprendre à utiliser une boussole et lire une carte\",\n  \"type\": \"FORMATION\",\n  \"duree\": \"3 heures\",\n  \"capacite\": \"20\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "equipeId",
+      "value": "ID_EQUIPE_A_RECUPERER"
+    },
+    {
+      "key": "sortieId",
+      "value": "ID_SORTIE_A_RECUPERER"
+    },
+    {
+      "key": "userId",
+      "value": "user123"
+    },
+    {
+      "key": "nom",
+      "value": "Participant Test"
+    },
+    {
+      "key": "email",
+      "value": "participant@test.tn"
+    }
+  ]
+}
+echo "backendComping/target/"t a r g e t /  
+ 
+>>>>>>> origin/amal-melki
+target/

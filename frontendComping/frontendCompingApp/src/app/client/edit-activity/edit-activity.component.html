@@ -1,4 +1,11 @@
 <div class="container">
+  <div class="popup" *ngIf="showPopup">
+  <div class="popup-content">
+    <div class="icon">✔️</div>
+    <h3>{{ popupMessage }}</h3>
+    <p>Redirection vers la liste des activités...</p>
+  </div>
+</div>
   <div class="card content-box">
     <div class="header-box">
       <h2 class="title">Modifier activité</h2>
@@ -56,6 +63,46 @@
             name="capacite"
           />
         </div>
+        <div class="form-group">
+  <label>Niveau de difficulté</label>
+  <select [(ngModel)]="activity.niveauDifficulte" name="niveauDifficulte">
+    <option value="">-- Choisir --</option>
+    <option value="facile">Facile</option>
+    <option value="moyen">Moyen</option>
+    <option value="difficile">Difficile</option>
+  </select>
+</div>
+
+<div class="form-group">
+  <label>Tranche d'âge</label>
+  <input
+    type="text"
+    [(ngModel)]="activity.trancheAge"
+    name="trancheAge"
+    placeholder="Ex: 12-18 ans"
+  />
+</div>
+
+<div class="form-group">
+  <label>Saison</label>
+  <select [(ngModel)]="activity.saison" name="saison">
+    <option value="">-- Choisir --</option>
+    <option value="printemps">Printemps</option>
+    <option value="été">Été</option>
+    <option value="automne">Automne</option>
+    <option value="hiver">Hiver</option>
+  </select>
+</div>
+
+<div class="form-group">
+  <label>Tags</label>
+  <input
+    type="text"
+    [(ngModel)]="tagsInput"
+    name="tags"
+    placeholder="Ex: sport, nature, aventure"
+  />
+</div>
       </div>
 
       <div class="modal-actions">

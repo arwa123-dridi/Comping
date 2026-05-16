@@ -34,6 +34,7 @@ public class EventRequestDTO {
     private double longitude;
     private String saison;
     private int dureeEnHeures;
+    private List<String> participantIds;
 
 
 }

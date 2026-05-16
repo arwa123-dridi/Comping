@@ -1,0 +1,346 @@
+<!-- src/app/checklist-ia/checklist-ia.component.html -->
+<div class="cia-root">
+
+  <!-- ══ HERO ══════════════════════════════════════════════════════════════ -->
+  <div class="cia-hero">
+    <div class="cia-hero-content">
+      <div class="cia-hero-badge">
+        <span class="cia-hero-dot"></span>
+        Analyse en temps réel
+      </div>
+      <h1 class="cia-hero-title">Checklist Sécurité</h1>
+      <p class="cia-hero-sub">
+        Équipement recommandé selon la météo et le niveau de votre sortie
+      </p>
+    </div>
+    <div class="cia-mountains" aria-hidden="true">
+      <svg viewBox="0 0 800 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="0,120 120,30 240,90 350,10 480,75 600,25 720,65 800,20 800,120" fill="rgba(255,255,255,0.05)"/>
+        <polygon points="0,120 80,60 200,100 320,40 440,85 560,45 680,80 800,35 800,120" fill="rgba(255,255,255,0.09)"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ══ CORPS ══════════════════════════════════════════════════════════════ -->
+  <div class="cia-body">
+
+    <!-- MODE TABS -->
+    <div class="cia-tabs" role="tablist">
+      <button class="cia-tab" [class.on]="mode==='auto'" (click)="setMode('auto')" role="tab">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"/>
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+        Météo automatique
+      </button>
+      <button class="cia-tab" [class.on]="mode==='manual'" (click)="setMode('manual')" role="tab">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+        Saisie manuelle
+      </button>
+      <button class="cia-tab" [class.on]="sortie_selectionnee !== null" *ngIf="sorties_participees.length > 0" role="tab">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Sorties passées ({{ sorties_participees.length }})
+      </button>
+    </div>
+
+    <!-- ✅ SORTIES PASSÉES -->
+    <div *ngIf="sorties_participees.length > 0 && sortie_selectionnee === null" class="cia-block">
+      <p class="cia-block-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+        Vérifier l'équipement pour une sortie passée
+      </p>
+      <div class="cia-sorties-grid">
+        <button *ngFor="let s of sorties_participees" class="cia-sortie-card"
+                (click)="selectSortieForChecklist(s)">
+          <div class="sortie-card-title">{{ s.titre }}</div>
+          <div class="sortie-card-meta">
+            📍 {{ s.lieuDepart }} · {{ s.dateDebut | date:'dd MMM' }}
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════ AUTO ══════════════════════════════════════════════════ -->
+    <div *ngIf="mode==='auto'">
+
+      <!-- Ville pills -->
+      <div class="cia-block">
+        <p class="cia-block-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          Ville de départ
+        </p>
+        <div class="cia-city-grid">
+          <button *ngFor="let c of cities" class="cia-city-pill"
+                  [class.sel]="selectedCity===c.value"
+                  (click)="selectedCity=c.value; onCityOrDateChange()"
+                  [attr.aria-pressed]="selectedCity===c.value">
+            <span class="pill-name">{{ c.label }}</span>
+            <span class="pill-region">{{ c.region }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Date -->
+      <div class="cia-block">
+        <label class="cia-block-label" for="cia-date">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Date de la sortie
+        </label>
+        <input id="cia-date" type="date" class="cia-date-input"
+               [(ngModel)]="selectedDate" (ngModelChange)="onCityOrDateChange()"/>
+      </div>
+
+      <!-- Météo skeleton -->
+      <div class="cia-weather-skel" *ngIf="weatherLoading">
+        <div class="sk-circle"></div>
+        <div class="sk-lines">
+          <div class="sk-l sk-l--lg"></div>
+          <div class="sk-l sk-l--sm"></div>
+        </div>
+      </div>
+
+      <!-- Widget météo -->
+      <div class="cia-weather-card" *ngIf="!weatherLoading && weather">
+        <div class="wc-left">
+          <div class="wc-emoji">{{ weatherIcon(weather.temperature, weather.precipitation, weather.windSpeed) }}</div>
+          <div>
+            <div class="wc-city">{{ weather.city }}</div>
+            <div class="wc-date">{{ weather.date }}</div>
+          </div>
+        </div>
+        <div class="wc-stats">
+          <div class="wc-stat">
+            <span class="wc-val">{{ weather.temperature }}°</span>
+            <span class="wc-lbl">Temp.</span>
+          </div>
+          <div class="wc-div"></div>
+          <div class="wc-stat">
+            <span class="wc-val">{{ weather.precipitation }}<em>mm</em></span>
+            <span class="wc-lbl">Précip.</span>
+          </div>
+          <div class="wc-div"></div>
+          <div class="wc-stat">
+            <span class="wc-val">{{ weather.windSpeed }}<em>km/h</em></span>
+            <span class="wc-lbl">Vent</span>
+          </div>
+          <div class="wc-div"></div>
+          <div class="wc-stat">
+            <span class="wc-val">{{ weather.humidity }}<em>%</em></span>
+            <span class="wc-lbl">Humid.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cia-warn" *ngIf="!weatherLoading && weatherError">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        {{ weatherError }}
+      </div>
+
+    </div>
+
+    <!-- ══════════════ MANUEL ═════════════════════════════════════════════════ -->
+    <div *ngIf="mode==='manual'" class="cia-manual-grid">
+
+      <div class="cia-metric-card">
+        <div class="mc-top">
+          <span class="mc-emoji">🌡️</span>
+          <span class="mc-label">Température</span>
+          <span class="mc-unit">°C</span>
+        </div>
+        <div class="mc-controls">
+          <button class="mc-btn" (click)="manualReq.temperature = manualReq.temperature - 1">−</button>
+          <input type="number" class="mc-input" [(ngModel)]="manualReq.temperature" step="1"/>
+          <button class="mc-btn" (click)="manualReq.temperature = manualReq.temperature + 1">+</button>
+        </div>
+      </div>
+
+      <div class="cia-metric-card">
+        <div class="mc-top">
+          <span class="mc-emoji">☔</span>
+          <span class="mc-label">Précipitations</span>
+          <span class="mc-unit">mm</span>
+        </div>
+        <div class="mc-controls">
+          <button class="mc-btn" (click)="manualReq.precipitation = manualReq.precipitation - 1">−</button>
+          <input type="number" class="mc-input" [(ngModel)]="manualReq.precipitation" step="1" min="0"/>
+          <button class="mc-btn" (click)="manualReq.precipitation = manualReq.precipitation + 1">+</button>
+        </div>
+      </div>
+
+      <div class="cia-metric-card">
+        <div class="mc-top">
+          <span class="mc-emoji">💨</span>
+          <span class="mc-label">Vent</span>
+          <span class="mc-unit">km/h</span>
+        </div>
+        <div class="mc-controls">
+          <button class="mc-btn" (click)="manualReq.wind_speed = manualReq.wind_speed - 5">−</button>
+          <input type="number" class="mc-input" [(ngModel)]="manualReq.wind_speed" step="5" min="0"/>
+          <button class="mc-btn" (click)="manualReq.wind_speed = manualReq.wind_speed + 5">+</button>
+        </div>
+      </div>
+
+      <div class="cia-metric-card">
+        <div class="mc-top">
+          <span class="mc-emoji">💧</span>
+          <span class="mc-label">Humidité</span>
+          <span class="mc-unit">%</span>
+        </div>
+        <div class="mc-controls">
+          <button class="mc-btn" (click)="manualReq.humidity = manualReq.humidity - 5">−</button>
+          <input type="number" class="mc-input" [(ngModel)]="manualReq.humidity" step="5" min="0" max="100"/>
+          <button class="mc-btn" (click)="manualReq.humidity = manualReq.humidity + 5">+</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════ DIFFICULTÉ ══════════════════════════════════════════════ -->
+    <div class="cia-diff-block">
+      <div class="diff-header">
+        <span class="cia-block-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Niveau de difficulté
+        </span>
+        <span class="diff-badge">{{ diffLabel(difficulte) }}</span>
+      </div>
+      <div class="diff-segs">
+        <button *ngFor="let s of [1,2,3,4,5]"
+                class="diff-seg"
+                [class.active]="s <= difficulte"
+                [attr.data-level]="s"
+                (click)="difficulte = s"
+                [attr.aria-label]="'Niveau ' + s">
+          <span class="dseg-num">{{ s }}</span>
+          <span class="dseg-tip">{{ ['Très facile','Facile','Modéré','Difficile','Extrême'][s-1] }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════ BOUTON ══════════════════════════════════════════════════ -->
+    <button class="cia-cta" (click)="generate()" [disabled]="loading || !canGenerate()" [attr.aria-busy]="loading">
+      <span *ngIf="!loading" class="cia-cta-inner">
+        Analyser et générer la checklist
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </span>
+      <span *ngIf="loading" class="cia-cta-inner">
+        <span class="spin"></span>
+        Analyse en cours…
+      </span>
+    </button>
+
+    <!-- ══════════════ RÉSULTAT ════════════════════════════════════════════════ -->
+    <div class="cia-result" *ngIf="response">
+
+      <!-- Bandeau alerte -->
+      <div class="alert-strip" [class]="'al-' + getAlertKey(response.alert_level)">
+        <span class="alert-dot" [class.pulsing]="getAlertKey(response.alert_level)==='ROUGE'"></span>
+        {{ response.alert_level }}
+      </div>
+
+      <div class="result-card">
+
+        <!-- Équipement principal -->
+        <div class="equip-row">
+          <div class="equip-icon">{{ resolveIcon(response.checklist_item) }}</div>
+          <div>
+            <p class="equip-meta">Équipement principal recommandé</p>
+            <h2 class="equip-name">{{ resolveLabel(response.checklist_item) }}</h2>
+          </div>
+        </div>
+
+        <!-- Fiabilité -->
+        <div class="fiab-block">
+          <div class="fiab-row">
+            <span class="fiab-label">Fiabilité de l'analyse</span>
+            <span class="fiab-pct" [class.high]="confidencePct() >= 85">{{ confidencePct() }}%</span>
+          </div>
+          <div class="fiab-track">
+            <div class="fiab-fill"
+                 [style.width.%]="confidencePct()"
+                 [class.fill-green]="confidencePct() >= 85"
+                 [class.fill-amber]="confidencePct() >= 60 && confidencePct() < 85">
+            </div>
+          </div>
+        </div>
+
+        <p class="result-details">{{ response.details }}</p>
+
+        <!-- ══ ÉQUIPEMENTS MÉTÉO ══════════════════════════════════════════ -->
+        <div class="weather-equip-section">
+          <div class="weq-header">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            Équipements selon vos conditions
+          </div>
+
+          <div class="weq-grid">
+            <div class="weq-item"
+                 *ngFor="let eq of getWeatherEquipment(); let i = index"
+                 [class.weq-item--required]="eq.required"
+                 [style.animation-delay]="(i * 50) + 'ms'">
+              <span class="weq-emoji">{{ eq.icon }}</span>
+              <div class="weq-info">
+                <span class="weq-label">{{ eq.label }}</span>
+                <span class="weq-reason">{{ eq.reason }}</span>
+              </div>
+              <span class="weq-badge" [class.weq-badge--req]="eq.required">
+                {{ eq.required ? 'Essentiel' : 'Conseillé' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="result-actions">
+          <button class="btn-pdf" (click)="exportPDF()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/>
+              <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+            Télécharger PDF
+          </button>
+          <button class="btn-redo" (click)="generate()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+            </svg>
+            Relancer
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Erreur globale -->
+    <div class="cia-error-box" *ngIf="errorMessage" role="alert">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <div>
+        <strong>Connexion impossible</strong>
+        <p>{{ errorMessage }}</p>
+      </div>
+    </div>
+
+  </div>
+</div>

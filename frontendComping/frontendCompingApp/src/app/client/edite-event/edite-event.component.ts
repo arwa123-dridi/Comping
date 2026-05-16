@@ -20,7 +20,16 @@ export class EditeEventComponent implements OnInit {
     prix: 0,
     capacite: 0,
     statut: 'VALIDE',
-    activities: []
+    activities: [],
+   categorie: '',
+  lieu: '',
+  niveauDifficulte: '',
+  trancheAge: '',
+  latitude: null,
+  longitude: null,
+  saison: '',
+  dureeEnHeures: null,
+  tags: []
   };
 
   // Liste de toutes les activités pour les checkboxes
@@ -77,22 +86,51 @@ export class EditeEventComponent implements OnInit {
   // Fermer la modale
   closeModal(): void {
     this.close.emit();
+    this.router.navigate(['/events/list']);
   }
 
   // Sauvegarder les modifs
+ showSuccessPopup = false;
   onUpdate(): void {
-    // On appelle le service de mise à jour
-    this.eventService.updateEvent(this.event.idEvent, this.event).subscribe({
-      next: (response) => {
-        console.log('Mise à jour réussie', response);
-        alert('✅ Événement modifié avec succès !');
-          this.router.navigate(['/events/list']);
-        this.saved.emit(response); // Notifie le parent du succès
-        this.closeModal();
-      },
-      error: (err) => {
-        console.error('Erreur lors de la mise à jour', err);
-      }
-    });
-  }
+
+  const payload = {
+    
+    titre: this.event.titre,
+    description: this.event.description,
+    prix: this.event.prix,
+    capacite: this.event.capacite,
+    statut: this.event.statut,
+    categorie: this.event.categorie,
+    lieu: this.event.lieu,
+
+    niveauDifficulte: this.event.niveauDifficulte,
+    trancheAge: this.event.trancheAge,
+    latitude: this.event.latitude,
+    longitude: this.event.longitude,
+    saison: this.event.saison,
+    dureeEnHeures: this.event.dureeEnHeures,
+
+    tags: this.event.tags,
+
+    activityIds: this.event.activities?.map((a: any) => a.idActivity) || []
+  };
+
+  console.log("PAYLOAD FINAL =>", payload);
+
+  this.eventService.updateEvent(this.event.idEvent, payload as any).subscribe({
+    next: (response) => {
+       this.showSuccessPopup = true;
+    
+       setTimeout(() => {
+        this.showSuccessPopup = false;
+        this.saved.emit(response);
+        this.router.navigate(['/events/list']);
+      }, 2500); // ✅ disparaît après 2.5s
+    },
+    error: (err) => {
+      console.error('Erreur update', err);
+    }
+  });
+}
+
 }

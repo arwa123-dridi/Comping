@@ -4,7 +4,6 @@ import tn.comping.spring.backendcomping.dto.EquipeRequestDTO;
 import tn.comping.spring.backendcomping.dto.EquipeResponseDTO;
 import tn.comping.spring.backendcomping.dto.MembreDTO;
 import tn.comping.spring.backendcomping.entities.Equipe;
-import tn.comping.spring.backendcomping.entities.SignupEntity;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,7 +43,6 @@ public class EquipeMapper {
 
         if(entity.getOrganisateur() != null){
             dto.setOrganisateurId(entity.getOrganisateur().getId());
-            dto.setOrganisateurPrenom(entity.getOrganisateur().getFirstName());
             dto.setOrganisateurNom(entity.getOrganisateur().getLastName());
         }
 

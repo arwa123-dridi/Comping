@@ -2,9 +2,11 @@ package tn.comping.spring.backendcomping.controllers;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.server.ResponseStatusException;
 import tn.comping.spring.backendcomping.dto.LoginDTORequest;
 import tn.comping.spring.backendcomping.dto.LoginDTOResponse;
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
@@ -28,8 +30,17 @@ public class AuthController {
         try {
             LoginDTOResponse response = signupService.login(dto);
             return ResponseEntity.ok(response);
+        } catch (ResponseStatusException e) {
+
+            return ResponseEntity
+                    .status(e.getStatusCode())
+                    .body(Map.of("message", e.getReason()));
+
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
         }
     }
 

@@ -11,6 +11,7 @@ import tn.comping.spring.backendcomping.services.serviceImpl.IEquipeService;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 @RestController
 @RequestMapping("/api/equipes")
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class EquipeController {
     private final IEquipeService equipeService;
 
     @PostMapping
+    @PreAuthorize("hasRole('ORGANISATEUR')")
     public ResponseEntity<EquipeResponseDTO> createEquipe(@Valid @RequestBody EquipeRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(equipeService.createEquipe(dto));
@@ -35,6 +37,7 @@ public class EquipeController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ORGANISATEUR')")
     public ResponseEntity<EquipeResponseDTO> updateEquipe(
             @PathVariable String id,
             @Valid @RequestBody EquipeRequestDTO dto) {
@@ -42,6 +45,7 @@ public class EquipeController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ORGANISATEUR')")
     public ResponseEntity<Void> deleteEquipe(@PathVariable String id) {
         equipeService.deleteEquipe(id);
         return ResponseEntity.noContent().build();
@@ -50,9 +54,11 @@ public class EquipeController {
     @PostMapping("/{equipeId}/membres/{utilisateurId}")
     public ResponseEntity<EquipeResponseDTO> ajouterMembre(
             @PathVariable String equipeId,
-            @PathVariable String utilisateurId,
-            @RequestParam String utilisateurNom) {
-        return ResponseEntity.ok(equipeService.ajouterMembre(equipeId, utilisateurId, utilisateurNom));
+            @PathVariable String utilisateurId) {
+
+        return ResponseEntity.ok(
+                equipeService.ajouterMembre(equipeId, utilisateurId)
+        );
     }
 
     @DeleteMapping("/{equipeId}/membres/{utilisateurId}")

@@ -21,11 +21,11 @@ public class EmailService {
             helper.setTo("destinataire@example.com"); // ou récupérer l'email de l'utilisateur
             helper.setSubject("✅ Confirmation de réservation TuniCamp");
             helper.setText(
-                "<h2>Réservation confirmée !</h2>" +
-                "<p>Site : " + reservation.getSiteCampingId() + "</p>" +
-                "<p>Du : " + reservation.getDateDebut() + " au " + reservation.getDateFin() + "</p>" +
-                "<p>Statut : " + reservation.getStatut() + "</p>",
-                true
+                    "<h2>Réservation confirmée !</h2>" +
+                            "<p>Site : " + reservation.getSiteCampingId() + "</p>" +
+                            "<p>Du : " + reservation.getDateDebut() + " au " + reservation.getDateFin() + "</p>" +
+                            "<p>Statut : " + reservation.getStatut() + "</p>",
+                    true
             );
 
             mailSender.send(message);

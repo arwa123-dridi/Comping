@@ -334,3 +334,238 @@
   background: #f1f5f9;
   border-color: #cbd5e1;
 }
+/* ===== MODALE ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-card {
+  background: var(--white);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;           /* ✅ limite la hauteur */
+  display: flex;
+  flex-direction: column;     /* ✅ header + body + footer séparés */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;           /* ✅ pour le border-radius */
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-top-bar {
+  height: 6px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 24px 0;
+}
+
+.modal-titre {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 10px 0;
+}
+
+.close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  background: #f1f5f9;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.close-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.close-btn svg { width: 16px; height: 16px; }
+
+.modal-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;           /* ✅ scroll uniquement sur le body */
+}
+
+.detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-label {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.detail-text {
+  font-size: 14px;
+  color: var(--text-main);
+  line-height: 1.7;
+  margin: 0;
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.detail-icon { font-size: 20px; }
+
+.detail-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.detail-value {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-top: 2px;
+}
+
+.price-highlight { color: var(--primary); }
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.btn-outline-dark {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline-dark:hover {
+  background: #f1f5f9;
+  color: var(--text-main);
+}
+
+/* ===== BOUTON DÉTAILS ===== */
+.icon-btn.details:hover {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+.tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-pill {
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.icon-btn.participate {
+  color: #10b981;
+  border: 1px solid #10b981;
+}
+
+.icon-btn.participate:hover:not(:disabled) {
+  background: #10b981;
+  color: white;
+}
+
+.icon-btn.participate:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.icon-btn.pay {
+  color: #10b981;
+  border-color: #10b981;
+}
+
+.icon-btn.pay:hover {
+  background: #10b981;
+  color: white;
+}
+.btn-ai {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #3498db, #2ecc71);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.btn-ai:hover {
+  opacity: 0.9;
+}
