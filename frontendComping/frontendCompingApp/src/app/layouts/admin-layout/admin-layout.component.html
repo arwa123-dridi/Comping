@@ -1,0 +1,19 @@
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <app-sidebar #sidebar></app-sidebar>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- HEADER -->
+    <app-admin-header (sidebarToggle)="sidebar.toggleSidebar()"></app-admin-header>
+
+    <!-- CONTENU -->
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,156 @@
+:host {
+  display: block;
+}
+
+.alertes-page {
+  padding: 24px;
+  background: var(--bg-color);
+  min-height: calc(100vh - 68px);
+  color: var(--text-primary);
+  transition: background 0.3s;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.header p {
+  margin-top: 6px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.filters {
+  margin-top: 24px;
+  display: flex;
+  gap: 16px;
+  background: var(--card-bg);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.filters input,
+.filters select {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: var(--bg-color);
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.filters button {
+  border: 0;
+  border-radius: 10px;
+  background: var(--sidebar-bg);
+  color: white;
+  font-weight: 700;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.loading,
+.empty {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.cards {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.top-row h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.description {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 8px 0;
+}
+
+.actions {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.actions button {
+  flex: 1;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.actions button:active {
+  transform: scale(0.98);
+}
+
+.actions .secondary {
+  background: #f59e0b;
+  color: white;
+}
+
+.actions .primary {
+  background: var(--accent-color);
+  color: #0f1f2e;
+}
+
+.actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.weather-info {
+  background: rgba(13, 110, 253, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.weather-info p {
+  margin: 0;
+  color: var(--text-secondary);
+}

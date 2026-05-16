@@ -1,0 +1,114 @@
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: comping-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: comping
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - comping_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Ollama LLM Service (for AI)
+  # ollama:
+  #   image: ollama/ollama:0.1.32
+  #   container_name: comping-ollama
+  #   ports:
+  #     - "11434:11434"
+  #   environment:
+  #     - OLLAMA_HOST=0.0.0.0:11434
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   networks:
+  #     - comping_network
+  #   command: serve
+  #   # Uncomment to auto-pull model (takes time on first run)
+  #   # depends_on:
+  #   #   - ollama-init
+
+  # Backend Spring Boot Application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: comping-backend
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://admin:admin123@mongodb:27017/comping?authSource=admin
+      SPRING_DATA_MONGODB_DATABASE: comping
+      OLLAMA_URL: http://host.docker.internal:11434/api/generate
+      OLLAMA_MODEL: gpt-oss:20b
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY:-demo}
+      GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY:-demo}
+      SERVER_PORT: 8087
+      JAVA_OPTS: "-Xmx1024m -Xms512m"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - comping_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8087/swagger-ui/index.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  # Frontend Angular Application
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: comping-frontend
+    ports:
+      - "4200:4200"
+      - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - comping_network
+    restart: unless-stopped
+    environment:
+      API_URL: http://backend:8087
+
+  # Nginx Reverse Proxy (Optional - for production)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: comping-nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - backend
+  #     - frontend
+  #   networks:
+  #     - comping_network
+  #   restart: unless-stopped
+
+networks:
+  comping_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+  ollama_data:
+    driver: local

@@ -1,0 +1,57 @@
+<div class="weather-map-container">
+  <div class="map-header">
+    <h3>Carte des Urgences et Sécurité</h3>
+    <div class="legend">
+      <span class="legend-item"><span class="icon">🔴</span> Urgence</span>
+      <span class="legend-item"><span class="icon">🔵</span> Sécurité</span>
+      <span class="legend-item"><span class="icon">🟡</span> Alerte</span>
+    </div>
+  </div>
+
+  <div class="map-content">
+    <div class="map-wrapper">
+      <div class="map-placeholder">
+        <div class="map-marker" 
+             *ngFor="let location of mapLocations"
+             [style.left.%]="getMarkerLeft(location)"
+             [style.top.%]="getMarkerTop(location)"
+             [class.selected]="selectedLocation?.data?.id === location.data?.id"
+             (click)="selectLocation(location)">
+          {{ getTypeIcon(location.type) }}
+        </div>
+      </div>
+    </div>
+
+    <div class="location-details" *ngIf="selectedLocation">
+      <div class="detail-header">
+        <h4>{{ selectedLocation.title }}</h4>
+        <span class="badge" [class]="'badge-' + selectedLocation.type">{{ selectedLocation.type }}</span>
+      </div>
+
+      <div class="detail-content">
+        <div class="info-row" *ngIf="selectedWeather">
+          <strong>Météo:</strong>
+          <span>{{ selectedWeather.temperature }}°C, {{ selectedWeather.precipitation }}mm pluie</span>
+        </div>
+
+        <div class="info-row" *ngIf="selectedRisk">
+          <strong>Risque:</strong>
+          <span [style.color]="getRiskColor(selectedRisk.level)">{{ selectedRisk.level }}</span>
+        </div>
+
+        <div class="info-row" *ngIf="selectedRisk?.factors?.length">
+          <strong>Facteurs:</strong>
+          <ul>
+            <li *ngFor="let factor of selectedRisk?.factors">{{ factor }}</li>
+          </ul>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary btn-sm" (click)="centerOnLocation(selectedLocation)">
+            Centrer la carte
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

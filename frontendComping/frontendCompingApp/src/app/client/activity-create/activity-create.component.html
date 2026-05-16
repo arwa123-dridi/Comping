@@ -1,0 +1,89 @@
+<div class="page">
+   <!-- 🔥 POPUP ICI (tout en haut) -->
+  <div class="popup" *ngIf="showPopup">
+    <div class="popup-content">
+      <h3>🎉 Succès</h3>
+      <p>Activité créée avec succès !</p>
+    </div>
+  </div>
+  <div class="card">
+    <h2 class="title">🏕️ Créer une Activité</h2>
+
+    <form [formGroup]="activityForm" (ngSubmit)="onSubmit()" class="form">
+
+      <div class="form-group">
+        <label>Nom</label>
+        <input type="text" formControlName="nom"
+               placeholder="Ex: Randonnée en montagne" />
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea formControlName="description"
+                  placeholder="Décrivez l'activité..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type</label>
+          <input type="text" formControlName="type"
+                 placeholder="Ex: Plein air" />
+        </div>
+
+        <div class="form-group">
+          <label>Durée</label>
+          <input type="text" formControlName="duree"
+                 placeholder="Ex: 2h30" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Capacité</label>
+        <input type="number" formControlName="capacite"
+               placeholder="Ex: 20" />
+      </div>
+
+      <!-- 🔴 NOUVEAUX CHAMPS -->
+
+      <div class="form-group">
+        <label>Niveau de difficulté</label>
+        <select formControlName="niveauDifficulte">
+          <option value="">-- Choisir --</option>
+          <option value="facile">Facile</option>
+          <option value="moyen">Moyen</option>
+          <option value="difficile">Difficile</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Tranche d'âge</label>
+        <input type="text" formControlName="trancheAge"
+               placeholder="Ex: 12-18 ans" />
+      </div>
+
+      <div class="form-group">
+        <label>Saison</label>
+        <select formControlName="saison">
+          <option value="">-- Choisir --</option>
+          <option value="printemps">Printemps</option>
+          <option value="été">Été</option>
+          <option value="automne">Automne</option>
+          <option value="hiver">Hiver</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Tags</label>
+        <input type="text" formControlName="tags"
+               placeholder="Ex: sport, nature, aventure" />
+      </div>
+
+      <button type="submit" class="btn">Ajouter l'activité</button>
+
+    </form>
+
+    <div class="success-box" *ngIf="successMessage">
+      ✅ {{ successMessage }}
+    </div>
+  </div>
+</div>

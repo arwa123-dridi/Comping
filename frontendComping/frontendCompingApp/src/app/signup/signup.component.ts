@@ -1,0 +1,145 @@
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { CommonModule, NgIf } from '@angular/common';
+
+@Component({
+  selector: 'app-signup',
+  //standalone: true,
+  imports: [ReactiveFormsModule, HttpClientModule, CommonModule, NgIf],
+  templateUrl: './signup.component.html',
+  styleUrls: ['./signup.component.css']
+})
+export class SignupComponent implements AfterViewInit {
+  @ViewChild('slidesWrapper') slidesWrapper!: ElementRef<HTMLDivElement>;
+  slides = [
+    { url: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470' },
+    { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e' },
+    { url: 'https://images.unsplash.com/photo-1501700493785-59a0ab2ec3e2' },
+  ];
+
+  currentSlide = 0;
+  private intervalId: any;
+  signupForm: FormGroup;
+
+  successMessage: string = '';
+  errorMessage: string = '';
+  isLoading: boolean = false;
+  showPassword: boolean = false;
+
+  roles = [
+   // 'Select role',
+    'ADMIN',
+    'PROPRIETAIRE_SITE',
+    'BOUTIQUE',
+    'ORGANISATEUR',
+    'PARTENAIRE_logistique',
+    'MODERATEUR',
+    'USER'
+  ];
+
+
+  constructor(private fb: FormBuilder, private http: HttpClient) {
+
+    this.signupForm = this.fb.group({
+      FirstName: ['', Validators.required],
+      LastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required],
+      telephone: [''],
+      address: [''],
+      role: ['USER', Validators.required]
+    });
+  }
+
+  passwordMatchValidator(form: FormGroup) {
+    const password = form.get('password')?.value;
+    const confirmPassword = form.get('confirmPassword')?.value;
+
+    if (password && confirmPassword && password !== confirmPassword) {
+      form.get('confirmPassword')?.setErrors({ mismatch: true });
+    } else {
+      form.get('confirmPassword')?.setErrors(null);
+    }
+  }
+
+  ngAfterViewInit() {
+    this.startSlideshow();
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.intervalId);
+  }
+
+  nextSlide() {
+    if (!this.slidesWrapper) return;
+    this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+    this.slidesWrapper.nativeElement.style.transform = `translateX(-${this.currentSlide * 100}%)`;
+  }
+  startSlideshow() {
+    this.intervalId = setInterval(() => {
+      this.nextSlide();
+    }, 4000);
+  }
+
+  ngOnInit() {
+    this.signupForm.valueChanges.subscribe(() => {
+      this.passwordMatchValidator(this.signupForm);
+    });
+  }
+
+  get f() {
+    return this.signupForm.controls;
+  }
+
+  onSubmit(): void {
+
+    console.log('Form submitted'); // <-- log when submission starts
+    console.log('Form value:', this.signupForm.value); // <-- log raw form values
+
+    if (!this.signupForm.value.role) {
+      this.errorMessage = 'Veuillez sélectionner un rôle.';
+      console.log('Error: role not selected'); // <-- log missing role
+      return;
+    }
+
+
+    if (this.signupForm.invalid) {
+      this.signupForm.markAllAsTouched();
+      console.log('Error: form invalid'); // <-- log validation errors
+      return;
+    }
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    // Clean optional fields (avoid sending empty strings)
+    const formValue = this.signupForm.value;
+
+    const signupData = {
+      ...formValue,
+      telephone: formValue.telephone || null,
+      address: formValue.address || null
+    };
+
+    console.log('Signup data being sent to backend:', signupData); // <-- log cleaned data
+
+    this.http.post('http://localhost:8087/api/auth/registerUser', signupData)
+      .subscribe({
+        next: (res) => {
+          console.log('Backend response:', res); // <-- log backend response
+          this.successMessage = '🎉 Inscription réussie ! Vous pouvez maintenant vous connecter.';
+          this.signupForm.reset({ role: 'USER' });
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error('Signup failed', err); // <-- already logging errors
+          this.errorMessage = err?.status === 0
+            ? 'Serveur backend indisponible. Démarrez Spring Boot sur http://localhost:8087.'
+            : 'Inscription échouée. Vérifiez les données puis réessayez.';
+          this.isLoading = false;
+        }
+      });
+  }
+}

@@ -1,0 +1,226 @@
+<!-- ============================================================
+     DASHBOARD ADMIN — CAMPINO · Randonnées & Équipes
+     ============================================================ -->
+<div class="dash-admin">
+
+  <!-- ══ HEADER ══ -->
+  <div class="dash-header">
+    <div class="dash-header-content">
+      <div>
+        <div class="dash-badge">📊 Administration · CAMPINO</div>
+        <h1 class="dash-title">Tableau de bord</h1>
+        <p class="dash-sub">Gestion complète des randonnées et équipes</p>
+      </div>
+      <div class="dash-header-actions">
+        <button class="btn-refresh" (click)="refresh()">🔄 Actualiser</button>
+        <button class="btn-new-sortie" routerLink="/sorties/create">+ Nouvelle sortie</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- ══ STATISTIQUES ══════════════════════════════════════ -->
+    <div class="stats-grid">
+      <div class="stat-card stat-blue">
+        <div class="stat-icon">🏔️</div>
+        <div class="stat-info">
+          <div class="stat-num">{{ stats.totalSorties }}</div>
+          <div class="stat-label">Randonnées</div>
+        </div>
+        <div class="stat-trend">↑</div>
+      </div>
+      <div class="stat-card stat-green">
+        <div class="stat-icon">👤</div>
+        <div class="stat-info">
+          <div class="stat-num">{{ stats.totalParticipants }}</div>
+          <div class="stat-label">Participants</div>
+        </div>
+        <div class="stat-trend">↑</div>
+      </div>
+      <div class="stat-card stat-sky">
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+          <div class="stat-num">{{ stats.totalEquipes }}</div>
+          <div class="stat-label">Équipes</div>
+        </div>
+        <div class="stat-trend">→</div>
+      </div>
+      <div class="stat-card stat-orange">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <div class="stat-num">{{ stats.sortiesValidees }}</div>
+          <div class="stat-label">Planifiées</div>
+        </div>
+        <div class="stat-trend">↑</div>
+      </div>
+    </div>
+
+    <!-- ══ LOADING ══ -->
+    <div *ngIf="loading" class="dash-loading">
+      <div class="campino-spinner"></div>
+      <p>Chargement des données…</p>
+    </div>
+
+    <!-- ══ CONTENU PRINCIPAL ══════════════════════════════════ -->
+    <div *ngIf="!loading" class="dash-content">
+
+      <!-- TABLE DES SORTIES -->
+      <div class="dash-card mb-4">
+        <div class="dash-card-header">
+          <h3 class="dash-card-title">📋 Toutes les randonnées</h3>
+          <a routerLink="/sorties" class="dash-card-link">Voir tout →</a>
+        </div>
+
+        <div class="table-wrap">
+          <table class="campino-table">
+            <thead>
+              <tr>
+                <th>Randonnée</th>
+                <th>Organisateur</th>
+                <th>Date</th>
+                <th>Difficulté</th>
+                <th>Participants</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of sorties">
+                <td>
+                  <div class="td-title">{{ s.titre }}</div>
+                  <div class="td-sub">{{ s.distanceKm || 0 }} km · {{ s.lieuDepart || '—' }}</div>
+                </td>
+                <td class="td-org">{{ s.organisateurNom || 'Inconnu' }}</td>
+                <td class="td-date">{{ s.dateDebut | date:'dd/MM/yy' }}</td>
+                <td>
+                  <span class="diff-tag"
+                        [class.diff-f]="s.difficulte==='FACILE'"
+                        [class.diff-m]="s.difficulte==='MOYEN'"
+                        [class.diff-d]="s.difficulte==='DIFFICILE'">
+                    {{ s.difficulte }}
+                  </span>
+                </td>
+                <td>
+                  <div class="td-participants">
+                    <div class="mini-bar-wrap">
+                      <div class="mini-bar-fill"
+                           [style.width.%]="(getNombreParticipants(s) / (s.capaciteMax || 1)) * 100">
+                      </div>
+                    </div>
+                    <span>{{ getNombreParticipants(s) }}/{{ s.capaciteMax }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="statut-tag"
+                        [class.statut-plan]="getSortieStatut(s)==='PLANIFIEE'"
+                        [class.statut-cours]="getSortieStatut(s)==='EN_COURS'"
+                        [class.statut-term]="getSortieStatut(s)==='TERMINEE'">
+                    {{ getSortieStatut(s) === 'PLANIFIEE' ? 'Planifiée'
+                     : getSortieStatut(s) === 'EN_COURS'  ? 'En cours'
+                     : 'Terminée' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="td-actions">
+                    <button class="td-btn-view"  [routerLink]="['/sorties', s.id]">👁️</button>
+                    <button class="td-btn-edit"  [routerLink]="['/sorties/edit', s.id]">✏️</button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="sorties.length === 0">
+                <td colspan="7" class="td-empty">Aucune randonnée disponible</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- LIGNE 2 : Top organisateurs + Équipes + Alertes -->
+      <div class="dash-row-3">
+
+        <!-- Top organisateurs -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h3 class="dash-card-title">🏆 Top organisateurs</h3>
+          </div>
+          <div class="top-list">
+            <div *ngFor="let org of getTopOrganisateurs(); let i = index" class="top-item">
+              <div class="top-rank">
+                <span *ngIf="i===0">🥇</span>
+                <span *ngIf="i===1">🥈</span>
+                <span *ngIf="i===2">🥉</span>
+                <span *ngIf="i>2" class="rank-num">{{ i+1 }}</span>
+              </div>
+              <div class="top-info">
+                <span class="top-nom">{{ org.nom }}</span>
+                <span class="top-meta">{{ org.nbSorties }} sortie(s) · {{ org.nbParticipants }} participants</span>
+              </div>
+              <span class="top-badge">{{ org.nbSorties }}</span>
+            </div>
+            <div *ngIf="getTopOrganisateurs().length === 0" class="td-empty">Aucune donnée</div>
+          </div>
+        </div>
+
+        <!-- Équipes récentes -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h3 class="dash-card-title">👥 Équipes</h3>
+            <a routerLink="/equipes" class="dash-card-link">Voir →</a>
+          </div>
+          <div class="equipes-mini-list">
+            <div *ngFor="let eq of equipes.slice(0, 5)" class="eq-mini-item">
+              <div class="eq-mini-icon">🏕️</div>
+              <div class="eq-mini-info">
+                <span class="eq-mini-nom">{{ eq.nom }}</span>
+                <span class="eq-mini-meta">{{ eq.membres?.length || 0 }}/{{ eq.nbMembresMax }} membres</span>
+              </div>
+              <button class="td-btn-view" [routerLink]="['/equipes', eq.id]">👁️</button>
+            </div>
+            <div *ngIf="equipes.length === 0" class="td-empty">Aucune équipe</div>
+          </div>
+        </div>
+
+        <!-- Alertes -->
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h3 class="dash-card-title">⚠️ Alertes</h3>
+          </div>
+          <div class="alertes-list">
+            <div class="alerte-item alerte-red">
+              <div class="alerte-dot red"></div>
+              <div class="alerte-text">
+                <span class="alerte-title">SOS déclenché</span>
+                <span class="alerte-sub">Randonnée Selja — il y a 12 min</span>
+              </div>
+            </div>
+            <div class="alerte-item alerte-orange">
+              <div class="alerte-dot orange"></div>
+              <div class="alerte-text">
+                <span class="alerte-title">Météo défavorable</span>
+                <span class="alerte-sub">Sortie Chélia — demain</span>
+              </div>
+            </div>
+            <div class="alerte-item alerte-green">
+              <div class="alerte-dot green"></div>
+              <div class="alerte-text">
+                <span class="alerte-title">Sortie complète</span>
+                <span class="alerte-sub">Randonnée Ichkeul — 20/20</span>
+              </div>
+            </div>
+            <div class="alerte-item alerte-blue">
+              <div class="alerte-dot blue"></div>
+              <div class="alerte-text">
+                <span class="alerte-title">Nouvelle équipe créée</span>
+                <span class="alerte-sub">Les Aigles du Zaghouan</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /dash-content -->
+
+  </div><!-- /dash-body -->
+</div>

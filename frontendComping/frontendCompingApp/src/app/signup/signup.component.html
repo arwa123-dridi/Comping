@@ -1,0 +1,62 @@
+<div class="signup-container">
+  <div class="card">
+
+    <!-- LEFT SIDE -->
+    <div class="left">
+      <div class="slideshow-container">
+        <div class="slides-wrapper" #slidesWrapper>
+          <div class="slide-left" *ngFor="let slide of slides" [style.backgroundImage]="'url(' + slide.url + ')'"></div>
+      </div>
+    </div>
+
+      <div class="overlay">
+        <h1>Welcome</h1>
+        <p>
+          Join our camping community and explore nature like never before.
+        </p>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right">
+      <h2>Create Account</h2>
+      <p>Create your account. It's free and only takes a minute</p>
+
+      <!-- Bind the form to signupForm -->
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+
+        <div class="row">
+          <input type="text" placeholder="Prénom" formControlName="FirstName" />
+          <input type="text" placeholder="Nom" formControlName="LastName" />
+    </div>
+
+        <input type="email" placeholder="Email" formControlName="email" />
+        <input type="tel" placeholder="Téléphone" formControlName="telephone" />
+        <input type="tel" placeholder="Adresse" formControlName="address" />
+        <input type="password" placeholder="Password" formControlName="password" />
+        <input type="password" placeholder="Confirm Password" formControlName="confirmPassword" />
+
+
+       
+
+        <label class="checkbox">
+      <select formControlName="role">
+            <!-- Placeholder -->
+            <option value="" disabled selected>Select Role</option>
+
+            <!-- Actual roles -->
+            <option *ngFor="let role of roles.slice(1)" [value]="role">{{ role }}</option>
+      </select>
+        </label>
+
+        <button type="submit" class="btn-register" [disabled]="isLoading">
+          Register Now
+        </button>
+
+        <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+      </form>
+    </div>
+
+     </div>
+</div>

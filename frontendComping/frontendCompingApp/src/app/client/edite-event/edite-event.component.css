@@ -1,0 +1,270 @@
+/* Overlay */
+.modal-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+/* Card comme ajout */
+.edit-card{
+  width: 100%;
+  max-width: 650px;
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  border-top: 5px solid #2e7d32;
+  animation: popup .25s ease;
+}
+
+/* Header */
+.modal-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.title{
+  color: #2e7d32;
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.close-btn{
+  border: none;
+  background: transparent;
+  font-size: 32px;
+  cursor: pointer;
+  color: #607d8b;
+  transition: .2s;
+}
+
+.close-btn:hover{
+  color: #2e7d32;
+  transform: scale(1.1);
+}
+
+/* Form */
+.form{
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.form-group{
+  display: flex;
+  flex-direction: column;
+}
+
+label{
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Inputs identiques ajout */
+input,
+textarea,
+select{
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  transition: .3s;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color: #2e7d32;
+  box-shadow: 0 0 6px rgba(46,125,50,0.25);
+  outline: none;
+}
+
+textarea{
+  min-height: 110px;
+  resize: none;
+}
+
+/* Row */
+.form-row{
+  display: flex;
+  gap: 12px;
+}
+
+.form-row .form-group{
+  flex: 1;
+}
+
+/* Activités */
+.activities-box{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #f8faf8;
+}
+
+.activity-item{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+}
+
+/* Buttons */
+.modal-actions{
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.btn-cancel{
+  flex: 1;
+  padding: 13px;
+  border: none;
+  border-radius: 10px;
+  background: #eef2f3;
+  color: #607d8b;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-save{
+  flex: 2;
+  padding: 13px;
+  border: none;
+  border-radius: 10px;
+  background: #2e7d32;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: .3s;
+}
+
+.btn-save:hover{
+  background: #1b5e20;
+}
+
+/* Animation */
+@keyframes popup{
+  from{
+    transform: scale(.92);
+    opacity: 0;
+  }
+  to{
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Responsive */
+@media(max-width:700px){
+  .form-row,
+  .modal-actions{
+    flex-direction: column;
+  }
+
+  .activities-box{
+    grid-template-columns: 1fr;
+  }
+
+  .title{
+    font-size: 24px;
+  }
+
+
+.success-popup {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border-left: 4px solid #2e7d32;
+  border-radius: 10px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  z-index: 100000;
+
+  /* animations */
+  animation: slideIn 0.3s ease, fadeOut 0.4s ease 2.2s forwards;
+
+  min-width: 280px;
+}
+.success-icon {
+  width: 36px;
+  height: 36px;
+  background: #eaf3de;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.success-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: #2e7d32;
+}
+
+
+
+.success-text strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.success-text span {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+
+}
+.success-popup {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border-left: 4px solid #2e7d32;
+  border-radius: 10px;
+  padding: 16px 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  z-index: 999999;
+  min-width: 300px;
+
+
+  /* animations */
+  animation: slideIn 0.3s ease forwards, fadeOut 0.4s ease 2.2s forwards;
+ 
+}
+@keyframes slideIn {
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(50%);
+  }
+}

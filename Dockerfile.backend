@@ -1,0 +1,6 @@
+FROM maven:3.9.6-eclipse-temurin-17-alpine
+WORKDIR /app
+COPY backendComping/ .
+# Pre-download dependencies to speed up
+RUN mvn dependency:go-offline -B || true
+CMD ["mvn", "spring-boot:run"]
