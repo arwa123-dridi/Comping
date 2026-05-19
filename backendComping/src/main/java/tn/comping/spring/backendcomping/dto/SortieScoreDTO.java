@@ -3,10 +3,8 @@ package tn.comping.spring.backendcomping.dto;
 import lombok.*;
 import tn.comping.spring.backendcomping.entities.Sortie;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class SortieScoreDTO {
 
     private Sortie sortie;
@@ -30,4 +28,17 @@ public class SortieScoreDTO {
             this.placesLibres = Math.max(0, max - inscrits);
         }
     }
+
+    public Sortie getSortie() { return sortie; }
+    public void setSortie(Sortie sortie) { this.sortie = sortie; }
+    public double getScore() { return score; }
+    public void setScore(double score) { this.score = score; }
+    public int getScorePercent() { return scorePercent; }
+    public void setScorePercent(int scorePercent) { this.scorePercent = scorePercent; }
+    public String getRaisonPrincipale() { return raisonPrincipale; }
+    public void setRaisonPrincipale(String raisonPrincipale) { this.raisonPrincipale = raisonPrincipale; }
+    public boolean isEstPopulaire() { return estPopulaire; }
+    public void setEstPopulaire(boolean estPopulaire) { this.estPopulaire = estPopulaire; }
+    public int getPlacesLibres() { return placesLibres; }
+    public void setPlacesLibres(int placesLibres) { this.placesLibres = placesLibres; }
 }

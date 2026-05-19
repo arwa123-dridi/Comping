@@ -12,12 +12,15 @@ import tn.comping.spring.backendcomping.utils.Constants;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @AllArgsConstructor
-@Slf4j
 @RequestMapping(Constants.BASE_URL_CRENEAU_LIVRAISON)
 public class CreneauLivraisonController {
 
+    private static final Logger log = LoggerFactory.getLogger(CreneauLivraisonController.class);
     private final CreneauLivraisonService service;
 
     // POST http://localhost:8087/api/creneaux-livraison

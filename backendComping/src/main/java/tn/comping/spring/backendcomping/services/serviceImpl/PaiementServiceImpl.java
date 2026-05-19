@@ -2,16 +2,17 @@ package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import com.stripe.Stripe;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.checkout.Session;
 import com.stripe.param.PaymentIntentCreateParams;
+import com.stripe.param.checkout.SessionCreateParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tn.comping.spring.backendcomping.dto.PaiementResponse;
-
+import tn.comping.spring.backendcomping.dto.StripeSessionResponseDTO;
 import tn.comping.spring.backendcomping.entities.*;
 import tn.comping.spring.backendcomping.repositories.*;
-//import tn.comping.spring.backendcomping.services.EmailService;
 
 import java.util.Date;
 import java.util.List;
@@ -25,6 +26,7 @@ public class PaiementServiceImpl implements PaiementService {
     private final PaiementRepository paiementRepository;
     private final ReservationRepository reservationRepository;
     private final SignupRepository signupRepository;
+    private final CommandeRepository commandeRepository;
     private final EmailService emailService;
 
     @Value("${stripe.secret.key}")
@@ -36,7 +38,6 @@ public class PaiementServiceImpl implements PaiementService {
             Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Réservation non trouvée"));
 
-            // 1. Créer Stripe PaymentIntent
             Stripe.apiKey = stripeSecretKey;
             long montantCentimes = (long)(montant * 100);
 
@@ -48,7 +49,6 @@ public class PaiementServiceImpl implements PaiementService {
 
             PaymentIntent intent = PaymentIntent.create(params);
 
-            // 2. Créer le Paiement en base
             Paiement paiement = Paiement.builder()
                 .montant(montant)
                 .methode(methode)
@@ -60,11 +60,9 @@ public class PaiementServiceImpl implements PaiementService {
 
             Paiement saved = paiementRepository.save(paiement);
 
-            // 3. Lier le paiement à la réservation
             reservation.setPaiementId(saved.getId());
             reservationRepository.save(reservation);
 
-            // 4. Envoyer email avec lien de paiement
             signupRepository.findById(reservation.getUtilisateurId()).ifPresent(user -> {
                 emailService.sendPaymentLink(user.getEmail(), reservationId, montant);
                 log.info("Email de paiement envoyé à {}", user.getEmail());
@@ -79,22 +77,58 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
+    public StripeSessionResponseDTO createCheckoutSession(String commandeId) {
+        try {
+            Stripe.apiKey = stripeSecretKey;
+            CommandeProduct commande = commandeRepository.findById(commandeId)
+                    .orElseThrow(() -> new RuntimeException("Commande introuvable"));
+
+            SessionCreateParams params = SessionCreateParams.builder()
+                    .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
+                    .setMode(SessionCreateParams.Mode.PAYMENT)
+                    .setSuccessUrl("http://localhost:4200/confirm-order?session_id={CHECKOUT_SESSION_ID}")
+                    .setCancelUrl("http://localhost:4200/marketplace")
+                    .addLineItem(SessionCreateParams.LineItem.builder()
+                            .setQuantity(1L)
+                            .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
+                                    .setCurrency("usd")
+                                    .setUnitAmount((long) (commande.getTotalCommande() * 100))
+                                    .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                            .setName("Commande #" + commande.getId())
+                                            .build())
+                                    .build())
+                            .build())
+                    .putMetadata("commandeId", commandeId)
+                    .putMetadata("type", "MARKETPLACE")
+                    .build();
+
+            Session session = Session.create(params);
+
+            return StripeSessionResponseDTO.builder()
+                    .sessionId(session.getId())
+                    .redirectUrl(session.getUrl())
+                    .build();
+
+        } catch (Exception e) {
+            log.error("Error creating Stripe session: {}", e.getMessage());
+            throw new RuntimeException("Stripe error: " + e.getMessage());
+        }
+    }
+
+    @Override
     public PaiementResponse validerPaiement(String paiementId) {
         Paiement paiement = paiementRepository.findById(paiementId)
             .orElseThrow(() -> new RuntimeException("Paiement non trouvé"));
 
-        // Appelle la méthode métier de l'enum
         paiement.valider();
         Paiement saved = paiementRepository.save(paiement);
 
-        // Mettre à jour le statut de la réservation → CONFIRME
         reservationRepository.findById(paiement.getReservationId()).ifPresent(r -> {
             r.setStatut(StatutReservation.CONFIRME);
             r.setStatutPaiement("PAYE");
             r.setDatePaiement(new Date());
             reservationRepository.save(r);
 
-            // Email de confirmation
             signupRepository.findById(r.getUtilisateurId()).ifPresent(user ->
                 emailService.sendConfirmationEmail(user.getEmail(), r.getId())
             );
@@ -108,11 +142,9 @@ public class PaiementServiceImpl implements PaiementService {
         Paiement paiement = paiementRepository.findById(paiementId)
             .orElseThrow(() -> new RuntimeException("Paiement non trouvé"));
 
-        // Appelle la méthode métier de l'enum
         paiement.rembourser();
         Paiement saved = paiementRepository.save(paiement);
 
-        // Mettre à jour la réservation → ANNULE
         reservationRepository.findById(paiement.getReservationId()).ifPresent(r -> {
             r.setStatut(StatutReservation.ANNULEE);
             r.setStatutPaiement("REMBOURSE");

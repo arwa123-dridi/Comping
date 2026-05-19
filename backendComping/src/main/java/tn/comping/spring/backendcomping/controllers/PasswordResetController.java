@@ -11,13 +11,16 @@ import tn.comping.spring.backendcomping.services.PasswordResetService;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Slf4j
 @CrossOrigin(origins = "http://localhost:4200")
 public class PasswordResetController {
 
+    private static final Logger log = LoggerFactory.getLogger(PasswordResetController.class);
     private final PasswordResetService passwordResetService;
 
     @PostMapping("/forgot-password")

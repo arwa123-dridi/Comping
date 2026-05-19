@@ -6,11 +6,8 @@ import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "CarteFidelite")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder //pour un constructeur par defaut
-@ToString
 @Entity
 public class CarteFidelite {
     @Id
@@ -21,4 +18,13 @@ public class CarteFidelite {
     private String niveau;
 
     private String clientId;
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public int getPoints() { return points; }
+    public void setPoints(int points) { this.points = points; }
+    public String getNiveau() { return niveau; }
+    public void setNiveau(String niveau) { this.niveau = niveau; }
+    public String getClientId() { return clientId; }
+    public void setClientId(String clientId) { this.clientId = clientId; }
 }

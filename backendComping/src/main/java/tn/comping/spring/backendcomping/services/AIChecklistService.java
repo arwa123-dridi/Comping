@@ -1,4 +1,4 @@
-package tn.comping.spring.backendcomping.services.serviceImpl;
+package tn.comping.spring.backendcomping.services;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -12,15 +12,16 @@ import org.springframework.web.client.ResourceAccessException;
 import tn.comping.spring.backendcomping.dto.ChecklistRequest;
 import tn.comping.spring.backendcomping.dto.ChecklistResponse;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Service qui communique avec l'API Flask pour obtenir les prédictions IA.
  */
-@Service
-@Slf4j  // Pour avoir des logs
+// @Service
 public class AIChecklistService {
 
+    private static final Logger log = LoggerFactory.getLogger(AIChecklistService.class);
     private final RestTemplate restTemplate;
 
     @Value("${ia.api.url}")// Récupère l'URL FlastAPI

@@ -1,4 +1,4 @@
-package tn.comping.spring.backendcomping.services.serviceImpl;
+package tn.comping.spring.backendcomping.services;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
@@ -7,7 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.List;
 import java.util.Map;
 
-@Service
+// @Service
 public class GeocodingService {
 
     private final WebClient webClient = WebClient.create();

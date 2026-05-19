@@ -1,9 +1,6 @@
 package tn.comping.spring.backendcomping.config;
 
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -27,119 +24,56 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-
-<<<<<<< HEAD
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOrigins(List.of("http://localhost:4200"));
-                    config.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
                     config.setAllowedHeaders(List.of("*"));
                     config.setAllowCredentials(true);
                     return config;
-
                 }))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-
-                        //  Spring doit pouvoir accéder à son propre /error sinon boucle 403
-                        .requestMatchers("/error").permitAll()
-
-                        // Routes publiques
+                        // Public routes
                         .requestMatchers(
+                                "/",
+                                "/error",
                                 "/api/auth/**",
-                                "/api/sorties/**",
-                                "/api/equipes/**",
                                 "/api/upload/**",
                                 "/api/weather/**",
                                 "/api/checklist/**",
-=======
-
-        http.cors(cors -> cors.configurationSource(request -> {
-                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("http://localhost:4200"));
-                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-                    corsConfig.setAllowedHeaders(List.of("*"));
-                    return corsConfig;
-                }))
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        // Routes publiques
-                        .requestMatchers(
-                                "/",
-                                "/api/auth/**",
->>>>>>> origin/ahmed
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**",
-                                "/api/demandes-transport/**",
-                                "/api/creneaux-livraison/**",
-                                "/api/incidents/**",
-                                "/api/conventions-partenaires/**",
-<<<<<<< HEAD
-
-                                "/api/produits/**",
-                                "/api/panier/**",
-                                "/api/commandes/**",
-                                "/api/recommendations/**", 
-                                  "/uploads/**" ,
-                                "/api/webhook/**"
+                                "/api/webhook/**",
+                                "/api/stripe/**",
+                                "/ws-chat/**",
+                                "/uploads/**"
                         ).permitAll()
+                        
+                        // GET only public routes
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/produits/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/events/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/sorties/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/sites/**").permitAll()
 
-                        //  Planning + Recommandations = authentifié
-                        .requestMatchers(
-                                "/api/planning/**",
-                                "/api/recommandations/**"
-                        ).authenticated()
-
-                        // Rôles spécifiques
+                        // Role-based access
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/moderateur/**").hasAnyRole("MODERATEUR", "ADMIN")
+                        .requestMatchers("/api/organisateur/**").hasAnyRole("ORGANISATEUR", "ADMIN")
+                        .requestMatchers("/api/delivery/**").hasAnyRole("LIVREUR", "ADMIN")
 
-
-
-                        .requestMatchers("/api/produits/**").authenticated()
-                        // Avis – MODERATEUR ou ADMIN
-
-
-
+                        // Authenticated only
+                        .requestMatchers("/api/planning/**").authenticated()
+                        .requestMatchers("/api/recommandations/**").authenticated()
                         .requestMatchers("/api/users/**").authenticated()
-                        .requestMatchers("/api/events/**").authenticated()
                         .requestMatchers("/api/panier/**").authenticated()
                         .requestMatchers("/api/commandes/**").authenticated()
-                        // Tout le reste nécessite authentification
-
-                        .requestMatchers("/api/moderateur/**").hasAnyRole("MODERATEUR","ADMIN")
-                        .requestMatchers("/api/organisateur/**").hasAnyRole("ORGANISATEUR","ADMIN")
-                        .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR","ADMIN")
-                        .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR","ADMIN")
-                        .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR","ADMIN")
-
-
-=======
-                                "/api/reservations/**",
-                                "/api/sites/**",
-                                "/api/paiements/**",
-                                "/api/stripe/**",
-
-                                 "/api/produits/**",
-                                  "/uploads/**" 
-                        ).permitAll()
-
-                        // Rôles spécifiques
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/moderateur/**").hasRole("MODERATEUR")
-                        .requestMatchers("/api/organisateur/**").hasRole("ORGANISATEUR")
-                        .requestMatchers("/api/produits/**").authenticated()
-
-                        // Avis – MODERATEUR ou ADMIN
-                        .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
-                        .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
-                        .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
-                        .requestMatchers("/api/users/**").authenticated()
-                        .requestMatchers("/api/events/**").authenticated()
-                        // Tout le reste nécessite authentification
->>>>>>> origin/ahmed
+                        .requestMatchers("/api/paiements/**").authenticated()
+                        .requestMatchers("/api/incidents/**").authenticated()
+                        .requestMatchers("/api/avis/**").authenticated()
+                        
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

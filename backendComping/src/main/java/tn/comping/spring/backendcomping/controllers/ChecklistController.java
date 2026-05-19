@@ -1,66 +1,28 @@
 package tn.comping.spring.backendcomping.controllers;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tn.comping.spring.backendcomping.dto.ChecklistRequest;
-import tn.comping.spring.backendcomping.dto.ChecklistResponse;
-import tn.comping.spring.backendcomping.dto.WeatherDTO;
+import tn.comping.spring.backendcomping.dto.ChecklistResponseDTO;
 import tn.comping.spring.backendcomping.services.serviceImpl.AIChecklistService;
-import tn.comping.spring.backendcomping.services.serviceImpl.WeatherService;
 
-import java.time.LocalDate;
+import java.util.Map;
 
-/**
- * Controller REST pour exposer les endpoints liés à l'IA checklist.
- * Angular appellera ces endpoints.
- */
 @RestController
 @RequestMapping("/api/checklist")
-@CrossOrigin(origins = "http://localhost:4200")
-@Slf4j
+@RequiredArgsConstructor
+@CrossOrigin("*")
 public class ChecklistController {
 
-    @Autowired
-    private AIChecklistService aiChecklistService;
-    @Autowired
-    private WeatherService weatherService;
+    private final AIChecklistService checklistService;
 
-    /**
-     * Endpoint pour obtenir la checklist de sécurité recommandée.
-     *
-     * @param request Les données météo et difficulté
-     * @return La checklist recommandée par l'IA
-     */
-    @PostMapping("/predict")
-    public ResponseEntity<ChecklistResponse> predict(@RequestBody ChecklistRequest request) {
-        log.info("📥 Requête reçue pour prédiction checklist");
-        ChecklistResponse response = aiChecklistService.predictChecklist(request);
-        if (response.isSuccess()) {
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.status(503).body(response);
-        }
-    }
-
-    @GetMapping("/recommandation")
-    public ResponseEntity<ChecklistResponse> getChecklistByWeather(
-            @RequestParam String city,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
-            @RequestParam int difficulte) {
-
-        WeatherDTO weather = weatherService.getWeather(city, date);
-
-        ChecklistRequest iaRequest = new ChecklistRequest();
-        iaRequest.setTemperature(weather.getTemperature());
-        iaRequest.setPrecipitation(weather.getPrecipitation());
-        iaRequest.setWind_speed(weather.getWindSpeed());
-        iaRequest.setHumidity(weather.getHumidity());
-        iaRequest.setDifficulte(difficulte);
-
-        ChecklistResponse response = aiChecklistService.predictChecklist(iaRequest);
-        return response.isSuccess() ? ResponseEntity.ok(response) : ResponseEntity.status(503).body(response);
+    @PostMapping("/generate")
+    public ResponseEntity<ChecklistResponseDTO> generateChecklist(@RequestBody Map<String, Object> request) {
+        String destination = (String) request.get("destination");
+        int duration = (int) request.get("durationDays");
+        String difficulty = (String) request.get("difficulty");
+        String season = (String) request.get("season");
+        
+        return ResponseEntity.ok(checklistService.generateChecklist(destination, duration, difficulty, season));
     }
 }

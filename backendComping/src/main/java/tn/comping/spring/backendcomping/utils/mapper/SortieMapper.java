@@ -60,10 +60,6 @@ public class SortieMapper {
         // Informations organisateur (seront remplies par le service)
         if (entity.getOrganisateur() != null) {
             dto.setOrganisateurId(entity.getOrganisateur().getId());
-<<<<<<< HEAD
-            //  Utiliser les getters selon SignupEntity
-=======
->>>>>>> origin/ahmed
             dto.setOrganisateurPrenom(entity.getOrganisateur().getFirstName());
             dto.setOrganisateurNom(entity.getOrganisateur().getLastName());
         }
@@ -120,10 +116,6 @@ public class SortieMapper {
 
         if (participation.getUtilisateur() != null) {
             dto.setUtilisateurId(participation.getUtilisateur().getId());
-<<<<<<< HEAD
-            // Utiliser les bons getters selon SignupEntity
-=======
->>>>>>> origin/ahmed
             dto.setUtilisateurNom(participation.getUtilisateur().getLastName());
             dto.setUtilisateurPrenom(participation.getUtilisateur().getFirstName());
             dto.setUtilisateurEmail(participation.getUtilisateur().getEmail());

@@ -1,7 +1,9 @@
 package tn.comping.spring.backendcomping.services;
 
+import org.springframework.web.multipart.MultipartFile;
 import tn.comping.spring.backendcomping.dto.*;
 import java.util.List;
+import java.util.Map;
 
 public interface ChatService {
 
@@ -29,5 +31,5 @@ public interface ChatService {
 
     // === VOICE & APPELS ===
     String transcribeVoice(byte[] audioBytes);
-    void handleCallSignal(String conversationId, String signalData, String senderId, String callType);
+    Map<String, String> uploadVoiceMessage(MultipartFile file);
 }

@@ -14,11 +14,14 @@ import tn.comping.spring.backendcomping.utils.mapper.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AvisServiceImpl implements AvisService {
 
+    private static final Logger log = LoggerFactory.getLogger(AvisServiceImpl.class);
     private final AvisRepository avisRepository;
     private final ReponseAvisRepository reponseAvisRepository;
     private final SignupRepository signupRepository;

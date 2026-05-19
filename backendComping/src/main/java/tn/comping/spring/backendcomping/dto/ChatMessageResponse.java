@@ -1,12 +1,8 @@
 package tn.comping.spring.backendcomping.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.util.Date;
 
-@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,4 +16,7 @@ public class ChatMessageResponse {
     private Long processingTimeMs;
     private boolean success;
     private String error;
+
+    public String getResponse() { return response; }
+    public void setResponse(String response) { this.response = response; }
 }

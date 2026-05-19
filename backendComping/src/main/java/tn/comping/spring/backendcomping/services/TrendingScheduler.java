@@ -10,11 +10,18 @@ import tn.comping.spring.backendcomping.services.PostService;
  * Recalcule périodiquement les scores de tendance IA
  * pour le module de recommandation.
  */
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Recalcule périodiquement les scores de tendance IA
+ * pour le module de recommandation.
+ */
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class TrendingScheduler {
 
+    private static final Logger log = LoggerFactory.getLogger(TrendingScheduler.class);
     private final PostService postService;
 
     // Toutes les 15 minutes

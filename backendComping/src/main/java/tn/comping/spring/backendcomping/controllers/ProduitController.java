@@ -1,6 +1,8 @@
 package tn.comping.spring.backendcomping.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,12 +19,12 @@ import java.util.List;
 @RestController
 @RequestMapping(Constants.BASE_URL_PRODUIT)
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class ProduitController {
 
     private final ProduitInter produitService;
     private final ObjectMapper objectMapper;
 
-    // ================= CREATE PRODUCT WITH IMAGE =================
     @PostMapping(value = Constants.CREATE_PRODUIT, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseProduitDTO addProduit(
             @RequestPart("produit") String produitJson,
@@ -31,13 +33,19 @@ public class ProduitController {
         return produitService.addProduit(produitDTO, image);
     }
 
-    // ================= GET ALL PRODUCTS =================
     @GetMapping(Constants.GET_ALL_PRODUITS)
     public List<ResponseProduitDTO> getAllProduits() {
         return produitService.getAllProduits();
     }
+    
+    @GetMapping("/paged")
+    public Page<ResponseProduitDTO> getPagedProduits(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String category) {
+        return produitService.getPagedProduits(PageRequest.of(page, size), category);
+    }
 
-    // ================= UPDATE PRODUCT WITH IMAGE =================
     @PutMapping(value = Constants.UPDATE_PRODUIT, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseProduitDTO updateProduit(
             @PathVariable("id") String id,
@@ -47,13 +55,11 @@ public class ProduitController {
         return produitService.updateProduit(id, produitDTO, image);
     }
 
-    // ================= DELETE PRODUCT =================
     @DeleteMapping(Constants.DELETE_PRODUIT)
     public String deleteProduit(@PathVariable String id) {
         return produitService.deleteProduit(id);
     }
 
-    // ================= GET PRODUCT BY ID =================
     @GetMapping("/{id}")
     public ResponseProduitDTO getProduitById(@PathVariable String id) {
         return produitService.getProduitById(id);

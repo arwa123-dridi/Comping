@@ -3,10 +3,8 @@ package tn.comping.spring.backendcomping.dto;
 import lombok.*;
 import tn.comping.spring.backendcomping.entities.Equipe;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class EquipeScoreDTO {
 
     private Equipe equipe;
@@ -29,4 +27,17 @@ public class EquipeScoreDTO {
             this.placesLibres = Math.max(0, max - membres);
         }
     }
+
+    public Equipe getEquipe() { return equipe; }
+    public void setEquipe(Equipe equipe) { this.equipe = equipe; }
+    public double getScore() { return score; }
+    public void setScore(double score) { this.score = score; }
+    public int getScorePercent() { return scorePercent; }
+    public void setScorePercent(int scorePercent) { this.scorePercent = scorePercent; }
+    public String getRaisonPrincipale() { return raisonPrincipale; }
+    public void setRaisonPrincipale(String raisonPrincipale) { this.raisonPrincipale = raisonPrincipale; }
+    public int getPlacesLibres() { return placesLibres; }
+    public void setPlacesLibres(int placesLibres) { this.placesLibres = placesLibres; }
+    public boolean isEstPopulaire() { return estPopulaire; }
+    public void setEstPopulaire(boolean estPopulaire) { this.estPopulaire = estPopulaire; }
 }

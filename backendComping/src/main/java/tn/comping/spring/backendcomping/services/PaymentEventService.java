@@ -1,4 +1,4 @@
-package tn.comping.spring.backendcomping.services.serviceImpl;
+package tn.comping.spring.backendcomping.services;
 
 import tn.comping.spring.backendcomping.entities.PaymentEvent;
 import tn.comping.spring.backendcomping.entities.PaymentEventMethod;

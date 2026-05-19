@@ -21,4 +21,6 @@ public interface SignupRepository extends MongoRepository<SignupEntity, String> 
 
     @Query("{ 'email': { $regex: ?0, $options: 'i' } }")
     Optional<SignupEntity> findByEmailIgnoreCase(String email);
+    
+    Optional<SignupEntity> findByVerificationToken(String token);
 }

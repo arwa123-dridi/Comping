@@ -2,13 +2,13 @@ package tn.comping.spring.backendcomping.dto;
 
 import lombok.*;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class ForgotPasswordRequestDTO {
 
     private String email;
 
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 }
 

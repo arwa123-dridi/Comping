@@ -1,4 +1,4 @@
-package tn.comping.spring.backendcomping.services.serviceImpl;
+package tn.comping.spring.backendcomping.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import tn.comping.spring.backendcomping.entities.Reservation;
 import jakarta.mail.internet.MimeMessage;
 
-@Service
+// @Service
 @RequiredArgsConstructor
 public class EmailService {
 

@@ -25,6 +25,7 @@ public class AbonnementServiceImpl implements AbonnementService {
     private final AbonnementRepository abonnementRepository;
     private final SignupRepository signupRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final NotificationService notificationService;
 
     @Override
     public AbonnementResponseDTO suivre(String suiveurId, String suiviId) {
@@ -40,10 +41,15 @@ public class AbonnementServiceImpl implements AbonnementService {
                 .build();
         Abonnement saved = abonnementRepository.save(abonnement);
 
-        String suiveurNom = signupRepository.findByEmail(suiveurId)
+        String suiveurNom = signupRepository.findById(suiveurId)
                 .map(u -> (u.getFirstName() + " " + u.getLastName()).trim())
                 .filter(n -> !n.isBlank())
-                .orElse(suiveurId);
+                .orElse("Quelqu'un");
+                
+        // Create persistent notification
+        notificationService.createNotification(suiviId, suiveurId, "FOLLOW", suiveurId, suiveurNom + " a commencé à vous suivre.");
+
+        // Real-time notification
         Map<String, Object> payload = new HashMap<>();
         payload.put("type", "NEW_FOLLOWER");
         payload.put("expediteurNom", suiveurNom);
@@ -82,9 +88,8 @@ public class AbonnementServiceImpl implements AbonnementService {
     }
 
     private AbonnementResponseDTO toDTO(Abonnement a) {
-        // suiviId is stored as email — resolve by email first, fallback to MongoDB ID
-        SignupEntity user = signupRepository.findByEmail(a.getSuiviId())
-                .or(() -> signupRepository.findById(a.getSuiviId()))
+        SignupEntity user = signupRepository.findById(a.getSuiviId())
+                .or(() -> signupRepository.findByEmail(a.getSuiviId()))
                 .orElse(null);
         String nom = user != null ? (user.getFirstName() + " " + user.getLastName()).trim() : "Campeur";
         String email = user != null ? user.getEmail() : a.getSuiviId();

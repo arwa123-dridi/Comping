@@ -43,10 +43,7 @@ public class EquipeMapper {
 
         if(entity.getOrganisateur() != null){
             dto.setOrganisateurId(entity.getOrganisateur().getId());
-<<<<<<< HEAD
-=======
             dto.setOrganisateurPrenom(entity.getOrganisateur().getFirstName());
->>>>>>> origin/ahmed
             dto.setOrganisateurNom(entity.getOrganisateur().getLastName());
         }
 
@@ -99,9 +96,6 @@ public class EquipeMapper {
 
         if(entities == null) return new ArrayList<>();
 
-        return entities.stream()
-                .map(EquipeMapper::toDto)
-                .collect(Collectors.toList());
+        return entities.stream().map(EquipeMapper::toDto).collect(Collectors.toList());
     }
-
 }

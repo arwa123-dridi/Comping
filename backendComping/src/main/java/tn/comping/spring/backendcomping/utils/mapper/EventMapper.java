@@ -1,6 +1,5 @@
 package tn.comping.spring.backendcomping.utils.mapper;
 
-
 import tn.comping.spring.backendcomping.dto.EventRequestDTO;
 import tn.comping.spring.backendcomping.dto.EventResponseDTO;
 import tn.comping.spring.backendcomping.entities.Event;
@@ -17,23 +16,17 @@ public class EventMapper {
                 .description(dto.getDescription())
                 .prix(dto.getPrix())
                 .capacite(dto.getCapacite())
-                .statut(dto.getStatut() != null ? dto.getStatut() : StatutEvent.VALIDE)
+                .statut(dto.getStatut() != null ? dto.getStatut() : StatutEvent.EN_ATTENTE)
                 .activityIds(dto.getActivityIds())
                 .dateDebut(dto.getDateDebut())
                 .dateFin(dto.getDateFin())
                 .lieu(dto.getLieu())
-
-
-                .participantIds(new ArrayList<>())
-
-
+                .participantIds(dto.getParticipantIds() != null ? dto.getParticipantIds() : new ArrayList<>())
                 .categorie(dto.getCategorie())
-
                 .createdAt(LocalDateTime.now())
                 .latitude(dto.getLatitude())
                 .longitude(dto.getLongitude())
                 .dureeEnHeures(dto.getDureeEnHeures())
-
                 .tags(dto.getTags())
                 .niveauDifficulte(dto.getNiveauDifficulte())
                 .trancheAge(dto.getTrancheAge())
@@ -56,23 +49,12 @@ public class EventMapper {
                 .dateDebut(entity.getDateDebut())
                 .dateFin(entity.getDateFin())
                 .lieu(entity.getLieu())
-
                 .organisateurId(entity.getOrganisateurId())
-<<<<<<< HEAD
-                .participantIds(
-                        entity.getParticipantIds() != null
-                                ? entity.getParticipantIds()
-                                : new ArrayList<>()
-                )
-=======
-
->>>>>>> origin/ahmed
-
+                .participantIds(entity.getParticipantIds() != null ? entity.getParticipantIds() : new ArrayList<>())
                 .nombreParticipants(nbParticipants)
                 .placesRestantes(entity.getCapacite() - nbParticipants)
                 .dejaInscrit(false)
                 .categorie(entity.getCategorie())
-<<<<<<< HEAD
                 .niveauDifficulte(entity.getNiveauDifficulte())
                 .trancheAge(entity.getTrancheAge())
                 .latitude(entity.getLatitude())
@@ -80,9 +62,6 @@ public class EventMapper {
                 .saison(entity.getSaison())
                 .dureeEnHeures(entity.getDureeEnHeures())
                 .tags(entity.getTags())
-=======
-
->>>>>>> origin/ahmed
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

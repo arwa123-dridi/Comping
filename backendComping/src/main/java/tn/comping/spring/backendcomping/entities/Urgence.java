@@ -6,7 +6,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 import java.util.List;
 
-@Data @NoArgsConstructor @AllArgsConstructor
+@NoArgsConstructor @AllArgsConstructor
+@Builder
 @Document(collection = "Urgence")
 public class Urgence {
     @Id
@@ -58,4 +59,27 @@ public class Urgence {
     // Notes
     private String notes;
     private List<String> comments;
+
+    // Manual Getters and Setters to bypass Lombok issue
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getTitre() { return titre; }
+    public void setTitre(String titre) { this.titre = titre; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public Date getDateCreation() { return dateCreation; }
+    public void setDateCreation(Date dateCreation) { this.dateCreation = dateCreation; }
+    public String getStatut() { return statut; }
+    public void setStatut(String statut) { this.statut = statut; }
+    public String getNiveauUrgence() { return niveauUrgence; }
+    public void setNiveauUrgence(String niveauUrgence) { this.niveauUrgence = niveauUrgence; }
+    public String getSiteCampingId() { return siteCampingId; }
+    public void setSiteCampingId(String siteCampingId) { this.siteCampingId = siteCampingId; }
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+    public void setDateResolution(Date dateResolution) { this.dateResolution = dateResolution; }
+    public String getResolution() { return resolution; }
+    public void setResolution(String resolution) { this.resolution = resolution; }
 }

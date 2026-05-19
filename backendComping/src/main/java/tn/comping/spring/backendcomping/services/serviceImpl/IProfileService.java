@@ -1,5 +1,6 @@
 package tn.comping.spring.backendcomping.services.serviceImpl;
 
+import org.springframework.web.multipart.MultipartFile;
 import tn.comping.spring.backendcomping.dto.UpdatePasswordDTO;
 import tn.comping.spring.backendcomping.dto.UpdateProfileDTO;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
@@ -15,11 +16,14 @@ public interface IProfileService {
     String updatePassword(String userId, UpdatePasswordDTO dto);
 
     String updatePhoto(String userId, String photoUrl);
+    
+    String updateAvatar(String userId, MultipartFile file);
 
     SignupEntity getUserByEmail(String email);
 
     List<SignupEntity> getAllUsers();
 
     void deleteUser(String userId);
+    
     SignupEntity updateStatus(String id, boolean statut);
 }

@@ -1,9 +1,7 @@
-package tn.comping.spring.backendcomping.services.serviceImpl;
+package tn.comping.spring.backendcomping.services;
 
-import org.springframework.stereotype.Service;
 import tn.comping.spring.backendcomping.entities.CarteFidelite;
 
-@Service
 public interface CarteFideliteService {
      CarteFidelite getOrCreate(String clientId);
      void ajouterPoints(String clientId, int points);

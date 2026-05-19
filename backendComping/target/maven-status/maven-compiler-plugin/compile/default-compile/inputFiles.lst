@@ -31,11 +31,13 @@ C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\AdvancedAPIController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\AdvancedWorkflowController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\AiEventController.java
+C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\AiRecommendationController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\AlerteController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\AuthController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\AvisController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\CarteFideliteController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\ChatController.java
+C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\ChatWebSocketController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\ChecklistController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\CommandeController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\CommentaireController.java
@@ -49,6 +51,7 @@ C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\IncidentController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\LLMController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\LocationController.java
+C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\NotificationController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\PaiementController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\PanierController.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\controllers\PasswordResetController.java
@@ -84,6 +87,7 @@ C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\ChatMessageResponse.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\ChecklistRequest.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\ChecklistResponse.java
+C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\ChecklistResponseDTO.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\CommandeLigneRequestDTO.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\CommandeLigneResponseDTO.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\CommandeRequestDTO.java
@@ -151,6 +155,7 @@ C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\SortieResponseDTO.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\SortieScoreDTO.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\StatistiquesAvisDTO.java
+C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\StripeSessionResponseDTO.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\TeamMemberResponse.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\UpdatePasswordDTO.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\dto\UpdateProfileDTO.java
@@ -193,6 +198,7 @@ C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\entities\Message.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\entities\ModeLivraison.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\entities\ModePaiement.java
+C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\entities\Notification.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\entities\Paiement.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\entities\Panier.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\entities\PanierLigne.java
@@ -248,6 +254,7 @@ C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\repositories\IncidentRepository.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\repositories\InteractionRepository.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\repositories\MessageRepository.java
+C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\repositories\NotificationRepository.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\repositories\PaiementRepository.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\repositories\PanierRepository.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\repositories\ParticipationRepository.java
@@ -336,6 +343,8 @@ C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\services\serviceImpl\ISortieService.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\services\serviceImpl\LLMService.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\services\serviceImpl\LocationService.java
+C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\services\serviceImpl\NotificationService.java
+C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\services\serviceImpl\NotificationServiceImpl.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\services\serviceImpl\PaiementService.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\services\serviceImpl\PaiementServiceImpl.java
 C:\Users\Ali\Downloads\Comping-Dridi-Arwa\Comping-Dridi-Arwa\backendComping\src\main\java\tn\comping\spring\backendcomping\services\serviceImpl\PanierService.java

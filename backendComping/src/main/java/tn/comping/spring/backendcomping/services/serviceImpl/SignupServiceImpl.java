@@ -14,12 +14,10 @@ import tn.comping.spring.backendcomping.dto.SignupDTO;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.repositories.SignupRepository;
 import tn.comping.spring.backendcomping.utils.mapper.SignupMapper;
-
-
-import java.util.List;
-
 import tn.comping.spring.backendcomping.entities.Role;
 
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +28,7 @@ public class SignupServiceImpl implements SignupService {
     private final SignupRepository signupRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final EmailService emailService;
 
     @Override
     public SignupEntity registerUser(SignupDTO dto) {
@@ -40,8 +39,21 @@ public class SignupServiceImpl implements SignupService {
         SignupEntity user = SignupMapper.toEntity(dto);
         user.setEmail(normalizedEmail);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        
+        // Generate verification token
+        user.setVerificationToken(UUID.randomUUID().toString());
+        user.setVerified(false);
+        
         SignupEntity savedUser = signupRepository.save(user);
-        logger.info("✅ User added: {}", savedUser);
+        
+        // Send verification email
+        try {
+            emailService.sendVerificationEmail(savedUser.getEmail(), savedUser.getVerificationToken(), savedUser.getFirstName());
+        } catch (Exception e) {
+            logger.error("Failed to send verification email to {}: {}", savedUser.getEmail(), e.getMessage());
+        }
+        
+        logger.info("✅ User registered: {}", savedUser.getEmail());
         return savedUser;
     }
 
@@ -51,14 +63,13 @@ public class SignupServiceImpl implements SignupService {
         SignupEntity user = signupRepository.findByEmailIgnoreCase(normalizedEmail)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "USER_NOT_FOUND"));
 
-
-<<<<<<< HEAD
         if (!user.isStatut()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "ACCOUNT_DISABLED");
         }
-=======
-            String token = jwtUtils.generateToken(user.getEmail(),user.getId(),user.getRole());
->>>>>>> origin/ahmed
+        
+        if (!user.isVerified()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "ACCOUNT_NOT_VERIFIED");
+        }
 
         boolean passwordMatches;
         try {
@@ -92,5 +103,14 @@ public class SignupServiceImpl implements SignupService {
         return signupRepository.findByRole(Role.LIVREUR);
     }
 
-
+    @Override
+    public void verifyEmail(String token) {
+        SignupEntity user = signupRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new RuntimeException("Token de vérification invalide"));
+        
+        user.setVerified(true);
+        user.setVerificationToken(null);
+        signupRepository.save(user);
+        logger.info("✅ User verified: {}", user.getEmail());
+    }
 }

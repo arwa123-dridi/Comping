@@ -6,13 +6,11 @@ import lombok.Data;
 public class MembreDTO {
     private String id;
     private String nom;
+    private String prenom;
     private String email;
     private Boolean estOrganisateur;
+
     public void setPrenom(String firstName) {
-<<<<<<< HEAD
-=======
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setPrenom'");
->>>>>>> origin/ahmed
+        this.prenom = firstName;
     }
 }

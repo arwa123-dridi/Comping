@@ -6,12 +6,15 @@ import tn.comping.spring.backendcomping.entities.Produit;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ProduitInter {
 
     List<ResponseProduitDTO> getAllProduits();
-<<<<<<< HEAD
+
+    Page<ResponseProduitDTO> getPagedProduits(Pageable pageable, String category);
 
     ResponseProduitDTO addProduit(RequestProduitDTO produitDTO, MultipartFile image);
 
@@ -23,19 +26,5 @@ public interface ProduitInter {
 
     List<ResponseProduitDTO> searchProduitsByName(String nomProduit);
 
-    // ⭐ ADD THIS METHOD (for cart promo price)
     Double calculateFinalPrice(Produit produit);
-=======
-
-    ResponseProduitDTO addProduit(RequestProduitDTO produitDTO, MultipartFile image);
-
-    ResponseProduitDTO updateProduit(String id, RequestProduitDTO produitDTO, MultipartFile image);
-
-     ResponseProduitDTO getProduitById(String id);
-
-
-    String deleteProduit(String id);
-
-     List<ResponseProduitDTO> searchProduitsByName(String nomProduit);
->>>>>>> origin/ahmed
 }

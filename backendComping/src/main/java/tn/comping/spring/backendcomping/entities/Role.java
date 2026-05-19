@@ -6,11 +6,6 @@ public enum Role {
     BOUTIQUE,
     ORGANISATEUR,
     PARTENAIRE_logistique,
-<<<<<<< HEAD
     USER,
     LIVREUR
-=======
-    USER
->>>>>>> origin/ahmed
 }
-

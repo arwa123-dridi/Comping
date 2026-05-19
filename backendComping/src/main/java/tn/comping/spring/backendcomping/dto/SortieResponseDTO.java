@@ -25,7 +25,6 @@ public class SortieResponseDTO {
     private Boolean assistanceMedicale;
     private Double distanceKm;
 
-    // ✅ AJOUTÉ — URL image Cloudinary
     private String imageUrl;
 
     private String organisateurId;
@@ -37,13 +36,9 @@ public class SortieResponseDTO {
     private Integer nombreParticipants;
     private List<String> participantIds;
     private LocalDateTime dateCreation;
-<<<<<<< HEAD
     private String utilisateurPrenom;
-}
-=======
+
     public void setOrganisateurPrenom(String firstName) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setOrganisateurPrenom'");
+        this.organisateurPrenom = firstName;
     }
 }
->>>>>>> origin/ahmed

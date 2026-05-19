@@ -1,23 +1,17 @@
 package tn.comping.spring.backendcomping.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import tn.comping.spring.backendcomping.entities.Role;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
 import tn.comping.spring.backendcomping.dto.SignupDTO;
 
-<<<<<<< HEAD
 import java.util.List;
-=======
->>>>>>> origin/ahmed
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-
 public class SignupController {
 
     private final SignupService signupService;
@@ -26,18 +20,26 @@ public class SignupController {
         this.signupService = signupService;
     }
 
-    // Endpoint to register a new user
     @PostMapping("/registerUser")
     public ResponseEntity<?> registerUser(@RequestBody SignupDTO dto) {
         try {
             SignupEntity newUser = signupService.registerUser(dto);
             return ResponseEntity.ok(newUser);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
 
-<<<<<<< HEAD
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+        try {
+            signupService.verifyEmail(token);
+            return ResponseEntity.ok(Map.of("message", "Compte vérifié avec succès."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @GetMapping("getUserById/{id}")
     public SignupEntity getUserById(@PathVariable String id) {
         return signupService.getUserById(id);
@@ -47,7 +49,4 @@ public class SignupController {
     public ResponseEntity<List<SignupEntity>> getLivreurs() {
         return ResponseEntity.ok(signupService.getLivreurs());
     }
-=======
->>>>>>> origin/ahmed
-
 }

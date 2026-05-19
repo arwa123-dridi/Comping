@@ -1,96 +1,86 @@
 package tn.comping.spring.backendcomping.services.serviceImpl;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.client.ResourceAccessException;
-
-import tn.comping.spring.backendcomping.dto.ChecklistRequest;
-import tn.comping.spring.backendcomping.dto.ChecklistResponse;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import tn.comping.spring.backendcomping.dto.ChecklistResponseDTO;
 
-/**
- * Service qui communique avec l'API Flask pour obtenir les prédictions IA.
- */
+import java.util.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
-@Slf4j  // Pour avoir des logs
+@RequiredArgsConstructor
 public class AIChecklistService {
 
-    private final RestTemplate restTemplate;
+    private static final Logger log = LoggerFactory.getLogger(AIChecklistService.class);
+    private final WebClient.Builder webClientBuilder;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Value("${ia.api.url}")// Récupère l'URL FlastAPI
-    private String flastApiUrl;
+    private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
 
-    @Value("${ai.api.timeout:5000}")
-    private int timeout;
+    public ChecklistResponseDTO generateChecklist(String destination, int duration, String difficulty, String season) {
+        String prompt = String.format(
+            "Generate a comprehensive camping gear checklist for a trip to %s for %d days. " +
+            "Difficulty: %s, Season: %s. " +
+            "Return ONLY a JSON object with categories as keys and arrays of items as values. " +
+            "Categories should include: Equipment, Clothing, Food & Water, First Aid, Personal Care.",
+            destination, duration, difficulty, season
+        );
 
-    public AIChecklistService() {
-        this.restTemplate = new RestTemplate();
-    }
-
-    /**
-     * Envoie une requête à l'API Flask pour prédire la checklist.
-     *
-     * @param request Les données météo et difficulté
-     * @return La réponse avec la checklist recommandée
-     */
-    public ChecklistResponse predictChecklist(ChecklistRequest request) {
-
-        log.info("🌤️ Appel à l'IA Flask pour prédiction...");
-        log.info("   Température: {}°C", request.getTemperature());
-        log.info("   Précipitations: {}mm", request.getPrecipitation());
-        log.info("   Vent: {}km/h", request.getWind_speed());
-        log.info("   Difficulté: {}/5", request.getDifficulte());
-
-        // Préparer les headers HTTP
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // Créer l'entité HTTP avec la requête
-        HttpEntity<ChecklistRequest> entity = new HttpEntity<>(request, headers);
+        Map<String, Object> request = Map.of(
+            "model", "llama3", // or any available model
+            "prompt", prompt,
+            "stream", false,
+            "format", "json"
+        );
 
         try {
-            // Appeler l'API Flask
-            ResponseEntity<ChecklistResponse> response = restTemplate.postForEntity(
-                    flastApiUrl,
-                    entity,
-                    ChecklistResponse.class
-            );
+            String response = webClientBuilder.build()
+                    .post()
+                    .uri(OLLAMA_URL)
+                    .bodyValue(request)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
 
-            ChecklistResponse result = response.getBody();
+            JsonNode root = objectMapper.readTree(response);
+            String jsonContent = root.get("response").asText();
+            JsonNode categoriesNode = objectMapper.readTree(jsonContent);
 
-            if (result != null && result.isSuccess()) {
-                log.info("✅ Prédiction réussie: {}", result.getChecklistItem());
-                log.info("   Confiance: {}%", result.getConfidence() * 100);
-            } else if (result != null) {
-                log.error("❌ Prédiction échouée: {}", result.getError());
-            }
+            Map<String, List<String>> categories = new HashMap<>();
+            categoriesNode.fields().forEachRemaining(entry -> {
+                List<String> items = new ArrayList<>();
+                if (entry.getValue().isArray()) {
+                    entry.getValue().forEach(item -> items.add(item.asText()));
+                }
+                categories.put(entry.getKey(), items);
+            });
 
-            return result;
-
-        } catch (ResourceAccessException e) {
-            // Erreur quand Flask n'est pas accessible
-            log.error("❌ Impossible de joindre l'API Flask. Vérifiez que le serveur est lancé sur le port 5000");
-            log.error("   Erreur: {}", e.getMessage());
-
-            ChecklistResponse errorResponse = new ChecklistResponse();
-            errorResponse.setSuccess(false);
-            errorResponse.setError("Service IA indisponible. Vérifiez que Flask tourne sur http://localhost:5000");
-            return errorResponse;
+            return ChecklistResponseDTO.builder()
+                    .destination(destination)
+                    .durationDays(duration)
+                    .difficulty(difficulty)
+                    .season(season)
+                    .categories(categories)
+                    .build();
 
         } catch (Exception e) {
-            // Autres erreurs
-            log.error("❌ Erreur lors de l'appel à l'API IA: {}", e.getMessage());
-
-            ChecklistResponse errorResponse = new ChecklistResponse();
-            errorResponse.setSuccess(false);
-            errorResponse.setError("Erreur technique: " + e.getMessage());
-            return errorResponse;
+            log.error("Failed to generate checklist via Ollama: {}", e.getMessage());
+            // Fallback to a basic list
+            return getFallbackChecklist(destination, duration, difficulty, season);
         }
+    }
+
+    private ChecklistResponseDTO getFallbackChecklist(String dest, int dur, String diff, String seas) {
+        Map<String, List<String>> fallback = new HashMap<>();
+        fallback.put("Essential", List.of("Tent", "Sleeping bag", "Flashlight", "Water bottle"));
+        return ChecklistResponseDTO.builder()
+                .destination(dest).durationDays(dur).difficulty(diff).season(seas)
+                .categories(fallback).build();
     }
 }

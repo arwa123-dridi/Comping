@@ -1,4 +1,4 @@
-package tn.comping.spring.backendcomping.services.serviceImpl;
+package tn.comping.spring.backendcomping.services;
 
 import tn.comping.spring.backendcomping.dto.IncidentRequest;
 import tn.comping.spring.backendcomping.dto.IncidentResponse;

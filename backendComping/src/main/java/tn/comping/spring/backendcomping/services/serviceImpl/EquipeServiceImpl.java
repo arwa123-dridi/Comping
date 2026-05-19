@@ -162,10 +162,7 @@ public class EquipeServiceImpl implements IEquipeService {
 
         if (equipe.getOrganisateur() != null) {
             dto.setOrganisateurId(equipe.getOrganisateur().getId());
-<<<<<<< HEAD
-=======
             dto.setOrganisateurPrenom(equipe.getOrganisateur().getFirstName());
->>>>>>> origin/ahmed
             dto.setOrganisateurNom(equipe.getOrganisateur().getLastName());
         }
 
@@ -174,7 +171,8 @@ public class EquipeServiceImpl implements IEquipeService {
                 .map(user -> {
                     MembreDTO membre = new MembreDTO();
                     membre.setId(user.getId());
-                    membre.setNom(user.getFirstName());
+                    membre.setNom(user.getLastName());
+                    membre.setPrenom(user.getFirstName());
                     membre.setEmail(user.getEmail());
                     membre.setEstOrganisateur(user.getId().equals(equipe.getOrganisateur().getId()));
                     return membre;

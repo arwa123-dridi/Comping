@@ -1,4 +1,4 @@
-package tn.comping.spring.backendcomping.services.serviceImpl;
+package tn.comping.spring.backendcomping.services;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
@@ -10,11 +10,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Map;
 
-@Service
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+// @Service
 @RequiredArgsConstructor
-@Slf4j
 public class CloudinaryService {
 
+    private static final Logger log = LoggerFactory.getLogger(CloudinaryService.class);
     private final Cloudinary cloudinary;
 
     /**
