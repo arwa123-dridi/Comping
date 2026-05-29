@@ -61,7 +61,7 @@ public class SignupServiceImpl implements SignupService {
                     "INVALID_PASSWORD"
             );
         }
-            String token = jwtUtils.generateToken(user.getEmail(),user.getId(),user.getRole());
+        String token = jwtUtils.generateToken(user.getEmail(),user.getId(),user.getRole());
 
 
         return new LoginDTOResponse(token);
@@ -74,4 +74,3 @@ public class SignupServiceImpl implements SignupService {
 
 
 }
-

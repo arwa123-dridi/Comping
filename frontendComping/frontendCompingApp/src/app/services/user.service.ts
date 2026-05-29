@@ -1,56 +1,40 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { User } from '../models/user.model';
-import { Observable } from 'rxjs/internal/Observable';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class UserService {
-   private apiUrl = 'http://localhost:8087/api/users';
+  private base = 'http://localhost:8087/api';
 
-   constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {}
 
-  getAllUsers(): Observable<User[]> {
-    const token = localStorage.getItem('authToken');
-
-  return this.http.get<User[]>(this.apiUrl, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  private headers(): HttpHeaders {
+    return new HttpHeaders({
+      Authorization: `Bearer ${localStorage.getItem('authToken') ?? ''}`,
+      'Content-Type': 'application/json'
+    });
   }
- deleteUser(id: string): Observable<any> {
-   const token = localStorage.getItem('authToken');
 
-  return this.http.delete(`${this.apiUrl}/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    },
-    responseType: 'text' as 'json'
-  });
- }
-updateUserStatus(id: string, statut: boolean) {
-  const token = localStorage.getItem('authToken');
+  getAllUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/users`, { headers: this.headers() });
+  }
 
-  return this.http.patch(
-    `${this.apiUrl}/${id}/status`,
-    { statut },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    }
-  );
-}
-getTotalUsers(): Observable<number> {
-  const token = localStorage.getItem('authToken');
+  getTotalUsers(): Observable<number> {
+    return this.getAllUsers().pipe(map(users => users.length));
+  }
 
-  return this.http.get<number>(`${this.apiUrl}/count`, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-}
+  // ✅ Envoie { statut } ET { actif } pour couvrir les 2 conventions backend
+  updateUserStatus(id: string, actif: boolean): Observable<any> {
+    return this.http.patch(
+      `${this.base}/users/${id}/status`,
+      { statut: actif, actif: actif },
+      { headers: this.headers() }
+    );
+  }
 
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/users/${id}`, { headers: this.headers() });
+  }
 }

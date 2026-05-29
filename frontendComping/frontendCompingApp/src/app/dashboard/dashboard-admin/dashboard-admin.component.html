@@ -1,226 +1,459 @@
-<!-- ============================================================
-     DASHBOARD ADMIN — CAMPINO · Randonnées & Équipes
-     ============================================================ -->
-<div class="dash-admin">
+< class="dashboard">
 
-  <!-- ══ HEADER ══ -->
-  <div class="dash-header">
-    <div class="dash-header-content">
-      <div>
-        <div class="dash-badge">📊 Administration · CAMPINO</div>
-        <h1 class="dash-title">Tableau de bord</h1>
-        <p class="dash-sub">Gestion complète des randonnées et équipes</p>
-      </div>
-      <div class="dash-header-actions">
-        <button class="btn-refresh" (click)="refresh()">🔄 Actualiser</button>
-        <button class="btn-new-sortie" routerLink="/sorties/create">+ Nouvelle sortie</button>
-      </div>
+  <!-- BANNER -->
+  <div class="banner">
+    <div class="banner-text">
+      <h1>Bienvenue sur CAMPINO ✦</h1>
+      <p>Gérez vos emplacements, matériels, expériences et réservations.</p>
     </div>
   </div>
 
-  <div class="dash-body">
+  <!-- STAT CARDS (existantes — ne pas modifier les autres modules) -->
+  <div class="stats-grid">
 
-    <!-- ══ STATISTIQUES ══════════════════════════════════════ -->
-    <div class="stats-grid">
-      <div class="stat-card stat-blue">
-        <div class="stat-icon">🏔️</div>
-        <div class="stat-info">
-          <div class="stat-num">{{ stats.totalSorties }}</div>
-          <div class="stat-label">Randonnées</div>
+    <!-- ✅ Carré vert Randonnées — dynamique -->
+    <div class="stat-card green">
+      <div class="stat-top">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M3 17l4-8 4 4 4-6 4 10"/>
+          </svg>
         </div>
-        <div class="stat-trend">↑</div>
+        <span class="stat-badge">mis à jour</span>
       </div>
-      <div class="stat-card stat-green">
-        <div class="stat-icon">👤</div>
-        <div class="stat-info">
-          <div class="stat-num">{{ stats.totalParticipants }}</div>
-          <div class="stat-label">Participants</div>
-        </div>
-        <div class="stat-trend">↑</div>
-      </div>
-      <div class="stat-card stat-sky">
-        <div class="stat-icon">👥</div>
-        <div class="stat-info">
-          <div class="stat-num">{{ stats.totalEquipes }}</div>
-          <div class="stat-label">Équipes</div>
-        </div>
-        <div class="stat-trend">→</div>
-      </div>
-      <div class="stat-card stat-orange">
-        <div class="stat-icon">✅</div>
-        <div class="stat-info">
-          <div class="stat-num">{{ stats.sortiesValidees }}</div>
-          <div class="stat-label">Planifiées</div>
-        </div>
-        <div class="stat-trend">↑</div>
+      <div class="stat-value">{{ totalSorties }}</div>
+      <div class="stat-label">Randonnées</div>
+      <div class="stat-divider"></div>
+      <div class="stat-sub">
+        <span class="tag">🏕️ À venir {{ sortiesAVenir.length }}</span>
+        <span class="tag">👥 {{ totalParticipants }} participants</span>
+        <span class="tag">✅ {{ sortiesCompletes }} complètes</span>
       </div>
     </div>
 
-    <!-- ══ LOADING ══ -->
-    <div *ngIf="loading" class="dash-loading">
-      <div class="campino-spinner"></div>
-      <p>Chargement des données…</p>
+    <!-- Carré bleu Utilisateurs — dynamique -->
+    <div class="stat-card blue">
+      <div class="stat-top">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <span class="stat-badge">utilisateurs</span>
+      </div>
+      <div class="stat-value">{{ totalUsers }}</div>
+      <div class="stat-label">Utilisateurs enregistrés</div>
+      <div class="stat-divider"></div>
+      <div class="stat-footer">
+        <span class="stat-sub-item">plateforme active</span>
+      </div>
     </div>
 
-    <!-- ══ CONTENU PRINCIPAL ══════════════════════════════════ -->
-    <div *ngIf="!loading" class="dash-content">
-
-      <!-- TABLE DES SORTIES -->
-      <div class="dash-card mb-4">
-        <div class="dash-card-header">
-          <h3 class="dash-card-title">📋 Toutes les randonnées</h3>
-          <a routerLink="/sorties" class="dash-card-link">Voir tout →</a>
+    <!-- Carré amber — autres modules (laissé pour les autres équipes) -->
+    <div class="stat-card amber">
+      <div class="stat-top">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
         </div>
+        <span class="stat-badge">PDF prêts</span>
+      </div>
+      <div class="stat-value">87</div>
+      <div class="stat-label">Articles en stock</div>
+      <div class="stat-divider"></div>
+      <div class="stat-footer">
+        <span class="stat-sub-item"><strong>+12%</strong> ce mois</span>
+        <span class="stat-sub-item warn">⚠ 3 en rupture</span>
+      </div>
+    </div>
 
-        <div class="table-wrap">
-          <table class="campino-table">
-            <thead>
-              <tr>
-                <th>Randonnée</th>
-                <th>Organisateur</th>
-                <th>Date</th>
-                <th>Difficulté</th>
-                <th>Participants</th>
-                <th>Statut</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let s of sorties">
-                <td>
-                  <div class="td-title">{{ s.titre }}</div>
-                  <div class="td-sub">{{ s.distanceKm || 0 }} km · {{ s.lieuDepart || '—' }}</div>
-                </td>
-                <td class="td-org">{{ s.organisateurNom || 'Inconnu' }}</td>
-                <td class="td-date">{{ s.dateDebut | date:'dd/MM/yy' }}</td>
-                <td>
-                  <span class="diff-tag"
-                        [class.diff-f]="s.difficulte==='FACILE'"
-                        [class.diff-m]="s.difficulte==='MOYEN'"
-                        [class.diff-d]="s.difficulte==='DIFFICILE'">
-                    {{ s.difficulte }}
-                  </span>
-                </td>
-                <td>
-                  <div class="td-participants">
-                    <div class="mini-bar-wrap">
-                      <div class="mini-bar-fill"
-                           [style.width.%]="(getNombreParticipants(s) / (s.capaciteMax || 1)) * 100">
-                      </div>
-                    </div>
-                    <span>{{ getNombreParticipants(s) }}/{{ s.capaciteMax }}</span>
-                  </div>
-                </td>
-                <td>
-                  <span class="statut-tag"
-                        [class.statut-plan]="getSortieStatut(s)==='PLANIFIEE'"
-                        [class.statut-cours]="getSortieStatut(s)==='EN_COURS'"
-                        [class.statut-term]="getSortieStatut(s)==='TERMINEE'">
-                    {{ getSortieStatut(s) === 'PLANIFIEE' ? 'Planifiée'
-                     : getSortieStatut(s) === 'EN_COURS'  ? 'En cours'
-                     : 'Terminée' }}
-                  </span>
-                </td>
-                <td>
-                  <div class="td-actions">
-                    <button class="td-btn-view"  [routerLink]="['/sorties', s.id]">👁️</button>
-                    <button class="td-btn-edit"  [routerLink]="['/sorties/edit', s.id]">✏️</button>
-                  </div>
-                </td>
-              </tr>
-              <tr *ngIf="sorties.length === 0">
-                <td colspan="7" class="td-empty">Aucune randonnée disponible</td>
-              </tr>
-            </tbody>
-          </table>
+    <!-- Carré red — autres modules (laissé pour les autres équipes) -->
+    <div class="stat-card red">
+      <div class="stat-top">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <span class="stat-badge">événements</span>
+      </div>
+      <div class="stat-value">{{ totalEvents }}</div>
+      <div class="stat-label">Événements créés</div>
+      <div class="stat-divider"></div>
+      <div class="stat-footer">
+        <span class="stat-sub-item grow">↑ +13.2%</span>
+        <span class="stat-sub-item"><strong>74%</strong> taux de remplissage</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       ✅ SECTION ADMINISTRATION — MODULE RANDONNÉE (Admin only)
+       Statistiques complètes visibles uniquement pour l'admin
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="admin-module-section">
+
+    <div class="module-section-header">
+      <div class="module-section-title">
+        <span class="module-icon">📊</span>
+        Administration — Module Randonnée & Équipes
+      </div>
+      <div class="module-section-links">
+        <a routerLink="/admin/admin-sorties" class="module-link">Gérer les sorties →</a>
+        <a routerLink="/admin/admin-equipes" class="module-link">Gérer les équipes →</a>
+        <a routerLink="/admin/admin-participants" class="module-link">Voir les participants →</a>
+      </div>
+    </div>
+
+    <!-- Loading stats -->
+    <div *ngIf="loading" class="stats-loading">
+      <div class="mini-spinner"></div>
+      <span>Chargement des statistiques…</span>
+    </div>
+
+    <!-- KPIs secondaires Randonnée -->
+    <div *ngIf="!loading" class="module-kpi-grid">
+
+      <div class="module-kpi">
+        <div class="mkpi-icon green-bg">🏕️</div>
+        <div class="mkpi-body">
+          <span class="mkpi-num">{{ totalSorties }}</span>
+          <span class="mkpi-lbl">Total randonnées</span>
+        </div>
+        <div class="mkpi-trend">
+          <span class="trend-up">{{ sortiesAVenir.length }} à venir</span>
         </div>
       </div>
 
-      <!-- LIGNE 2 : Top organisateurs + Équipes + Alertes -->
-      <div class="dash-row-3">
-
-        <!-- Top organisateurs -->
-        <div class="dash-card">
-          <div class="dash-card-header">
-            <h3 class="dash-card-title">🏆 Top organisateurs</h3>
-          </div>
-          <div class="top-list">
-            <div *ngFor="let org of getTopOrganisateurs(); let i = index" class="top-item">
-              <div class="top-rank">
-                <span *ngIf="i===0">🥇</span>
-                <span *ngIf="i===1">🥈</span>
-                <span *ngIf="i===2">🥉</span>
-                <span *ngIf="i>2" class="rank-num">{{ i+1 }}</span>
-              </div>
-              <div class="top-info">
-                <span class="top-nom">{{ org.nom }}</span>
-                <span class="top-meta">{{ org.nbSorties }} sortie(s) · {{ org.nbParticipants }} participants</span>
-              </div>
-              <span class="top-badge">{{ org.nbSorties }}</span>
-            </div>
-            <div *ngIf="getTopOrganisateurs().length === 0" class="td-empty">Aucune donnée</div>
-          </div>
+      <div class="module-kpi">
+        <div class="mkpi-icon blue-bg">🛡️</div>
+        <div class="mkpi-body">
+          <span class="mkpi-num">{{ totalEquipes }}</span>
+          <span class="mkpi-lbl">Total équipes</span>
         </div>
-
-        <!-- Équipes récentes -->
-        <div class="dash-card">
-          <div class="dash-card-header">
-            <h3 class="dash-card-title">👥 Équipes</h3>
-            <a routerLink="/equipes" class="dash-card-link">Voir →</a>
-          </div>
-          <div class="equipes-mini-list">
-            <div *ngFor="let eq of equipes.slice(0, 5)" class="eq-mini-item">
-              <div class="eq-mini-icon">🏕️</div>
-              <div class="eq-mini-info">
-                <span class="eq-mini-nom">{{ eq.nom }}</span>
-                <span class="eq-mini-meta">{{ eq.membres?.length || 0 }}/{{ eq.nbMembresMax }} membres</span>
-              </div>
-              <button class="td-btn-view" [routerLink]="['/equipes', eq.id]">👁️</button>
-            </div>
-            <div *ngIf="equipes.length === 0" class="td-empty">Aucune équipe</div>
-          </div>
+        <div class="mkpi-trend">
+          <span class="trend-up">{{ placesDisponibles }} places dispo</span>
         </div>
-
-        <!-- Alertes -->
-        <div class="dash-card">
-          <div class="dash-card-header">
-            <h3 class="dash-card-title">⚠️ Alertes</h3>
-          </div>
-          <div class="alertes-list">
-            <div class="alerte-item alerte-red">
-              <div class="alerte-dot red"></div>
-              <div class="alerte-text">
-                <span class="alerte-title">SOS déclenché</span>
-                <span class="alerte-sub">Randonnée Selja — il y a 12 min</span>
-              </div>
-            </div>
-            <div class="alerte-item alerte-orange">
-              <div class="alerte-dot orange"></div>
-              <div class="alerte-text">
-                <span class="alerte-title">Météo défavorable</span>
-                <span class="alerte-sub">Sortie Chélia — demain</span>
-              </div>
-            </div>
-            <div class="alerte-item alerte-green">
-              <div class="alerte-dot green"></div>
-              <div class="alerte-text">
-                <span class="alerte-title">Sortie complète</span>
-                <span class="alerte-sub">Randonnée Ichkeul — 20/20</span>
-              </div>
-            </div>
-            <div class="alerte-item alerte-blue">
-              <div class="alerte-dot blue"></div>
-              <div class="alerte-text">
-                <span class="alerte-title">Nouvelle équipe créée</span>
-                <span class="alerte-sub">Les Aigles du Zaghouan</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
 
-    </div><!-- /dash-content -->
+      <div class="module-kpi">
+        <div class="mkpi-icon amber-bg">🧑‍🤝‍🧑</div>
+        <div class="mkpi-body">
+          <span class="mkpi-num">{{ totalParticipants }}</span>
+          <span class="mkpi-lbl">Participations</span>
+        </div>
+        <div class="mkpi-trend">
+          <span class="trend-up">moy. {{ moyParticipantsSortie }} / sortie</span>
+        </div>
+      </div>
 
-  </div><!-- /dash-body -->
-</div>
+      <div class="module-kpi">
+        <div class="mkpi-icon teal-bg">📈</div>
+        <div class="mkpi-body">
+          <span class="mkpi-num">{{ tauxRemplissage }}%</span>
+          <span class="mkpi-lbl">Taux de remplissage</span>
+        </div>
+        <div class="mkpi-trend">
+          <span class="trend-up">{{ sortiesCompletes }} complètes</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Répartition par difficulté + Top sorties -->
+    <div *ngIf="!loading" class="module-charts">
+
+      <!-- Répartition difficultés (barres horizontales) -->
+      <div class="module-chart-card">
+        <h4 class="chart-card-title">🏔️ Répartition par difficulté</h4>
+
+        <div class="diff-stat-row">
+          <div class="diff-stat-label">
+            <span class="diff-dot green-dot"></span>
+            <span>Facile</span>
+          </div>
+          <div class="diff-stat-bar-wrap">
+            <div class="diff-stat-bar green-bar"
+                 [style.width.%]="totalSorties ? (nbFacile / totalSorties) * 100 : 0">
+            </div>
+          </div>
+          <span class="diff-stat-count">{{ nbFacile }}</span>
+        </div>
+
+        <div class="diff-stat-row">
+          <div class="diff-stat-label">
+            <span class="diff-dot orange-dot"></span>
+            <span>Modéré</span>
+          </div>
+          <div class="diff-stat-bar-wrap">
+            <div class="diff-stat-bar orange-bar"
+                 [style.width.%]="totalSorties ? (nbMoyen / totalSorties) * 100 : 0">
+            </div>
+          </div>
+          <span class="diff-stat-count">{{ nbMoyen }}</span>
+        </div>
+
+        <div class="diff-stat-row">
+          <div class="diff-stat-label">
+            <span class="diff-dot red-dot"></span>
+            <span>Difficile</span>
+          </div>
+          <div class="diff-stat-bar-wrap">
+            <div class="diff-stat-bar red-bar"
+                 [style.width.%]="totalSorties ? (nbDifficile / totalSorties) * 100 : 0">
+            </div>
+          </div>
+          <span class="diff-stat-count">{{ nbDifficile }}</span>
+        </div>
+      </div>
+
+      <!-- Top 5 sorties les plus populaires -->
+      <div class="module-chart-card">
+        <h4 class="chart-card-title">🏆 Top 5 randonnées</h4>
+        <div *ngFor="let s of topSorties" class="top-sortie-row">
+          <span class="top-sortie-name">{{ s.titre }}</span>
+          <div class="top-sortie-bar-wrap">
+            <div class="top-sortie-bar"
+                 [style.width.%]="topSorties[0]?.nb ? (s.nb / topSorties[0].nb) * 100 : 0">
+            </div>
+          </div>
+          <span class="top-sortie-nb">{{ s.nb }}</span>
+        </div>
+        <div *ngIf="topSorties.length === 0" class="no-data-txt">
+          Aucune donnée disponible
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- BOTTOM GRID (existant — ne pas modifier) -->
+  <div class="bottom-grid">
+
+    <!-- Réservations récentes -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Réservations récentes
+        </div>
+        <div class="tab-group">
+          <button class="tab active">Semaine</button>
+          <button class="tab">Mois</button>
+        </div>
+      </div>
+      <table class="resa-table">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Emplacement</th>
+            <th>Dates</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="client"><div class="av av-green">LM</div><span>Lucas Martin</span></div></td>
+            <td>Forêt des Pins</td>
+            <td>12–15 Avr</td>
+            <td><span class="pill green">Confirmé</span></td>
+          </tr>
+          <tr>
+            <td><div class="client"><div class="av av-blue">SC</div><span>Sophie Carré</span></div></td>
+            <td>Plage du Sud</td>
+            <td>14–18 Avr</td>
+            <td><span class="pill amber">En attente</span></td>
+          </tr>
+          <tr>
+            <td><div class="client"><div class="av av-red">AR</div><span>Antoine Roux</span></div></td>
+            <td>Camping des Lacs</td>
+            <td>16–20 Avr</td>
+            <td><span class="pill green">Confirmé</span></td>
+          </tr>
+          <tr>
+            <td><div class="client"><div class="av av-amber">NB</div><span>Nina Blanc</span></div></td>
+            <td>Montagne Verte</td>
+            <td>18–22 Avr</td>
+            <td><span class="pill red">Annulé</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Activités récentes -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Activités récentes
+        </div>
+        <div class="tab-group">
+          <button class="tab active">Aujourd'hui</button>
+          <button class="tab">Semaine</button>
+        </div>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="act-dot green"></div>
+          <div class="act-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div class="act-body">
+            <p><strong>Nouvelle randonnée</strong> créée — Jebel Zaghouan</p>
+            <span>Il y a 12 min</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-dot blue"></div>
+          <div class="act-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="act-body">
+            <p><strong>Inscription</strong> confirmée par Lucas M.</p>
+            <span>Il y a 34 min</span>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="act-dot amber"></div>
+          <div class="act-icon amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="act-body">
+            <p><strong>Équipe</strong> "Les Aigles" mise à jour</p>
+            <span>Il y a 1h</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+!-- ══════════════════════════════════════════════════════════════
+       SECTION ADMINISTRATION — MODULE RANDONNÉE (visible uniquement pour admin)
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="admin-module-section">
+
+    <div class="module-section-header">
+      <div class="module-section-title">
+        <span class="module-icon">📊</span>
+        Administration — Module Randonnée & Équipes
+      </div>
+      <div class="module-section-links">
+        <a routerLink="/admin/admin-sorties" class="module-link">Gérer les sorties →</a>
+        <a routerLink="/admin/admin-equipes" class="module-link">Gérer les équipes →</a>
+        <a routerLink="/admin/admin-participants" class="module-link">Voir les participants →</a>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="stats-loading">
+      <div class="mini-spinner"></div>
+      <span>Chargement des statistiques…</span>
+    </div>
+
+    <!-- KPIs secondaires Randonnée -->
+    <div *ngIf="!loading" class="module-kpi-grid">
+      <div class="module-kpi">
+        <div class="mkpi-icon green-bg">🏕️</div>
+        <div class="mkpi-body">
+          <span class="mkpi-num">{{ totalSorties }}</span>
+          <span class="mkpi-lbl">Total randonnées</span>
+        </div>
+        <div class="mkpi-trend">
+          <span class="trend-up">{{ sortiesAVenir.length }} à venir</span>
+        </div>
+      </div>
+      <div class="module-kpi">
+        <div class="mkpi-icon blue-bg">🛡️</div>
+        <div class="mkpi-body">
+          <span class="mkpi-num">{{ totalEquipes }}</span>
+          <span class="mkpi-lbl">Total équipes</span>
+        </div>
+        <div class="mkpi-trend">
+          <span class="trend-up">{{ placesDisponibles }} places dispo</span>
+        </div>
+      </div>
+      <div class="module-kpi">
+        <div class="mkpi-icon amber-bg">🧑‍🤝‍🧑</div>
+        <div class="mkpi-body">
+          <span class="mkpi-num">{{ totalParticipants }}</span>
+          <span class="mkpi-lbl">Participations</span>
+        </div>
+        <div class="mkpi-trend">
+          <span class="trend-up">moy. {{ moyParticipantsSortie }} / sortie</span>
+        </div>
+      </div>
+      <div class="module-kpi">
+        <div class="mkpi-icon teal-bg">📈</div>
+        <div class="mkpi-body">
+          <span class="mkpi-num">{{ tauxRemplissage }}%</span>
+          <span class="mkpi-lbl">Taux de remplissage</span>
+        </div>
+        <div class="mkpi-trend">
+          <span class="trend-up">{{ sortiesCompletes }} complètes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Répartition par difficulté + Top 5 -->
+    <div *ngIf="!loading" class="module-charts">
+      <div class="module-chart-card">
+        <h4 class="chart-card-title">🏔️ Répartition par difficulté</h4>
+        <div class="diff-stat-row">
+          <div class="diff-stat-label"><span class="diff-dot green-dot"></span>Facile</div>
+          <div class="diff-stat-bar-wrap"><div class="diff-stat-bar green-bar" [style.width.%]="totalSorties ? (nbFacile / totalSorties) * 100 : 0"></div></div>
+          <span class="diff-stat-count">{{ nbFacile }}</span>
+        </div>
+        <div class="diff-stat-row">
+          <div class="diff-stat-label"><span class="diff-dot orange-dot"></span>Modéré</div>
+          <div class="diff-stat-bar-wrap"><div class="diff-stat-bar orange-bar" [style.width.%]="totalSorties ? (nbMoyen / totalSorties) * 100 : 0"></div></div>
+          <span class="diff-stat-count">{{ nbMoyen }}</span>
+        </div>
+        <div class="diff-stat-row">
+          <div class="diff-stat-label"><span class="diff-dot red-dot"></span>Difficile</div>
+          <div class="diff-stat-bar-wrap"><div class="diff-stat-bar red-bar" [style.width.%]="totalSorties ? (nbDifficile / totalSorties) * 100 : 0"></div></div>
+          <span class="diff-stat-count">{{ nbDifficile }}</span>
+        </div>
+      </div>
+      <div class="module-chart-card">
+        <h4 class="chart-card-title">🏆 Top 5 randonnées</h4>
+        <div *ngFor="let s of topSorties" class="top-sortie-row">
+          <span class="top-sortie-name">{{ s.titre }}</span>
+          <div class="top-sortie-bar-wrap"><div class="top-sortie-bar" [style.width.%]="topSorties[0]?.nb ? (s.nb / topSorties[0].nb) * 100 : 0"></div></div>
+          <span class="top-sortie-nb">{{ s.nb }}</span>
+        </div>
+        <div *ngIf="topSorties.length === 0" class="no-data-txt">Aucune donnée disponible</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM GRID (existant – ne pas modifier) -->
+  <div class="bottom-grid">
+    <!-- ... réservations et activités ... -->
+  </div>
+

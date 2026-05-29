@@ -1,22 +1,27 @@
 <!-- ══════════════════════════════════════════════════════
-     RECOMMANDATIONS — Workflow 1 (SR selon historique)
-     Couleurs Campino : vert #3da859 · bleu #1b2a4a
+     RECOMMANDATIONS — avec Cloudinary et places calculées
      ═══════════════════════════════════════════════════ -->
+
+<!-- Toast (identique à celui du parent) -->
+<div *ngIf="toastMessage" class="cp-toast-container" style="position: fixed; bottom: 28px; right: 28px; z-index: 9999;">
+  <div class="cp-toast"
+       [class.cp-toast-success]="toastType==='success'"
+       [class.cp-toast-error]="toastType==='error'"
+       [class.cp-toast-info]="toastType==='info'">
+    {{ toastMessage }}
+  </div>
+</div>
 
 <section class="reco-section" *ngIf="userId">
 
-  <!-- En-tête section -->
+  <!-- En-tête -->
   <div class="reco-header">
     <div class="reco-header-left">
       <div class="reco-icon">🤖</div>
       <div>
         <h2 class="reco-title">Recommandations pour vous</h2>
-        <p class="reco-sub" *ngIf="hasHistory">
-          Basé sur vos participations précédentes
-        </p>
-        <p class="reco-sub" *ngIf="!hasHistory">
-          Sorties idéales pour commencer l'aventure
-        </p>
+        <p class="reco-sub" *ngIf="hasHistory">Basé sur vos participations précédentes</p>
+        <p class="reco-sub" *ngIf="!hasHistory">Sorties idéales pour commencer l'aventure</p>
       </div>
     </div>
     <div class="reco-badge" *ngIf="hasHistory">
@@ -49,28 +54,20 @@
   <!-- Grille des recommandations -->
   <div class="reco-grid" *ngIf="!loading && recommandations.length > 0">
 
-    <div
-      class="reco-card"
-      *ngFor="let sortie of recommandations; trackBy: trackById"
-      (click)="viewDetail(sortie.id)"
-    >
-      <!-- Badge IA -->
+    <div *ngFor="let sortie of recommandations; trackBy: trackById"
+         class="reco-card"
+         (click)="viewDetail(sortie.id)">
+
       <div class="card-ai-badge">✨ Recommandé</div>
 
-      <!-- Image -->
+      <!-- Image Cloudinary -->
       <div class="card-img-wrap">
-        <img
-          [src]="getImageUrl(sortie.titre)"
-          [alt]="sortie.titre"
-          class="card-img"
-          loading="lazy"
-        />
-        <div class="card-diff-overlay" [ngClass]="'diff-' + getDiffClass(sortie.difficulte)">
+        <img [src]="getImageUrl(sortie)" [alt]="sortie.titre" class="card-img" loading="lazy" />
+        <div class="card-diff-overlay">
           {{ getDiffLabel(sortie.difficulte) }}
         </div>
       </div>
 
-      <!-- Corps -->
       <div class="card-body">
         <h3 class="card-title">{{ sortie.titre }}</h3>
 
@@ -89,33 +86,27 @@
           </span>
         </div>
 
-        <!-- Places dispo -->
+        <!-- Places disponibles (calculées) -->
         <div class="card-places">
-          <div class="places-bar">
-            <div
-              class="places-fill"
-              [style.width.%]="(sortie.nombreParticipants / sortie.capaciteMax) * 100 | number:'1.0-0'"
-            ></div>
+          <div class="places-bar-wrap">
+            <div class="places-bar-fill"
+                 [style.width.%]="getPlacesPercent(sortie)"
+                 [class.bar-complet]="getPlacesDisponibles(sortie) === 0">
+            </div>
           </div>
           <span class="places-text">
-            {{ sortie.placesDisponibles }} place{{ sortie.placesDisponibles > 1 ? 's' : '' }} disponible{{ sortie.placesDisponibles > 1 ? 's' : '' }}
+            {{ getPlacesDisponibles(sortie) }} place{{ getPlacesDisponibles(sortie) > 1 ? 's' : '' }} disponible{{ getPlacesDisponibles(sortie) > 1 ? 's' : '' }}
           </span>
         </div>
 
         <!-- Prix + bouton -->
         <div class="card-footer">
-          <span class="card-price" *ngIf="sortie.prixParPersonne">
-            {{ sortie.prixParPersonne }} DT
-          </span>
-          <span class="card-price card-price--free" *ngIf="!sortie.prixParPersonne">
-            Gratuit
-          </span>
-          <button
-            class="btn-inscrit"
-            (click)="inscriptionRapide(sortie.id, $event)"
-            [disabled]="sortie.placesDisponibles === 0"
-          >
-            {{ sortie.placesDisponibles === 0 ? 'Complet' : 'S\\'inscrire' }}
+          <span class="card-price" *ngIf="sortie.prixParPersonne">{{ sortie.prixParPersonne }} DT</span>
+          <span class="card-price card-price--free" *ngIf="!sortie.prixParPersonne">Gratuit</span>
+          <button class="btn-inscrit"
+                  (click)="inscriptionRapide(sortie.id, $event)"
+                  [disabled]="getPlacesDisponibles(sortie) === 0">
+            {{ getPlacesDisponibles(sortie) === 0 ? 'Complet' : "S'inscrire" }}
           </button>
         </div>
       </div>

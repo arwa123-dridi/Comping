@@ -15,7 +15,7 @@ public interface ISortieService {
     void deleteSortie(String id);
 
     // Gestion des participants
-    ParticipationDTO inscrireParticipant(String sortieId, String utilisateurId, String utilisateurNom, String utilisateurEmail);
+    ParticipationDTO inscrireParticipant(String sortieId, tn.comping.spring.backendcomping.dto.InscriptionRequest request);
     void desinscrireParticipant(String sortieId, String utilisateurId);
     List<ParticipationDTO> getParticipantsBySortie(String sortieId);
 

@@ -6,6 +6,7 @@ export interface EquipeResponse {
     dateCreation: Date;
     nbMembresMax: number;
     nbMembresActuels: number;
+    capaciteMax?: number;
     niveau?: string;
     organisateurId: string;
     organisateurNom: string;

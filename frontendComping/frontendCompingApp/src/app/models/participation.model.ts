@@ -1,10 +1,15 @@
 export interface ParticipationDTO {
-    id: string;
-    utilisateurId: string;
-    utilisateurNom: string;
-    sortieId: string;
-    sortieTitre: string;
-    dateInscription: Date;
-    statutPresence: string;
-    aValideChecklist: boolean;
+  id?: string;
+  equipeId?: string;
+  equipeNom?: string;
+  utilisateurId?: string;
+  utilisateurNom?: string;
+  utilisateurPrenom?: string;
+  utilisateurEmail?: string;
+  sortieId?: string;
+  sortieTitre?: string;
+  dateInscription?: Date;
+  statutPresence?: string;
+  aValideChecklist?: boolean;
+  message?: string;   
 }

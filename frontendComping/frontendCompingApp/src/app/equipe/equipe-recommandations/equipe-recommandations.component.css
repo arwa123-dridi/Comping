@@ -22,7 +22,7 @@
 .reco-icon {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #3da859, #2e7d32);
+  background: linear-gradient(135deg, #2E7D32, #2e7d32);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -118,7 +118,7 @@
 }
 
 .btn-explore {
-  background: linear-gradient(135deg, #3da859, #2e7d32);
+  background: linear-gradient(135deg, #2E7D32, #2e7d32);
   color: white;
   padding: 0.75rem 2rem;
   border-radius: 25px;
@@ -234,7 +234,7 @@
 
 .places-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3da859, #2e7d32);
+  background: linear-gradient(90deg, #2E7D32, #2e7d32);
   border-radius: 3px;
   transition: width 0.4s ease;
 }
@@ -256,7 +256,7 @@
 }
 
 .libre-tag {
-  color: #3da859;
+  color: #2E7D32;
   font-weight: 600;
   margin-left: 0.5rem;
 }
@@ -279,7 +279,7 @@
 }
 
 .btn-inscrit {
-  background: linear-gradient(135deg, #3da859, #2e7d32);
+  background: linear-gradient(135deg, #2E7D32, #2e7d32);
   color: white;
   border: none;
   padding: 0.5rem 1.25rem;

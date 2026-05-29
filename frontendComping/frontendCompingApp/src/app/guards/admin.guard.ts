@@ -1,12 +1,12 @@
 // src/app/guards/admin.guard.ts
 
 import { Injectable } from '@angular/core';
-import { 
-  CanActivate, 
-  Router, 
+import {
+  CanActivate,
+  Router,
   UrlTree,
   ActivatedRouteSnapshot,
-  RouterStateSnapshot 
+  RouterStateSnapshot
 } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -14,37 +14,33 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AdminGuard implements CanActivate {
-  
+
   constructor(private router: Router) {}
 
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
-  ): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
-    
-    // Récupérer les informations d'authentification
+  ): boolean | UrlTree {
     const token = localStorage.getItem('authToken');
     const userRole = localStorage.getItem('userRole');
     const userId = localStorage.getItem('userId');
-    
-    // Vérifier si l'utilisateur est connecté ET est admin
-    if (token && userId && userRole === 'ADMIN') {
-      return true; // Admin connecté
+
+    const isAdmin = userRole === 'ADMIN' || userRole === 'ROLE_ADMIN';
+
+    // Autorise seulement ADMIN / ROLE_ADMIN
+    if (token && userId && isAdmin) {
+      return true;
     }
-    
-    // Vérifier si l'utilisateur est connecté mais pas admin
-    if (token && userId && userRole !== 'ADMIN') {
-      // Rediriger vers le dashboard utilisateur normal
-      this.router.navigate(['/dashboard'], { 
+
+    // Sinon -> /dashboard
+    if (token && userId) {
+      return this.router.createUrlTree(['/dashboard'], {
         queryParams: { error: 'unauthorized' }
       });
-      return false;
     }
-    
-    // Non connecté - rediriger vers connexion
-    this.router.navigate(['/signup'], { 
-      queryParams: { returnUrl: state.url, requiredRole: 'ADMIN' }
-    });
-    return false;
+
+    // Non connecté - rediriger vers login
+    localStorage.setItem('redirect_after_login', state.url);
+    return this.router.createUrlTree(['/login']);
   }
 }

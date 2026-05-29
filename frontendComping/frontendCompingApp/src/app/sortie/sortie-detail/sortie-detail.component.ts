@@ -1,182 +1,317 @@
+// src/app/sortie/sortie-detail/sortie-detail.component.ts
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SortieService } from '../../services/sortie.service';
 import { EquipeService } from '../../services/equipe.service';
 import { SortieResponse } from '../../models/sortie.model';
+import { ParticipationDTO } from '../../models/participation.model';
 
 @Component({
   selector: 'app-sortie-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, DatePipe],
   templateUrl: './sortie-detail.component.html',
   styleUrls: ['./sortie-detail.component.css']
 })
 export class SortieDetailComponent implements OnInit {
-  sortie: SortieResponse | null = null;
-  loading = true;
-  error: string | null = null;
-  inscriptionEnCours = false;
-  equipeNom = '';
-  userId: string | null = null;
 
-  private readonly heroImages = [
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80',
-    'https://images.unsplash.com/photo-1551632811-561732d1e306?w=1200&q=80',
-    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80',
-    'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=1200&q=80'
+  sortie:            SortieResponse | null = null;
+  loading            = true;
+  error:             string | null = null;
+  inscriptionEnCours = false;
+  showModal          = false;          // ✅ Modal désinscription
+
+  toastMessage: string | null = null;
+  toastType:    'success' | 'error' | 'info' = 'info';
+  private toastTimer: any;
+
+  equipeNom = '';
+  userRole: string | null = null;
+
+  // Images hero par difficulté
+  private readonly heroImages: Record<string, string> = {
+    FACILE:    'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1400&q=70',
+    MOYEN:     'https://images.unsplash.com/photo-1551632811-561732d1e306?w=1400&q=70',
+    DIFFICILE: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1400&q=70',
+    DEFAULT:   'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=70',
+  };
+
+  // Couleurs avatars participants
+  private readonly avatarColors = [
+    '#16a34a','#1d4ed8','#d97706','#dc2626',
+    '#7c3aed','#0891b2','#be185d','#15803d',
   ];
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private sortieService: SortieService,
-    private equipeService: EquipeService
+    private route:        ActivatedRoute,
+    private router:       Router,
+    private sortieService:SortieService,
+    private equipeService:EquipeService
   ) {}
 
   ngOnInit(): void {
-    this.userId = localStorage.getItem('userId');
+    this.userRole = localStorage.getItem('userRole');
     const id = this.route.snapshot.paramMap.get('id');
     if (id) this.loadSortie(id);
-    else { this.error = 'ID non trouvé'; this.loading = false; }
+    else { this.error = 'ID introuvable'; this.loading = false; }
   }
 
+  // ── Rôles ────────────────────────────────────────────────
+  isUser(): boolean {
+    const r = this.userRole ?? '';
+    return r === 'USER' || r === 'ROLE_USER';
+  }
+
+  isAdmin(): boolean {
+    const r = this.userRole ?? '';
+    return r === 'ADMIN' || r === 'ROLE_ADMIN';
+  }
+
+  isOrganisateurRole(): boolean {
+    const r = this.userRole ?? '';
+    return r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR';
+  }
+
+  isConnected(): boolean {
+    const t = localStorage.getItem('authToken');
+    return !!t && t !== 'null' && t !== 'undefined';
+  }
+
+  // ── Getters calculés ─────────────────────────────────────
+
+  /** true si l'utilisateur connecté est l'organisateur de cette sortie */
+  get isOrganisateur(): boolean {
+    const uid = localStorage.getItem('userId');
+    return !!uid && String(this.sortie?.organisateurId) === String(uid);
+  }
+
+  /** true si l'utilisateur connecté est inscrit */
+  get isParticipant(): boolean {
+    if (!this.sortie) return false;
+    const uid = localStorage.getItem('userId') ?? '';
+    return (this.sortie.participantIds ?? []).map(String).includes(String(uid));
+  }
+
+  /** Nombre de participants inscrits */
+  get nombreParticipants(): number {
+    return this.sortie?.participantIds?.length
+      ?? (this.sortie as any)?.participants?.length
+      ?? this.sortie?.nombreParticipants
+      ?? 0;
+  }
+
+  /** Places restantes */
+  get placesDisponibles(): number {
+    return Math.max(0, (this.sortie?.capaciteMax ?? 0) - this.nombreParticipants);
+  }
+
+  /** Pourcentage de remplissage */
+  getPlacesPercent(): number {
+    if (!this.sortie?.capaciteMax) return 0;
+    return Math.min((this.nombreParticipants / this.sortie.capaciteMax) * 100, 100);
+  }
+
+  /** Vérifie si la date de la sortie est passée */
+  isSortiePassee(): boolean {
+    if (!this.sortie?.dateDebut) return false;
+    return new Date(this.sortie.dateDebut) < new Date();
+  }
+
+  /** Durée entre dateDebut et dateFin */
+  getDuree(): string {
+    if (!this.sortie?.dateDebut || !this.sortie?.dateFin) return 'Non précisée';
+    const diff = new Date(this.sortie.dateFin).getTime()
+               - new Date(this.sortie.dateDebut).getTime();
+    const h = Math.round(diff / 3_600_000);
+    if (h < 24) return `${h}h`;
+    const j = Math.floor(h / 24);
+    const r = h % 24;
+    return r > 0 ? `${j}j ${r}h` : `${j} jour(s)`;
+  }
+
+  // ── Chargement ───────────────────────────────────────────
   loadSortie(id: string): void {
     this.loading = true;
+    this.error   = null;
     this.sortieService.getSortieById(id).subscribe({
       next: (data) => {
-        this.sortie = data;
-        // Essayer d'obtenir le nom de l'équipe depuis les différents champs possibles
-        this.equipeNom = (data as any).equipe?.nom
-          || (data as any).equipeNom
-          || 'Sans équipe';
-        this.loading = false;
+        this.sortie   = data;
+        this.equipeNom = (data as any).equipeNom
+          || (data as any).equipe?.nom
+          || 'Équipe associée';
+        this.loading  = false;
       },
-      error: () => {
-        this.error = 'Impossible de charger la randonnée.';
+      error: (err) => {
+        if (err.status === 404) this.error = 'Cette randonnée n\'existe pas.';
+        else if (err.status === 0) this.error = 'Serveur inaccessible.';
+        else this.error = 'Impossible de charger la randonnée.';
         this.loading = false;
       }
     });
   }
 
-  // ── Getters ──────────────────────────────────────────────
+  // ── Actions ──────────────────────────────────────────────
 
-  get isParticipant(): boolean {
-    const userId = localStorage.getItem('userId');
-    if (!userId || !this.sortie) return false;
-    const ids = (this.sortie as any).participantIds
-      || (this.sortie as any).participants?.map((p: any) => p?.id ?? p)
-      || [];
-    return ids.map(String).includes(String(userId));
-  }
-
-  get isOrganisateur(): boolean {
-    const userId = localStorage.getItem('userId');
-    return !!userId && this.sortie?.organisateurId === userId;
-  }
-
-  get nombreParticipants(): number {
-    if (!this.sortie) return 0;
-    if ((this.sortie as any).participantIds?.length !== undefined)
-      return (this.sortie as any).participantIds.length;
-    return (this.sortie as any).participants?.length || 0;
-  }
-
-  get placesDisponibles(): number {
-    return Math.max(0, (this.sortie?.capaciteMax || 0) - this.nombreParticipants);
-  }
-
-  isSortiePasseeOuCompletee(): boolean {
-    if (!this.sortie) return false;
-    // Sortie passée?
-    const maintenant = new Date();
-    if (new Date(this.sortie.dateDebut) < maintenant) return true;
-    // Sortie complète?
-    return this.placesDisponibles === 0;
-  }
-
-  getSortieStatus(): string {
-    if (!this.sortie) return '';
-    if (new Date(this.sortie.dateDebut) < new Date()) return 'passée';
-    if (this.placesDisponibles === 0) return 'complète';
-    return 'disponible';
-  }
-
-  getDuree(): string {
-    if (!this.sortie?.dateDebut || !this.sortie?.dateFin) return 'Non spécifiée';
-    const diff = new Date(this.sortie.dateFin).getTime()
-               - new Date(this.sortie.dateDebut).getTime();
-    const heures = Math.round(diff / 3_600_000);
-    return heures < 24 ? `${heures}h` : `${Math.round(heures / 24)} jour(s)`;
-  }
-
-  getDiffLabel(diff: string): string {
-    return { FACILE: '🥾 Facile', MOYEN: '🧗 Modéré', DIFFICILE: '⛰️ Difficile' }[diff] || diff;
-  }
-
-  getHeroImage(): string {
-    if (!this.sortie) return this.heroImages[0];
-    const idx = this.sortie.titre.length % this.heroImages.length;
-    return this.heroImages[idx];
-  }
-
-  // ── Actions ───────────────────────────────────────────────
-
+  /** Inscrire l'utilisateur à la sortie */
   inscrire(): void {
-    if (!this.sortie || this.placesDisponibles <= 0) return;
-    const token  = localStorage.getItem('authToken');
-    const userId = localStorage.getItem('userId');
-    if (!token || !userId || userId === 'undefined') {
-      this.router.navigate(['/login']); return;
+    if (!this.sortie) return;
+
+    // Rediriger vers login si non connecté
+    if (!this.isConnected()) {
+      localStorage.setItem('redirect_after_login', `/sorties/${this.sortie.id}`);
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Blocage rôle non USER
+    if (this.isOrganisateurRole() || this.isAdmin()) {
+      this.showToast('Seuls les utilisateurs peuvent s\'inscrire aux sorties.', 'error');
+      return;
+    }
+
+    if (this.isParticipant) {
+      this.showToast('Vous êtes déjà inscrit à cette sortie.', 'info');
+      return;
+    }
+    if (this.isSortiePassee()) {
+      this.showToast('Cette sortie est déjà passée.', 'error');
+      return;
+    }
+    if (this.placesDisponibles === 0) {
+      this.showToast('Plus de places disponibles.', 'error');
+      return;
     }
 
     this.inscriptionEnCours = true;
+
     this.sortieService.inscrire(this.sortie.id).subscribe({
-      next: () => {
+      next: (response: ParticipationDTO | any) => {
         this.inscriptionEnCours = false;
-        this.loadSortie(this.sortie!.id);
-        // Auto-join équipe si la sortie en a une
-        if (this.sortie?.equipeId && this.userId) {
-          const userNom = localStorage.getItem('userNom') || 'Utilisateur';
-          this.equipeService.ajouterMembre(this.sortie.equipeId, this.userId, userNom).subscribe({
-            next: () => {},
-            error: () => {} // silencieux si équipe déjà rejointe
-          });
+        this.showToast(response?.message || '✅ Inscription réussie !', 'success');
+
+        // ✅ Ajouter automatiquement à l'équipe si equipeId existe
+        if (this.sortie?.equipeId) {
+          const userId  = localStorage.getItem('userId') ?? '';
+          const prenom  = localStorage.getItem('userPrenom') ?? '';
+          const nom     = localStorage.getItem('userNom') ?? '';
+          const userNom = `${prenom} ${nom}`.trim() || 'Participant';
+          this.equipeService.ajouterMembre(
+            this.sortie.equipeId, userId, userNom
+          ).subscribe();
         }
+
+        // Recharger les données
+        this.loadSortie(this.sortie!.id);
       },
       error: (err) => {
         this.inscriptionEnCours = false;
-        if (err.status === 409) {
-          alert('ℹ️ Vous êtes déjà inscrit à cette sortie.');
-          this.loadSortie(this.sortie!.id); // Refresh pour sync l'état
-        } else if (err.status === 401 || err.status === 403) {
+        if (err.status === 401 || err.status === 403) {
           this.router.navigate(['/login']);
-        } else if (err.status === 0) {
-          alert('❌ Serveur inaccessible. Vérifiez que le backend tourne sur le port 8087.');
-        } else {
-          alert(err.error?.message || 'Erreur lors de l\'inscription. Code: ' + err.status);
+          return;
         }
+        if (err.status === 409) {
+          this.showToast('Vous êtes déjà inscrit à cette sortie.', 'error');
+          return;
+        }
+        this.showToast(err.error?.message || 'Erreur lors de l\'inscription.', 'error');
       }
     });
   }
 
-  desinscrire(): void {
-    if (!this.sortie || !confirm('Voulez-vous vraiment vous désinscrire ?')) return;
+  /** Ouvre le modal de confirmation désinscription */
+  openModal(): void {
+    this.showModal = true;
+  }
+
+  /** Ferme le modal sans action */
+  cancelModal(): void {
+    this.showModal = false;
+  }
+
+  /** Confirme la désinscription (appelé depuis le modal) */
+  confirmDesinscrire(): void {
+    this.showModal = false;
+    if (!this.sortie) return;
+
     this.sortieService.desinscrire(this.sortie.id).subscribe({
-      next: () => this.loadSortie(this.sortie!.id),
-      error: () => alert('Erreur lors de la désinscription.')
+      next: () => {
+        // ✅ Retirer aussi de l'équipe si applicable
+        if (this.sortie?.equipeId) {
+          const userId = localStorage.getItem('userId') ?? '';
+          this.equipeService.retirerMembre(this.sortie.equipeId, userId).subscribe();
+        }
+        this.showToast('✅ Désinscription effectuée.', 'success');
+        this.loadSortie(this.sortie!.id);
+      },
+      error: (err) => {
+        this.showToast(err.error?.message || '❌ Erreur lors de la désinscription.', 'error');
+      }
     });
   }
 
+  /** Redirige vers la page de modification */
   modifier(): void {
-    this.router.navigate(['/admin/sorties/edit', this.sortie?.id]);
+    if (!this.sortie) return;
+    this.router.navigate(['/admin/sorties/edit', this.sortie.id]);
   }
 
+  /** Supprime la sortie après confirmation */
   supprimer(): void {
-    if (!this.sortie || !confirm('⚠️ Supprimer définitivement cette randonnée ?')) return;
+    if (!this.sortie) return;
+    if (!confirm(`Supprimer définitivement "${this.sortie.titre}" ?`)) return;
     this.sortieService.deleteSortie(this.sortie.id).subscribe({
-      next: () => this.router.navigate(['/admin/sorties']),
-      error: () => alert('Erreur lors de la suppression.')
+      next: () => {
+        this.showToast('Randonnée supprimée.', 'success');
+        setTimeout(() => this.router.navigate(['/sorties']), 1200);
+      },
+      error: () => this.showToast('❌ Erreur lors de la suppression.', 'error')
     });
+  }
+
+  // ── Helpers visuels ──────────────────────────────────────
+
+  getDiffLabel(diff: string): string {
+    const map: Record<string, string> = {
+      FACILE:    '🥾 Facile',
+      MOYEN:     '🧗 Modéré',
+      DIFFICILE: '⛰️ Difficile',
+    };
+    return map[diff] ?? diff;
+  }
+
+  /** Image hero : Cloudinary en priorité, sinon Unsplash selon difficulté */
+  getHeroImage(): string {
+    if (this.sortie?.imageUrl?.trim() && this.sortie.imageUrl !== 'null') {
+      return this.sortie.imageUrl;
+    }
+    return this.heroImages[this.sortie?.difficulte ?? 'DEFAULT']
+      ?? this.heroImages['DEFAULT'];
+  }
+
+  /** Liste des IDs participants (pour les avatars) */
+  getParticipantsList(): string[] {
+    return (this.sortie?.participantIds ?? []).map(String);
+  }
+
+  /** Initiales à partir d'un ID ou nom */
+  getInitiales(idOrNom: string): string {
+    if (!idOrNom) return '?';
+    const clean = idOrNom.replace(/[^a-zA-Z]/g, '').toUpperCase();
+    return clean.length >= 2 ? clean.slice(0, 2) : clean || '?';
+  }
+
+  /** Couleur avatar déterministe selon l'ID */
+  getAvatarColor(id: string): string {
+    const idx = (id?.charCodeAt(0) ?? 0) % this.avatarColors.length;
+    return this.avatarColors[idx];
+  }
+
+  // ── Toast ────────────────────────────────────────────────
+  showToast(message: string, type: 'success' | 'error' | 'info' = 'info'): void {
+    this.toastMessage = message;
+    this.toastType    = type;
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastTimer   = setTimeout(() => { this.toastMessage = null; }, 4000);
   }
 }

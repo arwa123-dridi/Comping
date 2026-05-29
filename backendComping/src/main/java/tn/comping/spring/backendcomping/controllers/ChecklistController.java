@@ -45,20 +45,18 @@ public class ChecklistController {
         }
     }
 
-    @GetMapping("/recommandation")
+    @PostMapping("/recommandation")
     public ResponseEntity<ChecklistResponse> getChecklistByWeather(
-            @RequestParam String city,
-            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date,
-            @RequestParam int difficulte) {
+            @RequestBody tn.comping.spring.backendcomping.dto.ChecklistRecommandationRequest request) {
 
-        WeatherDTO weather = weatherService.getWeather(city, date);
+        WeatherDTO weather = weatherService.getWeather(request.getCity(), request.getDate());
 
         ChecklistRequest iaRequest = new ChecklistRequest();
         iaRequest.setTemperature(weather.getTemperature());
         iaRequest.setPrecipitation(weather.getPrecipitation());
         iaRequest.setWind_speed(weather.getWindSpeed());
         iaRequest.setHumidity(weather.getHumidity());
-        iaRequest.setDifficulte(difficulte);
+        iaRequest.setDifficulte(request.getDifficulte());
 
         ChecklistResponse response = aiChecklistService.predictChecklist(iaRequest);
         return response.isSuccess() ? ResponseEntity.ok(response) : ResponseEntity.status(503).body(response);

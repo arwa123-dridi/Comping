@@ -69,54 +69,66 @@ export class DashboardUserComponent implements OnInit {
   }
 
   // ── Sorties inscrites ──────────────────────────────────────
-  loadMesSorties(): void {
-    this.loading.sorties = true;
-    this.sortieService.getAllSorties().subscribe({
-      next: (data) => {
-        this.mesSortiesInscrites = data.filter(s =>
-          (s.participantIds ?? []).map(String).includes(String(this.userId))
-        );
-        this.totalSortiesInscrites   = this.mesSortiesInscrites.length;
-        this.totalSortiesCompletees  = this.mesSortiesInscrites.filter(
-          s => new Date(s.dateDebut) < new Date()
-        ).length;
+loadMesSorties(): void {
+  this.loading.sorties = true;
+  this.sortieService.getAllSorties().subscribe({
+    next: (data) => {
+      this.mesSortiesInscrites = data.filter(s =>
+        (s.participantIds ?? []).map(String).includes(String(this.userId))
+      );
+      this.totalSortiesInscrites = this.mesSortiesInscrites.length;
+      this.totalSortiesCompletees = this.mesSortiesInscrites.filter(
+        s => new Date(s.dateDebut) < new Date()
+      ).length;
 
-        // Recommandations : sorties futures auxquelles l'user n'est pas inscrit
-        this.recommandations = data.filter(s =>
-          new Date(s.dateDebut) > new Date() &&
-          !(s.participantIds ?? []).map(String).includes(String(this.userId))
-        ).slice(0, 3);
+      // Recommandations : sorties futures non inscrites, sans doublon
+      const futures = data.filter(s =>
+        new Date(s.dateDebut) > new Date() &&
+        !(s.participantIds ?? []).map(String).includes(String(this.userId))
+      );
+      // Éliminer les doublons par id
+      const uniqueMap = new Map<string, SortieResponse>();
+      futures.forEach(s => {
+        if (!uniqueMap.has(s.id)) uniqueMap.set(s.id, s);
+      });
+      this.recommandations = Array.from(uniqueMap.values()).slice(0, 3);
 
-        this.loading.sorties = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.loading.sorties = false;
-        this.errors.sorties  = 'Impossible de charger les sorties.';
-        this.cdr.markForCheck();
-      }
-    });
-  }
-
+      this.loading.sorties = false;
+      this.cdr.markForCheck();
+    },
+    error: () => {
+      this.loading.sorties = false;
+      this.errors.sorties = 'Impossible de charger les sorties.';
+      this.cdr.markForCheck();
+    }
+  });
+}
   // ── Équipes ────────────────────────────────────────────────
-  loadMesEquipes(): void {
-    this.loading.equipes = true;
-    this.equipeService.getAllEquipes().subscribe({
-      next: (data) => {
-        this.mesEquipes = data.filter(e =>
-          e.membres?.some(m => String(m?.id) === String(this.userId))
-        );
-        this.totalEquipesMembre = this.mesEquipes.length;
-        this.loading.equipes    = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.loading.equipes = false;
-        this.errors.equipes  = 'Impossible de charger les équipes.';
-        this.cdr.markForCheck();
-      }
-    });
-  }
+loadMesEquipes(): void {
+  this.loading.equipes = true;
+  this.equipeService.getAllEquipes().subscribe({
+    next: (data) => {
+      // Filtrer les équipes dont l'utilisateur est membre
+      const mesEquipesBrut = data.filter(e =>
+        e.membres?.some(m => String(m?.id) === String(this.userId))
+      );
+      // Éliminer les doublons par id
+      const uniqueMap = new Map<string, EquipeResponse>();
+      mesEquipesBrut.forEach(e => {
+        if (!uniqueMap.has(e.id)) uniqueMap.set(e.id, e);
+      });
+      this.mesEquipes = Array.from(uniqueMap.values());
+      this.totalEquipesMembre = this.mesEquipes.length;
+      this.loading.equipes = false;
+      this.cdr.markForCheck();
+    },
+    error: () => {
+      this.loading.equipes = false;
+      this.errors.equipes = 'Impossible de charger les équipes.';
+      this.cdr.markForCheck();
+    }
+  });
+}
 
   // ── Actions ────────────────────────────────────────────────
   seDesinscrire(sortieId: string): void {
@@ -148,6 +160,14 @@ export class DashboardUserComponent implements OnInit {
     return (this.userName || '?').split(' ')
       .map(w => w[0]).join('').toUpperCase().slice(0, 2);
   }
+
+  getEquipeAvatarColor(equipe: EquipeResponse): string {
+  const id = equipe.id;
+  if (!id) return '#2e7d32';
+  const hash = id.charCodeAt(0) % 0xffffff;
+  const hex = hash.toString(16).padStart(6, '0');
+  return `#${hex}`;
+}
 
   formatDate(d: any): string {
     if (!d) return '—';
@@ -195,5 +215,11 @@ export class DashboardUserComponent implements OnInit {
     const max = Math.max(1, this.totalSortiesCompletees);
     return Math.round((this.getActivityCount(diff) / max) * 80) + 10;
   }
+
+  getActivityPercent(diff: string): number {
+  const max = Math.max(1, this.getActivityCount('FACILE'), this.getActivityCount('MOYEN'), this.getActivityCount('DIFFICILE'));
+  const count = this.getActivityCount(diff);
+  return (count / max) * 100;
+}
 
 }

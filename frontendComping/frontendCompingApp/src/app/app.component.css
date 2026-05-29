@@ -1,1 +1,120 @@
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* =====================================================================
+   Comping Theme — GLOBAL UI TOKENS (frontend-only, no business logic)
+   ===================================================================== */
+
+:root {
+  /* Palette (HOME / Comping baseline) */
+  --primary: #1b2a4a;
+  --primary-2: #243558;
+  --primary-3: #2e4270;
+
+  --success: #3da859;
+  --success-dark: #32934a;
+  --success-glow: rgba(61,168,89,0.22);
+
+  --warning: #f5e642;
+  --warning-dark: #f2d21b;
+
+  --danger: #e02f2f;
+  --danger-2: rgba(224,47,47,0.12);
+
+  /* Typography */
+  --font-body: 'DM Sans', sans-serif;
+  --font-head: 'Syne', sans-serif;
+
+  /* Radii */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+
+  /* Border & shadows */
+  --bd: 1px solid rgba(255,255,255,0.10);
+  --bd-soft: 1px solid rgba(255,255,255,0.06);
+  --sh-sm: 0 6px 24px rgba(0,0,0,0.22);
+
+  /* Backgrounds */
+  --bg: #0d1630;
+  --surface: rgba(27,42,74,0.75);
+  --surface-2: rgba(36,53,88,0.45);
+  --text: rgba(255,255,255,0.92);
+  --muted: rgba(255,255,255,0.62);
+}
+
+* { box-sizing: border-box; }
+
+/* Global base */
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background: radial-gradient(1100px 600px at 20% 0%, rgba(61,168,89,0.18), transparent 60%),
+              radial-gradient(900px 500px at 90% 10%, rgba(245,230,66,0.12), transparent 55%),
+              var(--bg);
+  color: var(--text);
+}
+
+/* =====================
+   Shared UI primitives
+   ===================== */
+
+.card {
+  background: var(--surface);
+  border: var(--bd-soft);
+  border-radius: var(--r-lg);
+}
+
+.section-title {
+  font-family: var(--font-head);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+.section-sub {
+  color: var(--muted);
+  font-size: 12.5px;
+  margin-top: 4px;
+}
+
+.btn-primary {
+  background: var(--success);
+  color: #fff;
+  border-radius: var(--r-sm);
+  padding: 9px 14px;
+  font-weight: 700;
+  border: none;
+}
+
+.btn-primary:hover { background: var(--success-dark); }
+
+.btn-danger {
+  background: rgba(224,47,47,0.12);
+  color: #ffb4b4;
+  border: 1px solid rgba(224,47,47,0.25);
+  border-radius: var(--r-sm);
+  padding: 9px 14px;
+  font-weight: 700;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.table td { color: var(--text); }
+
+/* Responsive helper */
+@media (max-width: 768px) {
+  :root { --r-lg: 16px; }
+}
+

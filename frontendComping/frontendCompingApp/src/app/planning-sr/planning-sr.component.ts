@@ -1,50 +1,50 @@
-// src/app/planning-sr/planning-sr.component.ts
-import {
-  Component, OnInit,
-  ChangeDetectionStrategy, ChangeDetectorRef
-} from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { PlanningService, SortiePlanifieeDTO } from '../services/planning.service';
 
 type ViewMode = 'calendrier' | 'liste';
 
 interface CalendrierJour {
-  date:       Date;
+  date: Date;
   isCurrentMonth: boolean;
-  isToday:    boolean;
-  sorties:    SortiePlanifieeDTO[];
+  isToday: boolean;
+  sorties: SortiePlanifieeDTO[];
 }
 
 @Component({
   selector: 'app-planning-sr',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './planning-sr.component.html',
   styleUrls: ['./planning-sr.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanningSrComponent implements OnInit {
-
-  // ── State ─────────────────────────────────────────────
-  planning:      SortiePlanifieeDTO[] = [];
+  planning: SortiePlanifieeDTO[] = [];
+  sortiesPassees: SortiePlanifieeDTO[] = [];
+  sortiesAujourdhui: SortiePlanifieeDTO[] = [];
+  sortiesFutures: SortiePlanifieeDTO[] = [];
   filteredMonth: SortiePlanifieeDTO[] = [];
-  loading       = false;
-  error:         string | null = null;
-  serverDown     = false;          // ← Ajouté pour détecter panne serveur
-  viewMode: ViewMode           = 'calendrier';
+  filteredAllPlanning: SortiePlanifieeDTO[] = [];
+  loading = false;
+  error: string | null = null;
+  serverDown = false;
+  viewMode: ViewMode = 'calendrier';
   selectedCard: SortiePlanifieeDTO | null = null;
-  validating    = false;
-  successMsg:   string | null = null;
+  validating = false;
+  successMsg: string | null = null;
+
+  // Filtres
+  searchTerm = '';
+  filterDifficulte = '';
 
   // Calendrier
-  currentMonth   = new Date();
-  calendarGrid:  CalendrierJour[][] = [];
+  currentMonth = new Date();
+  calendarGrid: CalendrierJour[][] = [];
   readonly JOURS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-  readonly MOIS  = [
-    'Janvier','Février','Mars','Avril','Mai','Juin',
-    'Juillet','Août','Septembre','Octobre','Novembre','Décembre'
-  ];
+  readonly MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
   userId = '';
 
@@ -58,24 +58,23 @@ export class PlanningSrComponent implements OnInit {
     if (this.userId) this.load();
   }
 
-  // ── Chargement ────────────────────────────────────────
-
   load(): void {
     this.loading = true;
-    this.error   = null;
+    this.error = null;
     this.serverDown = false;
     this.cdr.markForCheck();
 
     this.planningService.getPlanning(this.userId).subscribe({
       next: (data) => {
         this.planning = data;
-        this.loading  = false;
+        this.trierSorties(data);
+        this.loading = false;
+        this.refreshFilters();
         this.buildCalendar();
         this.cdr.markForCheck();
       },
       error: (err) => {
         this.loading = false;
-        // Détection panne serveur (statut 0 = réseau inaccessible)
         if (err.status === 0) {
           this.serverDown = true;
           this.error = '❌ Serveur inaccessible. Vérifiez que le backend tourne sur le port 8087.';
@@ -88,39 +87,65 @@ export class PlanningSrComponent implements OnInit {
     });
   }
 
-  // ── Calendrier ────────────────────────────────────────
+  refreshFilters(): void {
+    let all = this.planning;
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      all = all.filter(p => p.sortie.titre.toLowerCase().includes(term));
+    }
+    if (this.filterDifficulte) {
+      all = all.filter(p => p.sortie.difficulte === this.filterDifficulte);
+    }
+    this.filteredAllPlanning = all;
+
+    const moisStr = `${this.currentMonth.getFullYear()}-${String(this.currentMonth.getMonth() + 1).padStart(2, '0')}`;
+    let month = this.planning.filter(p => p.dateRecommandee?.startsWith(moisStr));
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      month = month.filter(p => p.sortie.titre.toLowerCase().includes(term));
+    }
+    if (this.filterDifficulte) {
+      month = month.filter(p => p.sortie.difficulte === this.filterDifficulte);
+    }
+    this.filteredMonth = month;
+    this.buildCalendar();
+    this.cdr.markForCheck();
+  }
+
+  onSearchChange(): void {
+    this.refreshFilters();
+  }
+
+  onDifficulteChange(): void {
+    this.refreshFilters();
+  }
 
   buildCalendar(): void {
-    const year  = this.currentMonth.getFullYear();
+    const year = this.currentMonth.getFullYear();
     const month = this.currentMonth.getMonth();
 
-    // Premier jour du mois (lundi = 0)
     const firstDay = new Date(year, month, 1);
-    let startDay   = firstDay.getDay() - 1;
-    if (startDay < 0) startDay = 6;  // dimanche → 6
+    let startDay = firstDay.getDay() - 1;
+    if (startDay < 0) startDay = 6;
 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today       = new Date();
+    const today = new Date();
 
-    // Construire tableau plat de jours
     const jours: CalendrierJour[] = [];
 
-    // Jours du mois précédent pour compléter la semaine
     const prevMonth = new Date(year, month, 0);
     for (let i = startDay - 1; i >= 0; i--) {
       const d = new Date(year, month - 1, prevMonth.getDate() - i);
       jours.push({ date: d, isCurrentMonth: false, isToday: false, sorties: [] });
     }
 
-    // Jours du mois courant
     for (let d = 1; d <= daysInMonth; d++) {
-      const date   = new Date(year, month, d);
+      const date = new Date(year, month, d);
       const isToday = date.toDateString() === today.toDateString();
       const sorties = this.getSortiesDuJour(date);
       jours.push({ date, isCurrentMonth: true, isToday, sorties });
     }
 
-    // Compléter la dernière semaine
     while (jours.length % 7 !== 0) {
       const last = jours[jours.length - 1].date;
       const next = new Date(last);
@@ -128,49 +153,32 @@ export class PlanningSrComponent implements OnInit {
       jours.push({ date: next, isCurrentMonth: false, isToday: false, sorties: [] });
     }
 
-    // Découper en semaines
     this.calendarGrid = [];
     for (let i = 0; i < jours.length; i += 7) {
       this.calendarGrid.push(jours.slice(i, i + 7));
     }
-
-    // Filtrer le planning du mois affiché
-    const moisStr = `${year}-${String(month + 1).padStart(2, '0')}`;
-    this.filteredMonth = this.planning.filter(p =>
-      p.dateRecommandee?.startsWith(moisStr)
-    );
   }
 
   private getSortiesDuJour(date: Date): SortiePlanifieeDTO[] {
     const dateStr = this.toDateStr(date);
-    return this.planning.filter(p => p.dateRecommandee === dateStr);
+    return this.filteredMonth.filter(p => p.dateRecommandee === dateStr);
   }
 
   moisPrecedent(): void {
-    this.currentMonth = new Date(
-      this.currentMonth.getFullYear(),
-      this.currentMonth.getMonth() - 1,
-      1
-    );
-    this.buildCalendar();
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
+    this.refreshFilters();
     this.cdr.markForCheck();
   }
 
   moisSuivant(): void {
-    this.currentMonth = new Date(
-      this.currentMonth.getFullYear(),
-      this.currentMonth.getMonth() + 1,
-      1
-    );
-    this.buildCalendar();
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
+    this.refreshFilters();
     this.cdr.markForCheck();
   }
 
-  // ── Sélection + validation ────────────────────────────
-
   selectCard(card: SortiePlanifieeDTO): void {
     this.selectedCard = card;
-    this.successMsg   = null;
+    this.successMsg = null;
     this.cdr.markForCheck();
   }
 
@@ -185,10 +193,10 @@ export class PlanningSrComponent implements OnInit {
     this.serverDown = false;
     this.planningService.validerSortie(this.userId, sortieId).subscribe({
       next: (res) => {
-        this.validating  = false;
-        this.successMsg  = res.message;
+        this.validating = false;
+        this.successMsg = res.message;
         this.selectedCard = null;
-        this.load();   // Rafraîchir
+        this.load();
         this.cdr.markForCheck();
       },
       error: (err) => {
@@ -203,8 +211,6 @@ export class PlanningSrComponent implements OnInit {
       }
     });
   }
-
-  // ── Helpers UI ────────────────────────────────────────
 
   setView(v: ViewMode): void {
     this.viewMode = v;
@@ -224,21 +230,21 @@ export class PlanningSrComponent implements OnInit {
 
   diffClass(d: string): string {
     if (d === 'DIFFICILE') return 'diff--hard';
-    if (d === 'MOYEN')     return 'diff--med';
+    if (d === 'MOYEN') return 'diff--med';
     return 'diff--easy';
   }
 
   diffLabel(d: string): string {
     if (d === 'DIFFICILE') return 'Difficile';
-    if (d === 'MOYEN')     return 'Modéré';
+    if (d === 'MOYEN') return 'Modéré';
     return 'Facile';
   }
 
   formatDate(ds: string): string {
     if (!ds) return '—';
-    return new Date(ds).toLocaleDateString('fr-FR', {
-      weekday: 'long', day: '2-digit', month: 'long'
-    });
+    const date = new Date(ds);
+    if (isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long' });
   }
 
   monthLabel(): string {
@@ -247,6 +253,13 @@ export class PlanningSrComponent implements OnInit {
 
   private toDateStr(d: Date): string {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  private trierSorties(data: SortiePlanifieeDTO[]): void {
+    const aujourdhuiStr = this.toDateStr(new Date());
+    this.sortiesPassees = data.filter(s => s.dateRecommandee && s.dateRecommandee < aujourdhuiStr);
+    this.sortiesAujourdhui = data.filter(s => s.dateRecommandee === aujourdhuiStr);
+    this.sortiesFutures = data.filter(s => s.dateRecommandee && s.dateRecommandee > aujourdhuiStr);
   }
 
   imageUrl(sortie: any): string {

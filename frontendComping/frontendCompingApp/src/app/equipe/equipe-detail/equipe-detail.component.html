@@ -1,259 +1,228 @@
-<!-- EQUIPE DETAIL — CAMPINO -->
+<!-- ── TOAST ── -->
+<div *ngIf="toastMessage" class="toast-notif"
+     [class.toast-success]="toastType==='success'"
+     [class.toast-error]="toastType==='error'"
+     [class.toast-info]="toastType==='info'">
+  {{ toastMessage }}
+</div>
 
-<div *ngIf="loading" class="eq-loading">
-  <div class="eq-spinner"></div>
+<!-- ── MODAL QUITTER ── -->
+<div class="modal-overlay" *ngIf="showModal" (click)="cancelModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-icon">🚪</div>
+    <h3>Quitter l'équipe ?</h3>
+    <p>Vous allez quitter <strong>{{ equipe?.nom }}</strong>.
+       Vous pourrez rejoindre à nouveau si des places sont disponibles.</p>
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="cancelModal()">Annuler</button>
+      <button class="btn-modal-confirm" (click)="confirmQuitter()">Quitter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOADING ── -->
+<div *ngIf="loading" class="detail-loading">
+  <div class="campino-spinner"></div>
   <p>Chargement de l'équipe…</p>
 </div>
 
-<div *ngIf="error && !loading" class="eq-error">
-  <span class="eq-error-icon">⚠️</span>
+<!-- ── ERREUR ── -->
+<div *ngIf="error && !loading" class="detail-error">
+  <span>❌</span>
   <p>{{ error }}</p>
-  <button routerLink="/equipes" class="eq-btn-back">← Retour</button>
+  <button routerLink="/equipes">← Retour aux équipes</button>
 </div>
 
-<div *ngIf="!loading && equipe" class="eq-page">
+<!-- ── CONTENU ── -->
+<div *ngIf="!loading && equipe" class="equipe-detail">
 
-  <!-- ══ HERO ════════════════════════════════════════════════════════ -->
-  <div class="eq-hero" [style.backgroundImage]="'url(' + getHeroImage() + ')'">
-    <div class="eq-hero-overlay"></div>
-    <div class="eq-hero-inner">
+  <!-- ── HERO ── -->
+  <div class="detail-hero"
+       [style.backgroundImage]="'url(' + getHeroImage() + ')'">
+    <div class="hero-overlay"></div>
 
-      <!-- Breadcrumb -->
-      <nav class="eq-breadcrumb">
+    <!-- Actions organisateur -->
+    <div *ngIf="isOrganisateur" class="hero-actions">
+      <button class="btn-edit-hero" (click)="modifier()">✏️ Modifier</button>
+      <button class="btn-delete-hero" (click)="supprimer()">🗑️ Supprimer</button>
+    </div>
+
+    <!-- Actions admin -->
+    <div *ngIf="isAdmin() && !isOrganisateur" class="hero-actions">
+      <button class="btn-delete-hero" (click)="supprimer()">🗑️ Supprimer</button>
+    </div>
+
+    <div class="hero-content">
+      <div class="breadcrumb">
+        <a routerLink="/">Accueil</a>
+        <span>›</span>
         <a routerLink="/equipes">Équipes</a>
         <span>›</span>
         <span>{{ equipe.nom }}</span>
-      </nav>
-
-      <!-- Titre -->
-      <h1 class="eq-hero-title">{{ equipe.nom }}</h1>
-
-      <!-- Meta chips -->
-      <div class="eq-hero-meta">
-        <span class="eq-chip">📏 {{ equipe.niveau || 'Tous niveaux' }}</span>
-        <span class="eq-chip">👥 {{ equipe.membres?.length || 0 }}/{{ equipe.nbMembresMax }} membres</span>
-        <span class="eq-chip">🧭 {{ equipe.organisateurNom }}</span>
-        <span class="eq-chip" *ngIf="placesLibres > 0">✅ {{ placesLibres }} place(s) libre(s)</span>
-        <span class="eq-chip eq-chip--red" *ngIf="placesLibres === 0">🔒 Complet</span>
       </div>
 
-      <!-- Actions organisateur dans le hero -->
-      <div *ngIf="isOrganisateur()" class="eq-hero-actions">
-        <button class="eq-hero-btn eq-hero-btn--edit" (click)="modifier()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/>
-          </svg>
-          Modifier l'équipe
-        </button>
-        <button class="eq-hero-btn eq-hero-btn--del" (click)="supprimer()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-          </svg>
-          Supprimer
-        </button>
-      </div>
+      <h1 class="equipe-title">{{ equipe.nom }}</h1>
 
+      <div class="hero-chips">
+        <span class="niveau-chip">{{ equipe.niveau || 'Tous niveaux' }}</span>
+        <span class="meta-chip">
+          👥 {{ nombreMembres }} / {{ equipe.nbMembresMax || 10 }} membres
+        </span>
+        <span *ngIf="equipe.organisateurNom" class="meta-chip">
+          🧭 {{ equipe.organisateurNom }}
+        </span>
+        <span *ngIf="(equipe.sortiesTitres?.length ?? 0) > 0" class="meta-chip">
+          🏔️ {{ equipe.sortiesTitres?.length }} sortie(s)
+        </span>
+      </div>
     </div>
   </div>
 
-  <!-- ══ BODY ══════════════════════════════════════════════════════ -->
-  <div class="eq-body">
+  <!-- ── BODY ── -->
+  <div class="detail-body">
 
     <!-- COLONNE PRINCIPALE -->
-    <div class="eq-main">
+    <div class="detail-main">
 
       <!-- Description -->
-      <div class="eq-card">
-        <h3 class="eq-card-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
-          À propos
-        </h3>
-        <p class="eq-description">
-          {{ equipe.description || 'Aucune description pour cette équipe.' }}
+      <div class="info-card">
+        <h3 class="card-title">📝 Description</h3>
+        <p class="card-text">
+          {{ equipe.description || 'Aucune description disponible pour cette équipe.' }}
         </p>
       </div>
 
-      <!-- ══ MEMBRES ══ -->
-      <div class="eq-card">
-        <div class="eq-card-header">
-          <h3 class="eq-card-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-            Membres ({{ equipe.membres?.length || 0 }}/{{ equipe.nbMembresMax }})
-          </h3>
-          <!-- Jauge membres -->
-          <div class="eq-capacity-bar">
-            <div class="eq-capacity-fill"
-                 [style.width.%]="((equipe.membres?.length || 0) / equipe.nbMembresMax) * 100"
-                 [class.eq-cap-full]="placesLibres === 0">
+      <!-- Liste des membres -->
+      <div class="info-card">
+        <div class="membres-header">
+          <h3 class="membres-title">👥 Membres</h3>
+          <span class="membres-count">{{ nombreMembres }} / {{ equipe.nbMembresMax || 10 }}</span>
+        </div>
+
+        <div *ngIf="nombreMembres > 0" class="membres-grid">
+          <div *ngFor="let m of getMembresListe()"
+               class="membre-card"
+               [class.is-org]="isMembreOrganisateur(m)">
+            <div class="membre-avatar" [style.background]="getAvatarColor(m)">
+              {{ getInitiales(m) }}
+            </div>
+            <div class="membre-info">
+              <span class="membre-nom">{{ getMembreNom(m) }}</span>
+              <span class="membre-role">
+                {{ isMembreOrganisateur(m) ? '👑 Organisateur' : '🥾 Membre' }}
+              </span>
             </div>
           </div>
         </div>
 
-        <div *ngIf="!equipe.membres || equipe.membres.length === 0" class="eq-empty">
-          <span>👥</span>
-          <p>Aucun membre pour l'instant. Soyez le premier !</p>
-        </div>
-
-        <div *ngIf="equipe.membres && equipe.membres.length > 0" class="eq-membres-list">
-          <div *ngFor="let m of equipe.membres" class="eq-membre-row">
-
-            <!-- Avatar -->
-            <div class="eq-membre-avatar" [style.background]="getAvatarColor(m.nom)">
-              {{ getInitiales(m.nom) }}
-            </div>
-
-            <!-- Infos -->
-            <div class="eq-membre-info">
-              <div class="eq-membre-name">
-                {{ m.nom }}
-                <span *ngIf="m.id === equipe.organisateurId" class="eq-orga-crown" title="Organisateur">👑</span>
-              </div>
-              <div class="eq-membre-email">{{ m.email }}</div>
-            </div>
-
-            <!-- Badge rôle -->
-            <span class="eq-membre-role"
-                  [class.eq-role-orga]="m.id === equipe.organisateurId"
-                  [class.eq-role-membre]="m.id !== equipe.organisateurId">
-              {{ m.id === equipe.organisateurId ? 'Organisateur' : 'Membre' }}
-            </span>
-
-            <!-- Bouton retirer (organiser seulement, pas sur soi-même) -->
-            <button *ngIf="isOrganisateur() && m.id !== equipe.organisateurId"
-                    class="eq-btn-retirer"
-                    [disabled]="membreActionId === m.id"
-                    (click)="retirerMembre(m)">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-              {{ membreActionId === m.id ? '…' : 'Retirer' }}
-            </button>
-
-          </div>
-        </div>
+        <p *ngIf="nombreMembres === 0" class="no-membres">
+          Aucun membre pour l'instant — soyez le premier à rejoindre !
+        </p>
       </div>
 
-      <!-- ══ RANDONNÉES ══ -->
-      <div class="eq-card">
-        <div class="eq-card-header">
-          <h3 class="eq-card-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M8 3L3 15h5l-1 6 9-12H11l2-6z"/>
-            </svg>
-            Randonnées ({{ sorties.length }})
-          </h3>
-          <a *ngIf="isOrganisateur()" routerLink="/admin/sorties/create"
-             class="eq-btn-add-sortie">+ Créer une randonnée</a>
-        </div>
+      <!-- Sorties liées -->
+      <div class="info-card">
+        <h3 class="card-title">🏔️ Sorties organisées</h3>
 
-        <div *ngIf="sorties.length === 0" class="eq-empty">
-          <span>🏔️</span>
-          <p>Aucune randonnée associée.</p>
-        </div>
-
-        <div *ngIf="sorties.length > 0" class="eq-sorties-list">
-          <div *ngFor="let s of sorties" class="eq-sortie-row" [routerLink]="['/sorties', s.id]">
-            <div class="eq-sortie-icon">🏔️</div>
-            <div class="eq-sortie-info">
-              <div class="eq-sortie-titre">{{ s.titre }}</div>
-              <div class="eq-sortie-meta">{{ s.dateDebut | date:'dd MMM yyyy' }} · {{ s.lieuDepart }}</div>
+        <div *ngIf="(equipe.sortiesTitres?.length ?? 0) > 0" class="sorties-liees">
+          <div *ngFor="let titre of equipe.sortiesTitres"
+               class="sortie-item">
+            <div class="sortie-dot dot-facile"></div>
+            <div class="sortie-info">
+              <span class="sortie-titre">{{ titre }}</span>
             </div>
-            <span class="eq-sortie-diff"
-                  [class.diff-easy]="s.difficulte === 'FACILE'"
-                  [class.diff-med]="s.difficulte === 'MOYEN'"
-                  [class.diff-hard]="s.difficulte === 'DIFFICILE'">
-              {{ s.difficulte === 'FACILE' ? '🥾 Facile' : s.difficulte === 'MOYEN' ? '🧗 Modéré' : '⛰️ Difficile' }}
-            </span>
-            <div *ngIf="isOrganisateur()" class="eq-sortie-actions" (click)="$event.stopPropagation()">
-              <a [routerLink]="['/admin/sorties/edit', s.id]" class="eq-sortie-edit">✏️</a>
-            </div>
+            <span class="sortie-arrow">→</span>
           </div>
         </div>
-      </div>
 
-      <!-- ══ CHAT SECTION (placeholder pour intégration Marieme) ══ -->
-      <div class="eq-card eq-chat-card">
-        <h3 class="eq-card-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          Chat de l'équipe
-        </h3>
-        <!-- TODO: Remplacer ce bloc par <app-chat-equipe [equipeId]="equipe.id"> -->
-        <div class="eq-chat-placeholder">
-          <span>💬</span>
-          <p>Chat en cours d'intégration (module Marieme)</p>
-          <p class="eq-chat-sub">Prochainement disponible pour tous les membres</p>
-        </div>
+        <p *ngIf="(equipe.sortiesTitres?.length ?? 0) === 0" class="no-sorties">
+          Cette équipe n'a pas encore de sorties planifiées.
+        </p>
       </div>
 
     </div>
 
     <!-- SIDEBAR -->
-    <div class="eq-sidebar">
+    <div class="detail-sidebar">
 
-      <!-- Actions utilisateur -->
-      <div class="eq-side-card eq-action-card">
-        <h4 class="eq-sc-title">🎯 Mes actions</h4>
-
-        <!-- Organisateur -->
-        <div *ngIf="isOrganisateur()" class="eq-orga-badge">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-          👑 Vous organisez cette équipe
+      <!-- Carte stats + action -->
+      <div class="side-card stats-card">
+        <div class="stats-row">
+          <div class="stat-item">
+            <span class="stat-num">{{ nombreMembres }}</span>
+            <span class="stat-lbl">Membres</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">{{ placesRestantes }}</span>
+            <span class="stat-lbl">Places restantes</span>
+          </div>
         </div>
 
-        <!-- USER : Rejoindre (pas membre + pas orga + places dispo) -->
-        <button *ngIf="!isMembre() && !isOrganisateur() && placesLibres > 0"
-                class="eq-btn-rejoindre"
-                [disabled]="actionLoading"
-                (click)="rejoindre()">
-          {{ actionLoading ? '…' : "✅ Rejoindre l'équipe" }}
-        </button>
-
-        <!-- USER : Complet -->
-        <div *ngIf="!isMembre() && !isOrganisateur() && placesLibres === 0"
-             class="eq-full-msg">
-          🔒 Équipe complète
+        <div class="capacity-bar-wrap">
+          <div class="capacity-bar-fill"
+               [style.width.%]="getCapacityPercent()"
+               [class.bar-full]="placesRestantes === 0">
+          </div>
+        </div>
+        <div class="capacity-text">
+          Capacité : {{ equipe.nbMembresMax || 10 }} membres max
         </div>
 
-        <!-- USER : Quitter (membre mais pas orga) -->
-        <button *ngIf="isMembre() && !isOrganisateur()"
-                class="eq-btn-quitter"
-                [disabled]="actionLoading"
-                (click)="quitter()">
-          {{ actionLoading ? '…' : '🚪 Quitter l\'équipe' }}
-        </button>
+        <!-- Badge organisateur -->
+        <div *ngIf="isOrganisateur" class="org-badge-sidebar" style="margin-top: 16px;">
+          👑 Vous êtes l'organisateur
+        </div>
 
-        <a routerLink="/equipes" class="eq-btn-retour">← Retour aux équipes</a>
+        <!-- USER : actions -->
+        <ng-container *ngIf="isUser()">
+          <!-- Pas encore membre -->
+          <ng-container *ngIf="!isMembre">
+            <button *ngIf="placesRestantes > 0"
+                    class="btn-rejoindre-big"
+                    style="margin-top: 16px;"
+                    (click)="rejoindre()"
+                    [disabled]="joiningEquipe">
+              {{ joiningEquipe ? '⏳ Rejoindre…' : '+ Rejoindre l\'équipe' }}
+            </button>
+            <p *ngIf="placesRestantes > 0" class="places-left-txt">
+              {{ placesRestantes }} place(s) disponible(s)
+            </p>
+            <button *ngIf="placesRestantes === 0"
+                    class="btn-complet" disabled style="margin-top: 16px;">
+              😔 Équipe complète
+            </button>
+          </ng-container>
+
+          <!-- Déjà membre -->
+          <button *ngIf="isMembre && !isOrganisateur"
+                  class="btn-quitter-big"
+                  style="margin-top: 16px;"
+                  (click)="openModal()">
+            ✗ Quitter l'équipe
+          </button>
+        </ng-container>
+
+        <!-- Info orga/admin -->
+        <div *ngIf="isOrganisateurRole() || isAdmin()" style="margin-top: 14px;"
+             class="org-badge-sidebar">
+          ℹ️ Les organisateurs et admins ne rejoignent pas les équipes
+        </div>
       </div>
 
-      <!-- Informations -->
-      <div class="eq-side-card">
-        <h4 class="eq-sc-title">ℹ️ Informations</h4>
-        <div class="eq-info-row"><span>Niveau</span><strong>{{ equipe.niveau || 'Tous niveaux' }}</strong></div>
-        <div class="eq-info-row"><span>Capacité</span><strong>{{ equipe.nbMembresMax }} membres max</strong></div>
-        <div class="eq-info-row"><span>Membres actuels</span><strong>{{ equipe.membres?.length || 0 }}</strong></div>
-        <div class="eq-info-row">
-          <span>Places libres</span>
-          <strong [class.eq-libre]="placesLibres > 0" [class.eq-complet]="placesLibres === 0">
-            {{ placesLibres }}
-          </strong>
+      <!-- Organisateur card -->
+      <div class="side-card orga-card" *ngIf="equipe.organisateurNom">
+        <h4 class="sc-title">🧭 Organisateur</h4>
+        <div class="orga-info">
+          <div class="orga-avatar">
+            {{ getOrgInitiales() }}
+          </div>
+          <div>
+            <div class="orga-nom">{{ equipe.organisateurNom }}</div>
+            <div class="orga-role">Organisateur Campino</div>
+          </div>
         </div>
-        <div class="eq-info-row"><span>Randonnées</span><strong>{{ sorties.length }}</strong></div>
       </div>
 
     </div>
-
   </div>
 </div>

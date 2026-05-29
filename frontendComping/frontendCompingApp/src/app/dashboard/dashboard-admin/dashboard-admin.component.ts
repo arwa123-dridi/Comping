@@ -1,119 +1,158 @@
-// src/app/dashboard/dashboard-admin/dashboard-admin.component.ts
+// src/app/admin/dashboard/dashboard.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SortieService } from '../../services/sortie.service';
 import { EquipeService } from '../../services/equipe.service';
 import { SortieResponse } from '../../models/sortie.model';
+import { EquipeResponse } from '../../models/equipe.model';
+import { UserService } from '../../services/user.service';
+import { EventService } from '../../services/event.service';
 
 @Component({
-    selector: 'app-dashboard-admin',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    templateUrl: './dashboard-admin.component.html',
-    styleUrls: ['./dashboard-admin.component.css']
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  templateUrl: './dashboard-admin.component.html',
+  styleUrl: './dashboard-admin.component.css'
 })
 export class DashboardAdminComponent implements OnInit {
-    sorties: SortieResponse[] = [];
-    equipes: any[] = [];
-    stats = {
-        totalSorties: 0,
-        totalParticipants: 0,
-        totalEquipes: 0,
-        sortiesValidees: 0,
-        sortiesEnAttente: 0
-    };
-    
-    loading = false;
 
-    constructor(
-        private sortieService: SortieService,
-        private equipeService: EquipeService
-    ) {}
+  // ── Données brutes ───────────────────────────────────────
+  sorties: SortieResponse[] = [];
+  equipes: EquipeResponse[] = [];
+  loading = false;
 
-    ngOnInit(): void {
-        this.loadData();
-    }
+  // ── KPIs autres modules (dynamiques si services dispo) ──
+  totalUsers  = 0;
+  totalEvents = 0;
 
-    loadData(): void {
-        this.loading = true;
-        
-        this.sortieService.getAllSorties().subscribe({
-            next: (sorties) => {
-                this.sorties = sorties;
-                this.stats.totalSorties = sorties.length;
-                this.stats.totalParticipants = sorties.reduce((sum, s) => sum + (s.nombreParticipants || 0), 0);
-                this.stats.sortiesValidees = sorties.filter(s => s.statut === 'PLANIFIEE').length;
-                this.loading = false;
-            },
-            error: (err) => {
-                console.error(err);
-                this.loading = false;
-            }
-        });
-        
-        this.equipeService.getAllEquipes().subscribe({
-            next: (equipes) => {
-                this.equipes = equipes;
-                this.stats.totalEquipes = equipes.length;
-            },
-            error: (err) => console.error(err)
-        });
-    }
+  // ── KPIs sorties ─────────────────────────────────────────
+  totalSorties      = 0;
+  totalParticipants = 0;
+  totalEquipes      = 0;
+  sortiesAVenir:    SortieResponse[] = [];
+  sortiesCompletes  = 0;
+  placesDisponibles = 0;
+  moyParticipantsSortie = 0;
+  tauxRemplissage   = 0;
 
-    getNombreParticipants(s: SortieResponse): number {
-  return (s as any).participantIds?.length || (s as any).participants?.length || 0;
-}
+  // ── Stats difficultés ────────────────────────────────────
+  nbFacile    = 0;
+  nbMoyen     = 0;
+  nbDifficile = 0;
 
-getSortieStatut(s: SortieResponse): string {
-  const today = new Date();
-  const debut = new Date(s.dateDebut);
-  const fin = s.dateFin ? new Date(s.dateFin) : null;
-  if (debut > today) return 'PLANIFIEE';
-  if (fin && fin < today) return 'TERMINEE';
-  if (debut <= today && (!fin || fin >= today)) return 'EN_COURS';
-  return 'PLANIFIEE';
-}
+  // ── Top sorties ──────────────────────────────────────────
+  topSorties: { titre: string; nb: number }[] = [];
 
+  // ── User info ────────────────────────────────────────────
+  userName    = 'Admin';
+  userRole    = '';
+  userInitiales = 'A';
 
-    deleteSortie(id: string): void {
-        if (confirm('Confirmer la suppression de cette sortie?')) {
-            this.sortieService.deleteSortie(id).subscribe({
-                next: () => {
-                    this.loadData(); // Reload
-                    alert('Sortie supprimée');
-                },
-                error: (err) => alert('Erreur: ' + err.error.message)
-            });
-        }
-    }
+  constructor(
+    private sortieService: SortieService,
+    private equipeService: EquipeService,
+    private userService:   UserService,
+    private eventService:  EventService
+  ) {}
 
-    // ✅ Méthode pour calculer le top organisateurs
-    getTopOrganisateurs(): any[] {
-        const organisateursMap = new Map<string, { nom: string; nbSorties: number; nbParticipants: number }>();
-        
-        this.sorties.forEach(sortie => {
-            const orgId = sortie.organisateurId;
-            if (organisateursMap.has(orgId)) {
-                const org = organisateursMap.get(orgId)!;
-                org.nbSorties++;
-                org.nbParticipants += sortie.nombreParticipants || 0;
-            } else {
-                organisateursMap.set(orgId, {
-                    nom: sortie.organisateurNom,
-                    nbSorties: 1,
-                    nbParticipants: sortie.nombreParticipants || 0
-                });
-            }
-        });
-        
-        // Trier par nombre de sorties (décroissant) et prendre les 5 premiers
-        return Array.from(organisateursMap.values())
-            .sort((a, b) => b.nbSorties - a.nbSorties)
-            .slice(0, 5);
-    }
-
-  refresh(): void {
+  ngOnInit(): void {
+    this.loadUserInfo();
     this.loadData();
+  }
+
+  loadUserInfo(): void {
+    const nom    = localStorage.getItem('userNom')    ?? '';
+    const prenom = localStorage.getItem('userPrenom') ?? '';
+    this.userRole = localStorage.getItem('userRole')  ?? '';
+    this.userName = (prenom || nom)
+      ? `${prenom} ${nom}`.trim()
+      : (localStorage.getItem('userEmail')?.split('@')[0] ?? 'Admin');
+    this.userInitiales = this.userName
+      .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
+  }
+
+  loadData(): void {
+    this.loading = true;
+
+    // ── Sorties ──────────────────────────────────────────
+    this.sortieService.getAllSorties().subscribe({
+      next: (data) => {
+        const now = new Date();
+        this.sorties = data || [];
+
+        this.totalSorties     = this.sorties.length;
+        this.totalParticipants = this.sorties.reduce(
+          (s, x) => s + this.getNbPart(x), 0
+        );
+        this.sortiesAVenir = this.sorties
+          .filter(s => new Date(s.dateDebut) >= now)
+          .sort((a, b) => new Date(a.dateDebut).getTime() - new Date(b.dateDebut).getTime())
+          .slice(0, 5);
+        this.sortiesCompletes = this.sorties.filter(s =>
+          this.getNbPart(s) >= s.capaciteMax
+        ).length;
+        this.placesDisponibles = this.sorties.reduce(
+          (s, x) => s + Math.max(0, x.capaciteMax - this.getNbPart(x)), 0
+        );
+        this.moyParticipantsSortie = this.totalSorties
+          ? Math.round(this.totalParticipants / this.totalSorties) : 0;
+
+        const totalCap = this.sorties.reduce((s, x) => s + (x.capaciteMax || 0), 0);
+        this.tauxRemplissage = totalCap
+          ? Math.round((this.totalParticipants / totalCap) * 100) : 0;
+
+        // Difficultés
+        this.nbFacile    = this.sorties.filter(s => s.difficulte === 'FACILE').length;
+        this.nbMoyen     = this.sorties.filter(s => s.difficulte === 'MOYEN').length;
+        this.nbDifficile = this.sorties.filter(s => s.difficulte === 'DIFFICILE').length;
+
+        // Top 5
+        this.topSorties = [...this.sorties]
+          .sort((a, b) => this.getNbPart(b) - this.getNbPart(a))
+          .slice(0, 5)
+          .map(s => ({ titre: s.titre, nb: this.getNbPart(s) }));
+
+        this.loading = false;
+      },
+      error: () => { this.loading = false; }
+    });
+
+    // ── Équipes ──────────────────────────────────────────
+    this.equipeService.getAllEquipes().subscribe({
+      next: (data) => {
+        this.equipes     = data || [];
+        this.totalEquipes = this.equipes.length;
+      },
+      error: () => {}
+    });
+
+    // ── Utilisateurs (module admin global) ──────────────
+    this.userService.getTotalUsers().subscribe({
+      next: (n: number) => { this.totalUsers = n; },
+      error: () => { this.totalUsers = 0; }
+    });
+
+    // ── Events (autre module) ────────────────────────────
+    this.eventService.getTotalEvents().subscribe({
+      next: (n: number) => { this.totalEvents = n; },
+      error: () => { this.totalEvents = 0; }
+    });
+  }
+
+  isAdmin(): boolean {
+    return ['ADMIN', 'ROLE_ADMIN'].includes(this.userRole);
+  }
+
+  getNbPart(s: SortieResponse): number {
+    return s.participantIds?.length ?? s.nombreParticipants ?? 0;
+  }
+
+  formatDate(d: any): string {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('fr-FR', {
+      day: '2-digit', month: 'short', year: 'numeric'
+    });
   }
 }

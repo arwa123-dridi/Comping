@@ -22,7 +22,7 @@
 .reco-icon {
   width: 48px;
   height: 48px;
-  background: linear-gradient(135deg, #3da859, #2e7d32);
+  background: linear-gradient(135deg, #2E7D32, #2E7D32);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -46,7 +46,7 @@
 }
 
 .reco-badge {
-  background: linear-gradient(135deg, #1b2a4a, #1f4e79);
+  background: linear-gradient(135deg, #1B5E20, #2E7D32);
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 25px;
@@ -118,7 +118,7 @@
 }
 
 .btn-explore {
-  background: linear-gradient(135deg, #3da859, #2e7d32);
+  background: linear-gradient(135deg, #2E7D32, #2E7D32);
   color: white;
   padding: 0.75rem 2rem;
   border-radius: 25px;
@@ -234,7 +234,7 @@
 
 .places-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3da859, #2e7d32);
+  background: linear-gradient(90deg, #2E7D32, #2E7D32);
   border-radius: 3px;
   transition: width 0.4s ease;
 }
@@ -256,7 +256,7 @@
 }
 
 .libre-tag {
-  color: #3da859;
+  color: #2E7D32;
   font-weight: 600;
   margin-left: 0.5rem;
 }
@@ -279,7 +279,7 @@
 }
 
 .btn-inscrit {
-  background: linear-gradient(135deg, #3da859, #2e7d32);
+  background: linear-gradient(135deg, #2E7D32, #2E7D32);
   color: white;
   border: none;
   padding: 0.5rem 1.25rem;
@@ -294,7 +294,7 @@
 
 .btn-inscrit:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(61,168,89,0.4);
+  box-shadow: 0 4px 12px rgba(46,125,50,0.4);
 }
 
 .btn-inscrit:disabled {
@@ -329,3 +329,71 @@
     transform: none;
   }
 }
+
+
+/* ── BARRE PLACES (classes HTML) ────────────────────────── */
+.places-bar-wrap {
+  background: #e0ebe0;
+  border-radius: 6px;
+  height: 6px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.places-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2E7D32, #4CAF50);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.places-bar-fill.bar-complet {
+  background: linear-gradient(90deg, #D32F2F, #EF5350);
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .reco-section { padding: 2rem 1rem; }
+  .reco-grid    { grid-template-columns: 1fr 1fr; }
+  .reco-header  { flex-direction: column; align-items: flex-start; gap: 1rem; }
+}
+@media (max-width: 480px) {
+  .reco-grid { grid-template-columns: 1fr; }
+}
+
+/* ========== TOAST (identique au parent) ========== */
+.cp-toast-container {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  animation: slideUp .3s ease;
+}
+.cp-toast {
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+.cp-toast-success { background: #2e7d32; color: #fff; }
+.cp-toast-error   { background: #d32f2f; color: #fff; }
+.cp-toast-info    { background: #0277bd; color: #fff; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== Texte places disponibles ========== */
+.places-text {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* ========== Surcharge pour la barre complète ========== */
+.bar-complet {
+  background: linear-gradient(90deg, #ef4444, #dc2626) !important;
+}
+

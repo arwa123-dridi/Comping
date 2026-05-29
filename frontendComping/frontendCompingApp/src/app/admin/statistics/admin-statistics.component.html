@@ -1,0 +1,134 @@
+<div class="stats-page">
+
+  <!-- Toast -->
+  <div *ngIf="toastMsg" class="toast" [class.toast-err]="toastErr">{{ toastMsg }}</div>
+
+  <!-- Header -->
+  <div class="stats-header">
+    <div>
+      <h1 class="stats-title">📊 Statistiques — Module Randonnée</h1>
+      <p class="stats-sub">Vue globale de toutes les randonnées et équipes de la plateforme</p>
+    </div>
+    <button class="btn-export" (click)="exportCSV()">⬇ Exporter CSV</button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Chargement des statistiques…</p>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="kpi-top"><div class="kpi-icon">🏕️</div><span class="kpi-badge">Total</span></div>
+        <div class="kpi-num">{{ totalSorties }}</div>
+        <div class="kpi-lbl">Randonnées</div>
+        <div class="kpi-divider"></div>
+        <div class="kpi-sub"><span>{{ sortiesAVenir }} à venir</span><span>{{ sortiesPassees }} passées</span></div>
+      </div>
+      <div class="kpi-card blue">
+        <div class="kpi-top"><div class="kpi-icon">👥</div><span class="kpi-badge">Actif</span></div>
+        <div class="kpi-num">{{ totalEquipes }}</div>
+        <div class="kpi-lbl">Équipes</div>
+        <div class="kpi-divider"></div>
+        <div class="kpi-sub"><span>{{ equipesDispo }} avec places</span><span>{{ equipesCompletes }} complètes</span></div>
+      </div>
+      <div class="kpi-card amber">
+        <div class="kpi-top"><div class="kpi-icon">🧑‍🤝‍🧑</div><span class="kpi-badge">Inscrits</span></div>
+        <div class="kpi-num">{{ totalParticipants }}</div>
+        <div class="kpi-lbl">Participations totales</div>
+        <div class="kpi-divider"></div>
+        <div class="kpi-sub"><span>Moy. {{ moyParticipants }} / sortie</span></div>
+      </div>
+      <div class="kpi-card teal">
+        <div class="kpi-top"><div class="kpi-icon">📈</div><span class="kpi-badge">Taux</span></div>
+        <div class="kpi-num">{{ tauxRemplissage }}%</div>
+        <div class="kpi-lbl">Taux de remplissage moyen</div>
+        <div class="kpi-divider"></div>
+        <div class="kpi-sub"><span>{{ totalPlaces }} places totales</span></div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <app-difficulty-pie-chart [sorties]="sorties"></app-difficulty-pie-chart>
+      </div>
+      <div class="chart-card">
+        <app-participation-pie-chart [sorties]="sorties"></app-participation-pie-chart>
+      </div>
+      <div class="chart-card">
+        <app-status-hikes-chart [sorties]="sorties"></app-status-hikes-chart>
+      </div>
+      <div class="chart-card">
+        <app-monthly-hikes-chart [sorties]="sorties"></app-monthly-hikes-chart>
+      </div>
+    </div>
+
+    <!-- Top 5 sorties -->
+    <div class="chart-card">
+      <h3 class="chart-title">🏆 Top 5 randonnées les plus populaires</h3>
+      <div class="bar-list">
+        <div *ngFor="let s of topSorties" class="bar-item">
+          <div class="bar-label">
+            <span class="bar-name">{{ s.titre }}</span>
+            <span class="bar-val">{{ s.nb }} participants</span>
+          </div>
+          <div class="bar-track">
+            <div class="bar-fill green" [style.width.%]="topSorties[0]?.nb ? (s.nb / topSorties[0].nb) * 100 : 0"></div>
+          </div>
+        </div>
+        <div *ngIf="topSorties.length === 0" class="empty-chart">Aucune donnée disponible</div>
+      </div>
+    </div>
+
+    <!-- Tableau récapitulatif -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3 class="chart-title">📋 Récapitulatif des randonnées</h3>
+        <div class="table-filters">
+          <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher…" class="table-search" (input)="applyFilter()">
+          <select [(ngModel)]="diffFilter" class="table-select" (change)="applyFilter()">
+            <option value="">Toutes difficultés</option>
+            <option value="FACILE">Facile</option>
+            <option value="MOYEN">Moyen</option>
+            <option value="DIFFICILE">Difficile</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Titre</th><th>Difficulté</th><th>Date</th><th>Lieu</th><th>Participants</th><th>Capacité</th><th>Taux</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of filteredSorties">
+              <td><strong>{{ s.titre }}</strong></td>
+              <td><span class="diff-badge" [class.diff-f]="s.difficulte==='FACILE'" [class.diff-m]="s.difficulte==='MOYEN'" [class.diff-d]="s.difficulte==='DIFFICILE'">{{ s.difficulte }}</span></td>
+              <td>{{ formatDate(s.dateDebut) }}</td>
+              <td>{{ s.lieuDepart || '—' }}</td>
+              <td>{{ getNb(s) }}</td>
+              <td>{{ s.capaciteMax }}</td>
+              <td>
+                <div class="taux-wrap">
+                  <div class="taux-bar"><div class="taux-fill" [style.width.%]="getTaux(s)" [class.taux-full]="getTaux(s) >= 100"></div></div>
+                  <span class="taux-txt">{{ getTaux(s) }}%</span>
+                </div>
+              </td>
+              <td><button class="btn-view-sm" [routerLink]="['/sorties', s.id]">👁</button></td>
+            </tr>
+            <tr *ngIf="filteredSorties.length === 0"><td colspan="8" class="empty-row">Aucune randonnée trouvée</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">{{ filteredSorties.length }} randonnée(s) affichée(s)</div>
+    </div>
+
+  </ng-container>
+</div>

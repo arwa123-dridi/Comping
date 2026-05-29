@@ -89,7 +89,12 @@ public class EquipeServiceImpl implements IEquipeService {
     }
 
     @Override
-    public EquipeResponseDTO ajouterMembre(String equipeId, String utilisateurId) {
+    public EquipeResponseDTO ajouterMembre(String equipeId, String utilisateurId, String utilisateurNom) {
+        // ✅ VALIDATION NULL (FIX BUG #3)
+        if (equipeId == null || utilisateurId == null) {
+            throw new IllegalArgumentException("Equipe ID and User ID cannot be null");
+        }
+
         Equipe equipe = equipeRepository.findById(equipeId)
                 .orElseThrow(() -> new RuntimeException("Équipe non trouvée"));
         SignupEntity utilisateur = signupRepository.findById(utilisateurId)
@@ -100,11 +105,11 @@ public class EquipeServiceImpl implements IEquipeService {
                 .anyMatch(m -> m.getId().equals(utilisateurId));
 
         if (dejaMembre) {
-            throw new RuntimeException("Utilisateur déjà membre");
+            throw new RuntimeException("Déjà membre de cette équipe");
         }
 
         if (equipe.getMembres().size() >= equipe.getNbMembresMax()) {
-            throw new RuntimeException("Capacité maximale atteinte");
+            throw new RuntimeException("Équipe pleine - capacité maximale atteinte");
         }
 
         equipe.getMembres().add(utilisateur);
@@ -132,7 +137,7 @@ public class EquipeServiceImpl implements IEquipeService {
 
         equipe.getMembres().removeIf(m -> m.getId().equals(utilisateurId));
         Equipe updated = equipeRepository.save(equipe);
-        return mapToResponseDTO(updated);
+        return EquipeMapper.toDto(updated);
     }
 
     @Override
@@ -165,7 +170,6 @@ public class EquipeServiceImpl implements IEquipeService {
             dto.setOrganisateurNom(equipe.getOrganisateur().getLastName());
         }
 
-        // Convertir les membres en MembreDTO
         List<MembreDTO> membresDTO = equipe.getMembres().stream()
                 .map(user -> {
                     MembreDTO membre = new MembreDTO();

@@ -31,6 +31,11 @@ public class SortieController {
         return ResponseEntity.ok(sortieService.getAllSorties());
     }
 
+    @GetMapping("/prochaines")
+    public ResponseEntity<List<SortieResponseDTO>> getProchainesSorties() {
+        return ResponseEntity.ok(sortieService.getProchainesSorties());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<SortieResponseDTO> getSortieById(@PathVariable String id) {
         return ResponseEntity.ok(sortieService.getSortieById(id));
@@ -54,11 +59,8 @@ public class SortieController {
     @PostMapping("/{sortieId}/inscription")
     public ResponseEntity<ParticipationDTO> inscrireParticipant(
             @PathVariable String sortieId,
-            @RequestParam String utilisateurId,
-            @RequestParam String utilisateurNom,
-            @RequestParam String utilisateurEmail) {
-        return ResponseEntity.ok(sortieService.inscrireParticipant(
-                sortieId, utilisateurId, utilisateurNom, utilisateurEmail));
+            @RequestBody tn.comping.spring.backendcomping.dto.InscriptionRequest request) {
+        return ResponseEntity.ok(sortieService.inscrireParticipant(sortieId, request));
     }
 
     @DeleteMapping("/{sortieId}/inscription/{utilisateurId}")
@@ -77,10 +79,5 @@ public class SortieController {
     @GetMapping("/organisateur/{organisateurId}")
     public ResponseEntity<List<SortieResponseDTO>> getSortiesByOrganisateur(@PathVariable String organisateurId) {
         return ResponseEntity.ok(sortieService.getSortiesByOrganisateur(organisateurId));
-    }
-
-    @GetMapping("/prochaines")
-    public ResponseEntity<List<SortieResponseDTO>> getProchainesSorties() {
-        return ResponseEntity.ok(sortieService.getProchainesSorties());
     }
 }

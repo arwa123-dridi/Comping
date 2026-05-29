@@ -40,7 +40,7 @@ export class EquipeFormComponent implements OnInit {
     // ✅ RESTRICTION: Seuls les organisateurs peuvent créer/modifier des équipes
     const userRole = localStorage.getItem('userRole');
     if (userRole !== 'ORGANISATEUR' && userRole !== 'ROLE_ORGANISATEUR' && userRole !== 'ADMIN') {
-      alert('⛔ Seuls les organisateurs peuvent créer ou modifier une équipe.');
+      console.warn('⛔ Accès refusé: organisateurs uniquement');
       this.router.navigate(['/equipes']);
       return;
     }

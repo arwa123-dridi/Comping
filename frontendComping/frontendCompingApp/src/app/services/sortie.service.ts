@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { SortieRequest, SortieResponse } from '../models/sortie.model';
 import { ParticipationDTO } from '../models/participation.model';
@@ -18,11 +18,6 @@ export class SortieService {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
-  }
-
-  private getHeadersNoContentType(): HttpHeaders {
-    const token = localStorage.getItem('authToken') ?? '';
-    return new HttpHeaders({ 'Authorization': `Bearer ${token}` });
   }
 
   getAllSorties(): Observable<SortieResponse[]> {
@@ -45,30 +40,29 @@ export class SortieService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
+  getParticipants(id: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${id}/participants`, { headers: this.getHeaders() });
+  }
+
   getProchainesSorties(): Observable<SortieResponse[]> {
     return this.http.get<SortieResponse[]>(`${this.apiUrl}/prochaines`, { headers: this.getHeaders() });
   }
 
-  /** ✅ INSCRIPTION — tente query params ET body JSON en fallback */
+  // ✅ CORRIGÉ : body JSON au lieu de query params (sécurité)
   inscrire(sortieId: string): Observable<ParticipationDTO> {
-    const userId    = localStorage.getItem('userId')    ?? '';
-    const userNom   = localStorage.getItem('userNom')   ?? '';
+    const userId    = localStorage.getItem('userId') ?? '';
+    const userNom   = localStorage.getItem('userNom') ?? '';
     const userEmail = localStorage.getItem('userEmail') ?? '';
 
     if (!userId || userId === 'undefined' || userId === 'null') {
       return throwError(() => new Error('Utilisateur non connecté'));
     }
 
-    // Essai 1 : query params (format attendu par la plupart des contrôleurs Spring)
-    const params = new HttpParams()
-      .set('utilisateurId',    userId)
-      .set('utilisateurNom',   userNom)
-      .set('utilisateurEmail', userEmail);
-
+    const body = { utilisateurId: userId, utilisateurNom: userNom, utilisateurEmail: userEmail };
     return this.http.post<ParticipationDTO>(
       `${this.apiUrl}/${sortieId}/inscription`,
-      null,
-      { headers: this.getHeadersNoContentType(), params }
+      body,
+      { headers: this.getHeaders() }
     );
   }
 
@@ -94,7 +88,7 @@ export class SortieService {
     if (participated.length === 0) {
       return sorties.filter(s => s.difficulte === 'FACILE' && (s.placesDisponibles ?? 1) > 0).slice(0, 4);
     }
-    const freq: Record<string,number> = {};
+    const freq: Record<string, number> = {};
     participated.forEach(s => freq[s.difficulte] = (freq[s.difficulte] || 0) + 1);
     const topDiff = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
     return sorties

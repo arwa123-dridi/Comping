@@ -31,6 +31,11 @@ public class EquipeController {
         return ResponseEntity.ok(equipeService.getAllEquipes());
     }
 
+    @GetMapping("/avec-place")
+    public ResponseEntity<List<EquipeResponseDTO>> getEquipesAvecPlace() {
+        return ResponseEntity.ok(equipeService.getEquipesAvecPlace());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<EquipeResponseDTO> getEquipeById(@PathVariable String id) {
         return ResponseEntity.ok(equipeService.getEquipeById(id));
@@ -54,10 +59,12 @@ public class EquipeController {
     @PostMapping("/{equipeId}/membres/{utilisateurId}")
     public ResponseEntity<EquipeResponseDTO> ajouterMembre(
             @PathVariable String equipeId,
-            @PathVariable String utilisateurId) {
+            @PathVariable String utilisateurId,
+            @RequestBody java.util.Map<String, String> body) {
 
+        String utilisateurNom = body.get("utilisateurNom");
         return ResponseEntity.ok(
-                equipeService.ajouterMembre(equipeId, utilisateurId)
+                equipeService.ajouterMembre(equipeId, utilisateurId, utilisateurNom)
         );
     }
 
@@ -67,10 +74,5 @@ public class EquipeController {
             @PathVariable String utilisateurId) {
         equipeService.retirerMembre(equipeId, utilisateurId);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/avec-place")
-    public ResponseEntity<List<EquipeResponseDTO>> getEquipesAvecPlace() {
-        return ResponseEntity.ok(equipeService.getEquipesAvecPlace());
     }
 }

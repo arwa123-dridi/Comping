@@ -17,6 +17,17 @@ export class EquipeRecommandationsComponent implements OnInit {
 
   recommandations: EquipeResponse[] = [];
   loading = false;
+  toastMessage: string | null = null;
+  toastType: 'success' | 'error' | 'info' = 'info';
+  private toastTimer: any;
+
+  showToast(msg: string, type: 'success' | 'error' | 'info' = 'info'): void {
+    this.toastMessage = msg;
+    this.toastType = type;
+    clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => { this.toastMessage = null; }, 3500);
+  }
+
   error: string | null = null;
   userId: string = '';
   hasHistory = false;
@@ -108,13 +119,13 @@ export class EquipeRecommandationsComponent implements OnInit {
     const userNom = localStorage.getItem('userNom') || 'Utilisateur';
     this.equipeService.ajouterMembre(equipeId, this.userId, userNom).subscribe({
       next: () => {
-        alert('✅ Vous avez rejoint l\'équipe !');
+        this.showToast('✅ Vous avez rejoint l\'équipe !', 'success');
         this.loadRecommandations();
       },
       error: (err) => {
-        if (err.status === 409) alert('Vous êtes déjà membre.');
-        else if (err.status === 400) alert('Équipe complète.');
-        else alert(err.error?.message || 'Erreur.');
+        if (err.status === 409) this.showToast('ℹ️ Vous êtes déjà membre.', 'info');
+        else if (err.status === 400) this.showToast('⛔ Équipe complète.', 'error');
+        else this.showToast('❌ ' + (err.error?.message || 'Erreur.'), 'error');
       }
     });
   }

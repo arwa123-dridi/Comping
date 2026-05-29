@@ -4,14 +4,13 @@ import { PaymentEvent } from '../../services/payment-event';
 import { CommonModule } from '@angular/common';
 import { Event as AppEvent } from '../../models/event.model';
 import { Router, RouterLink } from '@angular/router';
-import { EditeEventComponent } from '../edite-event/edite-event.component';
 import { FormsModule } from '@angular/forms';
 import { FideliteComponent } from '../fidelite-component/fidelite-component';
 
 @Component({
   selector: 'app-list-event',
    standalone: true,
-  imports: [CommonModule, EditeEventComponent,RouterLink, FormsModule,FideliteComponent],
+  imports: [CommonModule,RouterLink, FormsModule,FideliteComponent],
   templateUrl: './list-event.component.html',
   styleUrl: './list-event.component.css'
 })

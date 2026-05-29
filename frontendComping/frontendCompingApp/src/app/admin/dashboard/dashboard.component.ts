@@ -1,3 +1,4 @@
+// src/app/admin/dashboard/dashboard.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -5,7 +6,6 @@ import { SortieService } from '../../services/sortie.service';
 import { EquipeService } from '../../services/equipe.service';
 import { SortieResponse } from '../../models/sortie.model';
 import { EquipeResponse } from '../../models/equipe.model';
-import { Observable } from 'rxjs/internal/Observable';
 import { UserService } from '../../services/user.service';
 import { EventService } from '../../services/event.service';
 
@@ -17,33 +17,44 @@ import { EventService } from '../../services/event.service';
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
-totalUsers: number = 0;
-totalEvents = 0;
-  // ── State ───────────────────────────────────────────
+
+  // ── Données brutes ───────────────────────────────────────
   sorties: SortieResponse[] = [];
   equipes: EquipeResponse[] = [];
   loading = false;
 
-  // Stats calculées
-  totalSorties = 0;
-  totalParticipants = 0;
-  totalEquipes = 0;
-  totalMembres = 0;
-  sortiesAVenir: SortieResponse[] = [];
-  sortiesRecentes: SortieResponse[] = [];
-  sortiesCompletes = 0;
-  placesDisponibles = 0;
+  // ── KPIs autres modules (dynamiques si services dispo) ──
+  totalUsers  = 0;
+  totalEvents = 0;
 
-  // User infos
-  userName = 'Organisateur';
-  userRole = '';
-  userInitiales = 'O';
+  // ── KPIs sorties ─────────────────────────────────────────
+  totalSorties      = 0;
+  totalParticipants = 0;
+  totalEquipes      = 0;
+  sortiesAVenir:    SortieResponse[] = [];
+  sortiesCompletes  = 0;
+  placesDisponibles = 0;
+  moyParticipantsSortie = 0;
+  tauxRemplissage   = 0;
+
+  // ── Stats difficultés ────────────────────────────────────
+  nbFacile    = 0;
+  nbMoyen     = 0;
+  nbDifficile = 0;
+
+  // ── Top sorties ──────────────────────────────────────────
+  topSorties: { titre: string; nb: number }[] = [];
+
+  // ── User info ────────────────────────────────────────────
+  userName    = 'Admin';
+  userRole    = '';
+  userInitiales = 'A';
 
   constructor(
     private sortieService: SortieService,
     private equipeService: EquipeService,
-     private userService: UserService,
-     private eventService: EventService
+    private userService:   UserService,
+    private eventService:  EventService
   ) {}
 
   ngOnInit(): void {
@@ -54,77 +65,79 @@ totalEvents = 0;
   loadUserInfo(): void {
     const nom    = localStorage.getItem('userNom')    ?? '';
     const prenom = localStorage.getItem('userPrenom') ?? '';
-    this.userRole = localStorage.getItem('userRole') ?? '';
+    this.userRole = localStorage.getItem('userRole')  ?? '';
     this.userName = (prenom || nom)
       ? `${prenom} ${nom}`.trim()
-      : (localStorage.getItem('userEmail')?.split('@')[0] ?? 'Organisateur');
-    this.userInitiales = this.userName.split(' ')
-      .map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'O';
+      : (localStorage.getItem('userEmail')?.split('@')[0] ?? 'Admin');
+    this.userInitiales = this.userName
+      .split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
   }
 
   loadData(): void {
     this.loading = true;
-    const userId = localStorage.getItem('userId') ?? '';
 
-    // Charger sorties
+    // ── Sorties ──────────────────────────────────────────
     this.sortieService.getAllSorties().subscribe({
       next: (data) => {
         const now = new Date();
-        // Si organisateur: filtrer ses sorties; si admin: toutes
-        this.sorties = this.isAdmin()
-          ? data
-          : data.filter(s => String(s.organisateurId) === String(userId));
+        this.sorties = data || [];
 
-        this.totalSorties = this.sorties.length;
+        this.totalSorties     = this.sorties.length;
         this.totalParticipants = this.sorties.reduce(
-          (sum, s) => sum + (s.participantIds?.length ?? s.nombreParticipants ?? 0), 0
+          (s, x) => s + this.getNbPart(x), 0
         );
         this.sortiesAVenir = this.sorties
           .filter(s => new Date(s.dateDebut) >= now)
           .sort((a, b) => new Date(a.dateDebut).getTime() - new Date(b.dateDebut).getTime())
           .slice(0, 5);
-        this.sortiesRecentes = this.sorties
-          .filter(s => new Date(s.dateDebut) < now)
-          .sort((a, b) => new Date(b.dateDebut).getTime() - new Date(a.dateDebut).getTime())
-          .slice(0, 4);
         this.sortiesCompletes = this.sorties.filter(s =>
-          (s.participantIds?.length ?? s.nombreParticipants ?? 0) >= s.capaciteMax
+          this.getNbPart(s) >= s.capaciteMax
         ).length;
         this.placesDisponibles = this.sorties.reduce(
-          (sum, s) => sum + Math.max(0, s.capaciteMax - (s.participantIds?.length ?? s.nombreParticipants ?? 0)), 0
+          (s, x) => s + Math.max(0, x.capaciteMax - this.getNbPart(x)), 0
         );
+        this.moyParticipantsSortie = this.totalSorties
+          ? Math.round(this.totalParticipants / this.totalSorties) : 0;
+
+        const totalCap = this.sorties.reduce((s, x) => s + (x.capaciteMax || 0), 0);
+        this.tauxRemplissage = totalCap
+          ? Math.round((this.totalParticipants / totalCap) * 100) : 0;
+
+        // Difficultés
+        this.nbFacile    = this.sorties.filter(s => s.difficulte === 'FACILE').length;
+        this.nbMoyen     = this.sorties.filter(s => s.difficulte === 'MOYEN').length;
+        this.nbDifficile = this.sorties.filter(s => s.difficulte === 'DIFFICILE').length;
+
+        // Top 5
+        this.topSorties = [...this.sorties]
+          .sort((a, b) => this.getNbPart(b) - this.getNbPart(a))
+          .slice(0, 5)
+          .map(s => ({ titre: s.titre, nb: this.getNbPart(s) }));
+
         this.loading = false;
       },
       error: () => { this.loading = false; }
     });
-this.userService.getTotalUsers().subscribe({
-  next: (count) => {
-    this.totalUsers = count;
-  },
-  error: () => {
-    this.totalUsers = 0;
-  }
-});
-this.eventService.getTotalEvents().subscribe({
-  next: (count) => {
-    this.totalEvents = count;
-  },
-  error: (err) => {
-    console.error('Erreur total events', err);
-  }
-});
-    // Charger équipes
+
+    // ── Équipes ──────────────────────────────────────────
     this.equipeService.getAllEquipes().subscribe({
       next: (data) => {
-        this.equipes = this.isAdmin()
-          ? data
-          : data.filter(e => String(e.organisateurId) === String(userId));
+        this.equipes     = data || [];
         this.totalEquipes = this.equipes.length;
-        this.totalMembres = this.equipes.reduce(
-          (sum, e) => sum + (e.membres?.length ?? e.nbMembresActuels ?? 0), 0
-        );
       },
       error: () => {}
+    });
+
+    // ── Utilisateurs (module admin global) ──────────────
+    this.userService.getTotalUsers().subscribe({
+      next: (n: number) => { this.totalUsers = n; },
+      error: () => { this.totalUsers = 0; }
+    });
+
+    // ── Events (autre module) ────────────────────────────
+    this.eventService.getTotalEvents().subscribe({
+      next: (n: number) => { this.totalEvents = n; },
+      error: () => { this.totalEvents = 0; }
     });
   }
 
@@ -132,39 +145,14 @@ this.eventService.getTotalEvents().subscribe({
     return ['ADMIN', 'ROLE_ADMIN'].includes(this.userRole);
   }
 
-  isOrga(): boolean {
-    return ['ORGANISATEUR', 'ROLE_ORGANISATEUR'].includes(this.userRole) || this.isAdmin();
-  }
-
-  getRoleLabel(): string {
-    if (this.isAdmin()) return '👑 Administrateur';
-    return '🏕️ Organisateur';
-  }
-
-  getDifficulteClass(d: string): string {
-    return d === 'FACILE' ? 'diff-easy' : d === 'MOYEN' ? 'diff-med' : 'diff-hard';
-  }
-
-  getDifficulteLabel(d: string): string {
-    return d === 'FACILE' ? '🥾 Facile' : d === 'MOYEN' ? '🧗 Modéré' : '⛰️ Difficile';
-  }
-
-  getNbParticipants(s: SortieResponse): number {
+  getNbPart(s: SortieResponse): number {
     return s.participantIds?.length ?? s.nombreParticipants ?? 0;
   }
 
-  getPlacesPercent(s: SortieResponse): number {
-    if (!s.capaciteMax) return 0;
-    return Math.min(100, (this.getNbParticipants(s) / s.capaciteMax) * 100);
-  }
-
-  formatDate(d: Date | string): string {
+  formatDate(d: any): string {
     if (!d) return '—';
-    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+    return new Date(d).toLocaleDateString('fr-FR', {
+      day: '2-digit', month: 'short', year: 'numeric'
+    });
   }
-
-  getInitiales(nom: string): string {
-    return (nom || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-  }
-
 }

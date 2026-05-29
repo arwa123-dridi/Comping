@@ -1,50 +1,107 @@
 <div class="sorties-page">
 
+  <!-- ══ TOAST ══ -->
+  <div *ngIf="toastMessage" class="cp-toast-container">
+    <div class="cp-toast"
+         [class.cp-toast-success]="toastType==='success'"
+         [class.cp-toast-error]="toastType==='error'"
+         [class.cp-toast-info]="toastType==='info'">
+      {{ toastMessage }}
+    </div>
+  </div>
+
   <!-- ══ HERO ══ -->
   <div class="sorties-hero">
     <div class="hero-bg-overlay"></div>
     <div class="hero-content">
       <div class="hero-badge">🏔️ CAMPINO · Randonnées</div>
-      <h1 class="hero-title">Explorez la Tunisie<br><span class="hero-accent">à votre rythme</span></h1>
-      <p class="hero-sub">Des sentiers pour tous les niveaux · Guides locaux · Aventures inoubliables</p>
+      <h1 class="hero-title">
+        Explorez la Tunisie<br>
+        <span class="hero-accent">à votre rythme</span>
+      </h1>
+      <p class="hero-sub">
+        Des sentiers pour tous les niveaux · Guides locaux · Aventures inoubliables
+      </p>
       <div class="hero-actions">
-        <button *ngIf="isOrganizer" class="btn-hero-primary" routerLink="/admin/sorties/create">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        <button *ngIf="isOrganizer"
+                class="btn-hero-primary"
+                routerLink="/admin/sorties/create">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
           Proposer une sortie
         </button>
-        <button class="btn-hero-ghost" routerLink="/equipes">👥 Voir les équipes</button>
+        <a class="btn-hero-ghost" routerLink="/equipes">👥 Voir les équipes</a>
       </div>
       <div class="hero-stats">
-        <div class="hstat"><span class="hstat-n">{{ sorties.length }}</span><span class="hstat-l">Sorties</span></div>
+        <div class="hstat">
+          <span class="hstat-n">{{ sorties.length }}</span>
+          <span class="hstat-l">Sorties</span>
+        </div>
         <div class="hstat-div"></div>
-        <div class="hstat"><span class="hstat-n">{{ getTotalParticipants() }}</span><span class="hstat-l">Participants</span></div>
+        <div class="hstat">
+          <span class="hstat-n">{{ getTotalParticipants() }}</span>
+          <span class="hstat-l">Participants</span>
+        </div>
         <div class="hstat-div"></div>
-        <div class="hstat"><span class="hstat-n">3</span><span class="hstat-l">Niveaux</span></div>
+        <div class="hstat">
+          <span class="hstat-n">3</span>
+          <span class="hstat-l">Niveaux</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ══ RECOMMANDATIONS IA (juste après le hero, avant les filtres) ══ -->
+  <!-- ══ RECOMMANDATIONS IA ══ -->
   <div *ngIf="!loading && sorties.length > 0" class="reco-section-wrapper">
     <app-sortie-recommandations [allSorties]="sorties"></app-sortie-recommandations>
+  </div>
+
+  <!-- ══ BARRE DE RECHERCHE ══ -->
+  <div class="search-bar-wrapper">
+    <div class="search-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="#6d7f6d" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text"
+             placeholder="Rechercher par titre, lieu..."
+             [(ngModel)]="searchTerm"
+             (input)="applySearch()"
+             class="search-input" />
+      <button *ngIf="searchTerm" class="btn-clear-search" (click)="clearSearch()">✕</button>
+    </div>
   </div>
 
   <!-- ══ FILTRES ══ -->
   <div class="filters-bar">
     <div class="filters-inner">
-      <button class="filter-pill" [class.active]="activeFilter === 'ALL'" (click)="setFilter('ALL')">
-        Toutes <span class="pill-count">{{ sorties.length }}</span>
+      <button class="filter-pill"
+              [class.active]="activeFilter === 'ALL'"
+              (click)="setFilter('ALL')">
+        Toutes
+        <span class="pill-count">{{ sorties.length }}</span>
       </button>
-      <button class="filter-pill facile" [class.active]="activeFilter === 'FACILE'" (click)="setFilter('FACILE')">
-        🟢 Facile <span class="pill-count">{{ getSortiesByDifficulte('FACILE').length }}</span>
+      <button class="filter-pill facile"
+              [class.active]="activeFilter === 'FACILE'"
+              (click)="setFilter('FACILE')">
+        🟢 Facile
+        <span class="pill-count">{{ getSortiesByDifficulte('FACILE').length }}</span>
       </button>
-      <button class="filter-pill moyen" [class.active]="activeFilter === 'MOYEN'" (click)="setFilter('MOYEN')">
-        🟡 Modéré <span class="pill-count">{{ getSortiesByDifficulte('MOYEN').length }}</span>
+      <button class="filter-pill moyen"
+              [class.active]="activeFilter === 'MOYEN'"
+              (click)="setFilter('MOYEN')">
+        🟡 Modéré
+        <span class="pill-count">{{ getSortiesByDifficulte('MOYEN').length }}</span>
       </button>
-      <button class="filter-pill difficile" [class.active]="activeFilter === 'DIFFICILE'" (click)="setFilter('DIFFICILE')">
-        🔴 Difficile <span class="pill-count">{{ getSortiesByDifficulte('DIFFICILE').length }}</span>
+      <button class="filter-pill difficile"
+              [class.active]="activeFilter === 'DIFFICILE'"
+              (click)="setFilter('DIFFICILE')">
+        🔴 Difficile
+        <span class="pill-count">{{ getSortiesByDifficulte('DIFFICILE').length }}</span>
       </button>
     </div>
   </div>
@@ -52,53 +109,86 @@
   <!-- ══ CONTENU ══ -->
   <div class="sorties-body">
 
-    <!-- Loading -->
-    <div *ngIf="loading" class="state-loading">
-      <div class="campino-spinner"></div>
-      <p>Chargement des randonnées…</p>
-    </div>
+    <!-- Loading skeletons -->
+    <ng-container *ngIf="loading">
+      <div class="skeleton-grid">
+        <div class="skeleton-card" *ngFor="let i of [1,2,3]">
+          <div class="skeleton-img"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line med"></div>
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line med"></div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
 
     <!-- Erreur -->
     <div *ngIf="error && !loading" class="state-error">
-      <span>⚠️</span><p>{{ error }}</p>
-      <button (click)="loadSorties()">Réessayer</button>
+      <span>⚠️</span>
+      <p>{{ error }}</p>
+      <button (click)="loadSorties()">↺ Réessayer</button>
     </div>
 
     <!-- Grille -->
     <div *ngIf="!loading && getFilteredSorties().length > 0" class="sorties-grid">
+
       <div *ngFor="let s of getFilteredSorties(); trackBy: trackById"
            class="sortie-card"
            [class.card-facile]="s.difficulte === 'FACILE'"
            [class.card-moyen]="s.difficulte === 'MOYEN'"
            [class.card-difficile]="s.difficulte === 'DIFFICILE'">
 
-        <!-- Image -->
-        <div class="card-img" [style.backgroundImage]="'url(' + getImageUrl(s) + ')'">
-          <div class="card-img-overlay"></div>
+        <!-- Conteneur image (relatif pour les badges absolus) -->
+        <div class="card-img">
+          <!-- Image optimisée (lazy loading) -->
+          <img class="card-img-elem"
+               [src]="getImageUrl(s)"
+               [alt]="s.titre"
+               loading="lazy" />
+
+          <!-- Badge difficulté -->
           <span class="diff-badge"
-                [class.diff-facile]="s.difficulte==='FACILE'"
-                [class.diff-moyen]="s.difficulte==='MOYEN'"
-                [class.diff-difficile]="s.difficulte==='DIFFICILE'">
+                [class.diff-facile]="s.difficulte === 'FACILE'"
+                [class.diff-moyen]="s.difficulte === 'MOYEN'"
+                [class.diff-difficile]="s.difficulte === 'DIFFICILE'">
             {{ getDiffLabel(s.difficulte) }}
           </span>
-          <span class="dist-badge">{{ s.distanceKm || '?' }} km</span>
-          <span *ngIf="isOrganisateur(s.organisateurId)" class="org-badge">👑 Vous</span>
-          <span *ngIf="isInscrit(s)" class="inscrit-badge">✓ Inscrit</span>
+
+          <!-- Distance -->
+          <span *ngIf="s.distanceKm" class="dist-badge">
+            {{ s.distanceKm }} km
+          </span>
+
+          <!-- Badge propriétaire -->
+          <span *ngIf="isOrganisateur(s.organisateurId)" class="org-badge">
+            👑 Vous
+          </span>
+
+          <!-- Inscrit -->
+          <span *ngIf="isInscrit(s)" class="inscrit-badge">
+            ✓ Inscrit
+          </span>
         </div>
 
         <!-- Corps -->
         <div class="card-body">
+
           <h3 class="card-title">{{ s.titre }}</h3>
+
           <div class="card-meta">
             <span>📅 {{ s.dateDebut | date:'dd MMM yyyy' }}</span>
             <span>📍 {{ s.lieuDepart || '—' }}</span>
           </div>
+
           <div class="card-meta">
             <span>👤 {{ s.organisateurNom || 'Organisateur' }}</span>
-            <span *ngIf="s.prixParPersonne && s.prixParPersonne > 0">💰 {{ s.prixParPersonne }} TND</span>
+            <span *ngIf="s.prixParPersonne && s.prixParPersonne > 0">
+              💰 {{ s.prixParPersonne }} TND
+            </span>
           </div>
 
-          <!-- Jauge participants -->
+          <!-- Barre participants -->
           <div class="places-section">
             <div class="places-bar-wrap">
               <div class="places-bar-fill"
@@ -108,25 +198,47 @@
             </div>
             <div class="places-label">
               <span>{{ getNombreParticipants(s) }}/{{ s.capaciteMax }} inscrits</span>
-              <span *ngIf="getNombreParticipants(s) >= s.capaciteMax" class="complet-tag">Complet</span>
-              <span *ngIf="getNombreParticipants(s) < s.capaciteMax" class="libre-tag">
+              <span *ngIf="getNombreParticipants(s) >= s.capaciteMax"
+                    class="complet-tag">Complet</span>
+              <span *ngIf="getNombreParticipants(s) < s.capaciteMax"
+                    class="libre-tag">
                 {{ s.capaciteMax - getNombreParticipants(s) }} place(s)
               </span>
             </div>
           </div>
 
-          <!-- Actions -->
+          <!-- ══ ACTIONS par rôle ══ -->
           <div class="card-actions">
-            <button class="btn-detail" (click)="viewDetail(s.id)">Détails →</button>
 
-            <!-- Organisateur de la sortie -->
-            <span *ngIf="isOrganisateur(s.organisateurId)" class="org-label">
-              <a *ngIf="isOrganizer" [routerLink]="['/admin/sorties/edit', s.id]" class="btn-edit-card">✏️ Modifier</a>
-            </span>
+            <!-- Détails : toujours visible -->
+            <button class="btn-detail" (click)="viewDetail(s.id)">
+              Détails →
+            </button>
 
-            <!-- User normal -->
-            <ng-container *ngIf="!isOrganisateur(s.organisateurId)">
-              <span *ngIf="isInscrit(s)" class="inscrit-label">✓ Inscrit</span>
+            <!-- ORGANISATEUR propriétaire uniquement -->
+            <ng-container *ngIf="isOrganizer && isOrganisateur(s.organisateurId)">
+              <a [routerLink]="['/admin/sorties/edit', s.id]"
+                 class="btn-edit-card">✏️</a>
+              <button class="btn-edit-card btn-delete-card"
+                      (click)="deleteSortie(s.id)">🗑️</button>
+            </ng-container>
+
+            <!-- ADMIN : peut supprimer toutes les sorties -->
+            <ng-container *ngIf="isAdmin()">
+              <button class="btn-edit-card btn-delete-card"
+                      (click)="deleteSortie(s.id)">🗑️ Suppr.</button>
+            </ng-container>
+
+            <!-- USER uniquement : S'inscrire ou Se désinscrire -->
+            <ng-container *ngIf="isUser()">
+              <!-- Déjà inscrit -->
+              <button *ngIf="isInscrit(s)"
+                      class="btn-desinscrire"
+                      (click)="desinscrire(s.id)">
+                ✗ Se désinscrire
+              </button>
+
+              <!-- Pas encore inscrit -->
               <button *ngIf="!isInscrit(s)"
                       class="btn-inscrire"
                       [class.btn-complet]="getNombreParticipants(s) >= s.capaciteMax"
@@ -135,18 +247,27 @@
                 {{ getNombreParticipants(s) >= s.capaciteMax ? '🔒 Complet' : "S'inscrire" }}
               </button>
             </ng-container>
-          </div>
-        </div>
 
+          </div>
+
+        </div>
       </div>
     </div>
 
-    <!-- Empty -->
-    <div *ngIf="!loading && !error && getFilteredSorties().length === 0" class="state-empty">
+    <!-- État vide -->
+    <div *ngIf="!loading && !error && getFilteredSorties().length === 0"
+         class="state-empty">
       <div class="empty-icon">🏔️</div>
-      <h3>Aucune randonnée {{ activeFilter !== 'ALL' ? 'dans ce niveau' : 'disponible' }}</h3>
+      <h3>
+        Aucune randonnée
+        {{ activeFilter !== 'ALL' ? 'dans ce niveau' : 'disponible' }}
+      </h3>
       <p>Soyez le premier à proposer une aventure !</p>
-      <button *ngIf="isOrganizer" routerLink="/admin/sorties/create" class="btn-empty">✨ Créer une sortie</button>
+      <button *ngIf="isOrganizer"
+              routerLink="/admin/sorties/create"
+              class="btn-empty">
+        ✨ Créer une sortie
+      </button>
     </div>
 
   </div>

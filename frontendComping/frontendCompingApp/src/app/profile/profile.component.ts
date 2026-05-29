@@ -16,33 +16,46 @@ import { SigninService } from '../services/signin.service';
 })
 export class ProfileComponent implements OnInit {
 
-  profileForm: FormGroup;
-  passwordForm: FormGroup;
+  profileForm!:  FormGroup;
+  passwordForm!: FormGroup;
 
   successMessage = '';
-  errorMessage = '';
-  userId = '';
-  userEmail = '';
-  userPhoto = 'assets/default-avatar.png';
-  userInitiales = 'U';
-  userRole = 'USER';
-  isLoading = false;
+  errorMessage   = '';
+  userId         = '';
+  userEmail      = '';
+  userPhoto      = '';
+  userInitiales  = 'U';
+  userRole       = 'USER';
+  isLoading      = false;
+  photoLoading   = false;
 
-  // Stats réelles
-  totalSorties = 0;
-  totalEquipes = 0;
+  // Stats
+  totalSorties           = 0;
+  totalEquipes           = 0;
   totalSortiesCompletees = 0;
-  niveauPrincipal = '—';
-  statsLoading = true;
+  totalSortiesAVenir     = 0;
+  niveauPrincipal        = '—';
+  statsLoading           = true;
+
+  private readonly API = 'http://localhost:8087/api/users';
 
   constructor(
-    private fb: FormBuilder,
-    private http: HttpClient,
-    private router: Router,
+    private fb:            FormBuilder,
+    private http:          HttpClient,
+    private router:        Router,
     private sortieService: SortieService,
     private equipeService: EquipeService,
     private signinService: SigninService
-  ) {
+  ) {}
+
+  ngOnInit(): void {
+    this.buildForms();
+    this.loadUserFromToken();
+    this.loadStats();
+  }
+
+  // ─── Forms ──────────────────────────────────────────────────
+  buildForms(): void {
     this.profileForm = this.fb.group({
       firstName: ['', [Validators.minLength(2), Validators.maxLength(50)]],
       lastName:  ['', [Validators.minLength(2), Validators.maxLength(50)]],
@@ -58,77 +71,211 @@ export class ProfileComponent implements OnInit {
     }, { validators: this.passwordMatchValidator });
   }
 
-  ngOnInit(): void {
-    this.loadUserFromToken();
-    this.loadStats();
-  }
-
   passwordMatchValidator(g: FormGroup) {
-    return g.get('newPassword')?.value === g.get('confirmPassword')?.value ? null : { mismatch: true };
+    return g.get('newPassword')?.value === g.get('confirmPassword')?.value
+      ? null : { mismatch: true };
   }
 
+  // ─── Headers ─────────────────────────────────────────────────
   private getHeaders(): HttpHeaders {
     return new HttpHeaders({
-      'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-      'Content-Type': 'application/json'
+      'Authorization': `Bearer ${localStorage.getItem('authToken') ?? ''}`,
+      'Content-Type':  'application/json'
     });
   }
 
+  // ─── Chargement utilisateur ───────────────────────────────────
   loadUserFromToken(): void {
-    this.userId    = localStorage.getItem('userId') ?? '';
+    this.userId    = localStorage.getItem('userId')    ?? '';
     this.userEmail = localStorage.getItem('userEmail') ?? '';
-    this.userRole  = localStorage.getItem('userRole') ?? 'USER';
-    const nom    = localStorage.getItem('userNom') ?? '';
-    const prenom = localStorage.getItem('userPrenom') ?? '';
-    const fn = prenom || nom.split(' ')[0] || '';
-    const ln = nom.split(' ').slice(1).join(' ') || '';
-    this.profileForm.patchValue({ firstName: fn, lastName: ln, email: this.userEmail });
+    this.userRole  = localStorage.getItem('userRole')  ?? 'USER';
 
-    const full = (fn || ln) ? `${fn} ${ln}`.trim() : (this.userEmail.split('@')[0] || 'U');
-    this.userInitiales = full.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
+    const nom    = localStorage.getItem('userNom')    ?? '';
+    const prenom = localStorage.getItem('userPrenom') ?? '';
+    const fn     = prenom || nom.split(' ')[0] || '';
+    const ln     = nom.split(' ').slice(1).join(' ') || '';
+
+    this.profileForm.patchValue({ firstName: fn, lastName: ln, email: this.userEmail });
+    this.updateInitiales(fn, ln);
 
     if (!this.userId) return;
-    this.http.get<any>(`http://localhost:8087/api/users/${this.userId}`, { headers: this.getHeaders() })
+
+    // Charger le profil complet depuis le backend
+    this.http.get<any>(`${this.API}/${this.userId}`, { headers: this.getHeaders() })
       .subscribe({
         next: (u) => {
+          const firstName = u.prenom || u.firstName || fn;
+          const lastName  = u.nom    || u.lastName  || ln;
           this.profileForm.patchValue({
-            firstName: u.prenom || u.firstName || fn,
-            lastName:  u.nom || u.lastName || ln,
-            email:     u.email || this.userEmail,
+            firstName,
+            lastName,
+            email:     u.email     || this.userEmail,
             telephone: u.telephone || '',
-            address:   u.adresse || u.address || ''
+            address:   u.adresse   || u.address || ''
           });
-          if (u.photo) this.userPhoto = u.photo;
+          this.updateInitiales(firstName, lastName);
+          if (u.photo && u.photo !== 'null' && u.photo.trim() !== '') {
+            this.userPhoto = u.photo;
+          }
         },
         error: () => {}
       });
   }
 
+  updateInitiales(fn: string, ln: string): void {
+    const full = `${fn} ${ln}`.trim() || this.userEmail.split('@')[0] || 'U';
+    this.userInitiales = full.split(' ')
+      .map(w => w[0] || '')
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || 'U';
+  }
+
+  // ─── Soumettre profil ─────────────────────────────────────────
+  onSubmitProfile(): void {
+    this.clearMessages();
+    if (!this.userId) { this.errorMessage = 'Utilisateur non identifié.'; return; }
+    this.isLoading = true;
+
+    const v = this.profileForm.value;
+    const body = {
+      prenom:    v.firstName,
+      nom:       v.lastName,
+      firstName: v.firstName,
+      lastName:  v.lastName,
+      email:     v.email,
+      telephone: v.telephone,
+      adresse:   v.address,
+      address:   v.address
+    };
+
+    // ✅ CORRIGÉ : PUT /api/users/{userId} (sans /profile)
+    this.http.put(`${this.API}/${this.userId}`, body, {
+      headers: this.getHeaders(), responseType: 'text'
+    }).subscribe({
+      next: (r: string) => {
+        this.successMessage = r?.trim() || 'Profil mis à jour avec succès.';
+        localStorage.setItem('userNom',    `${v.firstName} ${v.lastName}`.trim());
+        localStorage.setItem('userPrenom', v.firstName);
+        this.updateInitiales(v.firstName, v.lastName);
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = this.parseError(err);
+      }
+    });
+  }
+
+  // ─── Soumettre mot de passe ───────────────────────────────────
+  onSubmitPassword(): void {
+    this.clearMessages();
+    if (this.passwordForm.invalid) {
+      if (this.passwordForm.errors?.['mismatch']) {
+        this.errorMessage = 'Les mots de passe ne correspondent pas.';
+      } else {
+        this.errorMessage = 'Formulaire invalide — vérifiez les champs.';
+      }
+      return;
+    }
+    this.isLoading = true;
+
+    const { oldPassword, newPassword, confirmPassword } = this.passwordForm.value;
+
+    // ✅ Fonctionne pour USER, ORGANISATEUR et ADMIN
+    this.http.put(`${this.API}/${this.userId}/password`,
+      { oldPassword, newPassword, confirmPassword },
+      { headers: this.getHeaders(), responseType: 'text' }
+    ).subscribe({
+      next: (r: string) => {
+        this.successMessage = r?.trim() || 'Mot de passe modifié avec succès.';
+        this.passwordForm.reset();
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.isLoading = false;
+        if (err.status === 400) {
+          this.errorMessage = 'Ancien mot de passe incorrect.';
+        } else {
+          this.errorMessage = this.parseError(err);
+        }
+      }
+    });
+  }
+
+  // ─── Photo ────────────────────────────────────────────────────
+  onFileSelected(event: any): void {
+    this.clearMessages();
+    const file: File = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      this.errorMessage = 'Format invalide — utilisez JPG, PNG ou WebP.'; return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.errorMessage = 'Image trop grande (max 5 MB).'; return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => this.uploadPhoto(reader.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  uploadPhoto(photoBase64: string): void {
+    this.photoLoading = true;
+    this.clearMessages();
+
+    // ✅ CORRIGÉ : canActOn() dans le backend permet ADMIN + propriétaire
+    this.http.put(`${this.API}/${this.userId}/photo`,
+      { photo: photoBase64 },
+      { headers: this.getHeaders(), responseType: 'text' }
+    ).subscribe({
+      next: (r: string) => {
+        this.successMessage = r?.trim() || 'Photo mise à jour.';
+        this.userPhoto = photoBase64;
+       this.userPhoto = photoBase64;
+       localStorage.setItem('userPhoto', photoBase64);           // ✅ sauvegarde
+       window.dispatchEvent(new Event('storage'));                // ✅ notifie le header
+        this.photoLoading = false;
+      },
+      error: (err) => {
+        this.photoLoading = false;
+        if (err.status === 403) {
+          this.errorMessage = 'Accès refusé — redémarrez le backend avec la correction SecurityConfig.';
+        } else {
+          this.errorMessage = this.parseError(err);
+        }
+      }
+    });
+  }
+
+  // ─── Stats ────────────────────────────────────────────────────
   loadStats(): void {
     this.statsLoading = true;
     const uid = this.userId || localStorage.getItem('userId') || '';
     if (!uid) { this.statsLoading = false; return; }
 
-    // Load sorties
+    const now = new Date();
+
     this.sortieService.getAllSorties().subscribe({
       next: (sorties) => {
         const mySorties = sorties.filter(s =>
           (s.participantIds ?? []).map(String).includes(String(uid))
         );
-        this.totalSorties = mySorties.length;
-        this.totalSortiesCompletees = mySorties.filter(s => new Date(s.dateDebut) < new Date()).length;
+        this.totalSorties           = mySorties.length;
+        this.totalSortiesCompletees = mySorties.filter(s => new Date(s.dateDebut) < now).length;
+        this.totalSortiesAVenir     = mySorties.filter(s => new Date(s.dateDebut) >= now).length;
 
-        // Niveau dominant
-        const freq: Record<string,number> = {};
+        const freq: Record<string, number> = {};
         mySorties.forEach(s => freq[s.difficulte] = (freq[s.difficulte] || 0) + 1);
         const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
-        this.niveauPrincipal = top ? ({ FACILE: '🥾 Facile', MOYEN: '🧗 Modéré', DIFFICILE: '⛰️ Difficile' }[top[0]] || top[0]) : '—';
+        this.niveauPrincipal = top
+          ? ({'FACILE':'🥾 Facile','MOYEN':'🧗 Modéré','DIFFICILE':'⛰️ Difficile'} as any)[top[0]] || top[0]
+          : '—';
         this.statsLoading = false;
       },
       error: () => { this.statsLoading = false; }
     });
 
-    // Load equipes
     this.equipeService.getAllEquipes().subscribe({
       next: (equipes) => {
         this.totalEquipes = equipes.filter(e =>
@@ -140,76 +287,43 @@ export class ProfileComponent implements OnInit {
     });
   }
 
+  // ─── Helpers ─────────────────────────────────────────────────
   getRoleLabel(): string {
     const r = this.userRole;
-    if (r === 'ADMIN' || r === 'ROLE_ADMIN') return '👑 Administrateur';
+    if (r === 'ADMIN'        || r === 'ROLE_ADMIN')        return '👑 Administrateur';
     if (r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR') return '🏕️ Organisateur';
     return '🥾 Randonneur';
   }
 
-  onSubmitProfile(): void {
-    if (!this.userId) { this.errorMessage = 'Utilisateur non identifié.'; return; }
-    this.isLoading = true;
-    const v = this.profileForm.value;
-    this.http.put(
-      `http://localhost:8087/api/users/${this.userId}`,
-      { prenom: v.firstName, nom: v.lastName, email: v.email, telephone: v.telephone, adresse: v.address },
-      { headers: this.getHeaders(), responseType: 'text' }
-    ).subscribe({
-      next: (r: string) => {
-        this.successMessage = r || 'Profil mis à jour.';
-        localStorage.setItem('userNom', `${v.firstName} ${v.lastName}`.trim());
-        localStorage.setItem('userPrenom', v.firstName);
-        this.errorMessage = '';
-        this.isLoading = false;
-        this.userInitiales = `${v.firstName?.[0]||''}${v.lastName?.[0]||''}`.toUpperCase() || 'U';
-      },
-      error: (err) => { this.errorMessage = err.error || `Erreur (${err.status})`; this.isLoading = false; }
-    });
+  getRoleBadgeClass(): string {
+    const r = this.userRole;
+    if (r === 'ADMIN'        || r === 'ROLE_ADMIN')        return 'badge-admin';
+    if (r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR') return 'badge-orga';
+    return 'badge-user';
   }
 
-  onSubmitPassword(): void {
-    if (this.passwordForm.invalid) { this.errorMessage = 'Formulaire invalide.'; return; }
-    this.isLoading = true;
-    this.http.put(
-      `http://localhost:8087/api/users/${this.userId}/password`,
-      this.passwordForm.value,
-      { headers: this.getHeaders(), responseType: 'text' }
-    ).subscribe({
-      next: (r: string) => {
-        this.successMessage = r || 'Mot de passe modifié.';
-        this.passwordForm.reset();
-        this.errorMessage = '';
-        this.isLoading = false;
-      },
-      error: (err) => { this.errorMessage = err.error || `Erreur (${err.status})`; this.isLoading = false; }
-    });
+  hasPhoto(): boolean {
+    return !!this.userPhoto && this.userPhoto !== 'assets/default-avatar.png' && this.userPhoto !== 'null';
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) { this.errorMessage = 'Image invalide.'; return; }
-    if (file.size > 5 * 1024 * 1024) { this.errorMessage = 'Image trop grande (max 5MB).'; return; }
-    const reader = new FileReader();
-    reader.onload = () => this.updatePhoto(reader.result as string);
-    reader.readAsDataURL(file);
+  getDashboardLink(): string {
+    const r = this.userRole;
+    if (r === 'ADMIN'        || r === 'ROLE_ADMIN')        return '/admin/dashboard';
+    if (r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR') return '/admin/organizer';
+    return '/dashboard';
   }
 
-  updatePhoto(photoBase64: string): void {
-    this.isLoading = true;
-    this.http.put(
-      `http://localhost:8087/api/users/${this.userId}/photo`,
-      { photo: photoBase64 },
-      { headers: this.getHeaders(), responseType: 'text' }
-    ).subscribe({
-      next: (r: string) => {
-        this.successMessage = r || 'Photo mise à jour.';
-        this.userPhoto = photoBase64;
-        this.isLoading = false;
-      },
-      error: (err) => { this.errorMessage = err.error || `Erreur (${err.status})`; this.isLoading = false; }
-    });
+  private clearMessages(): void {
+    this.successMessage = '';
+    this.errorMessage   = '';
+  }
+
+  private parseError(err: any): string {
+    if (err.status === 0)   return 'Serveur inaccessible (port 8087).';
+    if (err.status === 401) return 'Session expirée — reconnectez-vous.';
+    if (err.status === 403) return 'Accès refusé.';
+    if (err.status === 404) return 'Utilisateur introuvable.';
+    return err.error?.message || err.error || `Erreur serveur (${err.status})`;
   }
 
   logout(): void {

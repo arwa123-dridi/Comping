@@ -1,4 +1,3 @@
-// src/app/guards/auth.guard.ts
 import { Injectable } from '@angular/core';
 import {
   CanActivate, ActivatedRouteSnapshot,
@@ -10,31 +9,29 @@ export class AuthGuard implements CanActivate {
 
   constructor(private router: Router) {}
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean | UrlTree {
-    const token      = localStorage.getItem('authToken');
-    const userId     = localStorage.getItem('userId');
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | UrlTree {
+    const token       = localStorage.getItem('authToken');
+    const userId      = localStorage.getItem('userId');
     const tokenExpiry = localStorage.getItem('tokenExpiry');
 
-    // Token expiré
+    // Vérifier si le token est expiré
     if (token && tokenExpiry && new Date(tokenExpiry) < new Date()) {
       this.clearSession();
+      // Stocke l'URL pour rediriger après login
+      localStorage.setItem('redirect_after_login', state.url);
       return this.router.createUrlTree(['/login'], {
-        queryParams: { returnUrl: state.url, expired: 'true' }
+        queryParams: { expired: 'true' }
       });
     }
 
-    //  userId valide (pas vide, pas "undefined")
+    // Vérifier si l'utilisateur est connecté (token présent)
     if (token && userId && userId !== '' && userId !== 'undefined') {
       return true;
     }
 
-    // Non connecté →  /login
-    return this.router.createUrlTree(['/login'], {
-      queryParams: { returnUrl: state.url }
-    });
+    // Non connecté : Stocke l'URL cible et redirige vers /login
+    localStorage.setItem('redirect_after_login', state.url);
+    return this.router.createUrlTree(['/login']);
   }
 
   private clearSession(): void {

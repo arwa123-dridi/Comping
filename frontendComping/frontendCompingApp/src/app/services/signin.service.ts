@@ -1,36 +1,57 @@
-// src/app/services/signin.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { Router } from '@angular/router';
 
 export interface LoginDTORequest  { email: string; password: string; }
 export interface LoginDTOResponse { token: string; }
 
-
 @Injectable({ providedIn: 'root' })
 export class SigninService {
-
   private readonly API = 'http://localhost:8087/api/auth/login';
 
-  constructor(private http: HttpClient,) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   login(dto: LoginDTORequest): Observable<LoginDTOResponse> {
     return this.http.post<LoginDTOResponse>(this.API, dto, {
       headers: { 'Content-Type': 'application/json' }
-    }).pipe(tap(res => this.saveSession(res, dto.email)));
+    }).pipe(tap(res => {
+      this.saveSession(res, dto.email);
+      // ✅ AJOUT : redirect vers l'URL stockée avant login (ex: après "Participer")
+      this.handleRedirectAfterLogin();
+    }));
+  }
+
+  // ✅ NOUVEAU : stocke l'URL cible avant de rediriger vers login
+  saveRedirectUrl(url: string): void {
+    localStorage.setItem('redirect_after_login', url);
+  }
+
+  // ✅ NOUVEAU : consomme l'URL et redirige
+  private handleRedirectAfterLogin(): void {
+    const role = localStorage.getItem('userRole') ?? '';
+    const redirect = localStorage.getItem('redirect_after_login');
+
+    if (redirect) {
+      localStorage.removeItem('redirect_after_login');
+      this.router.navigateByUrl(redirect);
+    } else if (role === 'ADMIN' || role === 'ROLE_ADMIN') {
+      this.router.navigate(['/admin/dashboard']);
+    } else if (role === 'ORGANISATEUR' || role === 'ROLE_ORGANISATEUR') {
+      this.router.navigate(['/admin/organizer']);
+    } else {
+      this.router.navigate(['/Campino']);
+    }
   }
 
   saveSession(res: LoginDTOResponse, loginEmail = ''): void {
     if (!res?.token) return;
-
     const payload   = this.decodeJwt(res.token);
     const userId    = payload?.['id']        ?? '';
     const userRole  = payload?.['role']      ?? 'USER';
     const userEmail = payload?.['sub']       ?? loginEmail;
-    // Certains JWT incluent firstName/lastName dans les claims
     const firstName = payload?.['firstName'] ?? payload?.['prenom'] ?? '';
     const lastName  = payload?.['lastName']  ?? payload?.['nom']    ?? '';
-    // userNom = nom complet si dispo, sinon partie de l'email avant @
     const userNom   = (firstName || lastName)
       ? `${firstName} ${lastName}`.trim()
       : userEmail.split('@')[0];
@@ -45,8 +66,6 @@ export class SigninService {
     const expiry = new Date();
     expiry.setHours(expiry.getHours() + 24);
     localStorage.setItem('tokenExpiry', expiry.toISOString());
-
-    console.log('[Auth] userId:', userId, '| role:', userRole, '| nom:', userNom);
   }
 
   decodeJwt(token: string): Record<string, any> | null {
@@ -62,11 +81,12 @@ export class SigninService {
   logout(): void {
     ['authToken','userId','userEmail','userRole','userNom','userPrenom','tokenExpiry']
       .forEach(k => localStorage.removeItem(k));
+    this.router.navigate(['/login']);
   }
 
-  getToken():     string | null { return localStorage.getItem('authToken'); }
-  getUserId():    string | null { return localStorage.getItem('userId'); }
-  getRole():      string | null { return localStorage.getItem('userRole'); }
+  getToken():       string | null { return localStorage.getItem('authToken'); }
+  getUserId():      string | null { return localStorage.getItem('userId'); }
+  getRole():        string | null { return localStorage.getItem('userRole'); }
   isConnected():    boolean { return !!this.getToken(); }
   isOrganisateur(): boolean {
     const r = this.getRole() ?? '';
@@ -76,7 +96,5 @@ export class SigninService {
     const r = this.getRole() ?? '';
     return r === 'ADMIN' || r === 'ROLE_ADMIN';
   }
-    saveToken(token: string) {
-    localStorage.setItem('authToken', token);
-  }
+  saveToken(token: string) { localStorage.setItem('authToken', token); }
 }

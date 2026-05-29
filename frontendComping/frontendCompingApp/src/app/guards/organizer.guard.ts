@@ -21,20 +21,20 @@ export class OrganizerGuard implements CanActivate {
     const isOrg   = userRole === 'ORGANISATEUR' || userRole === 'ROLE_ORGANISATEUR';
     const isAdmin  = userRole === 'ADMIN'        || userRole === 'ROLE_ADMIN';
 
+    // Autorise ADMIN + ORGANISATEUR
     if (token && userId && (isOrg || isAdmin)) {
       return true;
     }
 
     if (token && userId) {
-      // Connecté mais pas organisateur → dashboard user
+      // Connecté mais pas autorisé → dashboard user
       return this.router.createUrlTree(['/dashboard'], {
         queryParams: { error: 'organizer-required' }
       });
     }
 
     // Non connecté → login
-    return this.router.createUrlTree(['/login'], {
-      queryParams: { returnUrl: state.url }
-    });
+    localStorage.setItem('redirect_after_login', state.url);
+    return this.router.createUrlTree(['/login']);
   }
 }

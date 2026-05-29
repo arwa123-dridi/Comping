@@ -1,9 +1,6 @@
-// src/app/services/checklist.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-// ─── DTOs (alignés sur ChecklistRequest / ChecklistResponse Spring Boot) ──────
 
 export interface ChecklistRequest {
   temperature:   number;
@@ -14,13 +11,13 @@ export interface ChecklistRequest {
 }
 
 export interface ChecklistResponse {
-  success:        boolean;
-  checklist_item: string;
-  confidence:     number;   // 0.0 – 1.0
-  details:        string;
-  alert_level:    string;   // ex: "VERT — Conditions favorables"
+  success:         boolean;
+  checklist_item:  string;
+  confidence:      number;
+  details:         string;
+  alert_level:     string;
   recommendations: string[];
-  error?:         string;
+  error?:          string;
 }
 
 export interface WeatherDTO {
@@ -32,17 +29,8 @@ export interface WeatherDTO {
   humidity:      number;
 }
 
-export interface WeatherRequest {
-  city: string;
-  date: string; // yyyy-MM-dd
-}
-
-// ─── Service ─────────────────────────────────────────────────────────────────
-
 @Injectable({ providedIn: 'root' })
 export class ChecklistService {
-
-  /** Spring Boot — JAMAIS Flask directement */
   private readonly BASE = 'http://localhost:8087/api';
 
   constructor(private http: HttpClient) {}
@@ -52,7 +40,16 @@ export class ChecklistService {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 
-  // ── Mode MANUEL : POST /api/checklist/predict ─────────────────────────────
+  // ✅ DÉLÉGUÉ à WeatherService, mais maintenu ici pour compatibilité descendante si besoin
+  getWeather(city: string, date: string): Observable<WeatherDTO> {
+    const params = new HttpParams().set('city', city).set('date', date);
+    return this.http.get<WeatherDTO>(
+      `http://localhost:8087/api/weather`,
+      { headers: this.headers(), params }
+    );
+  }
+
+  // Mode MANUEL : POST /api/checklist/predict
   predict(req: ChecklistRequest): Observable<ChecklistResponse> {
     return this.http.post<ChecklistResponse>(
       `${this.BASE}/checklist/predict`,
@@ -61,28 +58,11 @@ export class ChecklistService {
     );
   }
 
-  // ── Mode AUTO : GET /api/checklist/recommandation?city&date&difficulte ─────
-  recommandationAuto(
-    city: string,
-    date: string,
-    difficulte: number
-  ): Observable<ChecklistResponse> {
-    const params = new HttpParams()
-      .set('city', city)
-      .set('date', date)
-      .set('difficulte', difficulte.toString());
-
-    return this.http.get<ChecklistResponse>(
+  // ✅ CORRIGÉ : POST /api/checklist/recommandation (body JSON, pas GET)
+  recommandationAuto(city: string, date: string, difficulte: number): Observable<ChecklistResponse> {
+    const body = { city, date, difficulte };
+    return this.http.post<ChecklistResponse>(
       `${this.BASE}/checklist/recommandation`,
-      { headers: this.headers(), params }
-    );
-  }
-
-  // ── Météo preview : POST /api/weather ────────────────────────────────────
-  getWeather(city: string, date: string): Observable<WeatherDTO> {
-    const body: WeatherRequest = { city, date };
-    return this.http.post<WeatherDTO>(
-      `${this.BASE}/weather`,
       body,
       { headers: this.headers() }
     );

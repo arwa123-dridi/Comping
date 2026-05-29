@@ -1,1 +1,291 @@
-/* You can add global styles to this file, and also import other style files */
+/* ═══════════════════════════════════════════════════════════════
+   CAMPINO — Design System Global
+   Forest Green #2E7D32 · Deep Green #1B5E20 · Sunset Orange #FF7043
+   Sky Blue #4FC3F7 · Nature Beige #F5F5DC · Mountain Gray #37474F
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ═══ DESIGN TOKENS ════════════════════════════════════════════ */
+:root {
+  /* Brand palette */
+  --cp-primary:     #2E7D32;   /* Forest Green  */
+  --cp-primary-d:   #1B5E20;   /* Deep Green    */
+  --cp-primary-l:   #4CAF50;   /* Light Green   */
+  --cp-accent:      #FF7043;   /* Sunset Orange */
+  --cp-accent-d:    #E64A19;   /* Dark Orange   */
+  --cp-secondary:   #4FC3F7;   /* Sky Blue      */
+  --cp-secondary-d: #0288D1;   /* Dark Blue     */
+
+  /* Surfaces */
+  --cp-bg:          #F5F5DC;   /* Nature Beige  */
+  --cp-bg-2:        #EEEEDD;   /* Beige Foncé   */
+  --cp-surface:     #FFFFFF;
+  --cp-surface-2:   rgba(255,255,255,0.92);
+  --cp-glass:       rgba(255,255,255,0.78);
+
+  /* Text */
+  --cp-text:        #1A2B1A;   /* Vert très foncé */
+  --cp-text-2:      #37474F;   /* Mountain Gray   */
+  --cp-muted:       #6D7F6D;
+  --cp-border:      rgba(46,125,50,0.15);
+  --cp-border-2:    #D8E8D8;
+
+  /* Feedback */
+  --cp-success:     #2E7D32;
+  --cp-warning:     #FF7043;
+  --cp-error:       #D32F2F;
+  --cp-info:        #4FC3F7;
+
+  /* Shape */
+  --cp-radius:      14px;
+  --cp-radius-sm:   8px;
+  --cp-radius-lg:   20px;
+  --cp-radius-xl:   28px;
+
+  /* Shadows */
+  --cp-shadow-sm:   0 2px 8px rgba(27,94,32,0.08);
+  --cp-shadow:      0 8px 28px rgba(27,94,32,0.12);
+  --cp-shadow-md:   0 14px 36px rgba(27,94,32,0.16);
+  --cp-shadow-lg:   0 24px 56px rgba(27,94,32,0.20);
+
+  /* Spacing */
+  --sp-1: 4px;  --sp-2: 8px;   --sp-3: 12px;
+  --sp-4: 16px; --sp-5: 24px;  --sp-6: 32px;
+  --sp-7: 48px; --sp-8: 64px;
+
+  /* Typography */
+  --font-head: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+
+  /* Transitions */
+  --tr-fast:   all 0.15s ease;
+  --tr-mid:    all 0.25s ease;
+  --tr-slow:   all 0.4s ease;
+
+  /* Legacy aliases — compatibilité avec composants existants */
+  --comping-primary:      var(--cp-primary);
+  --comping-primary-2:    var(--cp-primary-l);
+  --comping-danger:       var(--cp-error);
+  --comping-success:      var(--cp-success);
+  --comping-bg:           var(--cp-bg);
+  --comping-surface:      var(--cp-surface);
+  --comping-surface-2:    var(--cp-surface-2);
+  --comping-text:         var(--cp-text);
+  --comping-muted:        var(--cp-muted);
+  --comping-border:       var(--cp-border);
+  --comping-radius:       var(--cp-radius);
+  --comping-btn-radius:   var(--cp-radius-sm);
+  --comping-shadow:       var(--cp-shadow);
+  --comping-shadow-hover: var(--cp-shadow-md);
+  --comping-focus:        rgba(46,125,50,0.3);
+}
+
+/* ═══ BASE ══════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  color: var(--cp-text);
+  background: var(--cp-bg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ═══ TOAST NOTIFICATION SYSTEM ════════════════════════════════ */
+.cp-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.cp-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-radius: var(--cp-radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  min-width: 280px;
+  max-width: 400px;
+  box-shadow: var(--cp-shadow-md);
+  pointer-events: all;
+  animation: cp-toast-in 0.3s ease, cp-toast-out 0.3s ease 2.7s forwards;
+}
+
+.cp-toast-success { background: linear-gradient(135deg, var(--cp-primary), var(--cp-primary-d)); }
+.cp-toast-error   { background: linear-gradient(135deg, #D32F2F, #B71C1C); }
+.cp-toast-warning { background: linear-gradient(135deg, var(--cp-accent), var(--cp-accent-d)); }
+.cp-toast-info    { background: linear-gradient(135deg, var(--cp-secondary), var(--cp-secondary-d)); }
+
+@keyframes cp-toast-in {
+  from { opacity: 0; transform: translateX(30px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes cp-toast-out {
+  to { opacity: 0; transform: translateX(30px); }
+}
+
+/* ═══ SKELETON LOADER ═══════════════════════════════════════════ */
+.cp-skeleton {
+  background: linear-gradient(90deg, #e8f0e8 25%, #d4e4d4 50%, #e8f0e8 75%);
+  background-size: 200% 100%;
+  animation: cp-shimmer 1.5s infinite;
+  border-radius: var(--cp-radius-sm);
+}
+
+@keyframes cp-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ═══ SPINNER ═══════════════════════════════════════════════════ */
+.cp-spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid var(--cp-border-2);
+  border-top-color: var(--cp-primary);
+  border-radius: 50%;
+  animation: cp-spin 0.75s linear infinite;
+}
+
+.cp-spinner-sm {
+  width: 20px; height: 20px;
+  border-width: 3px;
+}
+
+@keyframes cp-spin { to { transform: rotate(360deg); } }
+
+/* ═══ CARDS ═════════════════════════════════════════════════════ */
+.card, .panel, .section, .container-card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border-2);
+  border-radius: var(--cp-radius);
+  box-shadow: var(--cp-shadow-sm);
+}
+
+/* ═══ BUTTONS ═══════════════════════════════════════════════════ */
+.btn-primary, .btn-detail, .btn-inscrire {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--cp-radius-sm);
+  border: none;
+  background: linear-gradient(135deg, var(--cp-primary) 0%, var(--cp-primary-d) 100%);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--tr-mid);
+  box-shadow: 0 6px 20px rgba(46,125,50,0.28);
+}
+
+.btn-primary:hover, .btn-detail:hover, .btn-inscrire:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(46,125,50,0.38);
+  filter: brightness(1.05);
+}
+
+.btn-primary:active, .btn-detail:active, .btn-inscrire:active {
+  transform: translateY(0);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #D32F2F, #B71C1C);
+  box-shadow: 0 6px 20px rgba(211,47,47,0.25);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--cp-primary), var(--cp-primary-d));
+  box-shadow: 0 6px 20px rgba(46,125,50,0.28);
+}
+
+/* ═══ KPI CARDS ═════════════════════════════════════════════════ */
+.kpi-card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border-2);
+  border-radius: var(--cp-radius);
+  box-shadow: var(--cp-shadow-sm);
+  padding: var(--sp-4);
+}
+
+.kpi-value {
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+  font-weight: 400;
+  color: var(--cp-primary);
+}
+
+.kpi-label { color: var(--cp-muted); font-weight: 600; font-size: 13px; }
+
+/* ═══ TABLES ════════════════════════════════════════════════════ */
+table { width: 100%; border-collapse: separate; border-spacing: 0; }
+
+thead th {
+  text-align: left;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--cp-muted);
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--cp-border-2);
+}
+
+tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--cp-border-2);
+  color: var(--cp-text);
+  font-size: 14px;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: rgba(46,125,50,0.04); }
+
+/* ═══ TYPOGRAPHY ════════════════════════════════════════════════ */
+.section-title {
+  font-family: var(--font-head);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--cp-text);
+  margin: 0;
+}
+
+.section-subtitle {
+  color: var(--cp-muted);
+  font-weight: 500;
+  font-size: 15px;
+  margin: 0;
+}
+
+/* ═══ UTILITIES ═════════════════════════════════════════════════ */
+.text-muted  { color: var(--cp-muted); }
+.text-primary{ color: var(--cp-primary); }
+
+/* Chat placeholder (pour module futur) */
+.chat-placeholder {
+  border-radius: var(--cp-radius);
+  border: 2px dashed var(--cp-border-2);
+  background: rgba(46,125,50,0.03);
+  padding: var(--sp-5);
+  min-height: 180px;
+  color: var(--cp-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--sp-2);
+}
