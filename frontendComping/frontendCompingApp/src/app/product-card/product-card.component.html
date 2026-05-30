@@ -1,24 +1,53 @@
-<div class="card">
+<div class="card" (click)="openDetails()">
 
   <!-- IMAGE -->
   <div class="image-container">
 
     <img [src]="image" [alt]="produit?.nomProduit" loading="lazy" />
 
-    <!-- CATEGORY -->
-    <span class="badge">
-      {{ produit?.categorieProduit }}
-    </span>
+    <div class="top-overlay">
 
-    <!-- PRICE -->
-    <span class="price-tag">
-      {{ produit?.prixProduit }} TND
-    </span>
+ 
 
-    <!-- STATUS OVERLAY -->
-    <span class="status-overlay" [ngClass]="getStatusClass(produit?.statut)">
-      {{ produit?.statut }}
-    </span>
+      <span class="badge">
+        {{ produit?.categorieProduit }}
+      </span>
+
+    
+ <!-- 🔥 PROMO BADGE -->
+      <span *ngIf="isPromotionActive()" class="promo-badge">
+        🔥 -{{ discountPercent }}%
+      </span>
+    
+
+    </div>
+
+    <div class="price-tag">
+
+      <!-- NORMAL PRICE -->
+      <span *ngIf="!isPromotionActive()">
+        {{ produit?.prixProduit }} TND
+      </span>
+
+      <!-- PROMO PRICE -->
+      <div *ngIf="isPromotionActive()" class="promo-price">
+
+        <span class="old-price">
+          {{ produit?.prixProduit }} TND
+        </span>
+
+        <span class="new-price">
+          {{ produit?.promoPrice }} TND
+        </span>
+
+      </div>
+
+    </div>
+
+    <button class="quick-cart" (click)="addToCart(); $event.stopPropagation()"
+      [disabled]="produit?.statut === 'RUPTURE_STOCK'">
+      🛒
+    </button>
 
   </div>
 
@@ -33,7 +62,6 @@
       {{ getShortDescription() }}
     </p>
 
-    <!-- FOOTER -->
     <div class="footer">
 
       <span class="availability" [ngClass]="getStatusClass(produit?.statut)">
@@ -43,6 +71,37 @@
       <span class="rating">
         ⭐ 4.8
       </span>
+
+    </div>
+
+    <button class="btn-cart" (click)="addToCart(); $event.stopPropagation()"
+      [disabled]="produit?.statut === 'RUPTURE_STOCK'">
+
+      Ajouter au panier
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ======================= -->
+<!-- 🔥 RECOMMENDATIONS UI -->
+<!-- ======================= -->
+
+<div class="recommendations" *ngIf="recommendedProducts && recommendedProducts.length > 0">
+
+  <h4>🎯 Produits recommandés pour vous</h4>
+
+  <div class="rec-list">
+
+    <div class="rec-card" *ngFor="let rec of recommendedProducts">
+
+      <div class="rec-card">
+        <img [src]="rec.imageUrl" />
+        <h5>{{ rec.nomProduit }}</h5>
+        <p>{{ rec.prixProduit }} TND</p>
+      </div>
 
     </div>
 

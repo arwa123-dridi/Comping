@@ -57,7 +57,11 @@ public class SecurityConfig {
                                 "/api/creneaux-livraison/**",
                                 "/api/incidents/**",
                                 "/api/conventions-partenaires/**",
-                                 "/api/produits/**",
+
+                                "/api/produits/**",
+                                "/api/panier/**",
+                                "/api/commandes/**",
+                                "/api/recommendations/**", 
                                   "/uploads/**" ,
                                 "/api/webhook/**"
                         ).permitAll()
@@ -80,6 +84,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/events/**").authenticated()
+                        .requestMatchers("/api/panier/**").authenticated()
+                        .requestMatchers("/api/commandes/**").authenticated()
                         // Tout le reste nécessite authentification
 
                         .requestMatchers("/api/moderateur/**").hasAnyRole("MODERATEUR","ADMIN")

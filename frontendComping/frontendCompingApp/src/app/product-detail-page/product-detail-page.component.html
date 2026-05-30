@@ -1,0 +1,103 @@
+<app-header></app-header>
+
+<div class="product-detail-container">
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Chargement du produit...</p>
+  </div>
+
+  <!-- PRODUCT -->
+  <div *ngIf="!loading && product" class="product-wrapper">
+
+    <!-- LEFT IMAGE -->
+    <div class="image-section">
+
+      <img [src]="image" alt="product image" />
+
+      <div class="badge">
+        {{ product.categorieProduit }}
+      </div>
+      <span *ngIf="isPromotionActive()" class="promo-badge">
+        🔥 -{{ discountPercent }}%
+      </span>
+    </div>
+
+    <!-- RIGHT CONTENT -->
+    <div class="info-section">
+
+      <h1 class="title">{{ product.nomProduit }}</h1>
+
+      <p class="subtitle">
+        {{ product.descriptionProduit }}
+      </p>
+
+      <!-- PRICE + STATUS -->
+      <div class="price-row">
+
+        <!-- PRICE -->
+        <div class="price">
+
+          <!-- PROMO PRICE -->
+          <ng-container *ngIf="isPromotionActive(); else normalPrice">
+
+            <span class="old-price">
+              {{ product.prixProduit }} <span>TND</span>
+            </span>
+
+            <span class="new-price">
+              {{ product.promoPrice }} <span>TND</span>
+            </span>
+
+          </ng-container>
+
+          <!-- NORMAL PRICE -->
+          <ng-template #normalPrice>
+            {{ product.prixProduit }} <span>TND</span>
+          </ng-template>
+
+        </div>
+
+        <!-- STATUS -->
+        <span class="status" [ngClass]="product.statut">
+          {{ product.statut }}
+        </span>
+
+      </div>
+
+      <!-- BADGES -->
+      <div class="features">
+        <div class="feature">🚚 Livraison rapide</div>
+        <div class="feature">🔒 Paiement sécurisé</div>
+        <div class="feature">📦 Stock vérifié</div>
+      </div>
+
+      <!-- QUANTITY (optional future upgrade) -->
+      <div class="qty-box">
+        <button (click)="decreaseQty()">-</button>
+        <span>{{ quantity }}</span>
+        <button (click)="increaseQty()">+</button>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="actions">
+
+        <button class="add-btn" (click)="addToCart()">
+          🛒 Ajouter au panier
+        </button>
+
+        <button class="secondary-btn" (click)="goToMarketplace()">
+          ← Continuer les achats
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<app-product-panier *ngIf="showCartSidebar" (close)="showCartSidebar = false">
+</app-product-panier>

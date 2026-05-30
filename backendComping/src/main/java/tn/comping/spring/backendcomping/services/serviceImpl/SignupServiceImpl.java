@@ -20,6 +20,15 @@ import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.repositories.SignupRepository;
 import tn.comping.spring.backendcomping.utils.mapper.SignupMapper;
 
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import tn.comping.spring.backendcomping.entities.Role;
+
+
 @Service
 @RequiredArgsConstructor
 public class SignupServiceImpl implements SignupService {
@@ -48,6 +57,7 @@ public class SignupServiceImpl implements SignupService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
 
+
         if (!user.isStatut()) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
@@ -73,5 +83,15 @@ public class SignupServiceImpl implements SignupService {
     }
 
 
+    public SignupEntity getUserById(String id) {
+        return signupRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
+
+    @Override
+    public List<SignupEntity> getLivreurs() {
+        return signupRepository.findByRole(Role.LIVREUR);
+    }
 }
 

@@ -1,6 +1,9 @@
 package tn.comping.spring.backendcomping.entities;
 
 import lombok.*;
+
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -28,5 +31,9 @@ public class Produit {
     private Integer quantiteStock; // current quantity in stock
     private Integer seuilAlerteStock; // low stock threshold
     private String imageUrl;
+    private Double promoPrice;
 
+    private LocalDateTime promoStart;
+    private LocalDateTime promoEnd;
+    
 }

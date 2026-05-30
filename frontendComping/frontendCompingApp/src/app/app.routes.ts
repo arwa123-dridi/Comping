@@ -1,6 +1,17 @@
 // src/app/app.routes.ts — FUSION COMPLÈTE (aucune perte)
 import { Routes } from '@angular/router';
 
+
+
+import { EditProductComponent } from './edit-product/edit-product.component';
+import { ProductPanierComponent } from './product-panier/product-panier.component';
+import { ProductCheckoutComponent } from './product-checkout/product-checkout.component';
+import { ProductDetailPageComponent } from './product-detail-page/product-detail-page.component';
+import { ProductConfirmationCommandeComponent } from './product-confirmation-commande/product-confirmation-commande.component';
+import { ProductCommandeListComponent } from './product-commande-list/product-commande-list.component';
+import { ProductCommandHistoryComponent } from './product-command-history/product-command-history.component';
+import { ProductLivreur } from './product-livreur/product-livreur';
+
 // Composants communs (présents dans les deux versions)
 import { SignupComponent }        from './signup/signup.component';
 import { HomeComponent }          from './Home/home/home.component';
@@ -92,6 +103,38 @@ export const routes: Routes = [
     ]
   },
 
+  { path: 'productTable', component: ProductListComponent},
+    { path: 'marketplace', component: ProductFrontComponent},
+{
+    path: 'products/:id',
+    component: ProductDetailComponent
+  },
+  { path: 'edit-product/:id', component: EditProductComponent },
+  
+  { path: 'panier', component: ProductPanierComponent },
+   { path: 'command', component: ProductCheckoutComponent },
+     { path: 'product/:id', component: ProductDetailPageComponent },
+ {
+    path: 'confirm-order',
+    component: ProductConfirmationCommandeComponent
+  },
+
+   {
+    path: 'commandList',
+    component: ProductCommandeListComponent
+  },
+
+    {
+    path: 'commandHistory',
+    component: ProductCommandHistoryComponent
+  },
+
+    {
+    path: 'livraison',
+    component: ProductLivreur
+  },
+
+
   // ──────────────────────────────────────────────────────────────
   // BACK OFFICE ADMIN / ORGANISATEUR (fusion des deux)
   //   - Garde les enfants de la version USER (sorties, equipes, organizer, admin-board)
@@ -129,4 +172,5 @@ export const routes: Routes = [
 
   // Route wildcard (redirection)
   { path: '**', redirectTo: 'Campino' }
+
 ];
