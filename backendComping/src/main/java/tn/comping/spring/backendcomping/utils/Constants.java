@@ -38,6 +38,7 @@ public class Constants {
     public static final String GET_DEMANDE_TRANSPORT_BY_ID = "/{id}";
     public static final String UPDATE_DEMANDE_TRANSPORT = "/{id}";
     public static final String DELETE_DEMANDE_TRANSPORT = "/{id}";
+    public static final String GET_DEMANDES_BY_USER = "/user/{userId}";
 
     //api Users
     public static final String GET_ALL_USERS = "";

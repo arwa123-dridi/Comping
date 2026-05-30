@@ -18,5 +18,5 @@ public class DemandeTransport {
     private Date dateCreation;
     private String statut;
     private String typeService ;
-
+    private String userId;
 }

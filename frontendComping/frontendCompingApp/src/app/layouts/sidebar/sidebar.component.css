@@ -212,3 +212,29 @@
 .menu-logout:hover { background: rgba(239,68,68,.2); color: #ef4444; }
 .sidebar.collapsed .menu-logout { justify-content: center; width: 44px; margin: 4px auto; padding: 10px; }
 .sidebar.collapsed .menu-logout span { display: none; }
+/* ── Badge Logistique ───────────────────────────── */
+.sidebar-badge {
+  margin-left: auto;
+  background: #0ea5e9;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 7px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+.sidebar.collapsed .sidebar-badge { display: none; }
+
+/* ── Lien danger (Incidents) ────────────────────── */
+.menu a.sidebar-danger {
+  color: rgba(255, 255, 255, 0.55);
+}
+.menu a.sidebar-danger:hover {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+}
+.menu a.sidebar-danger.active {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}

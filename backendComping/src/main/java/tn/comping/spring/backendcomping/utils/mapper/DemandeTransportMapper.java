@@ -15,6 +15,7 @@ public class DemandeTransportMapper {
                 .dateCreation(dto.getDateCreation() != null ? dto.getDateCreation() : new Date())
                 .statut(dto.getStatut())
                 .typeService(dto.getTypeService())
+                .userId(dto.getUserId()) // ← ajouté
                 .build();
     }
 
@@ -26,6 +27,7 @@ public class DemandeTransportMapper {
                 .dateCreation(entity.getDateCreation())
                 .statut(entity.getStatut())
                 .typeService(entity.getTypeService())
+                .userId(entity.getUserId()) // ← ajouté
                 .build();
     }
 }

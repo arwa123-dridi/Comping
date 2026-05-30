@@ -21,7 +21,6 @@ export class DashboardUserComponent implements OnInit {
   userId    = '';
   userRole  = 'USER';
   userEmail = '';
-
   totalSortiesInscrites = 0;
   totalEquipesMembre    = 0;
   totalSortiesCompletees = 0;

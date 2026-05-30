@@ -47,4 +47,9 @@ public class DemandeTransportController {
         demandeTransportService.deleteDemandeTransport(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<DemandeTransportResponse>> getDemandesByUserId(@PathVariable String userId) {
+        return ResponseEntity.ok(demandeTransportService.getDemandesByUserId(userId));
+    }
 }

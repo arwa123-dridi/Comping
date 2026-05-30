@@ -55,6 +55,10 @@ import { ProductDetailComponent }   from './product-detail/product-detail.compon
 import { SuccessEvent }             from './pages/success-event/success-event';
 import { RecommendationEvent }      from './client/recommendation-event/recommendation-event';
 import { ActivityComponent }        from './admin/activity/activity';
+import {
+  NouvelleDemandeTransportComponent
+} from './Demande-transport/nouvelle-demande-transport/nouvelle-demande-transport';
+import {MesTransportsComponent} from './mes-transport/mes-transports/mes-transports';
 
 export const routes: Routes = [
 
@@ -100,6 +104,8 @@ export const routes: Routes = [
       { path: 'recommandations', component: SortieRecommandationsComponent },
       { path: 'planning',        component: PlanningSrComponent },
       { path: 'checklist-ia',    component: ChecklistIaComponent },
+      { path: 'logistique/transports/nouvelle-demande', component: NouvelleDemandeTransportComponent },
+      { path: 'logistique/transports', component: MesTransportsComponent },
     ]
   },
 
@@ -110,7 +116,7 @@ export const routes: Routes = [
     component: ProductDetailComponent
   },
   { path: 'edit-product/:id', component: EditProductComponent },
-  
+
   { path: 'panier', component: ProductPanierComponent },
    { path: 'command', component: ProductCheckoutComponent },
      { path: 'product/:id', component: ProductDetailPageComponent },

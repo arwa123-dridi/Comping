@@ -76,6 +76,37 @@
         <span>Mes équipes</span>
       </a>
 
+      <!-- ═════════ LOGISTIQUE ═════════ -->
+      <div class="menu-section-label">Logistique</div>
+
+      <a routerLink="/dashboard/logistique/transports" routerLinkActive="active" title="Mes Transports">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="1" y="3" width="15" height="13" rx="1"/>
+          <path d="M16 8h4l3 5v4h-7V8z"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/>
+          <circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+        <span>Mes Transports</span>
+        <span class="sidebar-badge">2</span>
+      </a>
+
+      <a routerLink="/logistique/livraisons" routerLinkActive="active" title="Mes Livraisons">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+        <span>Mes Livraisons</span>
+      </a>
+      <a routerLink="/logistique/incidents" routerLinkActive="active" title="Mes Incidents" class="sidebar-danger">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <span>Mes Incidents</span>
+      </a>
+
       <div class="menu-section-label">Outils IA</div>
 
       <a routerLink="/dashboard/recommandations" routerLinkActive="active" title="Recommandations">

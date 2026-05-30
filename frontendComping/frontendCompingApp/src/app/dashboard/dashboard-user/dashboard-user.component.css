@@ -276,3 +276,25 @@
 .du-quick-ico  { font-size: 26px; }
 .du-quick-title{ font-size: 14px; font-weight: 800; }
 .du-quick-sub  { font-size: 11px; opacity: .75; font-weight: 600; margin-top: 2px; }
+
+/* ── Bouton Nouvelle demande transport ────────────── */
+.du-btn-hero-transport {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 13px;
+  background: linear-gradient(135deg, #0369a1, #0ea5e9);
+  color: #fff;
+  text-decoration: none;
+  transition: all .2s;
+  box-shadow: 0 4px 14px rgba(14,165,233,.35);
+  white-space: nowrap;
+}
+.du-btn-hero-transport:hover {
+  background: linear-gradient(135deg, #0284c7, #38bdf8);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(14,165,233,.45);
+}
