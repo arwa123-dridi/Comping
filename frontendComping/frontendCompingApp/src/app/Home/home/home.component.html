@@ -19,33 +19,51 @@
     </div>
     <span class="logo-name">CAMPI<span>NO</span></span>
   </a>
-  <nav>
+  <nav >
     <a routerLink="/emplacements">Emplacements</a>
-    <a routerLink="/materiel">Matériel</a>
-    <a routerLink="/events/list">Evénements</a>
-    <a routerLink="/sorties">Randonnées</a>
-    <a routerLink="/equipes">Équipes</a>
+
+    <a routerLink="/marketplace">Matériel</a>
+
+
+<a
+  routerLink="/events/list"
+  [class.disabled]="!isConnected()"
+  (click)="handleEventClick($event)"
+>
+  Evénements
+</a>
+    <!-- ==========  RANDONNÉES ========== -->
+    <a routerLink="/sorties"> Randonnées</a>
+    <!-- ==========  ÉQUIPES ========== -->
+    <a routerLink="/equipes"> Équipes</a>
+
     <a routerLink="/experiences">Expériences</a>
     <a routerLink="/social-home">Rejoindre la communauté</a>
   </nav>
-  <div class="header-btns">
+   <div class="header-btns">
     <!-- Non connecté -->
+     
     <ng-container *ngIf="!isConnected()">
-      <a routerLink="/login" class="btn-ghost">Connexion</a>
+      <a routerLink="/login"  class="btn-ghost">Connexion</a>
       <a routerLink="/signup" class="btn-fill">Inscription</a>
     </ng-container>
-
+ 
     <!-- Connecté USER -->
     <ng-container *ngIf="isConnected() && !isAdminOrOrg()">
-      <a routerLink="/planning" class="btn-ghost">Mon Planning</a>
-      <a routerLink="/profile" class="btn-fill">Mon profil</a>
+      <a routerLink="/planning"  class="btn-ghost">Mon Planning</a>
+      <a routerLink="/profile"   class="btn-fill">Mon profil</a>
     </ng-container>
-
+ 
     <!-- Connecté ADMIN / ORGANISATEUR -->
     <ng-container *ngIf="isConnected() && isAdminOrOrg()">
-      <a routerLink="/admin/dashboard" class="btn-fill">Dashboard</a>
-    </ng-container>
+  <div class="admin-auth-btns">
+    <a routerLink="/signup" class="btn-fill">Inscription</a>
+    <a routerLink="/login" class="btn-fill">Connexion</a>
   </div>
+</ng-container>
+  </div>
+
+  
 </header>
 
 <!-- SPLIT HERO -->
@@ -134,7 +152,7 @@
       <div class="strip-icon">{{ service.icon }}</div>
       <div class="strip-title">{{ service.title }}</div>
       <div class="strip-desc">{{ service.desc }}</div>
-      <a *ngIf="service.link" [routerLink]="service.link" class="service-link">Découvrir →</a>
+          <a *ngIf="service.link" [routerLink]="service.link" class="service-link">Découvrir →</a>
     </div>
   </div>
 </section>
@@ -157,6 +175,7 @@
     </div>
   </div>
 </section>
+
 
 <!-- CTA BANNER -->
 <section class="cta-banner">
@@ -200,13 +219,16 @@
     <div class="fg-col">
       <h5>PLATEFORME</h5>
       <a routerLink="/emplacements">Emplacements</a>
-      <a routerLink="/materiel">Location matériel</a>
-      <a routerLink="/sorties">Randonnées</a>
-      <a routerLink="/equipes">Équipes</a>
-      <a routerLink="/checklist-ia">Checklist</a>
-      <a routerLink="/planning">Mon Planning</a>
+
+      <a routerLink="/marketplace">Location matériel</a>
+
+      <!-- ========== LIENS DANS FOOTER ========== -->
+      <a routerLink="/sorties"> Randonnées</a>
+      <a routerLink="/equipes"> Équipes</a>
+     <a routerLink="/checklist-ia">Checklist</a>
+     <a routerLink="/planning">Mon Planning</a>
       <a routerLink="/experiences">Expériences</a>
-      <a routerLink="/social-home">Rejoindre la communauté</a>
+      <a routerLink="/blog">Blog</a>
     </div>
     <div class="fg-col">
       <h5>COMPTE</h5>
@@ -237,4 +259,5 @@
       <a routerLink="/privacy" style="color:rgba(255,255,255,0.25);text-decoration:none;">Confidentialité</a>
     </p>
   </div>
+  
 </footer>

@@ -25,10 +25,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   ];
 
   services = [
-    { icon: '🏕️', title: 'Emplacements', desc: 'Trouvez l\'emplacement idéal parmi nos 240+ sites sélectionnés', link: '/emplacements' },
-    { icon: '🎒', title: 'Location matériel', desc: 'Tentes, sacs de couchage et équipements livrés sur place', link: '/materiel' },
+    { icon: '🏕️', title: 'Emplacements', desc: 'Trouvez l\'emplacement idéal parmi nos 240+ sites sélectionnés' },
+    { icon: '🎒', title: 'Location matériel', desc: 'Tentes, sacs de couchage et équipements livrés sur place' },
     { icon: '🌄', title: 'Randonnées guidées', desc: 'Explorez la nature avec nos guides expérimentés certifiés', link: '/sorties' },
-    { icon: '🔥', title: 'Expériences survie', desc: 'Apprenez les techniques de survie et de vie en plein air', link: '/experiences' },
+    { icon: '🔥', title: 'Expériences survie', desc: 'Apprenez les techniques de survie et de vie en plein air' },
     { icon: '👥', title: 'Équipes de randonnée', desc: 'Rejoignez des groupes et partagez vos aventures', link: '/equipes' },
   ];
 
@@ -108,12 +108,24 @@ export class HomeComponent implements OnInit, OnDestroy {
     return this.slides[this.currentSlide].label;
   }
 
+ 
   isConnected(): boolean {
     return !!localStorage.getItem('authToken');
   }
-
+ 
   isAdminOrOrg(): boolean {
     const r = localStorage.getItem('userRole') ?? '';
-    return r === 'ADMIN' || r === 'ROLE_ADMIN' || r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR';
+    return r === 'ADMIN'        || r === 'ROLE_ADMIN'
+        || r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR'
+         || r === 'USER' || r === 'ROLE_USER';
+        
   }
+  handleEventClick(event: Event) {
+  if (!this.isConnected()) {
+    event.preventDefault();
+    // optionnel :
+    // this.router.navigate(['/login']);
+  }
+}
+  
 }

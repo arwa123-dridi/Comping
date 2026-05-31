@@ -24,73 +24,82 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
-                .cors(cors -> cors.configurationSource(request -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(List.of("http://localhost:4200"));
-                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-                    config.setAllowedHeaders(List.of("*"));
-                    config.setAllowCredentials(true);
-                    return config;
-                }))
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        // Spring doit pouvoir accéder à son propre /error sinon boucle 403
-                        .requestMatchers("/error").permitAll()
+            .cors(cors -> cors.configurationSource(request -> {
+                CorsConfiguration config = new CorsConfiguration();
 
-                        // Routes publiques (fusion des deux versions)
-                        .requestMatchers(
-                                "/",
-                                "/api/auth/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**",
-                                "/ws-chat/**",                       // WebSocket endpoint
-                                "/api/demandes-transport/**",
-                                "/api/creneaux-livraison/**",
-                                "/api/incidents/**",
-                                "/api/conventions-partenaires/**",
-                                "/api/produits/**",
-                                "/uploads/**",
-                                "/api/sorties/**",
-                                "/api/equipes/**",
-                                "/api/upload/**",
-                                "/api/weather/**",
-                                "/api/checklist/**",
-                                "/api/webhook/**"
-                        ).permitAll()
+                config.setAllowedOrigins(List.of("http://localhost:4200"));
+                config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(List.of("*"));
+                config.setAllowCredentials(true);
 
-                        // Planning + Recommandations = authentifié
-                        .requestMatchers(
-                                "/api/planning/**",
-                                "/api/recommandations/**"
-                        ).authenticated()
+                return config;
+            }))
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
 
-                        // Rôles spécifiques ADMIN
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        
-                        // Rôles spécifiques ORGANISATEUR
-                        .requestMatchers("/api/organisateur/**").hasAnyRole("ORGANISATEUR", "ADMIN")
-                        
-                        // Rôles spécifiques MODERATEUR
-                        .requestMatchers("/api/moderateur/**").hasAnyRole("MODERATEUR", "ADMIN")
-                        
-                        // Avis avec validation ADMIN (de la première version)
-                        .requestMatchers("/api/avis/statut/**").hasRole("ADMIN")
-                        .requestMatchers("/api/avis/*/valider").hasRole("ADMIN")
-                        .requestMatchers("/api/avis/*/rejeter").hasRole("ADMIN")
+                // erreurs Spring
+                .requestMatchers("/error").permitAll()
 
-                        // Routes authentifiées communes
-                        .requestMatchers("/api/produits/**").authenticated()
-                        .requestMatchers("/api/users/**").authenticated()
-                        .requestMatchers("/api/events/**").authenticated()
-                        .requestMatchers("/api/posts/**").authenticated()
-                        .requestMatchers("/api/chat/**").authenticated()
+                // AUTH + PUBLIC
+                .requestMatchers(
+                        "/api/auth/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                        "/ws-chat/**",
 
-                        // Toute autre requête nécessite une authentification
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                        "/api/sorties/**",
+                        "/api/equipes/**",
+                        "/api/upload/**",
+                        "/api/weather/**",
+                        "/api/checklist/**",
+                        "/api/demandes-transport/**",
+                        "/api/creneaux-livraison/**",
+                        "/api/incidents/**",
+                        "/api/conventions-partenaires/**",
+                        "/api/produits/**",
+                        "/api/panier/**",
+                        "/api/commandes/**",
+                        "/api/recommendations/**",
+                        "/api/webhook/**",
+                        "/uploads/**"
+                ).permitAll()
+
+                // AUTHENTIFIÉ
+                .requestMatchers(
+                        "/api/planning/**",
+                        "/api/recommandations/**",
+                        "/api/users/**",
+                        "/api/events/**",
+                        "/api/posts/**",
+                        "/api/chat/**"
+                ).authenticated()
+
+                // ADMIN
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                // ORGANISATEUR + ADMIN
+                .requestMatchers("/api/organisateur/**")
+                .hasAnyRole("ORGANISATEUR", "ADMIN")
+
+                // MODERATEUR + ADMIN
+                .requestMatchers("/api/moderateur/**")
+                .hasAnyRole("MODERATEUR", "ADMIN")
+
+                // Avis modération
+                .requestMatchers("/api/avis/statut/**")
+                .hasAnyRole("MODERATEUR", "ADMIN")
+                .requestMatchers("/api/avis/*/valider")
+                .hasAnyRole("MODERATEUR", "ADMIN")
+                .requestMatchers("/api/avis/*/rejeter")
+                .hasAnyRole("MODERATEUR", "ADMIN")
+
+                // fallback
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

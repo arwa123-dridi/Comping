@@ -112,4 +112,37 @@ cancelParticipation(eventId: string): Observable<any> {
     }
   );
 }
+getTotalEvents(): Observable<number> {
+  const token = localStorage.getItem('authToken');
+
+  return this.http.get<number>(`${this.apiUrl}/count`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {}
+  });
+}
+validateEvent(id: string): Observable<any> {
+  const token = localStorage.getItem('authToken');
+
+  return this.http.patch(
+    `${this.apiUrl}/${id}/valider`,
+    {},
+    {
+      headers: token
+        ? { Authorization: `Bearer ${token}` }
+        : {}
+    }
+  );
+}
+rejectEvent(id: string): Observable<any> {
+  const token = localStorage.getItem('authToken');
+
+  return this.http.patch(
+    `${this.apiUrl}/${id}/reject`,
+    {},
+    {
+      headers: token
+        ? { Authorization: `Bearer ${token}` }
+        : {}
+    }
+  );
+}
 }

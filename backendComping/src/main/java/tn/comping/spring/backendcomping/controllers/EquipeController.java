@@ -2,6 +2,7 @@ package tn.comping.spring.backendcomping.controllers;
 
 import tn.comping.spring.backendcomping.dto.EquipeRequestDTO;
 import tn.comping.spring.backendcomping.dto.EquipeResponseDTO;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import tn.comping.spring.backendcomping.services.IEquipeService;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
+
 @RestController
 @RequestMapping("/api/equipes")
 @RequiredArgsConstructor
@@ -65,6 +67,7 @@ public class EquipeController {
     public ResponseEntity<Void> retirerMembre(
             @PathVariable String equipeId,
             @PathVariable String utilisateurId) {
+
         equipeService.retirerMembre(equipeId, utilisateurId);
         return ResponseEntity.noContent().build();
     }

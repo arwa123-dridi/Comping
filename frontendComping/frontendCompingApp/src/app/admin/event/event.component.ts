@@ -3,24 +3,22 @@ import { EventService } from '../../services/event.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Event as EventModel } from '../../models/event.model';
-
 @Component({
   selector: 'app-event',
-  standalone: true,
+    standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './event.component.html',
   styleUrl: './event.component.css'
 })
 export class EventComponent implements OnInit {
 
-  events: EventModel[] = [];
+ events: EventModel[] = [];
   filteredEvents: EventModel[] = [];
 
   filterTitre = '';
   filterStatut = '';
-  showDeletePopup = false;
-  selectedEventId: string | null = null;
-
+showDeletePopup = false;
+selectedEventId: string | null = null;
   constructor(private eventService: EventService) {}
 
   ngOnInit(): void {
@@ -45,40 +43,45 @@ export class EventComponent implements OnInit {
     });
   }
 
-  toggleStatut(event: EventModel): void {
-    const newStatut = event.statut === 'ACTIF' ? 'INACTIF' : 'ACTIF';
+ validate(event: EventModel): void {
+  this.eventService.validateEvent(event.idEvent!).subscribe({
+    next: () => {
+      event.statut = 'VALIDE';
+      this.applyFilters();
+    }
+  });
+}
 
-    this.eventService.toggleStatut(event.idEvent!, newStatut).subscribe({
-      next: () => {
-        event.statut = newStatut;
-        this.applyFilters();
-      },
-      error: (err) => console.error('Erreur toggle statut', err)
-    });
-  }
+reject(event: EventModel): void {
+  this.eventService.rejectEvent(event.idEvent!).subscribe({
+    next: () => {
+      event.statut = 'REJETE';
+      this.applyFilters();
+    }
+  });
+}
+ openDeletePopup(id: string): void {
+  this.selectedEventId = id;
+  this.showDeletePopup = true;
+}
 
-  openDeletePopup(id: string): void {
-    this.selectedEventId = id;
-    this.showDeletePopup = true;
-  }
+confirmDelete(): void {
+  if (!this.selectedEventId) return;
 
-  confirmDelete(): void {
-    if (!this.selectedEventId) return;
+  this.eventService.deleteEvent(this.selectedEventId).subscribe({
+    next: () => {
+      this.events = this.events.filter(e => e.idEvent !== this.selectedEventId);
+      this.applyFilters();
+      this.closePopup();
+    },
+    error: (err) => console.error('Erreur suppression', err)
+  });
+}
 
-    this.eventService.deleteEvent(this.selectedEventId).subscribe({
-      next: () => {
-        this.events = this.events.filter(e => e.idEvent !== this.selectedEventId);
-        this.applyFilters();
-        this.closePopup();
-      },
-      error: (err) => console.error('Erreur suppression', err)
-    });
-  }
-
-  closePopup(): void {
-    this.showDeletePopup = false;
-    this.selectedEventId = null;
-  }
+closePopup(): void {
+  this.showDeletePopup = false;
+  this.selectedEventId = null;
+}
 
   getStatutClass(statut: string): string {
     switch (statut) {
@@ -88,4 +91,5 @@ export class EventComponent implements OnInit {
       default:         return '';
     }
   }
+  
 }

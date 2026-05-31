@@ -1,4 +1,0 @@
--------------------------------------------------------------------------------
-Test set: tn.comping.spring.backendcomping.ai.service.AiSuggestionServiceTest
--------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.179 s -- in tn.comping.spring.backendcomping.ai.service.AiSuggestionServiceTest

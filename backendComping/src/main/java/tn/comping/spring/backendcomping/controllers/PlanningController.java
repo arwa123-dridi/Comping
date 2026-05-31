@@ -40,18 +40,23 @@ public class PlanningController {
     /**
      * POST /api/planning/{userId}/valider
      * Body: { "sortieId": "xxx" }
-     * Inscrit l'utilisateur à la sortie choisie
      */
     @PostMapping("/{userId}/valider")
     public ResponseEntity<Map<String, String>> validerSortie(
             @PathVariable String userId,
             @RequestBody Map<String, String> body) {
+
         String sortieId = body.get("sortieId");
-        if (sortieId == null || sortieId.isBlank())
+
+        if (sortieId == null || sortieId.isBlank()) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "sortieId requis"));
+        }
 
         planningService.validerSortie(userId, sortieId);
-        return ResponseEntity.ok(Map.of("message", "Inscription confirmée avec succès"));
+
+        return ResponseEntity.ok(
+                Map.of("message", "Inscription confirmée avec succès")
+        );
     }
 }

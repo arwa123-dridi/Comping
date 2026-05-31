@@ -1,0 +1,110 @@
+<app-header></app-header>
+
+<div class="history-container">
+
+  <h2 class="title">📦 Mes commandes</h2>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    Loading your orders...
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading && commandes.length === 0" class="empty">
+    You have no orders yet.
+  </div>
+
+  <!-- Orders -->
+  <div class="orders" *ngIf="!loading && commandes.length > 0">
+
+    <div class="order-card" *ngFor="let cmd of commandes">
+
+      <!-- HEADER -->
+      <div class="order-header">
+        <div>
+          <div class="order-id">Order #{{ cmd.id }}</div>
+          <div class="date">{{ cmd.dateCommande | date:'dd MMM yyyy' }}</div>
+        </div>
+
+        <div class="status" [ngClass]="getStatusClass(cmd.statutCommande)">
+          {{ cmd.statutCommande }}
+        </div>
+      </div>
+
+      <!-- TIMELINE -->
+      <div class="timeline">
+
+        <div class="step done">
+          <div class="dot"></div>
+          <div>Ordered</div>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="step"
+          [ngClass]="
+            cmd.statutCommande === StatutCommande.EXPEDIEE ||
+            cmd.statutCommande === StatutCommande.EN_PREPARATION ||
+            cmd.statutCommande === StatutCommande.LIVREE ? 'done' : ''">
+          <div class="dot"></div>
+          <div>Shipped</div>
+        </div>
+
+        <div class="line"></div>
+
+        <div class="step"
+          [ngClass]="cmd.statutCommande === StatutCommande.LIVREE ? 'done' : ''">
+          <div class="dot"></div>
+          <div>Delivered</div>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="order-footer">
+
+        <div class="price">
+          {{ cmd.totalCommande }} TND
+        </div>
+
+        <div class="actions">
+
+       
+
+          <button class="btn" (click)="selectedOrder = cmd">
+            View Details
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ⭐⭐⭐ MODAL MUST BE OUTSIDE EVERYTHING ⭐⭐⭐ -->
+<div class="modal-backdrop" *ngIf="selectedOrder" (click)="selectedOrder = null">
+
+  <!-- stop click propagation so modal doesn't close when clicking inside -->
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <h3>Order Details</h3>
+
+    <p><strong>Order ID:</strong> {{ selectedOrder.id }}</p>
+    <p><strong>Total products:</strong> {{ selectedOrder.totalProduits }}</p>
+    <p><strong>Delivery fee:</strong> {{ selectedOrder.fraisLivraison }} TND</p>
+    <p><strong>Total:</strong> {{ selectedOrder.totalCommande }} TND</p>
+    <p><strong>Payment:</strong> {{ selectedOrder.modePaiement }}</p>
+    <p><strong>Delivery mode:</strong> {{ selectedOrder.modeLivraison }}</p>
+    <p><strong>Status:</strong> {{ selectedOrder.statutCommande }}</p>
+    <p><strong>Date:</strong> {{ selectedOrder.dateCommande | date:'full' }}</p>
+
+    <button class="close" (click)="selectedOrder = null">
+      Close
+    </button>
+
+  </div>
+
+</div>

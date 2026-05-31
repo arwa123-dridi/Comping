@@ -33,18 +33,16 @@
   overflow: hidden;
 }
 
-/* En collapsed : centrer icône + toggle */
 .sidebar.collapsed .sidebar-header {
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 6px;
   padding: 10px 8px;
-  height: auto;
   min-height: 68px;
 }
 
-/* ─── LOGO ICON ───────────────────────────────────── */
+/* ─── LOGO ───────────────────────────────────────── */
 .logo-icon {
   width: 38px;
   height: 38px;
@@ -57,16 +55,13 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* ─── LOGO TEXT ───────────────────────────────────── */
 .logo-text {
   font-size: 20px;
   font-weight: 900;
-  color: #ffffff;
+  color: #fff;
   white-space: nowrap;
   letter-spacing: 0.03em;
   flex: 1;
-  opacity: 1;
-  overflow: hidden;
   max-width: 160px;
   transition: opacity 0.2s, max-width 0.3s;
 }
@@ -81,14 +76,13 @@
   flex: 0;
 }
 
-/* ─── TOGGLE BUTTON — toujours visible ────────────── */
+/* ─── TOGGLE BUTTON ───────────────────────────────── */
 .toggle-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 30px;
   height: 30px;
-  flex-shrink: 0;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.7);
@@ -99,7 +93,7 @@
 
 .toggle-btn:hover {
   background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
+  color: #fff;
 }
 
 /* ─── MENU ────────────────────────────────────────── */
@@ -127,11 +121,6 @@
   overflow: hidden;
 }
 
-.sidebar.collapsed .menu a {
-  justify-content: center;
-  padding: 11px;
-}
-
 .menu a:hover {
   background: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.9);
@@ -143,10 +132,6 @@
   border-color: rgba(74, 222, 128, 0.2);
 }
 
-.menu a.active .icon svg {
-  stroke: #4ade80;
-}
-
 /* ─── ICON ────────────────────────────────────────── */
 .icon {
   display: flex;
@@ -154,19 +139,12 @@
   justify-content: center;
   width: 20px;
   height: 20px;
-  flex-shrink: 0;
-}
-
-.icon svg {
-  stroke: currentColor;
 }
 
 /* ─── LABEL ───────────────────────────────────────── */
 .label {
   white-space: nowrap;
-  opacity: 1;
   max-width: 160px;
-  overflow: hidden;
   transition: opacity 0.2s, max-width 0.3s;
 }
 
@@ -175,17 +153,16 @@
   max-width: 0;
 }
 
-/* ─── SECTION LABELS ───────────────────────────────── */
+/* ─── SECTION LABEL ───────────────────────────────── */
 .menu-section-label {
   font-size: 10px;
   font-weight: 800;
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.3);
   padding: 14px 12px 4px;
   margin-top: 4px;
   white-space: nowrap;
-  overflow: hidden;
 }
 
 .sidebar.collapsed .menu-section-label {
@@ -195,7 +172,7 @@
   margin: 0;
 }
 
-/* ─── LOGOUT BUTTON ───────────────────────────────── */
+/* ─── LOGOUT ─────────────────────────────────────── */
 .menu-logout {
   display: flex;
   align-items: center;
@@ -212,9 +189,7 @@
   cursor: pointer;
   text-align: left;
   font-family: inherit;
-  transition: all .18s;
-  white-space: nowrap;
-  overflow: hidden;
+  transition: all 0.18s;
 }
 
 .menu-logout:hover {

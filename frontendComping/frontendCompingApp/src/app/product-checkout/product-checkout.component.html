@@ -1,0 +1,157 @@
+<app-header></app-header>
+
+<!-- 🔴 ERROR POPUP -->
+<div class="error-popup" *ngIf="showErrorPopup">
+  <div class="popup-content">
+    ⚠️ Veuillez remplir tous les champs obligatoires !
+    <button (click)="showErrorPopup = false">OK</button>
+  </div>
+</div>
+
+<div class="checkout-container">
+
+  <!-- LEFT SIDE: SHIPPING & PAYMENT -->
+  <div class="checkout-left">
+
+    <h1>🧾 Finalisation de commande</h1>
+
+    <!-- ================= SHIPPING ================= -->
+    <div class="card">
+      <h2>📦 Informations de livraison</h2>
+
+      <div class="form-row">
+        <input type="text" placeholder="Prénom" [(ngModel)]="commande.adresseLivraison.prenom">
+
+        <input type="text" placeholder="Nom" [(ngModel)]="commande.adresseLivraison.nom">
+      </div>
+
+      <input type="text" placeholder="Téléphone" [(ngModel)]="commande.adresseLivraison.telephone">
+
+      <input type="text" placeholder="Adresse" [(ngModel)]="commande.adresseLivraison.adresse">
+
+      <div class="form-row">
+        <select [(ngModel)]="commande.adresseLivraison.ville" (change)="calculateDeliveryFee()" class="city-select">
+
+          <option value="" disabled selected>Choisir votre ville</option>
+
+          <!-- NORD -->
+          <optgroup label="Nord">
+            <option *ngFor="let city of northCities" [value]="city">
+              {{ city }}
+            </option>
+          </optgroup>
+
+          <!-- CENTRE -->
+          <optgroup label="Centre">
+            <option *ngFor="let city of centerCities" [value]="city">
+              {{ city }}
+            </option>
+          </optgroup>
+
+          <!-- SUD / OUEST -->
+          <optgroup label="Sud & Ouest">
+            <option *ngFor="let city of southWestCities" [value]="city">
+              {{ city }}
+            </option>
+          </optgroup>
+
+        </select>
+
+        
+        <input type="text" placeholder="Code postal" [(ngModel)]="commande.adresseLivraison.codePostal">
+      </div>
+    </div>
+
+    <!-- ================= PAYMENT ================= -->
+    <div class="card">
+      <h2>💳 Méthode de paiement</h2>
+
+      <div class="payment-methods">
+
+        <label class="method" [class.active]="commande.modePaiement === ModePaiement.CARTE">
+
+          <input type="radio" name="payment" [value]="ModePaiement.CARTE" [(ngModel)]="commande.modePaiement">
+
+          Carte bancaire
+        </label>
+
+        <label class="method" [class.active]="commande.modePaiement === ModePaiement.CASH_ON_DELIVERY">
+
+          <input type="radio" name="payment" [value]="ModePaiement.CASH_ON_DELIVERY"
+            [(ngModel)]="commande.modePaiement">
+
+          Paiement à la livraison
+        </label>
+
+      </div>
+
+      <!-- CREDIT CARD PREVIEW -->
+      <div class="credit-card" *ngIf="commande.modePaiement === ModePaiement.CARTE">
+
+        <div class="chip"></div>
+        <div class="number">•••• •••• •••• 4242</div>
+
+        <div class="card-row">
+          <span>Nom du titulaire</span>
+          <span>12/28</span>
+        </div>
+      </div>
+
+      <!-- CARD INPUTS -->
+      <div *ngIf="commande.modePaiement === ModePaiement.CARTE" class="form-card-inputs">
+
+        <input type="text" placeholder="Numéro de carte">
+
+        <div class="form-row">
+          <input type="text" placeholder="MM/AA">
+          <input type="text" placeholder="CVC">
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDE SUMMARY -->
+  <div class="checkout-right">
+
+    <div class="summary-card">
+
+      <h2>🛒 Résumé de la commande</h2>
+
+      <!-- ITEMS -->
+      <div class="summary-item" *ngFor="let item of panier?.lignes">
+
+        <span>{{ item.nomProduit }} x{{ item.quantite }}</span>
+        <span>{{ item.sousTotal | number:'1.0-2' }} TND</span>
+      </div>
+
+      <!-- DELIVERY -->
+      <div class="summary-item">
+        <span>Livraison</span>
+        <span>{{ deliveryFee | number:'1.0-2' }} TND</span>
+      </div>
+
+      <!-- TOTAL -->
+      <div class="summary-total">
+        <span>Total à payer</span>
+        <span>{{ ((panier?.totalPrice || 0) + deliveryFee) | number:'1.0-2' }} TND</span>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="checkout-actions">
+
+        <button class="pay-btn" (click)="payer()">
+          ✅ Payer maintenant
+        </button>
+
+        <button class="cancel-btn" (click)="annulerCommande()">
+          ✖ Annuler la commande
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -119,14 +119,10 @@ export class ProfileComponent implements OnInit {
         this.totalSortiesCompletees = mySorties.filter(s => new Date(s.dateDebut) < new Date()).length;
 
         // Niveau dominant
-        const freq: Record<string, number> = {};
+        const freq: Record<string,number> = {};
         mySorties.forEach(s => freq[s.difficulte] = (freq[s.difficulte] || 0) + 1);
         const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
-        this.niveauPrincipal = top ? ({ 
-          FACILE: '🥾 Facile', 
-          MOYEN: '🧗 Modéré', 
-          DIFFICILE: '⛰️ Difficile' 
-        }[top[0]] || top[0]) : '—';
+        this.niveauPrincipal = top ? ({ FACILE: '🥾 Facile', MOYEN: '🧗 Modéré', DIFFICILE: '⛰️ Difficile' }[top[0]] || top[0]) : '—';
         this.statsLoading = false;
       },
       error: () => { this.statsLoading = false; }
@@ -155,44 +151,38 @@ export class ProfileComponent implements OnInit {
     if (!this.userId) { this.errorMessage = 'Utilisateur non identifié.'; return; }
     this.isLoading = true;
     const v = this.profileForm.value;
-    this.http.put<string>(
-      `http://localhost:8087/api/users/${this.userId}/profile`,
+    this.http.put(
+      `http://localhost:8087/api/users/${this.userId}`,
       { prenom: v.firstName, nom: v.lastName, email: v.email, telephone: v.telephone, adresse: v.address },
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders(), responseType: 'text' }
     ).subscribe({
-      next: (r) => {
+      next: (r: string) => {
         this.successMessage = r || 'Profil mis à jour.';
         localStorage.setItem('userNom', `${v.firstName} ${v.lastName}`.trim());
         localStorage.setItem('userPrenom', v.firstName);
         this.errorMessage = '';
         this.isLoading = false;
-        this.userInitiales = `${v.firstName?.[0] || ''}${v.lastName?.[0] || ''}`.toUpperCase() || 'U';
+        this.userInitiales = `${v.firstName?.[0]||''}${v.lastName?.[0]||''}`.toUpperCase() || 'U';
       },
-      error: (err) => {
-        this.errorMessage = err.error?.error || err.error?.message || `Erreur (${err.status})`;
-        this.isLoading = false;
-      }
+      error: (err) => { this.errorMessage = err.error || `Erreur (${err.status})`; this.isLoading = false; }
     });
   }
 
   onSubmitPassword(): void {
     if (this.passwordForm.invalid) { this.errorMessage = 'Formulaire invalide.'; return; }
     this.isLoading = true;
-    this.http.put<string>(
+    this.http.put(
       `http://localhost:8087/api/users/${this.userId}/password`,
       this.passwordForm.value,
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders(), responseType: 'text' }
     ).subscribe({
-      next: (r) => {
-        this.successMessage = r || 'Mot de passe modifié avec succès.';
+      next: (r: string) => {
+        this.successMessage = r || 'Mot de passe modifié.';
         this.passwordForm.reset();
         this.errorMessage = '';
         this.isLoading = false;
       },
-      error: (err) => {
-        this.errorMessage = err.error?.error || err.error?.message || `Erreur (${err.status})`;
-        this.isLoading = false;
-      }
+      error: (err) => { this.errorMessage = err.error || `Erreur (${err.status})`; this.isLoading = false; }
     });
   }
 
@@ -208,20 +198,17 @@ export class ProfileComponent implements OnInit {
 
   updatePhoto(photoBase64: string): void {
     this.isLoading = true;
-    this.http.put<string>(
+    this.http.put(
       `http://localhost:8087/api/users/${this.userId}/photo`,
       { photo: photoBase64 },
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders(), responseType: 'text' }
     ).subscribe({
-      next: (r) => {
+      next: (r: string) => {
         this.successMessage = r || 'Photo mise à jour.';
         this.userPhoto = photoBase64;
         this.isLoading = false;
       },
-      error: (err) => {
-        this.errorMessage = err.error?.error || err.error?.message || `Erreur (${err.status})`;
-        this.isLoading = false;
-      }
+      error: (err) => { this.errorMessage = err.error || `Erreur (${err.status})`; this.isLoading = false; }
     });
   }
 

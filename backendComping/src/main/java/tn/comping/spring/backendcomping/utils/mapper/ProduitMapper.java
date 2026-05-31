@@ -21,6 +21,11 @@ public class ProduitMapper {
                 .quantiteStock(dto.getQuantiteStock())
                 .seuilAlerteStock(dto.getSeuilAlerteStock())
 
+                // 🔥 PROMO MAPPING
+                .promoPrice(dto.getPromoPrice())
+                .promoStart(dto.getPromoStart())
+                .promoEnd(dto.getPromoEnd())
+
                 // ⚠ statut will be calculated automatically later
                 .build();
     }
@@ -28,7 +33,10 @@ public class ProduitMapper {
     // =====================================================
     // ENTITY → RESPONSE DTO (for frontend)
     // =====================================================
-    public static ResponseProduitDTO toResponseDTO(Produit produit) {
+    public static ResponseProduitDTO toResponseDTO(
+            Produit produit,
+            Double finalPrice,
+            Boolean promoActive) {
         return ResponseProduitDTO.builder()
                 .id(produit.getId())
                 .nomProduit(produit.getNomProduit())
@@ -38,9 +46,18 @@ public class ProduitMapper {
                 .statut(produit.getStatut())
                 .imageUrl(produit.getImageUrl())
 
-                // 🆕 STOCK MANAGEMENT
+                // STOCK
                 .quantiteStock(produit.getQuantiteStock())
                 .seuilAlerteStock(produit.getSeuilAlerteStock())
+
+                // PROMO INFO
+                .promoPrice(produit.getPromoPrice())
+                .promoStart(produit.getPromoStart())
+                .promoEnd(produit.getPromoEnd())
+
+                // ⭐ CALCULATED VALUES FROM SERVICE
+                .prixFinal(finalPrice)
+                .hasPromotion(promoActive)
 
                 .build();
     }
@@ -61,6 +78,10 @@ public class ProduitMapper {
         produit.setQuantiteStock(dto.getQuantiteStock());
         produit.setSeuilAlerteStock(dto.getSeuilAlerteStock());
 
+        // 🔥 VERY IMPORTANT FOR UPDATE
+        produit.setPromoPrice(dto.getPromoPrice());
+        produit.setPromoStart(dto.getPromoStart());
+        produit.setPromoEnd(dto.getPromoEnd());
         // ❌ DO NOT update statut here
         // It will be recalculated automatically by StockService
     }

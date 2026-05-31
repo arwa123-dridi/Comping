@@ -10,15 +10,19 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Get absolute path of uploads folder
-        String uploadPath = Paths.get("uploads").toAbsolutePath().toUri().toString();
 
-        // Configuration générale pour tous les uploads
+        // Base uploads folder
+        String uploadPath = Paths.get("uploads")
+                .toAbsolutePath()
+                .toUri()
+                .toString();
+
+        // Global uploads access
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadPath)
-                .setCachePeriod(3600); // cache images 1 hour
+                .setCachePeriod(3600);
 
-        // Configuration spécifique pour les messages vocaux (chemin plus explicite)
+        // Voice uploads (specific folder)
         registry.addResourceHandler("/uploads/voice/**")
                 .addResourceLocations("file:./uploads/voice/")
                 .setCachePeriod(3600);

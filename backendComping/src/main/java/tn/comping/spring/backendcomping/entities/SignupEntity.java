@@ -3,6 +3,7 @@ package tn.comping.spring.backendcomping.entities;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.*;
+
 import java.util.Date;
 
 @NoArgsConstructor
@@ -21,13 +22,15 @@ public class SignupEntity {
     private String password;
     private String telephone;
     private String address;
+
     private Role role;
 
+    // profile
     private String photo;
     private boolean statut = true;
 
-    // === RESEAU SOCIAL - Statut en ligne ===
+    // SOCIAL / PRESENCE FEATURES
     private boolean online = false;
     private Date lastSeen;
-    private String statusMessage; // "En randonnée", "Au camping", etc.
+    private String statusMessage;
 }

@@ -1,144 +1,122 @@
-.product-crud-container {
-  margin: 20px;
-  font-family: 'Inter', sans-serif;
-}
-
 /* PAGE */
 .page {
   display: flex;
   height: 100vh;
-  background: #0f172a;
-  color: #0f172a;
+  background: #f1f5f9;
 }
 
 /* CONTENT */
 .content {
   flex: 1;
-  padding: 30px 40px;
+  padding: 30px;
   overflow-y: auto;
-  background: #f1f5f9;
 }
 
-/* HEADER */
-.page-header h1 {
-  font-size: 26px;
-  font-weight: 700;
+/* HEADER CARD (like user list) */
+.header-card {
+  background: linear-gradient(135deg, #0f172a, #14532d);
+  color: white;
+  padding: 20px 25px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-card h1 {
   margin: 0;
+  font-size: 22px;
 }
 
-.page-header p {
-  color: #64748b;
-  margin-top: 5px;
+.header-card p {
+  margin: 4px 0 0;
+  opacity: 0.8;
 }
 
 /* ADD BUTTON */
 .add-btn {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: white;
+  background: white;
+  color: #14532d;
   border: none;
-  padding: 10px 18px;
+  padding: 10px 16px;
   border-radius: 10px;
-  cursor: pointer;
   font-weight: 600;
-  transition: 0.3s;
-  
+  cursor: pointer;
 }
 
-.add-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+/* FILTERS */
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filters input,
+.filters select {
+  flex: 1;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  padding: 0 12px;
+  background: white;
 }
 
 /* TABLE CARD */
 .table-card {
-    margin-top: 20px;
   background: white;
-  border-radius: 18px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-}
-
-/* HEADER INSIDE CARD */
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.table-header h2 {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-/* SEARCH */
-.search {
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  outline: none;
-  transition: 0.2s;
-}
-
-.search:focus {
-  border-color: #22c55e;
+  border-radius: 16px;
+  padding: 15px;
 }
 
 /* TABLE */
-.product-table {
+table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 10px;
+  border-collapse: collapse;
 }
 
 /* HEADER */
-.product-table th {
+thead th {
   text-align: left;
   font-size: 13px;
-  color: #64748b;
-  padding: 10px;
+  color: #94a3b8;
+  padding: 12px;
 }
 
 /* ROW */
-.product-table tbody tr {
-  background: #f8fafc;
-  border-radius: 12px;
+tbody tr {
+  border-top: 1px solid #f1f5f9;
   transition: 0.2s;
 }
 
-.product-table tbody tr:hover {
-  background: #eef2ff;
+tbody tr:hover {
+  background: #f8fafc;
 }
 
 /* CELLS */
-.product-table td {
-  padding: 14px;
+td {
+  padding: 14px 12px;
   vertical-align: middle;
 }
 
-/* PRODUCT INFO */
-.product-info {
+/* PRODUCT CELL */
+.product-cell {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-.product-avatar {
-  width: 35px;
-  height: 35px;
+.product-cell img {
+  width: 45px;
+  height: 45px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1, #22c55e);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
+  object-fit: cover;
 }
 
-/* DESCRIPTION */
-.desc {
+.product-cell p {
+  margin: 2px 0 0;
+  font-size: 12px;
   color: #64748b;
-  font-size: 14px;
 }
 
 /* PRICE */
@@ -148,179 +126,210 @@
 }
 
 /* BADGES */
-.category {
+.badge {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.badge.blue {
   background: #e0f2fe;
   color: #0284c7;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 12px;
 }
 
-.type-badge {
-  background: #ede9fe;
-  color: #7c3aed;
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-}
-
-/* STATUS */
-.status {
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-/* DISPONIBLE */
-.status.available {
+.badge.green {
   background: #dcfce7;
   color: #16a34a;
 }
 
-/* STOCK FAIBLE */
-.status.low-stock {
+.badge.yellow {
   background: #fef9c3;
   color: #ca8a04;
 }
 
-/* RUPTURE STOCK */
-.status.out-stock {
+.badge.red {
   background: #fee2e2;
   color: #dc2626;
 }
-
 
 /* ACTIONS */
 .actions {
   display: flex;
+  justify-content: center;   /* ✅ center horizontally */
+  align-items: center;       /* ✅ center vertically */
   gap: 8px;
 }
 
-/* ICON BUTTONS */
-.icon-btn {
+/* BUTTONS */
+.btn {
   border: none;
-  padding: 6px 10px;
+  width: 34px;
+  height: 34px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 13px;
-  transition: 0.2s;
 }
 
-/* EDIT */
-.icon-btn.edit {
+.btn.view {
+  background: #e2e8f0;
+}
+
+.btn.edit {
   background: #e0f2fe;
-  color: #0284c7;
 }
 
-.icon-btn.edit:hover {
-  background: #bae6fd;
-}
-
-/* DELETE */
-.icon-btn.delete {
+.btn.delete {
   background: #fee2e2;
-  color: #dc2626;
 }
 
-.icon-btn.delete:hover {
-  background: #fecaca;
+/* EMPTY STATE */
+.empty {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
 }
 
-.product-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
+.empty .icon {
+  font-size: 40px;
+  margin-bottom: 10px;
 }
 
-.product-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.product-info {
+.price-box {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.product-img {
-  max-width: 50px !important;
-  max-height: 50px !important;
+
+.old-price {
+  text-decoration: line-through;
+  color: #9ca3af;
+  font-size: 13px;
 }
-.modal-overlay {
+
+.new-price {
+  color: #2e7d32;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.discount-badge {
+  background: #ef5350;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.promo-badge {
+  background: #ff3b30;
+  color: white;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+/* =====================================
+   DELETE MODAL — PREMIUM TOP POPUP
+===================================== */
+
+/* Overlay */
+.delete-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* ⭐ TOP POSITION */
+  padding-top: 80px;       /* distance from top */
   z-index: 999;
+  animation: fadeIn 0.25s ease;
 }
 
-.modal-content {
+/* Modal card */
+.delete-modal {
+  width: 380px;
   background: white;
-  padding: 25px;
-  border-radius: 15px;
-  width: 350px;
+  border-radius: 18px;
+  padding: 28px 30px;
   text-align: center;
-  animation: fadeIn 0.3s ease;
-}
-/* HEADER LAYOUT */
-.table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  animation: slideDown 0.35s ease;
 }
 
-/* RIGHT SIDE CONTROLS */
-.right-controls {
+/* Warning icon */
+.delete-icon {
+  font-size: 38px;
+  margin-bottom: 10px;
+}
+
+/* Title */
+.delete-modal h2 {
+  margin: 10px 0 6px;
+  font-size: 22px;
+  color: #0f172a;
+}
+
+/* Text */
+.delete-modal p {
+  color: #64748b;
+  margin-bottom: 22px;
+}
+
+/* Buttons container */
+.delete-actions {
   display: flex;
   gap: 12px;
-  align-items: center;
+  justify-content: center;
 }
 
-/* INPUT + SELECT SAME STYLE */
-.right-controls input,
-.right-controls select {
-  height: 38px;
-  padding: 0 12px;
+/* Cancel button */
+.btn-cancel {
+  background: #f1f5f9;
+  border: none;
+  padding: 10px 18px;
   border-radius: 10px;
-  border: 1px solid #dcdcdc;
-  background-color: #f9fafb;
-  font-size: 14px;
-  color: #333;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-/* SEARCH WIDTH */
-.right-controls input {
-  width: 220px;
-}
-
-/* SELECT WIDTH */
-.right-controls select {
-  min-width: 160px;
+  font-weight: 600;
   cursor: pointer;
+  transition: 0.2s;
 }
 
-/* HOVER EFFECT */
-.right-controls input:hover,
-.right-controls select:hover {
-  border-color: #b5b5b5;
+.btn-cancel:hover {
+  background: #e2e8f0;
 }
 
-/* FOCUS EFFECT */
-.right-controls input:focus,
-.right-controls select:focus {
-  border-color: #4caf50;
-  background-color: #fff;
-  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.15);
+/* Danger button */
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

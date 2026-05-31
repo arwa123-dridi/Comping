@@ -31,7 +31,10 @@ allEvents: AppEvent[] = [];
    selectedEvent: any = null;
   StatutEvent = String;
   userRole: string = '';
- 
+ popupVisible = false;
+popupTitle = '';
+popupMessage = '';
+popupType: 'success' | 'error' | 'warning' = 'success';
   constructor(private eventService: EventService,
      private paymentService: PaymentEvent,
      private router: Router
@@ -49,8 +52,8 @@ if (token) {
 }
     this.eventService.getAllEvents().subscribe({
       next: (data) => {
-         this.allEvents = data;
-        this.events = data;
+        this.allEvents = this.applyRoleFilter(data);
+    this.events = this.allEvents;
 
       },
       error: (err) => console.error('Erreur chargement événements', err)
@@ -61,8 +64,8 @@ if (token) {
 loadEvents(): void {
   this.eventService.getAllEvents().subscribe({
     next: (data) => {
-      this.allEvents = data;
-      this.events = data;
+      this.allEvents = this.applyRoleFilter(data);
+      this.events = this.allEvents;
     },
     error: (err) => console.error('Erreur chargement événements', err)
   });
@@ -164,26 +167,78 @@ resetFilters(): void {
 }
 participate(eventId: string | undefined): void {
    if (!eventId) return;
+
   this.eventService.participate(eventId).subscribe({
     next: () => {
-      alert('✅ Participation confirmée ! Passez au paiment pour finalser votre participation');
-      this.loadEvents(); // recharger la liste
+      this.showPopup(
+        'success',
+        'Participation réussie',
+        'Passez au paiement pour finaliser votre participation.'
+      );
+      this.loadEvents();
     },
-    error: (err) => {
-      alert('❌ ' + (err.error?.message || 'Erreur lors de la participation'));
-    }
+  error: (err) => {
+
+  const message =
+    err?.error?.message ||
+    err?.error?.error ||
+    err?.message ||
+    JSON.stringify(err?.error);
+
+  const msg = message.toLowerCase();
+
+  if (msg.includes('complet')) {
+    this.showPopup(
+      'warning',
+      'Événement complet',
+      'Capacité maximale atteinte.'
+    );
+  }
+  else if (msg.includes('déjà inscrit') || msg.includes('already')) {
+    this.showPopup(
+      'warning',
+      'Déjà inscrit',
+      'Vous êtes déjà inscrit à cet événement.'
+    );
+  }
+  else {
+    this.showPopup(
+      'error',
+      'Erreur',
+      message
+    );
+  }}
   });
 }
 cancelParticipation(eventId: string | undefined): void {
-  if (!eventId) return;
+    if (!eventId) {
+    this.showPopup(
+      'warning',
+      'Action impossible',
+      'Aucun événement sélectionné.'
+    );
+    return;
+  }
 
   this.eventService.cancelParticipation(eventId).subscribe({
     next: () => {
-      alert('✅ Participation annulée.');
+      this.showPopup(
+        'success',
+        'Annulation réussie',
+        'Votre participation a été annulée avec succès.'
+      );
+
       this.loadEvents();
     },
+
     error: (err) => {
-      alert('❌ ' + (err.error?.message || 'Erreur lors de l\'annulation'));
+      const message =
+        err?.error?.message ||
+        err?.error?.error ||
+        err?.message ||
+        'Erreur inconnue';
+
+      this.showPopup('error', 'Erreur', message);
     }
   });
 }
@@ -206,5 +261,25 @@ payEvent(eventId: string | undefined): void {
       console.error("PAYMENT ERROR", err);
     }
   });
+}
+showPopup(type: 'success' | 'error' | 'warning', title: string, message: string) {
+  console.log("POPUP TRIGGERED");
+  this.popupType = type;
+  this.popupTitle = title;
+  this.popupMessage = message;
+  this.popupVisible = true;
+}
+
+closePopup() {
+  this.popupVisible = false;
+}
+private applyRoleFilter(events: AppEvent[]): AppEvent[] {
+  const role = this.userRole?.toUpperCase();
+
+  if (role === 'USER') {
+    return events.filter(e => e.statut !== 'EN_ATTENTE');
+  }
+
+  return events; // ORGANISATEUR / ADMIN voit tout
 }
 }

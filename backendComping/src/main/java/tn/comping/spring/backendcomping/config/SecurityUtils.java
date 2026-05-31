@@ -13,11 +13,21 @@ public class SecurityUtils {
     private final JwtUtils jwtUtils;
 
     public String getCurrentUserId() {
-        String token = ((ServletRequestAttributes) RequestContextHolder
-                .getRequestAttributes())
-                .getRequest()
-                .getHeader("Authorization")
-                .substring(7);
+
+        ServletRequestAttributes attributes =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        if (attributes == null) {
+            return null;
+        }
+
+        String authHeader = attributes.getRequest().getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return null;
+        }
+
+        String token = authHeader.substring(7);
 
         return jwtUtils.getIdFromToken(token);
     }

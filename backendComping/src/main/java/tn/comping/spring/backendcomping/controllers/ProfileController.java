@@ -6,10 +6,11 @@ import org.springframework.web.bind.annotation.*;
 import tn.comping.spring.backendcomping.dto.UpdatePasswordDTO;
 import tn.comping.spring.backendcomping.dto.UpdateProfileDTO;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
-import tn.comping.spring.backendcomping.repositories.SignupRepository;
 import tn.comping.spring.backendcomping.services.serviceImpl.IProfileService;
-import jakarta.validation.Valid;
+import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
 import tn.comping.spring.backendcomping.utils.Constants;
+
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class ProfileController {
 
     private final IProfileService profileService;
+    private final SignupService signupService;
 
     @GetMapping("/{userId}")
     public ResponseEntity<SignupEntity> getProfile(@PathVariable String userId) {
@@ -27,11 +29,10 @@ public class ProfileController {
     }
 
     @PutMapping("/{userId}/profile")
-    public ResponseEntity<String> updateProfile(
+    public ResponseEntity<SignupEntity> updateProfile(
             @PathVariable String userId,
             @Valid @RequestBody UpdateProfileDTO dto) {
-        profileService.updateProfile(userId, dto);
-        return ResponseEntity.ok("Profil mis à jour avec succès");
+        return ResponseEntity.ok(profileService.updateProfile(userId, dto));
     }
 
     @PutMapping("/{userId}/password")
@@ -45,6 +46,7 @@ public class ProfileController {
     public ResponseEntity<String> updatePhoto(
             @PathVariable String userId,
             @RequestBody Map<String, String> request) {
+
         String photoUrl = request.get("photo");
         return ResponseEntity.ok(profileService.updatePhoto(userId, photoUrl));
     }
@@ -69,8 +71,15 @@ public class ProfileController {
     public ResponseEntity<SignupEntity> updateStatus(
             @PathVariable String id,
             @RequestBody Map<String, Boolean> body) {
+
         boolean statut = body.get("statut");
         SignupEntity updatedUser = profileService.updateStatus(id, statut);
+
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @GetMapping("/count")
+    public long getTotalUsers() {
+        return signupService.getTotalUsers();
     }
 }

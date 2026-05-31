@@ -11,14 +11,18 @@ import { SigninService } from '../../services/signin.service';
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
-  @Input() set collapsed(v: boolean) { 
-    this.isCollapsed = v; 
+
+  @Input() set collapsed(v: boolean) {
+    this.isCollapsed = v;
   }
-  
+
   isCollapsed = false;
   role = 'USER';
 
-  constructor(private signinService: SigninService, private router: Router) {}
+  constructor(
+    private signinService: SigninService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.role = localStorage.getItem('userRole') ?? 'USER';

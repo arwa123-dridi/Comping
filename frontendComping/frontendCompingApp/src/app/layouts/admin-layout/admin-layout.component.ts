@@ -17,7 +17,6 @@ import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 export class AdminLayoutComponent {
   sidebarCollapsed = false;
 
-  // Méthode pour basculer l'état du sidebar (optionnelle)
   toggleSidebar(): void {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }

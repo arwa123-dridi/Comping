@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.comping.spring.backendcomping.dto.*;
 import tn.comping.spring.backendcomping.services.AlerteService;
+
 import java.util.List;
 
 @RestController
@@ -16,7 +17,9 @@ public class AlerteController {
     private final AlerteService service;
 
     @GetMapping
-    public List<AlerteResponse> getAll() { return service.getAllAlertes(); }
+    public List<AlerteResponse> getAll() {
+        return service.getAllAlertes();
+    }
 
     @GetMapping("/site/{siteCampingId}")
     public List<AlerteResponse> getBySite(@PathVariable String siteCampingId) {

@@ -30,20 +30,21 @@ export class SignupComponent implements AfterViewInit, OnInit {
   showPassword: boolean = false;
   showSuccessPopup: boolean = false;
   roles = [
+    // 'Select role',
     'ADMIN',
     'PROPRIETAIRE_SITE',
     'BOUTIQUE',
     'ORGANISATEUR',
     'PARTENAIRE_logistique',
-    'USER'
+    'USER',
+    'LIVREUR'
   ];
 
-  constructor(
-    private fb: FormBuilder, 
-    private http: HttpClient, 
-    private cd: ChangeDetectorRef,
-    private router: Router
-  ) {
+
+
+  constructor(private fb: FormBuilder, private http: HttpClient, private cd: ChangeDetectorRef,private router: Router) {
+
+
     this.signupForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
@@ -53,8 +54,7 @@ export class SignupComponent implements AfterViewInit, OnInit {
           Validators.required,
           Validators.pattern(/^[a-zA-Z0-9._%+-]+@gmail\.com$/)
         ]
-      ],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      ], password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required],
       telephone: [
         '+216',
@@ -63,28 +63,29 @@ export class SignupComponent implements AfterViewInit, OnInit {
         ]
       ],
       address: [''],
-      role: [null, Validators.required]
-    }, { validators: this.passwordMatchValidator });
+      role: [null, Validators.required]   // <-- initialize as null
+    },
+  { validators: this.passwordMatchValidator } );
   }
 
   passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password')?.value;
-    const confirmPassword = form.get('confirmPassword')?.value;
+  const password = form.get('password')?.value;
+  const confirmPassword = form.get('confirmPassword')?.value;
 
-    if (!password || !confirmPassword) return;
+  if (!password || !confirmPassword) return;
 
-    if (password !== confirmPassword) {
-      form.get('confirmPassword')?.setErrors({ mismatch: true });
-    } else {
-      const errors = form.get('confirmPassword')?.errors;
-      if (errors) {
-        delete errors['mismatch'];
-        if (Object.keys(errors).length === 0) {
-          form.get('confirmPassword')?.setErrors(null);
-        }
+  if (password !== confirmPassword) {
+    form.get('confirmPassword')?.setErrors({ mismatch: true });
+  } else {
+    const errors = form.get('confirmPassword')?.errors;
+    if (errors) {
+      delete errors['mismatch'];
+      if (Object.keys(errors).length === 0) {
+        form.get('confirmPassword')?.setErrors(null);
       }
     }
   }
+}
 
   ngAfterViewInit() {
     this.startSlideshow();
@@ -99,14 +100,13 @@ export class SignupComponent implements AfterViewInit, OnInit {
     this.currentSlide = (this.currentSlide + 1) % this.slides.length;
     this.slidesWrapper.nativeElement.style.transform = `translateX(-${this.currentSlide * 100}%)`;
   }
-
   startSlideshow() {
     this.intervalId = setInterval(() => {
       this.nextSlide();
     }, 4000);
   }
 
-  ngOnInit() {
+ngOnInit() {
     this.signupForm.valueChanges.subscribe(() => {
       this.passwordMatchValidator(this.signupForm);
     });
@@ -117,30 +117,32 @@ export class SignupComponent implements AfterViewInit, OnInit {
   }
 
   onSubmit(): void {
-    console.log('Form submitted');
-    console.log('Form value:', this.signupForm.value);
+
+    console.log('Form submitted'); // <-- log when submission starts
+    console.log('Form value:', this.signupForm.value); // <-- log raw form values
 
     if (!this.signupForm.value.role) {
       this.errorMessage = 'Veuillez sélectionner un rôle.';
-      console.log('Error: role not selected');
+      console.log('Error: role not selected'); // <-- log missing role
       return;
     }
+
 
     if (this.signupForm.invalid) {
       this.signupForm.markAllAsTouched();
-      console.log('Error: form invalid');
+      console.log('Error: form invalid'); // <-- log validation errors
       return;
     }
-
     this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';
 
+// Clean optional fields (avoid sending empty strings)
     const formValue = this.signupForm.value;
 
     const signupData = {
-      firstName: formValue.firstName,
-      lastName: formValue.lastName,
+      firstName: formValue.FirstName,
+      lastName: formValue.LastName,
       email: formValue.email,
       password: formValue.password,
       telephone: formValue.telephone || null,
@@ -148,7 +150,7 @@ export class SignupComponent implements AfterViewInit, OnInit {
       role: formValue.role
     };
 
-    console.log('Signup data being sent to backend:', signupData);
+    console.log('Signup data being sent to backend:', signupData); // <-- log cleaned data
 
     const headers = { 'Content-Type': 'application/json' };
     this.http.post<{ id: string, email: string, role: string }>('http://localhost:8087/api/auth/registerUser', signupData, { headers })
@@ -156,46 +158,52 @@ export class SignupComponent implements AfterViewInit, OnInit {
         next: (res) => {
           console.log('Backend response:', res);
 
+
+          this.isLoading = false;
+          this.signupForm.reset({ role: 'USER' });
+
+          // 👉 open popup
+          this.showSuccessPopup = true;
+          this.cd.detectChanges();
+
           localStorage.setItem('userId', res.id);
           localStorage.setItem('userEmail', res.email);
           localStorage.setItem('userRole', res.role || 'USER');
-          localStorage.setItem('userNom', `${formValue.firstName} ${formValue.lastName}`);
-          localStorage.setItem('userPrenom', formValue.firstName);
+          localStorage.setItem('userNom', `${formValue.FirstName} ${formValue.LastName}`);
           
           this.successMessage = '🎉 Inscription réussie ! Vous pouvez maintenant vous connecter.';
           this.signupForm.reset({ role: null });
           this.isLoading = false;
-          
-          // 👉 open popup
-          this.showSuccessPopup = true;
-          this.cd.detectChanges();
-          
           setTimeout(() => this.router.navigate(['/signin']), 2000);
+
         },
+
         error: (err) => {
           console.error('Signup failed', err);
           this.errorMessage = err.error || 'Erreur inscription. Email existe peut-être déjà.';
           this.isLoading = false;
         }
       });
-  }
 
+
+  }
   onPhoneInput(event: any) {
     let value = event.target.value;
 
+    // Always keep +216 prefix
     if (!value.startsWith('+216')) {
       value = '+216' + value.replace(/\D/g, '');
     }
 
+    // Keep only digits after +216 and max 8 digits
     const digits = value.replace('+216', '').replace(/\D/g, '').slice(0, 8);
     this.signupForm.get('telephone')?.setValue('+216' + digits, { emitEvent: false });
   }
 
   onEmailInput(event: any) {
-    const value = event.target.value.toLowerCase();
-    this.signupForm.get('email')?.setValue(value, { emitEvent: false });
-  }
-
+  const value = event.target.value.toLowerCase();
+  this.signupForm.get('email')?.setValue(value, { emitEvent: false });
+}
   closePopup() {
     this.showSuccessPopup = false;
   }

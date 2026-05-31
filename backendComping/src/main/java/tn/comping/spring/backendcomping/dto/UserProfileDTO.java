@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class UserProfileDTO {
+
     private String userId;
     private int age;
     private List<String> interests;

@@ -34,8 +34,8 @@
         <div class="error" *ngIf="f['email'].touched && f['email'].invalid">
           Email must be a valid Gmail address (example&#64;gmail.com)
         </div>
-
         <input type="tel" placeholder="+216XXXXXXXX" formControlName="telephone" (input)="onPhoneInput($event)" />
+
         <div class="error" *ngIf="f['telephone'].touched && f['telephone'].invalid">
           Phone must be in format +216XXXXXXXX
         </div>
@@ -48,10 +48,16 @@
           Passwords do not match
         </div>
 
+
+
+
         <label class="checkbox">
           <select formControlName="role">
+            <!-- Placeholder -->
             <option [ngValue]="null" disabled>Select Role</option>
-            <option *ngFor="let role of roles.slice(1)" [value]="role">{{ role }}</option>
+
+            <!-- Actual roles -->
+            <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
           </select>
         </label>
 
@@ -70,8 +76,10 @@
   <div class="popup-overlay" *ngIf="showSuccessPopup">
     <div class="popup">
       <div class="popup-icon">✓</div>
+
       <h2>Registration Successful 🎉</h2>
       <p>Your account has been created successfully.</p>
+
       <button class="btn-popup" (click)="closePopup()">OK</button>
     </div>
   </div>

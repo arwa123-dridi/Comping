@@ -9,8 +9,11 @@ describe('HomeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HomeComponent, RouterTestingModule],
-      schemas: [NO_ERRORS_SCHEMA] // Ignore les erreurs des éléments inconnus
+      imports: [
+        HomeComponent,
+        RouterTestingModule
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
     })
     .compileComponents();
 

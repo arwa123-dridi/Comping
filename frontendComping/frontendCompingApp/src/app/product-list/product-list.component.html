@@ -6,129 +6,150 @@
   <!-- MAIN CONTENT -->
   <div class="content">
 
-    <!-- TOP HEADER -->
-    <div class="page-header">
+    <!-- HEADER -->
+    <div class="header-card">
       <div>
-        <h1>Gestion des Produits</h1>
-        <p>Admin Dashboard / Catalogue produits</p>
+        <h1>Liste des produits</h1>
+        <p>{{ filteredProducts.length }} produit(s) trouvé(s)</p>
       </div>
 
-      <button class="add-btn" (click)="addProduct()">+ Ajouter un produit</button>
-
-      <!-- Add Product Modal -->
-      <app-add-product *ngIf="showAddModal" (close)="showAddModal = false" (productAdded)="loadProducts()">
-      </app-add-product>
+      <button class="add-btn" (click)="addProduct()">+ Ajouter</button>
     </div>
 
-    <!-- TABLE CARD -->
+    <!-- ADD PRODUCT MODAL -->
+    <app-add-product *ngIf="showAddModal" (close)="showAddModal = false" (productAdded)="loadProducts()">
+    </app-add-product>
+
+    <!-- FILTERS -->
+    <div class="filters">
+
+      <!-- SEARCH -->
+      <input type="text" placeholder="🔍 Rechercher produit..." [(ngModel)]="searchTerm" (input)="applyFilters()">
+
+      <!-- CATEGORY -->
+      <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
+        <option value="">Toutes catégories</option>
+        <option *ngFor="let c of categories" [value]="c">
+          {{ c }}
+        </option>
+      </select>
+
+      <!-- STATUS -->
+      <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+        <option value="">Tous les statuts</option>
+        <option value="DISPONIBLE">Disponible</option>
+        <option value="STOCK_FAIBLE">Stock faible</option>
+        <option value="RUPTURE_STOCK">Rupture</option>
+      </select>
+
+    </div>
+
+    <!-- TABLE -->
     <div class="table-card">
-
-      <div class="table-header">
-        <h2>Liste des produits</h2>
-
-        <div class="right-controls">
-
-          <!-- CATEGORY -->
-          <select [(ngModel)]="selectedCategory" (change)="applyFilters()">
-            <option value="">Toutes catégories</option>
-            <option *ngFor="let c of categories" [value]="c">
-              {{ c }}
-            </option>
-          </select>
-
-          <!-- STATUS -->
-          <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
-            <option value="">Tous statuts</option>
-            <option value="Disponible">Disponible</option>
-            <option value="STOCK_FAIBLE">Stock faible</option>
-            <option value="RUPTURE_STOCK">Rupture de stock</option>
-          </select>
-
-          <!-- SEARCH -->
-          <input type="text" placeholder="Rechercher produit..." [(ngModel)]="searchTerm" (input)="applyFilters()" />
-
-        </div>
-      </div>
 
       <table class="product-table">
 
         <thead>
           <tr>
-            <th>Nom</th>
-            <th>Description</th>
+            <th>Produit</th>
             <th>Prix</th>
             <th>Catégorie</th>
-            <th>Quantité Stock</th>
-            <th>Seuil Stock</th>
+            <th>Stock</th>
+            <th>Seuil</th>
             <th>Statut</th>
-            <th class="text-right">Actions</th>
+            <th class="text-center">Actions</th>
           </tr>
         </thead>
 
-        <tbody>
+        <tbody *ngIf="filteredProducts.length > 0">
           <tr *ngFor="let p of filteredProducts">
 
-            <!-- NAME + IMAGE -->
-            <td class="name">
-              <div class="product-info">
-                <div class="product-avatar">
-                  <img [src]="p.imageUrl" alt="{{p.nomProduit}}" class="product-img">
+            <!-- PRODUCT -->
+            <td>
+              <div class="product-cell">
+
+                <img [src]="p.imageUrl" alt="{{p.nomProduit}}">
+
+                <div class="product-info">
+
+                  <strong>
+                    {{ p.nomProduit }}
+
+                    <!-- 🔥 PROMO BADGE -->
+                    <span *ngIf="p.promotionActive" class="promo-badge">
+                      🔥 Promo
+                    </span>
+                  </strong>
+
+                  <p>{{ p.descriptionProduit }}</p>
+
                 </div>
-                <span>{{ p.nomProduit }}</span>
+
               </div>
             </td>
 
-            <!-- DESCRIPTION -->
-            <td class="desc">{{ p.descriptionProduit }}</td>
-
             <!-- PRICE -->
-            <td class="price">
+            <ng-container *ngIf="p.promotionActive; else normalPrice">
+
+              <div class="price-box">
+
+                <span class="old-price">
+                  {{ p.prixProduit | number:'1.2-2' }} TND
+                </span>
+
+                <span class="new-price">
+                  {{ p.prixFinal | number:'1.2-2' }} TND
+                </span>
+
+                <span class="discount-badge">
+                  -{{ ((1 - (p.prixFinal! / p.prixProduit)) * 100) | number:'1.0-0' }}%
+                </span>
+
+              </div>
+
+            </ng-container>
+
+            <ng-template #normalPrice>
               {{ p.prixProduit | number:'1.2-2' }} TND
-            </td>
+            </ng-template>
 
             <!-- CATEGORY -->
             <td>
-              <span class="category">{{ p.categorieProduit }}</span>
+              <span class="badge blue">{{ p.categorieProduit }}</span>
             </td>
 
-            <!-- STOCK QUANTITY -->
-            <td>
-              <span class="stock">
-                {{ p.quantiteStock }}
-              </span>
-            </td>
+            <!-- STOCK -->
+            <td>{{ p.quantiteStock }}</td>
 
-            <!-- STOCK THRESHOLD -->
-            <td>
-              <span class="threshold">
-                {{ p.seuilAlerteStock }}
-              </span>
-            </td>
+            <!-- THRESHOLD -->
+            <td>{{ p.seuilAlerteStock }}</td>
 
-            <!-- STATUS (FIXED LOGIC) -->
+            <!-- STATUS -->
             <td>
-              <span class="status" [ngClass]="{
-          'available': p.statut === 'Disponible',
-          'low-stock': p.statut === 'STOCK_FAIBLE',
-          'out-stock': p.statut === 'RUPTURE_STOCK'
-        }">
+              <span class="badge" [ngClass]="{
+                  'green': p.statut === 'DISPONIBLE',
+                  'yellow': p.statut === 'STOCK_FAIBLE',
+                  'red': p.statut === 'RUPTURE_STOCK'
+                }">
                 {{ p.statut }}
               </span>
             </td>
 
             <!-- ACTIONS -->
             <td class="actions">
-              <button class="icon-btn view" (click)="viewProduct(p.id)">
-                👁 Voir
+
+              <button class="btn view" (click)="viewProduct(p.id)">
+                👁
               </button>
 
-              <button class="icon-btn edit" (click)="editProduct(p.id)">
-                ✏️ Modifier
+              <button class="btn edit" (click)="editProduct(p.id)">
+                ✏️
               </button>
 
-              <button class="icon-btn delete" (click)="confirmDelete(p.id)">
-                🗑 Supprimer
+              <button class="btn delete" (click)="confirmDelete(p.id)">
+                🗑
               </button>
+
             </td>
 
           </tr>
@@ -136,31 +157,45 @@
 
       </table>
 
-      <!-- Edit Product Modal -->
-      <app-edit-product *ngIf="showEditModal && selectedProductId" [productId]="selectedProductId"
-        (close)="showEditModal = false; selectedProductId = null" (productUpdated)="loadProducts()">
-      </app-edit-product>
+      <!-- EMPTY STATE -->
+      <div class="empty" *ngIf="filteredProducts.length === 0">
+        <div class="icon">🔍</div>
+        <p>Aucun produit trouvé</p>
+      </div>
 
     </div>
+
+    <!-- EDIT PRODUCT MODAL -->
+    <app-edit-product *ngIf="showEditModal && selectedProductId" [productId]="selectedProductId"
+      (close)="showEditModal = false; selectedProductId = null" (productUpdated)="loadProducts()">
+    </app-edit-product>
+
   </div>
 </div>
 
 <!-- ========================= -->
-<!-- ✅ DELETE CONFIRM POPUP -->
+<!-- DELETE CONFIRM MODAL -->
 <!-- ========================= -->
-<div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
 
-    <h3>Confirmation</h3>
-    <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
+<div class="delete-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
 
-    <div class="actions" style="justify-content:center; margin-top:15px;">
-      <button class="icon-btn delete" (click)="deleteConfirmed()">
-        Oui, supprimer
+  <div class="delete-modal" (click)="$event.stopPropagation()">
+
+    <!-- ICON -->
+    <div class="delete-icon">⚠️</div>
+
+    <!-- TEXT -->
+    <h2>Supprimer ce produit ?</h2>
+    <p>Cette action est irréversible.</p>
+
+    <!-- BUTTONS -->
+    <div class="delete-actions">
+      <button class="btn-cancel" (click)="cancelDelete()">
+        Annuler
       </button>
 
-      <button class="icon-btn" (click)="cancelDelete()">
-        Annuler
+      <button class="btn-danger" (click)="deleteConfirmed()">
+        Supprimer
       </button>
     </div>
 

@@ -11,6 +11,7 @@ import { SigninService } from '../../services/signin.service';
   styleUrl: './admin-header.component.css'
 })
 export class AdminHeaderComponent implements OnInit {
+
   @Output() sidebarToggle = new EventEmitter<void>();
 
   isDark = false;
@@ -18,19 +19,22 @@ export class AdminHeaderComponent implements OnInit {
   showUserMenu = false;
   notifCount = 2;
 
-  // Dynamic user info from localStorage
   userName = 'Utilisateur';
   userEmail = '';
   userRole = '';
   userInitiales = 'U';
 
-  constructor(private signinService: SigninService, private router: Router) {}
+  constructor(
+    private signinService: SigninService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    const nom    = localStorage.getItem('userNom')    ?? '';
+    const nom = localStorage.getItem('userNom') ?? '';
     const prenom = localStorage.getItem('userPrenom') ?? '';
+
     this.userEmail = localStorage.getItem('userEmail') ?? '';
-    this.userRole  = localStorage.getItem('userRole')  ?? '';
+    this.userRole = localStorage.getItem('userRole') ?? '';
 
     this.userName = (prenom || nom)
       ? `${prenom} ${nom}`.trim()
@@ -46,8 +50,10 @@ export class AdminHeaderComponent implements OnInit {
 
   getRoleLabel(): string {
     const r = this.userRole;
+
     if (r === 'ADMIN' || r === 'ROLE_ADMIN') return 'Administrateur';
     if (r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR') return 'Organisateur';
+
     return 'Utilisateur';
   }
 
