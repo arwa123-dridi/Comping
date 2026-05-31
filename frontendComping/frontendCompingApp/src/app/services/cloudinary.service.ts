@@ -2,58 +2,49 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class CloudinaryService {
-  // Remplace par ton vrai cloud name 
   private readonly CLOUD_NAME = 'dyyeyeeb49';
 
-  // Plusieurs images par difficulté pour éviter la duplication visuelle
-  private readonly DEFAULT_IMAGES: Record<string, string[]> = {
+  // Fallbacks Unsplash — toujours disponibles, catégorisés par difficulté
+  private readonly UNSPLASH_FALLBACKS: Record<string, string[]> = {
     FACILE: [
-      `https://res.cloudinary.com/${this.CLOUD_NAME}/image/upload/v1/campino/default_facile_1.jpg`,
-      `https://res.cloudinary.com/${this.CLOUD_NAME}/image/upload/v1/campino/default_facile_2.jpg`,
-      `https://res.cloudinary.com/${this.CLOUD_NAME}/image/upload/v1/campino/default_facile_3.jpg`,
+      'https://images.unsplash.com/photo-1551632786-fc0b4cd1235b?w=600&h=360&fit=crop&auto=format',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&h=360&fit=crop&auto=format',
+      'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600&h=360&fit=crop&auto=format',
     ],
     MOYEN: [
-      `https://res.cloudinary.com/${this.CLOUD_NAME}/image/upload/v1/campino/default_moyen_1.jpg`,
-      `https://res.cloudinary.com/${this.CLOUD_NAME}/image/upload/v1/campino/default_moyen_2.jpg`,
-      `https://res.cloudinary.com/${this.CLOUD_NAME}/image/upload/v1/campino/default_moyen_3.jpg`,
+      'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=360&fit=crop&auto=format',
+      'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=600&h=360&fit=crop&auto=format',
+      'https://images.unsplash.com/photo-1434725039720-aaad6dd32dfe?w=600&h=360&fit=crop&auto=format',
     ],
     DIFFICILE: [
-      `https://res.cloudinary.com/${this.CLOUD_NAME}/image/upload/v1/campino/default_difficile_1.jpg`,
-      `https://res.cloudinary.com/${this.CLOUD_NAME}/image/upload/v1/campino/default_difficile_2.jpg`,
-      `https://res.cloudinary.com/${this.CLOUD_NAME}/image/upload/v1/campino/default_difficile_3.jpg`,
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=360&fit=crop&auto=format',
+      'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=600&h=360&fit=crop&auto=format',
+      'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=600&h=360&fit=crop&auto=format',
     ],
     DEFAULT: [
-      `https://res.cloudinary.com/${this.CLOUD_NAME}/image/upload/v1/campino/default.jpg`,
+      'https://images.unsplash.com/photo-1551632786-fc0b4cd1235b?w=600&h=360&fit=crop&auto=format',
+      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&h=360&fit=crop&auto=format',
     ],
   };
 
-  /**
-   * Retourne l'URL de l'image :
-   * - si imageUrl fournie (Cloudinary) → optimisée
-   * - sinon → fallback stable (par difficulté) en fonction d'un hash (id + titre)
-   */
   getImageUrl(imageUrl?: string | null, difficulte?: string, id?: string, titre?: string): string {
-    // 1. Image personnalisée (uploadée par l'organisateur)
+    // 1. Image Cloudinary personnalisée → optimisée
     if (imageUrl && imageUrl.trim() && imageUrl !== 'null') {
       return this.optimizeCloudinaryUrl(imageUrl);
     }
-
-    // 2. Fallback : sélection stable par hash pour éviter la duplication
-    const key = difficulte && this.DEFAULT_IMAGES[difficulte] ? difficulte : 'DEFAULT';
-    const images = this.DEFAULT_IMAGES[key];
-    const index = this.getStableIndex(id || titre || '', images.length);
+    // 2. Fallback Unsplash stable selon difficulté + hash
+    const key = difficulte && this.UNSPLASH_FALLBACKS[difficulte] ? difficulte : 'DEFAULT';
+    const images = this.UNSPLASH_FALLBACKS[key];
+    const index = this.stableIndex(id || titre || '', images.length);
     return images[index];
   }
 
-  /** Ajoute les paramètres d'optimisation Cloudinary (qualité, format) */
   private optimizeCloudinaryUrl(url: string): string {
     if (!url.includes('res.cloudinary.com')) return url;
-    // Remplace '/upload/' par '/upload/f_auto,q_auto,w_800/'
-    return url.replace('/upload/', '/upload/f_auto,q_auto,w_800/');
+    return url.replace('/upload/', '/upload/f_auto,q_auto,w_600/');
   }
 
-  /** Hash simple pour obtenir un index stable (pas de random à chaque refresh) */
-  private getStableIndex(str: string, max: number): number {
+  private stableIndex(str: string, max: number): number {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       hash = ((hash << 5) - hash) + str.charCodeAt(i);

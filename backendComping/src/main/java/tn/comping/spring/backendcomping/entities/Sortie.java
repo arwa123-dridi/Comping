@@ -17,7 +17,6 @@ public class Sortie {
 
     @Id
     private String id;
-
     private String titre;
     private String description;
     private LocalDateTime dateDebut;
@@ -33,6 +32,9 @@ public class Sortie {
     private Boolean assistanceMedicale;
     private StatutSortie statut;
 
+
+    private String equipeId;
+
     //  URL image Cloudinary (null si pas d'image)
     private String imageUrl;
 
@@ -47,4 +49,8 @@ public class Sortie {
 
     private LocalDateTime dateCreation;
     private LocalDateTime dateModification;
+
+
+
+
 }

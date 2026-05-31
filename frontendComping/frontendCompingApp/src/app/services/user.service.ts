@@ -25,7 +25,6 @@ export class UserService {
     return this.getAllUsers().pipe(map(users => users.length));
   }
 
-  // ✅ Envoie { statut } ET { actif } pour couvrir les 2 conventions backend
   updateUserStatus(id: string, actif: boolean): Observable<any> {
     return this.http.patch(
       `${this.base}/users/${id}/status`,
@@ -37,4 +36,17 @@ export class UserService {
   deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/users/${id}`, { headers: this.headers() });
   }
+
+  getUserById(id: string): Observable<any> {
+    return this.http.get<any>(`${this.base}/users/${id}`, { headers: this.headers() });
+  }
+
+  updateUser(id: string, data: Partial<User>): Observable<any> {
+    return this.http.put<any>(`${this.base}/users/${id}`, data, { headers: this.headers() });
+  }
+
+  updatePassword(id: string, payload: { currentPassword: string; newPassword: string }): Observable<any> {
+    return this.http.patch<any>(`${this.base}/users/${id}/password`, payload, { headers: this.headers() });
+  }
+
 }

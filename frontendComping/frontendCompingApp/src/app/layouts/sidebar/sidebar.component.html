@@ -21,18 +21,19 @@
   </div>
 
   <nav class="sidebar-nav">
-    <!-- SECTION USER -->
+
+    <!-- ══ SECTION USER ══ -->
     <ng-container *ngIf="isUser()">
       <div class="nav-section-label" *ngIf="!collapsed">Mon Espace</div>
-      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-item">
         <span class="nav-icon">📊</span>
         <span class="nav-label" *ngIf="!collapsed">Tableau de bord</span>
       </a>
-      <a routerLink="/sorties" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard/sorties" routerLinkActive="active" class="nav-item">
         <span class="nav-icon">🥾</span>
         <span class="nav-label" *ngIf="!collapsed">Randonnées</span>
       </a>
-      <a routerLink="/equipes" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard/equipes" routerLinkActive="active" class="nav-item">
         <span class="nav-icon">👥</span>
         <span class="nav-label" *ngIf="!collapsed">Mes équipes</span>
       </a>
@@ -51,7 +52,7 @@
       </a>
     </ng-container>
 
-    <!-- SECTION ORGANISATEUR -->
+    <!-- ══ SECTION ORGANISATEUR ══ -->
     <ng-container *ngIf="isOrgaOnly()">
       <div class="nav-section-label" *ngIf="!collapsed">Back Office</div>
       <a routerLink="/admin/organizer" routerLinkActive="active" class="nav-item">
@@ -85,18 +86,24 @@
       </a>
     </ng-container>
 
-    <!-- SECTION ADMIN -->
+    <!-- ══ SECTION ADMIN ══ -->
     <ng-container *ngIf="isAdmin()">
       <div class="nav-section-label" *ngIf="!collapsed">Administration</div>
       <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-item">
-        <span class="nav-icon">📊</span>
-        <span class="nav-label" *ngIf="!collapsed">Dashboard</span>
-      </a>
-      <!-- ✅ Lien vers Statistiques Randonnées -->
+  <span class="nav-icon">📊</span>
+  <span class="nav-label" *ngIf="!collapsed">Dashboard</span>
+</a>
       <a routerLink="/admin/statistics" routerLinkActive="active" class="nav-item">
         <span class="nav-icon">📈</span>
         <span class="nav-label" *ngIf="!collapsed">Statistiques Randonnées</span>
       </a>
+
+      <!-- ✅ AJOUT : Gestion utilisateurs -->
+      <a routerLink="/admin/users" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon">👤</span>
+        <span class="nav-label" *ngIf="!collapsed">Utilisateurs</span>
+      </a>
+
       <div class="nav-section-label" *ngIf="!collapsed">Autres modules</div>
       <a routerLink="/admin/events" routerLinkActive="active" class="nav-item">
         <span class="nav-icon">📅</span>
@@ -106,6 +113,7 @@
         <span class="nav-icon">🏕️</span>
         <span class="nav-label" *ngIf="!collapsed">Activités</span>
       </a>
+
       <div class="nav-section-label" *ngIf="!collapsed">Module Randonnée</div>
       <a routerLink="/admin/admin-sorties" routerLinkActive="active" class="nav-item">
         <span class="nav-icon">🥾</span>
@@ -116,14 +124,15 @@
         <span class="nav-label" *ngIf="!collapsed">Équipes</span>
       </a>
       <a routerLink="/admin/admin-organisateurs" routerLinkActive="active" class="nav-item">
-        <span class="nav-icon">👤</span>
+        <span class="nav-icon">🧑‍💼</span>
         <span class="nav-label" *ngIf="!collapsed">Organisateurs</span>
       </a>
       <a routerLink="/admin/admin-participants" routerLinkActive="active" class="nav-item">
-        <span class="nav-icon">👥</span>
+        <span class="nav-icon">🙋</span>
         <span class="nav-label" *ngIf="!collapsed">Participants</span>
       </a>
     </ng-container>
+
   </nav>
 
   <!-- PIED DE PAGE (profil + déconnexion) -->
@@ -140,9 +149,9 @@
         </span>
       </div>
     </div>
-    <!-- Lien vers profil utilisateur (et non /admin/profile) -->
+    <!-- ✅ Tous → /profile -->
     <a routerLink="/profile" class="nav-item" title="Mon profil">
-      <span class="nav-icon">⚙️</span>
+      <span class="nav-icon">👤</span>
       <span class="nav-label" *ngIf="!collapsed">Mon profil</span>
     </a>
     <button class="nav-item nav-item-logout" (click)="logout()">

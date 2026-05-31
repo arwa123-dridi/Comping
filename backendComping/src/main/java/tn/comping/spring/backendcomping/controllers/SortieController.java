@@ -1,20 +1,24 @@
 package tn.comping.spring.backendcomping.controllers;
 
-import tn.comping.spring.backendcomping.dto.SortieRequestDTO;
-import tn.comping.spring.backendcomping.dto.SortieResponseDTO;
-import tn.comping.spring.backendcomping.dto.ParticipationDTO;
-import tn.comping.spring.backendcomping.services.serviceImpl.ISortieService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
+import tn.comping.spring.backendcomping.dto.ParticipationDTO;
+import tn.comping.spring.backendcomping.dto.SortieRequestDTO;
+import tn.comping.spring.backendcomping.dto.SortieResponseDTO;
+import tn.comping.spring.backendcomping.services.serviceImpl.ISortieService;
+
 import java.util.List;
 
-import org.springframework.security.access.prepost.PreAuthorize;
+@Slf4j
 @RestController
 @RequestMapping("/api/sorties")
 @RequiredArgsConstructor
+
 public class SortieController {
 
     private final ISortieService sortieService;
@@ -50,10 +54,19 @@ public class SortieController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ORGANISATEUR')")
-    public ResponseEntity<Void> deleteSortie(@PathVariable String id) {
-        sortieService.deleteSortie(id);
-        return ResponseEntity.noContent().build();
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANISATEUR')")
+    public ResponseEntity<?> deleteSortie(@PathVariable String id) {
+        try {
+            SortieResponseDTO sortie = sortieService.getSortieById(id);
+            if (sortie.getEquipeId() != null) {
+                sortieService.dissocierEquipe(id);
+            }
+            sortieService.deleteSortie(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            log.error("Erreur suppression sortie {}", id, e);
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/{sortieId}/inscription")
@@ -62,7 +75,6 @@ public class SortieController {
             @RequestBody tn.comping.spring.backendcomping.dto.InscriptionRequest request) {
         return ResponseEntity.ok(sortieService.inscrireParticipant(sortieId, request));
     }
-
     @DeleteMapping("/{sortieId}/inscription/{utilisateurId}")
     public ResponseEntity<Void> desinscrireParticipant(
             @PathVariable String sortieId,

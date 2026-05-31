@@ -1,8 +1,10 @@
+// src/app/planning-sr/planning-sr.component.ts
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PlanningService, SortiePlanifieeDTO } from '../services/planning.service';
+import { SortieService } from '../services/sortie.service';
 
 type ViewMode = 'calendrier' | 'liste';
 
@@ -47,14 +49,22 @@ export class PlanningSrComponent implements OnInit {
   readonly MOIS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 
   userId = '';
+  userRole: string | null = null;
+  isOrganizer = false;
+  isAdmin = false;
 
   constructor(
     private planningService: PlanningService,
+    private sortieService: SortieService,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.userId = localStorage.getItem('userId') ?? '';
+    this.userRole = localStorage.getItem('userRole');
+    this.isOrganizer = this.userRole === 'ORGANISATEUR' || this.userRole === 'ROLE_ORGANISATEUR';
+    this.isAdmin = this.userRole === 'ADMIN' || this.userRole === 'ROLE_ADMIN';
     if (this.userId) this.load();
   }
 
@@ -187,29 +197,80 @@ export class PlanningSrComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  confirmerSortie(sortieId: string): void {
-    this.validating = true;
-    this.error = null;
-    this.serverDown = false;
-    this.planningService.validerSortie(this.userId, sortieId).subscribe({
-      next: (res) => {
-        this.validating = false;
-        this.successMsg = res.message;
-        this.selectedCard = null;
-        this.load();
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.validating = false;
-        if (err.status === 0) {
-          this.serverDown = true;
-          this.error = '❌ Serveur inaccessible. Vérifiez que le backend tourne.';
-        } else {
-          this.error = err.error?.message ?? "Erreur lors de l'inscription.";
-        }
-        this.cdr.markForCheck();
+confirmerSortie(sortieId: string): void {
+  this.validating = true;
+  this.error = null;
+  this.serverDown = false;
+
+  this.sortieService.inscrire(sortieId).subscribe({
+    next: (res: any) => {
+      this.validating = false;
+      this.successMsg = res?.message || '✅ Inscription réussie !';
+      this.selectedCard = null;
+      this.load();  // recharge le planning
+      this.cdr.markForCheck();
+    },
+    error: (err) => {
+      this.validating = false;
+      if (err.status === 409) {
+        this.error = 'ℹ️ Vous êtes déjà inscrit à cette sortie.';
+      } else if (err.status === 400) {
+        this.error = '🔒 Plus de places disponibles.';
+      } else if (err.status === 0) {
+        this.serverDown = true;
+        this.error = '❌ Serveur inaccessible. Vérifiez que le backend tourne.';
+      } else {
+        this.error = err.error?.message || "Erreur lors de l'inscription.";
       }
+      this.cdr.markForCheck();
+    }
+  });
+}
+
+  // ========== ACTIONS ORGANISATEUR ==========
+  editSortie(sortieId: string, event: Event): void {
+    event.stopPropagation();
+    if (this.isOrganizer || this.isAdmin) {
+      this.router.navigate(['/admin/sorties/edit', sortieId]);
+    }
+  }
+
+  deleteSortie(p: SortiePlanifieeDTO, event: Event): void {
+    event.stopPropagation();
+    if (!confirm(`Supprimer définitivement "${p.sortie.titre}" ?`)) return;
+    this.sortieService.deleteSortie(String(p.sortie.id)).subscribe({
+      next: () => {
+        this.successMsg = `🗑️ "${p.sortie.titre}" supprimée.`;
+        this.load();
+      },
+      error: () => alert('Erreur lors de la suppression.')
     });
+  }
+
+  // ✅ Correction : normalisation de la date pour le backend
+  rescheduleSortie(p: SortiePlanifieeDTO, event: Event): void {
+    event.stopPropagation();
+    const currentDate = p.dateRecommandee ? p.dateRecommandee.slice(0, 16) : '';
+    let newDate = prompt("Nouvelle date (YYYY-MM-DDTHH:MM)", currentDate);
+    if (newDate && newDate !== currentDate) {
+      // Si l'utilisateur n'a saisi que la date (YYYY-MM-DD), on ajoute l'heure par défaut
+      if (/^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+        newDate = newDate + "T00:00:00";
+      }
+      const updated = { ...p.sortie, dateDebut: newDate };
+      this.sortieService.updateSortie(String(p.sortie.id), updated).subscribe({
+        next: () => {
+          this.successMsg = `📅 Date de "${p.sortie.titre}" mise à jour.`;
+          this.load();
+        },
+        error: () => alert('Erreur lors du report.')
+      });
+    }
+  }
+
+  duplicateSortie(p: SortiePlanifieeDTO, event: Event): void {
+    event.stopPropagation();
+    this.router.navigate(['/admin/sorties/create'], { queryParams: { copyFrom: p.sortie.id } });
   }
 
   setView(v: ViewMode): void {
@@ -263,9 +324,25 @@ export class PlanningSrComponent implements OnInit {
   }
 
   imageUrl(sortie: any): string {
-    return sortie?.imageUrl && sortie.imageUrl.trim()
-      ? sortie.imageUrl
-      : `https://images.unsplash.com/photo-1551632786-fc0b4cd1235b?w=400&h=200&fit=crop&auto=format`;
+    if (sortie?.imageUrl && sortie.imageUrl.trim() && sortie.imageUrl !== 'null') {
+      return sortie.imageUrl.includes('res.cloudinary.com')
+        ? sortie.imageUrl.replace('/upload/', '/upload/f_auto,q_auto,w_600/')
+        : sortie.imageUrl;
+    }
+    const fallbacks: Record<string, string[]> = {
+      FACILE:    ['https://images.unsplash.com/photo-1551632786-fc0b4cd1235b?w=600&h=360&fit=crop&auto=format',
+                  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=600&h=360&fit=crop&auto=format'],
+      MOYEN:     ['https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&h=360&fit=crop&auto=format',
+                  'https://images.unsplash.com/photo-1486870591958-9b9d0d1dda99?w=600&h=360&fit=crop&auto=format'],
+      DIFFICILE: ['https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=360&fit=crop&auto=format',
+                  'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=600&h=360&fit=crop&auto=format'],
+    };
+    const key = sortie?.difficulte && fallbacks[sortie.difficulte] ? sortie.difficulte : 'FACILE';
+    const imgs = fallbacks[key];
+    const id = sortie?.id || sortie?.titre || '';
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) { hash = ((hash << 5) - hash) + id.charCodeAt(i); hash |= 0; }
+    return imgs[Math.abs(hash) % imgs.length];
   }
 
   readonly skeletons = [1, 2, 3, 4, 5, 6];

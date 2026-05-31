@@ -136,22 +136,47 @@ public class SortieServiceImpl implements ISortieService {
         return SortieMapper.toDto(updated);
     }
 
-    @Override
+    @Transactional
     public void deleteSortie(String id) {
-        log.info("Suppression de la sortie: {}", id);
-
+        log.info("=== DÉBUT suppression sortie {} ===", id);
         Sortie sortie = sortieRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Sortie non trouvée avec l'id: " + id));
+                .orElseThrow(() -> new RuntimeException("Sortie non trouvée: " + id));
+        log.info("Sortie trouvée : {}", sortie.getTitre());
 
-        if (sortie.getEquipe() != null) {
+        // Dissociation
+        if (sortie.getEquipe() != null || sortie.getEquipeId() != null) {
             sortie.setEquipe(null);
+            sortie.setEquipeId(null);
             sortieRepository.save(sortie);
-            log.info("Équipe dissociée de la sortie");
+            log.info("Équipe dissociée");
         }
 
-        participationRepository.deleteBySortieId(id);
+        // Suppression des participations
+        try {
+            long count = participationRepository.countBySortieId(id);
+            log.info("Nombre de participations à supprimer : {}", count);
+            participationRepository.deleteBySortieId(id);
+            log.info("Participations supprimées");
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression des participations", e);
+            throw new RuntimeException("Impossible de supprimer les participations: " + e.getMessage(), e);
+        }
+
+        // Suppression de la sortie
         sortieRepository.deleteById(id);
-        log.info("Sortie {} supprimée", id);
+        log.info("Sortie supprimée avec succès");
+    }
+
+    @Override
+    public SortieResponseDTO dissocierEquipe(String id) {
+        Sortie sortie = sortieRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Sortie introuvable"));
+        // Dissocier la référence MongoDB
+        sortie.setEquipe(null);
+        // Dissocier l'ancien champ equipeId (optionnel mais propre)
+        sortie.setEquipeId(null);
+        Sortie updated = sortieRepository.save(sortie);
+        return SortieMapper.toDto(updated);
     }
 
     // ===================== GESTION DES PARTICIPANTS =====================

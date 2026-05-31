@@ -12,6 +12,10 @@
       <p class="psr-hero-sub">
         Sélection intelligente selon votre historique de randonnées
       </p>
+      <!-- Indicateur mode édition pour organisateur -->
+      <div *ngIf="isOrganizer || isAdmin" class="admin-mode-badge">
+        ✏️ Mode édition activé – vous pouvez modifier/supprimer/reporter/dupliquer
+      </div>
     </div>
     <svg class="psr-mountains" viewBox="0 0 800 100" preserveAspectRatio="none" aria-hidden="true">
       <polygon points="0,100 140,25 280,75 400,5 540,65 680,20 800,45 800,100" fill="rgba(255,255,255,0.07)"/>
@@ -42,14 +46,13 @@
       {{ successMsg }}
     </div>
 
-    <!-- VUE TOGGLE + FILTRES (version unique et correcte) -->
+    <!-- VUE TOGGLE + FILTRES -->
     <div class="psr-controls" *ngIf="!error">
       <div class="psr-view-toggle">
         <button class="vt-btn" [class.vt-btn--on]="viewMode==='calendrier'" (click)="setView('calendrier')">Calendrier</button>
         <button class="vt-btn" [class.vt-btn--on]="viewMode==='liste'" (click)="setView('liste')">Liste</button>
       </div>
 
-      <!-- Barre de recherche + filtre difficulté -->
       <div class="psr-filters">
         <input type="text"
                placeholder="🔍 Rechercher par titre..."
@@ -83,17 +86,14 @@
 
     <!-- ══ VUE CALENDRIER ══ -->
     <div class="psr-calendar-wrap" *ngIf="!loading && !error && viewMode==='calendrier'">
-
       <div class="cal-nav">
         <button class="cal-nav-btn" (click)="moisPrecedent()">‹</button>
         <span class="cal-month-label">{{ monthLabel() }}</span>
         <button class="cal-nav-btn" (click)="moisSuivant()">›</button>
       </div>
-
       <div class="cal-header-row">
         <span class="cal-day-name" *ngFor="let j of JOURS">{{ j }}</span>
       </div>
-
       <div class="cal-grid">
         <div class="cal-week" *ngFor="let semaine of calendarGrid">
           <div class="cal-cell"
@@ -115,8 +115,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Sorties du mois (affichage des résultats filtrés) -->
       <div class="cal-month-list" *ngIf="filteredMonth.length > 0">
         <p class="cal-month-list-title">Ce mois — {{ filteredMonth.length }} sortie{{ filteredMonth.length > 1 ? 's' : '' }}</p>
         <div class="cal-month-cards">
@@ -130,12 +128,10 @@
           </div>
         </div>
       </div>
-
     </div>
 
-    <!-- ══ VUE LISTE (utilisation de filteredAllPlanning) ══ -->
+    <!-- ══ VUE LISTE ══ -->
     <div class="psr-list" *ngIf="!loading && !error && viewMode==='liste'">
-
       <!-- Sorties Aujourd'hui -->
       <div class="list-section" *ngIf="sortiesAujourdhui.length > 0">
         <h2 class="section-title">Aujourd'hui</h2>
@@ -147,7 +143,6 @@
           <ng-container *ngTemplateOutlet="cardContent; context: {p: p}"></ng-container>
         </div>
       </div>
-
       <!-- Sorties Futures -->
       <div class="list-section" *ngIf="sortiesFutures.length > 0">
         <h2 class="section-title">À venir</h2>
@@ -159,7 +154,6 @@
           <ng-container *ngTemplateOutlet="cardContent; context: {p: p}"></ng-container>
         </div>
       </div>
-
       <!-- Sorties Passées -->
       <div class="list-section" *ngIf="sortiesPassees.length > 0">
         <h2 class="section-title">Passées</h2>
@@ -172,71 +166,73 @@
           <ng-container *ngTemplateOutlet="cardContent; context: {p: p}"></ng-container>
         </div>
       </div>
-
     </div>
 
     <!-- Template réutilisable pour le contenu de la carte -->
     <ng-template #cardContent let-p="p">
-        <div class="psr-best-banner" *ngIf="p.estMeilleurChoix">★ Meilleur choix</div>
-
-        <div class="psr-card-img-wrap">
-          <img [src]="imageUrl(p.sortie)" [alt]="p.sortie.titre" class="psr-card-img" loading="lazy"/>
-          <div class="psr-card-diff" [class]="diffClass(p.sortie.difficulte)">{{ diffLabel(p.sortie.difficulte) }}</div>
-        </div>
-
-        <div class="psr-card-body">
-          <div class="psr-card-top">
-            <h3 class="psr-card-titre">{{ p.sortie.titre }}</h3>
-            <div class="score-ring" [title]="p.scoreMatch + '% de correspondance'">
-              <svg viewBox="0 0 44 44" width="44" height="44">
-                <circle cx="22" cy="22" r="18" fill="none" stroke="#e5e7eb" stroke-width="4"/>
-                <circle cx="22" cy="22" r="18" fill="none"
-                        [attr.stroke]="scoreColor(p.scoreMatch)"
-                        stroke-width="4" stroke-linecap="round"
-                        [attr.stroke-dasharray]="scoreDash(p.scoreMatch)"
-                        transform="rotate(-90 22 22)"/>
-              </svg>
-              <span class="score-ring-pct">{{ p.scoreMatch }}%</span>
-            </div>
-          </div>
-
-          <div class="psr-card-meta">
-            <span class="meta-it">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-              {{ p.dateRecommandee ? formatDate(p.dateRecommandee) : '—' }}
-            </span>
-            <span class="meta-it" *ngIf="p.sortie.lieuDepart">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-              </svg>
-              {{ p.sortie.lieuDepart || '—' }}
-            </span>
-            <span class="meta-it" *ngIf="p.sortie.distanceKm">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-              </svg>
-              {{ p.sortie.distanceKm }} km
-            </span>
-          </div>
-
-          <div class="psr-raison-tags">
-            <span class="raison-tag" *ngFor="let r of p.raisonsRecommandation">{{ r }}</span>
-          </div>
-
-          <div class="psr-card-footer">
-            <span class="psr-places">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
-              </svg>
-              {{ p.placesRestantes }} place{{ p.placesRestantes > 1 ? 's' : '' }}
-            </span>
-            <span class="psr-prix" *ngIf="p.sortie.prixParPersonne">{{ p.sortie.prixParPersonne }} DT</span>
-            <span class="psr-prix psr-prix--free" *ngIf="!p.sortie.prixParPersonne">Gratuit</span>
+      <div class="psr-best-banner" *ngIf="p.estMeilleurChoix">★ Meilleur choix</div>
+      <div class="psr-card-img-wrap">
+        <img [src]="imageUrl(p.sortie)" [alt]="p.sortie.titre" class="psr-card-img" loading="lazy"/>
+        <div class="psr-card-diff" [class]="diffClass(p.sortie.difficulte)">{{ diffLabel(p.sortie.difficulte) }}</div>
+      </div>
+      <div class="psr-card-body">
+        <div class="psr-card-top">
+          <h3 class="psr-card-titre">{{ p.sortie.titre }}</h3>
+          <div class="score-ring" [title]="p.scoreMatch + '% de correspondance'">
+            <svg viewBox="0 0 44 44" width="44" height="44">
+              <circle cx="22" cy="22" r="18" fill="none" stroke="#e5e7eb" stroke-width="4"/>
+              <circle cx="22" cy="22" r="18" fill="none"
+                      [attr.stroke]="scoreColor(p.scoreMatch)"
+                      stroke-width="4" stroke-linecap="round"
+                      [attr.stroke-dasharray]="scoreDash(p.scoreMatch)"
+                      transform="rotate(-90 22 22)"/>
+            </svg>
+            <span class="score-ring-pct">{{ p.scoreMatch }}%</span>
           </div>
         </div>
+        <div class="psr-card-meta">
+          <span class="meta-it">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            {{ p.dateRecommandee ? formatDate(p.dateRecommandee) : '—' }}
+          </span>
+          <span class="meta-it" *ngIf="p.sortie.lieuDepart">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            {{ p.sortie.lieuDepart || '—' }}
+          </span>
+          <span class="meta-it" *ngIf="p.sortie.distanceKm">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            {{ p.sortie.distanceKm }} km
+          </span>
+        </div>
+        <div class="psr-raison-tags">
+          <span class="raison-tag" *ngFor="let r of p.raisonsRecommandation">{{ r }}</span>
+        </div>
+        <div class="psr-card-footer">
+          <span class="psr-places">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+            {{ p.placesRestantes }} place{{ p.placesRestantes > 1 ? 's' : '' }}
+          </span>
+          <span class="psr-prix" *ngIf="p.sortie.prixParPersonne">{{ p.sortie.prixParPersonne }} DT</span>
+          <span class="psr-prix psr-prix--free" *ngIf="!p.sortie.prixParPersonne">Gratuit</span>
+          
+          <!-- Actions organisateur (modifier, reporter, supprimer, dupliquer) -->
+          <div class="org-actions" *ngIf="isOrganizer || isAdmin" (click)="$event.stopPropagation()">
+            <button class="org-btn edit" title="Modifier" (click)="editSortie(p.sortie.id, $event)">✏️</button>
+            <button class="org-btn resched" title="Reporter" (click)="rescheduleSortie(p, $event)">📅</button>
+            <button class="org-btn delete" title="Supprimer" (click)="deleteSortie(p, $event)">🗑️</button>
+            <button class="org-btn duplicate" title="Dupliquer" (click)="duplicateSortie(p, $event)">🔄</button>
+          </div>
+        </div>
+      </div>
     </ng-template>
 
     <!-- VIDE -->
@@ -258,7 +254,6 @@
     <div class="panel-body">
       <div class="panel-best" *ngIf="selectedCard.estMeilleurChoix">★ Meilleur choix du mois</div>
       <h2 class="panel-titre">{{ selectedCard.sortie.titre }}</h2>
-
       <div class="panel-score-row">
         <div class="panel-score-ring">
           <svg viewBox="0 0 60 60" width="60" height="60">
@@ -276,7 +271,6 @@
           <div class="panel-score-desc">avec votre profil</div>
         </div>
       </div>
-
       <div class="panel-info-grid">
         <div class="panel-info-item">
           <span class="pii-label">Date recommandée</span>
@@ -303,7 +297,6 @@
           <span class="pii-val">{{ selectedCard.sortie.prixParPersonne ? selectedCard.sortie.prixParPersonne + ' DT' : 'Gratuit' }}</span>
         </div>
       </div>
-
       <div class="panel-raisons">
         <p class="panel-raisons-label">Pourquoi cette sortie ?</p>
         <ul class="panel-raisons-list">
@@ -315,9 +308,9 @@
           </li>
         </ul>
       </div>
-
       <div class="panel-actions">
-        <button class="panel-btn-confirm"
+        <!-- Bouton "Confirmer" visible uniquement pour les utilisateurs (non organisateur non admin) -->
+        <button *ngIf="!isOrganizer && !isAdmin" class="panel-btn-confirm"
                 (click)="confirmerSortie(selectedCard.sortie.id)"
                 [disabled]="validating || selectedCard.placesRestantes === 0">
           {{ validating ? 'Inscription…' : 'Confirmer cette sortie' }}

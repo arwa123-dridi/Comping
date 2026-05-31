@@ -34,4 +34,5 @@ public interface SortieRepository extends MongoRepository<Sortie, String> {
     @Query("{ 'dateDebut' : { $gt : ?0 } }")
     List<Sortie> findByDateDebutAfter(LocalDateTime date);
 
+
 }

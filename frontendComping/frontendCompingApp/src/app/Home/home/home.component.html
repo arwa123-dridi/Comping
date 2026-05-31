@@ -167,15 +167,23 @@
           <div class="rando-places">
             <div class="places-bar">
               <div class="places-fill"
-                   [style.width.%]="((s.participantIds?.length ?? s.nombreParticipants ?? 0) / s.capaciteMax) * 100">
+                   [style.width.%]="((s.participantIds ? s.participantIds.length : s.nombreParticipants ?? 0) / s.capaciteMax) * 100">
               </div>
             </div>
             <span>{{ s.participantIds?.length ?? s.nombreParticipants ?? 0 }} / {{ s.capaciteMax }} places</span>
           </div>
-          <button class="rando-btn"
+          <!-- USER ou non connecté : bouton Participer -->
+          <button *ngIf="!isAdminOrOrg()"
+                  class="rando-btn"
                   [class.rando-btn--plein]="isPleine(s)"
                   (click)="handleParticiper(s.id, $event)">
             {{ isPleine(s) ? 'Complet' : 'Participer' }}
+          </button>
+          <!-- Admin/Orga : bouton Voir détails seulement -->
+          <button *ngIf="isAdminOrOrg()"
+                  class="rando-btn"
+                  (click)="router.navigate(['/sorties', s.id])">
+            Voir détails →
           </button>
         </div>
       </div>

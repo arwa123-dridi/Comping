@@ -188,8 +188,8 @@
           </span>
         </div>
 
-        <!-- Avatars colorés -->
-        <div *ngIf="nombreParticipants > 0" class="avatars-row">
+        <!-- Avatars colorés : admin/orga seulement -->
+        <div *ngIf="nombreParticipants > 0 && (isAdmin() || isOrganisateurRole())" class="avatars-row">
           <div *ngFor="let p of getParticipantsList().slice(0, 8)"
                class="avatar-circle"
                [style.background]="getAvatarColor(p)"
@@ -199,6 +199,11 @@
           <span *ngIf="nombreParticipants > 8" class="avatar-more">
             +{{ nombreParticipants - 8 }} autres
           </span>
+        </div>
+        <!-- USER : juste le compteur -->
+        <div *ngIf="nombreParticipants > 0 && isUser()" class="avatars-row">
+          <div class="avatar-circle" style="background:#1b4332">{{ nombreParticipants }}</div>
+          <span style="font-size:13px;color:#5f6b5f;margin-left:8px">participant(s) inscrits</span>
         </div>
 
         <p *ngIf="nombreParticipants === 0" class="no-participants">

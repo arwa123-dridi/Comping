@@ -54,8 +54,8 @@
     </div>
   </div>
 
-  <!-- ══ RECOMMANDATIONS IA ══ -->
-  <div *ngIf="!loading && sorties.length > 0" class="reco-section-wrapper">
+  <!-- ══ RECOMMANDATIONS IA (uniquement pour l'utilisateur normal) ══ -->
+  <div *ngIf="!loading && sorties.length > 0 && isUser()" class="reco-section-wrapper">
     <app-sortie-recommandations [allSorties]="sorties"></app-sortie-recommandations>
   </div>
 
@@ -130,42 +130,32 @@
       <button (click)="loadSorties()">↺ Réessayer</button>
     </div>
 
-    <!-- Grille -->
-    <div *ngIf="!loading && getFilteredSorties().length > 0" class="sorties-grid">
-
+    <!-- Grille des sorties -->
+    <div *ngIf="!loading && !error && getFilteredSorties().length > 0" class="sorties-grid">
       <div *ngFor="let s of getFilteredSorties(); trackBy: trackById"
            class="sortie-card"
            [class.card-facile]="s.difficulte === 'FACILE'"
            [class.card-moyen]="s.difficulte === 'MOYEN'"
            [class.card-difficile]="s.difficulte === 'DIFFICILE'">
 
-        <!-- Conteneur image (relatif pour les badges absolus) -->
+        <!-- Conteneur image -->
         <div class="card-img">
-          <!-- Image optimisée (lazy loading) -->
           <img class="card-img-elem"
                [src]="getImageUrl(s)"
                [alt]="s.titre"
                loading="lazy" />
-
-          <!-- Badge difficulté -->
           <span class="diff-badge"
                 [class.diff-facile]="s.difficulte === 'FACILE'"
                 [class.diff-moyen]="s.difficulte === 'MOYEN'"
                 [class.diff-difficile]="s.difficulte === 'DIFFICILE'">
             {{ getDiffLabel(s.difficulte) }}
           </span>
-
-          <!-- Distance -->
           <span *ngIf="s.distanceKm" class="dist-badge">
             {{ s.distanceKm }} km
           </span>
-
-          <!-- Badge propriétaire -->
           <span *ngIf="isOrganisateur(s.organisateurId)" class="org-badge">
             👑 Vous
           </span>
-
-          <!-- Inscrit -->
           <span *ngIf="isInscrit(s)" class="inscrit-badge">
             ✓ Inscrit
           </span>
@@ -173,14 +163,11 @@
 
         <!-- Corps -->
         <div class="card-body">
-
           <h3 class="card-title">{{ s.titre }}</h3>
-
           <div class="card-meta">
             <span>📅 {{ s.dateDebut | date:'dd MMM yyyy' }}</span>
             <span>📍 {{ s.lieuDepart || '—' }}</span>
           </div>
-
           <div class="card-meta">
             <span>👤 {{ s.organisateurNom || 'Organisateur' }}</span>
             <span *ngIf="s.prixParPersonne && s.prixParPersonne > 0">
@@ -207,15 +194,13 @@
             </div>
           </div>
 
-          <!-- ══ ACTIONS par rôle ══ -->
+          <!-- Actions par rôle -->
           <div class="card-actions">
-
-            <!-- Détails : toujours visible -->
             <button class="btn-detail" (click)="viewDetail(s.id)">
               Détails →
             </button>
 
-            <!-- ORGANISATEUR propriétaire uniquement -->
+            <!-- Organisateur propriétaire -->
             <ng-container *ngIf="isOrganizer && isOrganisateur(s.organisateurId)">
               <a [routerLink]="['/admin/sorties/edit', s.id]"
                  class="btn-edit-card">✏️</a>
@@ -223,22 +208,19 @@
                       (click)="deleteSortie(s.id)">🗑️</button>
             </ng-container>
 
-            <!-- ADMIN : peut supprimer toutes les sorties -->
+            <!-- Admin : suppression -->
             <ng-container *ngIf="isAdmin()">
               <button class="btn-edit-card btn-delete-card"
                       (click)="deleteSortie(s.id)">🗑️ Suppr.</button>
             </ng-container>
 
-            <!-- USER uniquement : S'inscrire ou Se désinscrire -->
+            <!-- Utilisateur normal : inscription/désinscription -->
             <ng-container *ngIf="isUser()">
-              <!-- Déjà inscrit -->
               <button *ngIf="isInscrit(s)"
                       class="btn-desinscrire"
                       (click)="desinscrire(s.id)">
                 ✗ Se désinscrire
               </button>
-
-              <!-- Pas encore inscrit -->
               <button *ngIf="!isInscrit(s)"
                       class="btn-inscrire"
                       [class.btn-complet]="getNombreParticipants(s) >= s.capaciteMax"
@@ -247,26 +229,32 @@
                 {{ getNombreParticipants(s) >= s.capaciteMax ? '🔒 Complet' : "S'inscrire" }}
               </button>
             </ng-container>
-
           </div>
-
         </div>
       </div>
     </div>
 
-    <!-- État vide -->
-    <div *ngIf="!loading && !error && getFilteredSorties().length === 0"
-         class="state-empty">
-      <div class="empty-icon">🏔️</div>
-      <h3>
-        Aucune randonnée
-        {{ activeFilter !== 'ALL' ? 'dans ce niveau' : 'disponible' }}
+    <!-- État vide (uniquement quand il n'y a aucune sortie filtrée) -->
+    <div *ngIf="!loading && !error && getFilteredSorties().length === 0" class="state-empty">
+      <div class="empty-icon" *ngIf="isOrganizer">🏔️</div>
+      <div class="empty-icon" *ngIf="!isOrganizer">🗺️</div>
+      <h3 *ngIf="isOrganizer">
+        Aucune randonnée pour le moment
       </h3>
-      <p>Soyez le premier à proposer une aventure !</p>
-      <button *ngIf="isOrganizer"
-              routerLink="/admin/sorties/create"
-              class="btn-empty">
+      <h3 *ngIf="!isOrganizer">
+        Aucune randonnée {{ activeFilter !== 'ALL' ? 'dans ce niveau' : 'disponible' }}
+      </h3>
+      <p *ngIf="isOrganizer">
+        Créez votre première randonnée pour attirer des participants !
+      </p>
+      <p *ngIf="!isOrganizer">
+        Revenez plus tard ou explorez d'autres niveaux.
+      </p>
+      <button *ngIf="isOrganizer" routerLink="/admin/sorties/create" class="btn-empty">
         ✨ Créer une sortie
+      </button>
+      <button *ngIf="!isOrganizer" routerLink="/sorties" class="btn-empty" style="background:#2d6a4f">
+        🔍 Explorer toutes les sorties
       </button>
     </div>
 

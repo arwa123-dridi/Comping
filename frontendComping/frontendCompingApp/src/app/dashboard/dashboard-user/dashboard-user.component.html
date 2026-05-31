@@ -1,9 +1,10 @@
+<!-- src/app/dashboard/dashboard-user/dashboard-user.component.html -->
 <div class="du-root">
 
-  <!-- ══ HERO BANNER ══ -->
+  <!-- HERO -->
   <div class="du-hero">
     <div class="du-hero-bg"></div>
-    <div class="du-hero-mountains" aria-hidden="true">
+    <div class="du-hero-mountains">
       <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
         <path d="M0,60 L200,20 L400,50 L600,5 L800,40 L1000,15 L1200,35 L1200,120 L0,120Z" fill="rgba(255,255,255,0.04)"/>
         <path d="M0,80 L150,50 L350,75 L550,30 L750,60 L950,35 L1200,55 L1200,120 L0,120Z" fill="rgba(255,255,255,0.07)"/>
@@ -19,11 +20,7 @@
         </div>
       </div>
       <div class="du-hero-actions">
-        <a routerLink="/sorties" class="du-btn-hero-ghost">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3L3 15h5l-1 6 9-12H11l2-6z"/></svg>
-          Explorer
-        </a>
-        <a routerLink="/dashboard/checklist-ia" class="du-btn-hero-ghost">🤖 Checklist IA</a>
+        <a routerLink="/dashboard/sorties" class="du-btn-hero-ghost">Explorer</a>
         <a routerLink="/dashboard/planning" class="du-btn-hero-solid">📅 Mon Planning →</a>
       </div>
     </div>
@@ -31,7 +28,7 @@
 
   <div class="du-body">
 
-    <!-- ══ KPI CARDS ══ -->
+    <!-- KPIS -->
     <div class="du-kpis">
       <div class="du-kpi-card du-kpi-green">
         <div class="du-kpi-icon">🏔️</div>
@@ -39,45 +36,37 @@
           <div class="du-kpi-val">{{ totalSortiesInscrites }}</div>
           <div class="du-kpi-lbl">Sorties inscrites</div>
         </div>
-        <div class="du-kpi-trend">+{{ totalSortiesInscrites }}</div>
+        <div class="du-kpi-trend">{{ totalSortiesRealisees }} réalisées</div>
       </div>
       <div class="du-kpi-card du-kpi-blue">
-        <div class="du-kpi-icon">✅</div>
-        <div class="du-kpi-data">
-          <div class="du-kpi-val">{{ totalSortiesCompletees }}</div>
-          <div class="du-kpi-lbl">Réalisées</div>
-        </div>
-        <div class="du-kpi-trend">Complétées</div>
-      </div>
-      <div class="du-kpi-card du-kpi-purple">
         <div class="du-kpi-icon">👥</div>
         <div class="du-kpi-data">
           <div class="du-kpi-val">{{ totalEquipesMembre }}</div>
           <div class="du-kpi-lbl">Équipes</div>
         </div>
-        <div class="du-kpi-trend">Membre</div>
+        <div class="du-kpi-trend">Membre actif</div>
       </div>
-      <div class="du-kpi-card du-kpi-orange" routerLink="/dashboard/recommandations" style="cursor:pointer">
+      <div class="du-kpi-card du-kpi-purple" routerLink="/dashboard/recommandations" style="cursor:pointer">
         <div class="du-kpi-icon">🤖</div>
         <div class="du-kpi-data">
-          <div class="du-kpi-val">{{ recommandations.length }}</div>
+          <div class="du-kpi-val">{{ totalRecommandations }}</div>
           <div class="du-kpi-lbl">Recommandations</div>
         </div>
         <div class="du-kpi-trend">Voir →</div>
       </div>
     </div>
 
-    <!-- ══ DEUX COLONNES ══ (layout à ajouter dans le CSS) -->
+    <!-- DEUX COLONNES -->
     <div class="du-two-cols">
       <div class="du-col-main">
 
-        <!-- Section Mes Sorties -->
+        <!-- Mes sorties inscrites -->
         <div class="du-section-header">
           <h2 class="du-section-title">Mes sorties inscrites</h2>
-          <a routerLink="/sorties" class="du-section-link">Voir toutes →</a>
+          <a routerLink="/dashboard/sorties" class="du-section-link">Voir toutes →</a>
         </div>
 
-        <!-- Loading -->
+        <!-- Skeleton -->
         <div *ngIf="loading.sorties" class="du-skeleton-grid">
           <div class="du-sk-card" *ngFor="let s of skeletons">
             <div class="du-sk-img"></div>
@@ -92,10 +81,10 @@
         <div *ngIf="!loading.sorties && mesSortiesInscrites.length === 0" class="du-empty">
           <div class="du-empty-icon">🏔️</div>
           <p>Aucune sortie inscrite pour l'instant</p>
-          <a routerLink="/sorties" class="du-empty-btn">Explorer les randonnées →</a>
+          <a routerLink="/dashboard/sorties" class="du-empty-btn">Explorer les randonnées →</a>
         </div>
 
-        <!-- Grille sorties inscrites -->
+        <!-- Grille des sorties inscrites -->
         <div *ngIf="!loading.sorties && mesSortiesInscrites.length > 0" class="du-sorties-grid">
           <div *ngFor="let s of mesSortiesInscrites" class="du-sortie-card" (click)="voirSortie(s.id)">
             <div class="du-sortie-img" [style.backgroundImage]="'url(' + getSortieImage(s) + ')'">
@@ -108,22 +97,40 @@
                 <span>📍 {{ s.lieuDepart }}</span>
               </div>
               <div class="du-sortie-meta">
-                <span>👤 {{ s.organisateurNom }}</span>
+                <span>👥 {{ getParticipantsCount(s) }}/{{ s.capaciteMax }}</span>
+                <span *ngIf="s.prixParPersonne">💰 {{ s.prixParPersonne }} DT</span>
+                <span *ngIf="!s.prixParPersonne">💰 Gratuit</span>
               </div>
               <div class="du-sortie-actions">
                 <button class="du-btn-detail" (click)="voirSortie(s.id); $event.stopPropagation()">Détails</button>
-                <button class="du-btn-desinscrire" (click)="seDesinscrire(s.id); $event.stopPropagation()">Annuler</button>
+                <button class="du-btn-desinscrire" (click)="seDesinscrire(s.id, $event)">Annuler</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Section Recommandations -->
-        <div class="du-section-header" *ngIf="recommandations.length > 0" style="margin-top: 2rem;">
+        <!-- Recommandations -->
+        <div class="du-section-header" style="margin-top: 2rem;">
           <h2 class="du-section-title">🤖 Recommandées pour vous</h2>
           <a routerLink="/dashboard/recommandations" class="du-section-link">Voir plus →</a>
         </div>
-        <div *ngIf="!loading.sorties && recommandations.length > 0" class="du-reco-grid">
+
+        <div *ngIf="loading.reco" class="du-skeleton-grid">
+          <div class="du-sk-card" *ngFor="let i of [1,2,3]">
+            <div class="du-sk-img"></div>
+            <div class="du-sk-body">
+              <div class="du-sk-line w80"></div>
+              <div class="du-sk-line w60"></div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!loading.reco && recommandations.length === 0" class="du-empty">
+          <div class="du-empty-icon">✨</div>
+          <p>Pas de recommandation pour le moment.</p>
+        </div>
+
+        <div *ngIf="!loading.reco && recommandations.length > 0" class="du-reco-grid">
           <div *ngFor="let s of recommandations" class="du-reco-card" (click)="voirSortie(s.id)">
             <div class="du-reco-img" [style.backgroundImage]="'url(' + getSortieImage(s) + ')'">
               <span class="du-reco-badge">✨ Recommandé</span>
@@ -131,7 +138,7 @@
             <div class="du-reco-body">
               <h4 class="du-reco-titre">{{ s.titre }}</h4>
               <p class="du-reco-meta">📍 {{ s.lieuDepart }} · {{ formatDate(s.dateDebut) }}</p>
-              <button class="du-btn-sinscrire" [disabled]="isPlein(s)" (click)="sInscrire(s.id); $event.stopPropagation()">
+              <button class="du-btn-sinscrire" [disabled]="isPlein(s)" (click)="sInscrire(s.id, $event)">
                 {{ isPlein(s) ? '🔒 Complet' : "S'inscrire" }}
               </button>
             </div>
@@ -142,54 +149,66 @@
 
       <div class="du-col-side">
 
-        <!-- Graphique activité (à styliser) -->
-      <div class="du-activity-bars">
-  <div class="du-act-bar-wrap">
-    <div class="du-act-bar">
-      <div class="du-act-bar-fill du-act-facile" [style.height.%]="getActivityPercent('FACILE')"></div>
-    </div>
-    <span class="du-act-label">Facile</span>
-    <span class="du-act-count">{{ getActivityCount('FACILE') }}</span>
-  </div>
-  <div class="du-act-bar-wrap">
-    <div class="du-act-bar">
-      <div class="du-act-bar-fill du-act-moyen" [style.height.%]="getActivityPercent('MOYEN')"></div>
-    </div>
-    <span class="du-act-label">Modéré</span>
-    <span class="du-act-count">{{ getActivityCount('MOYEN') }}</span>
-  </div>
-  <div class="du-act-bar-wrap">
-    <div class="du-act-bar">
-      <div class="du-act-bar-fill du-act-difficile" [style.height.%]="getActivityPercent('DIFFICILE')"></div>
-    </div>
-    <span class="du-act-label">Difficile</span>
-    <span class="du-act-count">{{ getActivityCount('DIFFICILE') }}</span>
-  </div>
-</div>
-        
+        <!-- Graphique d'activité (barres de difficulté) -->
+        <div class="du-activity-card">
+          <h3 class="du-section-title" style="margin-top:0">📊 Mon activité</h3>
+          <div class="du-activity-bars">
+            <div class="du-act-bar-wrap">
+              <div class="du-act-bar">
+                <div class="du-act-bar-fill du-act-facile" [style.height.%]="getActivityPercent('FACILE')"></div>
+              </div>
+              <span class="du-act-label">Facile</span>
+              <span class="du-act-count">{{ getActivityCount('FACILE') }}</span>
+            </div>
+            <div class="du-act-bar-wrap">
+              <div class="du-act-bar">
+                <div class="du-act-bar-fill du-act-moyen" [style.height.%]="getActivityPercent('MOYEN')"></div>
+              </div>
+              <span class="du-act-label">Modéré</span>
+              <span class="du-act-count">{{ getActivityCount('MOYEN') }}</span>
+            </div>
+            <div class="du-act-bar-wrap">
+              <div class="du-act-bar">
+                <div class="du-act-bar-fill du-act-difficile" [style.height.%]="getActivityPercent('DIFFICILE')"></div>
+              </div>
+              <span class="du-act-label">Difficile</span>
+              <span class="du-act-count">{{ getActivityCount('DIFFICILE') }}</span>
+            </div>
+          </div>
+          <div class="du-activity-total">
+            {{ totalSortiesRealisees }} randonnée(s) réalisée(s)
+          </div>
+        </div>
+
         <!-- Mes équipes -->
-<div class="du-section-header" style="margin-top: 2rem;">
-  <h2 class="du-section-title">Mes équipes</h2>
-  <a routerLink="/equipes" class="du-section-link">Voir →</a>
-</div>
+        <div class="du-section-header">
+          <h2 class="du-section-title">Mes équipes</h2>
+          <a routerLink="/dashboard/equipes" class="du-section-link">Voir →</a>
+        </div>
 
-<div *ngIf="!loading.equipes && mesEquipes.length === 0" class="du-empty">
-  <p>Aucune équipe rejointe.</p>
-  <a routerLink="/equipes" class="du-empty-btn">Rejoindre une équipe</a>
-</div>
+        <div *ngIf="loading.equipes" class="du-skeleton-grid">
+          <div class="du-sk-card" *ngFor="let i of [1,2]">
+            <div class="du-sk-img" style="height:80px"></div>
+          </div>
+        </div>
 
-<div *ngIf="!loading.equipes && mesEquipes.length > 0" class="du-equipes-list">
-  <div *ngFor="let e of mesEquipes" class="du-equipe-card" (click)="voirEquipe(e.id)">
-    <div class="du-equipe-avatar" [style.background]="getEquipeAvatarColor(e)">
-      {{ getInitialesEquipe(e.nom) }}
-    </div>
-    <div class="du-equipe-info">
-      <div class="du-equipe-nom">{{ e.nom }}</div>
-      <div class="du-equipe-role">{{ e.membres?.length || 0 }} membres · {{ e.niveau || 'Tous niveaux' }}</div>
-    </div>
-  </div>
-</div>
-          
+        <div *ngIf="!loading.equipes && mesEquipes.length === 0" class="du-empty">
+          <p>Aucune équipe rejointe.</p>
+          <a routerLink="/dashboard/equipes" class="du-empty-btn">Rejoindre une équipe</a>
+        </div>
+
+        <div *ngIf="!loading.equipes && mesEquipes.length > 0" class="du-equipes-list">
+          <div *ngFor="let e of mesEquipes" class="du-equipe-card" (click)="voirEquipe(e.id)">
+            <div class="du-equipe-avatar" [style.background]="getEquipeAvatarColor(e)">
+              {{ getInitialesEquipe(e.nom) }}
+            </div>
+            <div class="du-equipe-info">
+              <div class="du-equipe-nom">{{ e.nom }}</div>
+              <div class="du-equipe-role">{{ e.membres?.length || 0 }} membres · {{ e.niveau || 'Tous niveaux' }}</div>
+            </div>
+          </div>
+        </div>
+
         <!-- Liens rapides -->
         <div class="du-section-header" style="margin-top: 2rem;">
           <h2 class="du-section-title">Liens rapides</h2>

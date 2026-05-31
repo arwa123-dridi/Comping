@@ -8,7 +8,7 @@ import { EquipeResponse } from '../../models/equipe.model';
 @Component({
   selector: 'app-equipe-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, DatePipe],
+  imports: [CommonModule, RouterModule],
   templateUrl: './equipe-detail.component.html',
   styleUrls: ['./equipe-detail.component.css']
 })

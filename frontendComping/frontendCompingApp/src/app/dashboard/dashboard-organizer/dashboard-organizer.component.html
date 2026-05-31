@@ -1,0 +1,165 @@
+﻿<!-- src/app/dashboard/dashboard-organizer/dashboard-organizer.component.html -->
+<div class="organizer-dashboard">
+  <header class="org-topbar">
+    <div class="org-topbar-left">
+      <div class="org-avatar">{{ getInitiales() }}</div>
+      <div>
+        <p class="org-label">Organisateur Camping</p>
+        <h1>Bonjour {{ userName }}</h1>
+        <p class="org-description">Un tableau de bord clair et chaleureux pour piloter tes sorties, tes equipes et ton remplissage.</p>
+      </div>
+    </div>
+    <div class="org-topbar-actions">
+      <button routerLink="/admin/sorties/create" class="btn-primary">Nouvelle sortie</button>
+      <button routerLink="/admin/equipes/create" class="btn-secondary">Nouvelle equipe</button>
+    </div>
+  </header>
+
+  <section class="org-summary-grid">
+    <article class="stat-card stat-card--green">
+      <div class="stat-icon">🏕️</div>
+      <div>
+        <span class="stat-title">Sorties creees</span>
+        <strong>{{ totalSortiesCrees }}</strong>
+        <p>{{ sortiesAVenir }} a venir • {{ sortiesPassees }} passee</p>
+      </div>
+    </article>
+    <article class="stat-card stat-card--orange">
+      <div class="stat-icon">🌲</div>
+      <div>
+        <span class="stat-title">Equipes actives</span>
+        <strong>{{ totalEquipes }}</strong>
+        <p>{{ totalMembres }} membres totaux</p>
+      </div>
+    </article>
+    <article class="stat-card stat-card--yellow">
+      <div class="stat-icon">🎟️</div>
+      <div>
+        <span class="stat-title">Participants</span>
+        <strong>{{ totalParticipants }}</strong>
+        <p>Inscrits sur toutes tes sorties</p>
+      </div>
+    </article>
+    <article class="stat-card stat-card--amber">
+      <div class="stat-icon">📈</div>
+      <div>
+        <span class="stat-title">Taux remplissage</span>
+        <strong>{{ tauxRemplissage }}%</strong>
+        <p>Capacite moyenne atteinte</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="org-panel org-panel--wide">
+    <div class="org-panel-header">
+      <div>
+        <h2>Prochaines sorties</h2>
+        <p>Les 3 prochaines activites avec plus de participants.</p>
+      </div>
+      <span class="pill">{{ sortiesAVenirList.length }} en attente</span>
+    </div>
+    <div class="org-sorties-grid">
+      <article class="org-sortie-card" *ngFor="let s of sortiesAVenirList.slice(0,3)">
+        <img [src]="getCoverImageUrl(s)" alt="{{ s.titre }}" class="sortie-image">
+        <div class="sortie-info">
+          <div class="sortie-line">
+            <span class="badge" [ngClass]="getDiffClass(s.difficulte)">{{ s.difficulte }}</span>
+            <span class="status" [ngClass]="getStatusClass(s)">{{ getStatusLabel(s) }}</span>
+          </div>
+          <h3>{{ s.titre }}</h3>
+          <p>{{ s.lieuDepart }} • {{ formatDate(s.dateDebut) }}</p>
+        </div>
+        <div class="sortie-meta">
+          <span>{{ getParticipantsCount(s) }} / {{ s.capaciteMax }} participants</span>
+          <span>{{ s.prixParPersonne || 0 }} DT</span>
+        </div>
+        <div class="sortie-actions">
+          <button class="btn-tertiary" [routerLink]="['/admin/sorties', s.id]">Voir</button>
+          <button class="btn-secondary" [routerLink]="['/admin/sorties/edit', s.id]">Modifier</button>
+          <button class="btn-danger" (click)="deleteSortie(s, $event)">Supprimer</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="org-grid org-grid--secondary">
+    <div class="org-panel">
+      <div class="org-panel-header">
+        <div>
+          <h2>Mes equipes</h2>
+          <p>Gestion rapide des groupes et des membres.</p>
+        </div>
+      </div>
+      <div class="org-teams-grid">
+        <article class="org-team-card" *ngFor="let e of mesEquipes">
+          <div class="team-icon">{{ e.nom ? e.nom.charAt(0) : 'E' }}</div>
+          <div>
+            <h4>{{ e.nom }}</h4>
+            <p>{{ e.membres?.length || 0 }} / {{ e.nbMembresMax || 0 }} membres</p>
+            <p *ngIf="e.niveau">Niveau: {{ e.niveau }}</p>
+          </div>
+          <button class="btn-tertiary" [routerLink]="['/admin/equipes', e.id]">Voir</button>
+        </article>
+      </div>
+    </div>
+
+    <aside class="org-panel org-panel--compact">
+      <div class="org-panel-header">
+        <div>
+          <h2>Top sorties</h2>
+          <p>Performance des 5 sorties les plus populaires.</p>
+        </div>
+      </div>
+      <div class="chart-bars">
+        <article class="chart-item" *ngFor="let s of topFiveSorties">
+          <div class="chart-title">
+            <span>{{ s.titre | slice:0:18 }}</span>
+            <strong>{{ getParticipantsCount(s) }}</strong>
+          </div>
+          <div class="chart-bar-container">
+            <div class="chart-bar" [style.width.%]="(getParticipantsCount(s) / (s.capaciteMax || 1)) * 100"></div>
+          </div>
+        </article>
+      </div>
+    </aside>
+  </section>
+
+  <section class="org-panel org-panel--wide org-commands">
+    <div class="org-panel-header">
+      <div>
+        <h2>Outils IA</h2>
+        <p>Ressources rapides pour aider ton organisation.</p>
+      </div>
+    </div>
+    <div class="org-ia-grid">
+      <a class="org-ia-card" routerLink="/admin/checklist-ia">
+        <div class="ia-icon">🛡️</div>
+        <div>
+          <h4>Checklist securite</h4>
+          <p>Verifie le materiel et les consignes avant de partir.</p>
+        </div>
+      </a>
+      <a class="org-ia-card" routerLink="/admin/planning">
+        <div class="ia-icon">📅</div>
+        <div>
+          <h4>Planning IA</h4>
+          <p>Planifie tes prochaines sorties avec un coup d'oeil.</p>
+        </div>
+      </a>
+      <a class="org-ia-card" routerLink="/admin/sorties">
+        <div class="ia-icon">✨</div>
+        <div>
+          <h4>Recommandations</h4>
+          <p>Decouvre des suggestions pour tes evenements.</p>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <div class="org-empty" *ngIf="!loading && mesSortiesCreees.length === 0">
+    <div class="org-empty-icon">🔥</div>
+    <h3>Aucune sortie creee</h3>
+    <p>Crée ta premiere sortie pour lancer ton dashboard camping.</p>
+    <button routerLink="/admin/sorties/create" class="btn-primary">Creer une sortie</button>
+  </div>
+</div>

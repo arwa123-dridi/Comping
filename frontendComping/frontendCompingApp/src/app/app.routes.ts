@@ -89,6 +89,11 @@ export const routes: Routes = [
       { path: 'recommandations', component: SortieRecommandationsComponent },
       { path: 'planning',        component: PlanningSrComponent },
       { path: 'checklist-ia',    component: ChecklistIaComponent },
+      // ✅ Sorties et équipes dans le layout pour les connectés
+      { path: 'sorties',          component: SortieListComponent },
+      { path: 'sorties/:id',      component: SortieDetailComponent },
+      { path: 'equipes',          component: EquipeListComponent },
+      { path: 'equipes/:id',      component: EquipeDetailComponent },
     ]
   },
 

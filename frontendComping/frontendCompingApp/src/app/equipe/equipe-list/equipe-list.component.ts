@@ -218,7 +218,14 @@ export class EquipeListComponent implements OnInit {
     });
   }
 
-  voirDetail(id: string): void { this.router.navigate(['/equipes', id]); }
+  voirDetail(id: string): void {
+    const r = this.userRole ?? '';
+    if (r === 'ADMIN' || r === 'ROLE_ADMIN' || r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR') {
+      this.router.navigate(['/admin/equipes', id]);
+    } else {
+      this.router.navigate(['/dashboard/equipes', id]);
+    }
+  }
 
   trackById(_: number, eq: EquipeResponse): string { return String(eq.id); }
 

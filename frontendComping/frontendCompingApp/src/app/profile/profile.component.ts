@@ -154,7 +154,7 @@ export class ProfileComponent implements OnInit {
       headers: this.getHeaders(), responseType: 'text'
     }).subscribe({
       next: (r: string) => {
-        this.successMessage = r?.trim() || 'Profil mis à jour avec succès.';
+        this.showSuccess(r?.trim() || 'Profil mis à jour avec succès ✓');
         localStorage.setItem('userNom',    `${v.firstName} ${v.lastName}`.trim());
         localStorage.setItem('userPrenom', v.firstName);
         this.updateInitiales(v.firstName, v.lastName);
@@ -188,7 +188,7 @@ export class ProfileComponent implements OnInit {
       { headers: this.getHeaders(), responseType: 'text' }
     ).subscribe({
       next: (r: string) => {
-        this.successMessage = r?.trim() || 'Mot de passe modifié avec succès.';
+        this.showSuccess(r?.trim() || 'Mot de passe modifié avec succès ✓');
         this.passwordForm.reset();
         this.isLoading = false;
       },
@@ -230,7 +230,7 @@ export class ProfileComponent implements OnInit {
       { headers: this.getHeaders(), responseType: 'text' }
     ).subscribe({
       next: (r: string) => {
-        this.successMessage = r?.trim() || 'Photo mise à jour.';
+        this.showSuccess(r?.trim() || 'Photo de profil mise à jour ✓');
         this.userPhoto = photoBase64;
        this.userPhoto = photoBase64;
        localStorage.setItem('userPhoto', photoBase64);           // ✅ sauvegarde
@@ -306,9 +306,15 @@ export class ProfileComponent implements OnInit {
     return !!this.userPhoto && this.userPhoto !== 'assets/default-avatar.png' && this.userPhoto !== 'null';
   }
 
+  showSuccess(msg: string): void {
+    this.successMessage = msg;
+    this.errorMessage = '';
+    setTimeout(() => { this.successMessage = ''; }, 4500);
+  }
+
   getDashboardLink(): string {
     const r = this.userRole;
-    if (r === 'ADMIN'        || r === 'ROLE_ADMIN')        return '/admin/dashboard';
+    if (r === 'ADMIN'        || r === 'ROLE_ADMIN')        return '/admin/admin-board';
     if (r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR') return '/admin/organizer';
     return '/dashboard';
   }

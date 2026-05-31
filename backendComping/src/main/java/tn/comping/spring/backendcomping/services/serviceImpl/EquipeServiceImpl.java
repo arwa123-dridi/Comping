@@ -60,12 +60,32 @@ public class EquipeServiceImpl implements IEquipeService {
 
     @Override
     public List<EquipeResponseDTO> getAllEquipes() {
-
-        return EquipeMapper.toDtoList(
-                equipeRepository.findAll()
-        );
+        try {
+            List<Equipe> equipes = equipeRepository.findAll();
+            return equipes.stream()
+                    .map(e -> {
+                        try {
+                            return EquipeMapper.toDto(e);
+                        } catch (Exception ex) {
+                            log.warn("Erreur mapping equipe {}: {}", e.getId(), ex.getMessage());
+                            // Retourner un DTO partiel plutôt que planter tout
+                            EquipeResponseDTO dto = new EquipeResponseDTO();
+                            dto.setId(e.getId());
+                            dto.setNom(e.getNom() != null ? e.getNom() : "Équipe sans nom");
+                            dto.setDescription(e.getDescription());
+                            dto.setNbMembresMax(e.getNbMembresMax());
+                            dto.setNiveau(e.getNiveau());
+                            dto.setNbMembresActuels(0);
+                            dto.setMembres(new java.util.ArrayList<>());
+                            return dto;
+                        }
+                    })
+                    .collect(java.util.stream.Collectors.toList());
+        } catch (Exception e) {
+            log.error("Erreur getAllEquipes: {}", e.getMessage());
+            return new java.util.ArrayList<>();
+        }
     }
-
     @Override
     public EquipeResponseDTO updateEquipe(String id, EquipeRequestDTO dto) {
 

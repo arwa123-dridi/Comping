@@ -103,11 +103,24 @@
       <!-- Liens rapides -->
       <div class="pf-card pf-quick">
         <h3 class="pf-card-title">Accès rapide</h3>
-        <a routerLink="/sorties"                  class="pf-quick-link">🏔️ Explorer les randonnées</a>
-        <a routerLink="/dashboard"                class="pf-quick-link">📊 Mon tableau de bord</a>
-        <a routerLink="/dashboard/recommandations"class="pf-quick-link">🤖 Recommandations IA</a>
-        <a routerLink="/dashboard/planning"       class="pf-quick-link">📅 Mon planning</a>
-        <a routerLink="/dashboard/checklist-ia"   class="pf-quick-link">✅ Checklist sécurité</a>
+
+        <!-- ADMIN uniquement -->
+        <ng-container *ngIf="userRole === 'ADMIN' || userRole === 'ROLE_ADMIN'">
+          <a routerLink="/admin/statistics"    class="pf-quick-link">📈 Statistiques Randonnées</a>
+          <a routerLink="/admin/users"         class="pf-quick-link">👤 Utilisateurs</a>
+          <a routerLink="/admin/admin-sorties" class="pf-quick-link">🥾 Randonnées</a>
+          <a routerLink="/admin/checklist-ia"  class="pf-quick-link">📋 Checklist IA</a>
+        </ng-container>
+
+        <!-- USER et ORGANISATEUR -->
+        <ng-container *ngIf="userRole !== 'ADMIN' && userRole !== 'ROLE_ADMIN'">
+          <a routerLink="/sorties"                   class="pf-quick-link">🏔️ Explorer les randonnées</a>
+          <a [routerLink]="getDashboardLink()"       class="pf-quick-link">📊 Mon tableau de bord</a>
+          <a routerLink="/dashboard/recommandations" class="pf-quick-link">🤖 Recommandations IA</a>
+          <a routerLink="/dashboard/planning"        class="pf-quick-link">📅 Mon planning</a>
+          <a routerLink="/dashboard/checklist-ia"    class="pf-quick-link">✅ Checklist sécurité</a>
+        </ng-container>
+
       </div>
 
     </div><!-- /pf-side -->

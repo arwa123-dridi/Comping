@@ -53,7 +53,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=240&fit=crop',
   ];
 
-  constructor(private sortieService: SortieService, private router: Router) {}
+  constructor(private sortieService: SortieService, public router: Router) {}
 
   ngOnInit(): void {
     this.startSlideshow();
@@ -103,7 +103,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   getDashboardLink(): string {
     const r = localStorage.getItem('userRole') ?? '';
-    if (r === 'ADMIN' || r === 'ROLE_ADMIN') return '/admin/dashboard';
+    if (r === 'ADMIN' || r === 'ROLE_ADMIN') return '/admin/admin-board';
     if (r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR') return '/admin/organizer';
     return '/dashboard';
   }
