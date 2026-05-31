@@ -20,15 +20,15 @@
               "zone.js"
             ],
             "tsConfig": "tsconfig.app.json",
-           "assets": [
-  "src/favicon.ico",
-  "src/assets",
-  {
-    "glob": "**/*",
-    "input": "public",
-    "output": "/"
-  }
-],
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "public",
+                "output": "/"
+              }
+            ],
             "styles": [
               "src/styles.css",
               "node_modules/ngx-toastr/toastr.css"
@@ -37,18 +37,20 @@
           },
           "configurations": {
             "production": {
+              
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "5mb",
+                  "maximumError": "10mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "50kb",
+                  "maximumError": "100kb"
                 }
               ],
+
               "outputHashing": "all"
             },
             "development": {
@@ -91,16 +93,20 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "jspdf",
+              "html2canvas",
+              "canvg",
+              "raf",
+              "rgbcolor"
+            ]
           }
         }
       }
     }
   },
   "cli": {
-
     "analytics": "43d76d74-d658-43a6-a9d9-50fa11056c71"
-
-
   }
 }

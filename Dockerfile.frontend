@@ -1,0 +1,27 @@
+#build Angular
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+RUN npm run build --configuration production
+
+
+#   serveur Nginx
+FROM nginx:alpin
+
+# supprimer config default nginx
+RUN rm -rf /usr/share/nginx/html/*
+
+# copier le build Angular
+COPY --from=build /app/dist/frontend-comping-app /usr/share/nginx/html
+
+# exposer port 
+EXPOSE 4200
+
+# lancer nginx
+CMD ["nginx", "-g", "daemon off;"]

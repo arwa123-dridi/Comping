@@ -2,7 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ActivityComponent } from './activity';
 
+
 describe('ActivityComponent', () => {
+
   let component: ActivityComponent;
   let fixture: ComponentFixture<ActivityComponent>;
 
