@@ -92,6 +92,8 @@ export class ChecklistIaComponent implements OnInit, OnChanges {
   // Données
   mode: Mode = 'auto';
   selectedCity  = '';
+  villeDepart:  string = '';   // lieu de rassemblement
+  villeArrivee: string | null = null; // ville visitée (météo principale)
   selectedDate  = '';
   difficulte    = 2;
   cities        = TUNISIAN_CITIES;
@@ -135,7 +137,7 @@ export class ChecklistIaComponent implements OnInit, OnChanges {
     }
 
     if (this.sortieVille)      { this.selectedCity  = this.sortieVille;               this.mode = 'auto'; }
-    if (this.sortieDateDebut)  { this.selectedDate  = this.sortieVille?.slice(0,10) ?? ''; }
+    if (this.sortieDateDebut)  { this.selectedDate  = this.sortieDateDebut.slice(0, 10); }
     if (this.sortieDifficulte) { this.difficulte    = this.sortieDifficulte; }
 
     if (!this.selectedDate) {

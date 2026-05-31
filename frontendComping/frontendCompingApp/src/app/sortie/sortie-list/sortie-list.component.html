@@ -143,6 +143,7 @@
           <img class="card-img-elem"
                [src]="getImageUrl(s)"
                [alt]="s.titre"
+               (error)="onImgError($event, s)"
                loading="lazy" />
           <span class="diff-badge"
                 [class.diff-facile]="s.difficulte === 'FACILE'"

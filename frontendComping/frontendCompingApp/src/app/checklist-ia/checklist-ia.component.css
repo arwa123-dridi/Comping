@@ -941,3 +941,76 @@
   .result-actions { flex-direction: column; }
   .btn-pdf, .btn-redo { width: 100%; justify-content: center; }
 }
+
+/* ── Sélecteur de ville (départ vs visite) ─────────────────── */
+.cia-ville-choice {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  border: 1.5px solid #86efac;
+  border-radius: 14px;
+}
+
+.cia-ville-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #166534;
+  margin: 0 0 10px;
+}
+
+.cia-ville-btns {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cia-ville-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 2px solid #22c55e;
+  background: #fff;
+  color: #166534;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.cia-ville-btn:hover,
+.cia-ville-btn.sel {
+  background: #22c55e;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+}
+
+.cia-ville-btn--sec {
+  border-color: #94a3b8;
+  color: #475569;
+}
+
+.cia-ville-btn--sec:hover,
+.cia-ville-btn--sec.sel {
+  background: #475569;
+  color: #fff;
+  border-color: #475569;
+  box-shadow: 0 4px 12px rgba(71,85,105,0.25);
+}
+
+.cia-ville-badge {
+  background: #dcfce7;
+  color: #166534;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.cia-ville-btn.sel .cia-ville-badge {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+}

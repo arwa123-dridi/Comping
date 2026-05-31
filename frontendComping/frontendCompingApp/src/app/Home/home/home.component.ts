@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { SortieService } from '../../services/sortie.service';
@@ -9,17 +9,20 @@ import { SortieResponse } from '../../models/sortie.model';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css',
+  styleUrls: ['./home.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  @ViewChildren('animateCard', { read: ElementRef }) private animateCards!: QueryList<ElementRef<HTMLElement>>;
 
   currentSlide = 0;
   private timer: any;
+  private observer?: IntersectionObserver;
 
-  // ✅ Randonnées dynamiques depuis le backend
   randonneesRecommandees: SortieResponse[] = [];
   loadingRando = true;
+  errorMessage = '';
 
   slides = [
     { url: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1200&q=80', label: '🏕️ Forêt · Ain Draham' },
@@ -45,7 +48,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     { name: 'Chott el-Jérid', sub: 'Désert · Sud · Expérience unique', tag: '12 emplacements', gradient: 'linear-gradient(135deg,#0d1f3d,#1b2a4a)' },
   ];
 
-  // Images fallback Tunisie
   private readonly fallbackImages = [
     'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=240&fit=crop',
     'https://images.unsplash.com/photo-1551632786-fc0b4cd1235b?w=400&h=240&fit=crop',
@@ -60,42 +62,67 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loadRandonnees();
   }
 
-  ngOnDestroy(): void { clearInterval(this.timer); }
+  ngAfterViewInit(): void {
+    this.observeCards();
+  }
 
-  // ✅ Chargement dynamique depuis GET /api/sorties
+  ngOnDestroy(): void {
+    clearInterval(this.timer);
+    this.observer?.disconnect();
+  }
+
   loadRandonnees(): void {
     this.loadingRando = true;
+    this.errorMessage = '';
+
     this.sortieService.getAllSorties().subscribe({
       next: (data) => {
-        // Prend les 4 prochaines sorties futures non pleines
-        const now = new Date();
-        const futures = data
-          .filter(s => new Date(s.dateDebut) >= now && (s.placesDisponibles ?? 1) > 0)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        this.randonneesRecommandees = data
+          .filter((s) => {
+            const dateDebut = new Date(s.dateDebut);
+            dateDebut.setHours(0, 0, 0, 0);
+            return dateDebut >= today;
+          })
+          .sort((a, b) => new Date(a.dateDebut).getTime() - new Date(b.dateDebut).getTime())
           .slice(0, 4);
-        // Si moins de 4 futures, complète avec les plus récentes
-        if (futures.length < 4) {
-          const autres = data.filter(s => !futures.includes(s)).slice(0, 4 - futures.length);
-          this.randonneesRecommandees = [...futures, ...autres];
-        } else {
-          this.randonneesRecommandees = futures;
-        }
+
         this.loadingRando = false;
+        setTimeout(() => this.observeCards());
       },
-      error: () => {
+      error: (error) => {
+        console.error('Erreur chargement sorties', error);
         this.randonneesRecommandees = [];
+        this.errorMessage = 'Impossible de charger les randonnées. Réessayez plus tard.';
         this.loadingRando = false;
       }
     });
   }
 
-  startSlideshow(): void { this.timer = setInterval(() => this.nextSlide(), 5000); }
-  goToSlide(i: number): void { this.currentSlide = i; clearInterval(this.timer); this.startSlideshow(); }
-  nextSlide(): void { this.currentSlide = (this.currentSlide + 1) % this.slides.length; }
-  get currentLabel(): string { return this.slides[this.currentSlide].label; }
+  startSlideshow(): void {
+    this.timer = setInterval(() => this.nextSlide(), 5000);
+  }
 
-  isConnected(): boolean { return !!localStorage.getItem('authToken'); }
+  goToSlide(i: number): void {
+    this.currentSlide = i;
+    clearInterval(this.timer);
+    this.startSlideshow();
+  }
 
-  // ✅ CORRIGÉ : isAdminOrOrg retourne false pour USER → montre les bons boutons header
+  nextSlide(): void {
+    this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+  }
+
+  get currentLabel(): string {
+    return this.slides[this.currentSlide].label;
+  }
+
+  isConnected(): boolean {
+    return !!localStorage.getItem('authToken');
+  }
+
   isAdminOrOrg(): boolean {
     const r = localStorage.getItem('userRole') ?? '';
     return r === 'ADMIN' || r === 'ROLE_ADMIN' || r === 'ORGANISATEUR' || r === 'ROLE_ORGANISATEUR';
@@ -116,10 +143,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ Clic Participer depuis la home → redirect login si non connecté
   handleParticiper(sortieId: string, event: Event): void {
+    event.stopPropagation();
     if (!this.isConnected()) {
-      event.preventDefault();
       localStorage.setItem('redirect_after_login', `/sorties/${sortieId}`);
       this.router.navigate(['/login']);
     } else {
@@ -128,15 +154,19 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   getSortieImage(s: SortieResponse): string {
-    if (s.imageUrl?.trim()) return s.imageUrl;
+    if (s.imageUrl?.trim()) {
+      return s.imageUrl;
+    }
     let h = 0;
     const seed = s.id ?? s.titre ?? '';
-    for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+    for (let i = 0; i < seed.length; i++) {
+      h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+    }
     return this.fallbackImages[h % this.fallbackImages.length];
   }
 
   getDiffClass(d: string): string {
-    return { FACILE: 'diff-facile', MOYEN: 'diff-moyen', DIFFICILE: 'diff-difficile' }[d] || '';
+    return { FACILE: 'diff-facile', MOYEN: 'diff-moyen', DIFFICILE: 'diff-difficile' }[d] || 'diff-facile';
   }
 
   getDiffLabel(d: string): string {
@@ -144,12 +174,49 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   isPleine(s: SortieResponse): boolean {
-    return (s.participantIds?.length ?? s.nombreParticipants ?? 0) >= (s.capaciteMax ?? 0);
+    return this.getRemainingPlaces(s) === 0;
+  }
+
+  getParticipantCount(s: SortieResponse): number {
+    return s.participantIds?.length ?? s.nombreParticipants ?? 0;
+  }
+
+  getRemainingPlaces(s: SortieResponse): number {
+    return Math.max(0, (s.capaciteMax ?? 0) - this.getParticipantCount(s));
+  }
+
+  getFilledPercent(s: SortieResponse): number {
+    const cap = s.capaciteMax ?? 1;
+    return Math.min(100, Math.round((this.getParticipantCount(s) / cap) * 100));
   }
 
   formatDate(d: any): string {
     return new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
-  getSkeletons() { return [1,2,3,4]; }
+  getSkeletons(): number[] {
+    return [1, 2, 3, 4];
+  }
+
+  private observeCards(): void {
+    if (!('IntersectionObserver' in window)) {
+      this.animateCards?.forEach((card) => card.nativeElement.classList.add('visible'));
+      return;
+    }
+
+    this.observer?.disconnect();
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          this.observer?.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    this.animateCards?.forEach((card) => {
+      card.nativeElement.classList.add('animate-card');
+      this.observer?.observe(card.nativeElement);
+    });
+  }
 }

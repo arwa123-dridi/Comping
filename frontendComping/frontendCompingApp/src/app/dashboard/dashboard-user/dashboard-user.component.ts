@@ -1,7 +1,8 @@
 // src/app/dashboard/dashboard-user/dashboard-user.component.ts
 import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { SortieService } from '../../services/sortie.service';
 import { EquipeService } from '../../services/equipe.service';
 import { SortieResponse } from '../../models/sortie.model';
@@ -60,6 +61,15 @@ export class DashboardUserComponent implements OnInit {
       this.loadMesSorties();
       this.loadMesEquipes();
     }
+
+    // ✅ Recharge les données à chaque retour sur le dashboard (après inscription, etc.)
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd && event.url === '/dashboard')
+    ).subscribe(() => {
+      console.log('🔄 Dashboard rechargé après navigation');
+      this.loadMesSorties();
+      this.loadMesEquipes();
+    });
   }
 
   loadMesSorties(): void {
@@ -196,7 +206,6 @@ export class DashboardUserComponent implements OnInit {
     return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
-  // ✅ CORRECTION : Accepte Date | string
   isPastDate(date: Date | string): boolean {
     const d = typeof date === 'string' ? new Date(date) : date;
     return d < new Date();

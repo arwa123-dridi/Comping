@@ -48,6 +48,9 @@ export class SortieFormComponent implements OnInit {
   newEquipeNbMembresMax = 10;
   creatingEquipe = false;
 
+  // ✅ AJOUT : message pour la checklist IA générée
+  checklistMessage: string | null = null;
+
   constructor(
     private fb:           FormBuilder,
     private sortieService:SortieService,
@@ -100,6 +103,7 @@ export class SortieFormComponent implements OnInit {
     // ✅ NOUVEAU : appel à la Checklist IA quand la date, le lieu ou la difficulté changent
     this.sortieForm.get('dateDebut')?.valueChanges.subscribe(() => this.autoFillEquipement());
     this.sortieForm.get('lieuDepart')?.valueChanges.subscribe(() => this.autoFillEquipement());
+    this.sortieForm.get('lieuArrivee')?.valueChanges.subscribe(() => this.autoFillEquipement());
     this.sortieForm.get('difficulte')?.valueChanges.subscribe(() => this.autoFillEquipement());
   }
 
@@ -336,48 +340,52 @@ export class SortieFormComponent implements OnInit {
   }
 
   /**
- * Appelle la Checklist IA avec la date, le lieu et la difficulté,
- * et remplit automatiquement le champ 'equipementRequis'
- */
-private autoFillEquipement(): void {
-  const dateDebut = this.sortieForm.get('dateDebut')?.value;
-  const lieuDepart = this.sortieForm.get('lieuDepart')?.value;
-  const difficulte = this.sortieForm.get('difficulte')?.value as string;
+   * Appelle la Checklist IA avec la date, le lieu (destination prioritaire) et la difficulté,
+   * et remplit automatiquement le champ 'equipementRequis'
+   */
+  private autoFillEquipement(): void {
+    const dateDebut = this.sortieForm.get('dateDebut')?.value;
+    const lieuArrivee = this.sortieForm.get('lieuArrivee')?.value;
+    const lieuDepart = this.sortieForm.get('lieuDepart')?.value;
+    const difficulte = this.sortieForm.get('difficulte')?.value as string;
 
-  if (!dateDebut || !lieuDepart || !difficulte) return;
+    // Priorité à la destination (lieuArrivee), fallback sur le départ
+    const villeMeteo = lieuArrivee?.trim() || lieuDepart?.trim();
 
-  // Ne pas écraser si l'utilisateur a déjà saisi manuellement
-  const currentEquip = this.sortieForm.get('equipementRequis')?.value;
-  if (currentEquip && currentEquip.trim().length > 5) return;
+    if (!dateDebut || !villeMeteo || !difficulte) return;
 
-  const formattedDate = new Date(dateDebut).toISOString().split('T')[0];
-  const niveauMap: Record<string, number> = { FACILE: 2, MOYEN: 3, DIFFICILE: 4 };
-  const niveau = niveauMap[difficulte] || 3;
+    // Ne pas écraser si l'utilisateur a déjà saisi manuellement
+    const currentEquip = this.sortieForm.get('equipementRequis')?.value;
+    if (currentEquip && currentEquip.trim().length > 5) return;
 
-  this.checklistService.recommandationAuto(lieuDepart, formattedDate, niveau)
-    .subscribe({
-      next: (res) => {
-        if (res.success && res.checklist_item) {
-          let equipText = res.checklist_item;
-          if (res.recommendations?.length) {
-            equipText += ' – ' + res.recommendations.slice(0, 4).join(', ');
+    const formattedDate = new Date(dateDebut).toISOString().split('T')[0];
+    const niveauMap: Record<string, number> = { FACILE: 2, MOYEN: 3, DIFFICILE: 4 };
+    const niveau = niveauMap[difficulte] || 3;
+
+    this.checklistService.recommandationAuto(villeMeteo, formattedDate, niveau)
+      .subscribe({
+        next: (res) => {
+          if (res.success && res.checklist_item) {
+            let equipText = res.checklist_item;
+            if (res.recommendations?.length) {
+              equipText += ' – ' + res.recommendations.slice(0, 4).join(', ');
+            }
+            this.sortieForm.patchValue({ equipementRequis: equipText }, { emitEvent: false });
           }
-          this.sortieForm.patchValue({ equipementRequis: equipText }, { emitEvent: false });
+        },
+        error: () => {
+          const fallbackMap: Record<string, string> = {
+            FACILE: 'Chaussures de marche, gourde 1.5L, crème solaire',
+            MOYEN: 'Chaussures de randonnée, sac à dos 20L, gourde 2L, bâtons',
+            DIFFICILE: 'Chaussures de randonnée haute, sac à dos 30L, gourde 3L, veste imperméable'
+          };
+          const fallback = fallbackMap[difficulte];
+          if (fallback && !currentEquip) {
+            this.sortieForm.patchValue({ equipementRequis: fallback }, { emitEvent: false });
+          }
         }
-      },
-      error: () => {
-        const fallbackMap: Record<string, string> = {
-          FACILE: 'Chaussures de marche, gourde 1.5L, crème solaire',
-          MOYEN: 'Chaussures de randonnée, sac à dos 20L, gourde 2L, bâtons',
-          DIFFICILE: 'Chaussures de randonnée haute, sac à dos 30L, gourde 3L, veste imperméable'
-        };
-        const fallback = fallbackMap[difficulte];
-        if (fallback && !currentEquip) {
-          this.sortieForm.patchValue({ equipementRequis: fallback }, { emitEvent: false });
-        }
-      }
-    });
-}
+      });
+  }
 
   // ── Soumission ───────────────────────────────────────────
 
@@ -423,6 +431,12 @@ private autoFillEquipement(): void {
         clearTimeout(timeout);
         this.isLoading = false;
         const id = result.id ?? this.sortieId;
+        
+        // ✅ Afficher la checklist IA si présente dans la réponse
+        if (result.checklistRecommandee) {
+          this.checklistMessage = `✅ Checklist IA générée : ${result.checklistRecommandee}`;
+        }
+
         this.showToast(this.isEdit ? '✅ Randonnée modifiée avec succès !' : '✅ Randonnée créée avec succès !', 'success');
         setTimeout(() => {
           const role = localStorage.getItem('userRole') ?? '';
@@ -442,6 +456,7 @@ private autoFillEquipement(): void {
       }
     });
   }
+  
 
   showToast(msg: string, type: 'success' | 'error' = 'success'): void {
     this.toastMessage = msg;

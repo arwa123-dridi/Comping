@@ -304,6 +304,15 @@
             ⚠️ Complétez les champs marqués d'un *
           </span>
         </div>
+
+        <!-- ✅ MESSAGE CHECKLIST IA AUTO-GÉNÉRÉE (AJOUT) -->
+        <div *ngIf="checklistMessage" class="checklist-auto-result">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <span>{{ checklistMessage }}</span>
+        </div>
+
         <div class="form-btns">
           <button type="button" class="btn-cancel" routerLink="/sorties">← Annuler</button>
           <button type="submit" class="btn-submit" [disabled]="isLoading || imageUploading">

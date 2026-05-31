@@ -8,13 +8,14 @@ import java.util.List;
 
 @Data
 public class SortieResponseDTO {
+
     private String id;
     private String titre;
     private String description;
     private LocalDateTime dateDebut;
     private LocalDateTime dateFin;
     private String lieuDepart;
-    private String lieuArrivee;
+    private String lieuArrivee;       // ville de destination
     private String region;
     private Difficulte difficulte;
     private Integer capaciteMax;
@@ -24,8 +25,6 @@ public class SortieResponseDTO {
     private String equipementRequis;
     private Boolean assistanceMedicale;
     private Double distanceKm;
-
-    // ✅ AJOUTÉ — URL image Cloudinary
     private String imageUrl;
 
     private String organisateurId;
@@ -38,4 +37,7 @@ public class SortieResponseDTO {
     private List<String> participantIds;
     private LocalDateTime dateCreation;
     private String utilisateurPrenom;
+
+    // ✅ AJOUTÉ — checklist IA générée automatiquement à la création
+    private String checklistRecommandee;
 }

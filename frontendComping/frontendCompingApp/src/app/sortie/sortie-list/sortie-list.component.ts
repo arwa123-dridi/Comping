@@ -204,6 +204,11 @@ export class SortieListComponent implements OnInit {
     return this.cloudinary.getImageUrl(s.imageUrl, s.difficulte, s.id, s.titre);
   }
 
+  onImgError(event: Event, s: SortieResponse): void {
+    const img = event.target as HTMLImageElement;
+    img.src = this.cloudinary.getImageUrl(undefined, s.difficulte, s.id, s.titre);
+  }
+
   private showToast(msg: string, type: 'success' | 'error' | 'info' = 'success'): void {
     this.toastMessage = msg;
     this.toastType = type;

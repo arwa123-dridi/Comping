@@ -290,6 +290,8 @@ public class SortieServiceImpl implements ISortieService {
     @Override
     public List<ParticipationDTO> getParticipantsBySortie(String sortieId) {
         List<Participation> participations = participationRepository.findBySortieId(sortieId);
+        if (participations == null || participations.isEmpty()) return new ArrayList<>();
+
         Sortie sortie = sortieRepository.findById(sortieId)
                 .orElseThrow(() -> new RuntimeException("Sortie non trouvée"));
         Equipe equipe = sortie.getEquipe();
@@ -297,8 +299,11 @@ public class SortieServiceImpl implements ISortieService {
         return participations.stream()
                 .map(p -> {
                     ParticipationDTO dto = SortieMapper.toParticipationDto(p);
+                    // ✅ CORRIGÉ — compare ID avec ID (pas objet avec String)
                     if (equipe != null && equipe.getMembres() != null
-                            && equipe.getMembres().contains(p.getUtilisateur().getId())) {
+                            && equipe.getMembres().stream().anyMatch(
+                            m -> m != null && m.getId() != null
+                                    && m.getId().equals(p.getUtilisateur().getId()))) {
                         dto.setEquipeId(equipe.getId());
                         dto.setEquipeNom(equipe.getNom());
                     }

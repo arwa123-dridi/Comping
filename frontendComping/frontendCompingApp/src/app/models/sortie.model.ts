@@ -25,6 +25,8 @@ export interface SortieResponse {
     assistanceMedicale?: boolean;
     distanceKm?: number;
     imageUrl?: string;          //  URL Cloudinary
+      checklistRecommandee?: string;
+
 }
 
 export interface SortieRequest {

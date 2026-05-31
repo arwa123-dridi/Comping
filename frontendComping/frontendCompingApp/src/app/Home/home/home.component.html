@@ -128,78 +128,23 @@
   </div>
 </section>
 
-<!-- ══════════════════ RANDONNÉES (DYNAMIQUES) ══════════════════ -->
+<!-- ══════════════════ RANDONNÉES (BANNIÈRE) ══════════════════ -->
 <section class="randos-section">
   <div class="section-eyebrow">
-    <span class="eyebrow-tag">PROCHAINES SORTIES</span>
-    <div class="eyebrow-title">Randonnées à venir</div>
-    <p class="eyebrow-sub">Rejoignez nos prochaines aventures en Tunisie</p>
+    <span class="eyebrow-tag">RANDONNÉES</span>
+    <h2 class="eyebrow-title">Explorez nos randonnées incontournables</h2>
+    <p class="eyebrow-sub">Un grand visuel inspirant pour vous inviter à découvrir toutes nos aventures.</p>
   </div>
 
-  <!-- Skeletons pendant le chargement -->
-  <div class="randos-grid" *ngIf="loadingRando">
-    <div class="rando-card rando-skeleton" *ngFor="let s of getSkeletons()">
-      <div class="sk-img"></div>
-      <div class="sk-body">
-        <div class="sk-line sk-line--lg"></div>
-        <div class="sk-line sk-line--sm"></div>
-        <div class="sk-line sk-line--md"></div>
-      </div>
+  <a routerLink="/sorties" class="randos-hero-card">
+    <div class="randos-hero-overlay"></div>
+    <div class="randos-hero-content">
+      <span class="hero-pretitle">Grande carte</span>
+      <h3>Vos prochaines aventures commencent ici</h3>
+      <p>Découvrez la sélection complète de randonnées et choisissez l’expédition qui vous fait rêver.</p>
+      <span class="hero-cta">Voir la liste des randonnées →</span>
     </div>
-  </div>
-
-  <!-- Cartes dynamiques -->
-  <div class="randos-grid" *ngIf="!loadingRando">
-    <div class="rando-card" *ngFor="let s of randonneesRecommandees"
-         [routerLink]="['/sorties', s.id]" style="cursor:pointer">
-      <div class="rando-img-wrap">
-        <img [src]="getSortieImage(s)" [alt]="s.titre" class="rando-img" loading="lazy"/>
-        <span class="rando-diff-badge" [ngClass]="getDiffClass(s.difficulte)">{{ getDiffLabel(s.difficulte) }}</span>
-        <span class="rando-pleine" *ngIf="isPleine(s)">Complet</span>
-      </div>
-      <div class="rando-body">
-        <div class="rando-meta">
-          <span class="rando-lieu">📍 {{ s.lieuDepart }}</span>
-          <span class="rando-date">🗓 {{ formatDate(s.dateDebut) }}</span>
-        </div>
-        <h3 class="rando-title">{{ s.titre }}</h3>
-<p class="rando-desc">{{ s.description | slice:0:90 }}{{ (s.description?.length ?? 0) > 90 ? '…' : '' }}</p>        <div class="rando-footer">
-          <div class="rando-places">
-            <div class="places-bar">
-              <div class="places-fill"
-                   [style.width.%]="((s.participantIds ? s.participantIds.length : s.nombreParticipants ?? 0) / s.capaciteMax) * 100">
-              </div>
-            </div>
-            <span>{{ s.participantIds?.length ?? s.nombreParticipants ?? 0 }} / {{ s.capaciteMax }} places</span>
-          </div>
-          <!-- USER ou non connecté : bouton Participer -->
-          <button *ngIf="!isAdminOrOrg()"
-                  class="rando-btn"
-                  [class.rando-btn--plein]="isPleine(s)"
-                  (click)="handleParticiper(s.id, $event)">
-            {{ isPleine(s) ? 'Complet' : 'Participer' }}
-          </button>
-          <!-- Admin/Orga : bouton Voir détails seulement -->
-          <button *ngIf="isAdminOrOrg()"
-                  class="rando-btn"
-                  (click)="router.navigate(['/sorties', s.id])">
-            Voir détails →
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- État vide -->
-    <div class="randos-empty" *ngIf="randonneesRecommandees.length === 0">
-      <div class="empty-icon">🏔️</div>
-      <p>Aucune randonnée disponible pour le moment.</p>
-      <a routerLink="/sorties" class="empty-link">Voir toutes les sorties →</a>
-    </div>
-  </div>
-
-  <div class="randos-cta">
-    <a routerLink="/sorties" class="btn-voir-tout">Voir toutes les randonnées →</a>
-  </div>
+  </a>
 </section>
 
 <!-- ══════════════════ DESTINATIONS ══════════════════ -->

@@ -1,17 +1,16 @@
 package tn.comping.spring.backendcomping.controllers;
 
-import tn.comping.spring.backendcomping.dto.EquipeRequestDTO;
-import tn.comping.spring.backendcomping.dto.EquipeResponseDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
+import tn.comping.spring.backendcomping.dto.EquipeRequestDTO;
+import tn.comping.spring.backendcomping.dto.EquipeResponseDTO;
 import tn.comping.spring.backendcomping.services.serviceImpl.IEquipeService;
 
 import java.util.List;
-
-import org.springframework.security.access.prepost.PreAuthorize;
 @RestController
 @RequestMapping("/api/equipes")
 @RequiredArgsConstructor
@@ -42,20 +41,18 @@ public class EquipeController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ORGANISATEUR')")
+    @PreAuthorize("hasAnyRole('ORGANISATEUR', 'ADMIN')")
     public ResponseEntity<EquipeResponseDTO> updateEquipe(
             @PathVariable String id,
             @Valid @RequestBody EquipeRequestDTO dto) {
         return ResponseEntity.ok(equipeService.updateEquipe(id, dto));
     }
-
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ORGANISATEUR')")
+    @PreAuthorize("hasAnyRole('ORGANISATEUR', 'ADMIN')")
     public ResponseEntity<Void> deleteEquipe(@PathVariable String id) {
         equipeService.deleteEquipe(id);
         return ResponseEntity.noContent().build();
     }
-
     @PostMapping("/{equipeId}/membres/{utilisateurId}")
     public ResponseEntity<EquipeResponseDTO> ajouterMembre(
             @PathVariable String equipeId,
