@@ -3,7 +3,8 @@ package tn.comping.spring.backendcomping.TestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -11,22 +12,28 @@ import org.springframework.test.web.servlet.MockMvc;
 import tn.comping.spring.backendcomping.controllers.PanierController;
 import tn.comping.spring.backendcomping.dto.*;
 import tn.comping.spring.backendcomping.services.serviceImpl.PanierService;
+import tn.comping.spring.backendcomping.config.JwtFilter;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(PanierController.class)
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false) // IMPORTANT for JWT/security
 class PanierControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @MockBean
     private PanierService panierService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockBean
+    private JwtFilter jwtFilter;
 
     // ================= GET PANIER =================
     @Test
