@@ -55,11 +55,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- WebFlux (for reactive programming) -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
+    
 
         <!-- DevTools -->
         <dependency>
@@ -118,11 +114,7 @@
             <artifactId>stripe-java</artifactId>
             <version>26.0.0</version>
         </dependency>
-        <!-- Mail -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
+     
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
@@ -158,7 +150,7 @@
         <artifactId>mockito-junit-jupiter</artifactId>
         <scope>test</scope>
     </dependency>
-    
+
 <!-- Security Test -->
         <dependency>
             <groupId>org.springframework.security</groupId>
