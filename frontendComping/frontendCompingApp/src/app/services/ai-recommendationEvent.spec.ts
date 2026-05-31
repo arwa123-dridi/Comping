@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AiRecommendation } from './ai-recommendationEvent';
+import { AiRecommendationEvent} from './ai-recommendationEvent';
 
-describe('AiRecommendation', () => {
-  let service: AiRecommendation;
+describe('AiRecommendationEvent', () => {
+  let service: AiRecommendationEvent;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(AiRecommendation);
+    service = TestBed.inject(AiRecommendationEvent);
   });
 
   it('should be created', () => {
