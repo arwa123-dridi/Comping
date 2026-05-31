@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import tn.comping.spring.backendcomping.controllers.CommandeController;
+import tn.comping.spring.backendcomping.config.JwtFilter;
 import tn.comping.spring.backendcomping.dto.CommandeRequestDTO;
 import tn.comping.spring.backendcomping.dto.CommandeResponseDTO;
 import tn.comping.spring.backendcomping.services.serviceImpl.CommandeService;
@@ -21,8 +21,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(controllers = CommandeController.class)
-@AutoConfigureMockMvc(addFilters = false) // important pour Spring Security
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false) // disables Spring Security + JWT
 class CommandeControllerTest {
 
     @Autowired
@@ -33,6 +33,9 @@ class CommandeControllerTest {
 
     @MockBean
     private CommandeService commandeService;
+
+    @MockBean
+    private JwtFilter jwtFilter;
 
     // ================= CREATE =================
     @Test
@@ -45,8 +48,8 @@ class CommandeControllerTest {
                 .thenReturn(response);
 
         mockMvc.perform(post("/api/commandes/addCommande")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
     }
 
@@ -101,7 +104,7 @@ class CommandeControllerTest {
                 .thenReturn(new CommandeResponseDTO());
 
         mockMvc.perform(put("/api/commandes/updateCommande/C1/statut")
-                .param("statut", "LIVREE"))
+                        .param("statut", "LIVREE"))
                 .andExpect(status().isOk());
     }
 

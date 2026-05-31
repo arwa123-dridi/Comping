@@ -3,39 +3,42 @@ package tn.comping.spring.backendcomping.TestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import tn.comping.spring.backendcomping.controllers.SignupController;
 import tn.comping.spring.backendcomping.dto.SignupDTO;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
 
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(SignupController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class SignupControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private SignupService signupService;
-
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private SignupService signupService;
 
     // ================= REGISTER USER =================
     @Test
     void shouldRegisterUser() throws Exception {
 
         SignupDTO dto = new SignupDTO();
+
         SignupEntity user = new SignupEntity();
         user.setId("1");
         user.setEmail("test@mail.com");
@@ -48,8 +51,6 @@ class SignupControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"))
                 .andExpect(jsonPath("$.email").value("test@mail.com"));
-
-        System.out.println("✅ registerUser test passed");
     }
 
     // ================= REGISTER USER ERROR =================
@@ -66,8 +67,6 @@ class SignupControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("User already exists"));
-
-        System.out.println("✅ registerUser error test passed");
     }
 
     // ================= GET USER BY ID =================
@@ -83,8 +82,6 @@ class SignupControllerTest {
         mockMvc.perform(get("/api/auth/getUserById/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("1"));
-
-        System.out.println("✅ getUserById test passed");
     }
 
     // ================= GET LIVREURS =================
@@ -95,13 +92,10 @@ class SignupControllerTest {
         user.setId("1");
         user.setEmail("livreur@mail.com");
 
-        when(signupService.getLivreurs())
-                .thenReturn(List.of(user));
+        when(signupService.getLivreurs()).thenReturn(List.of(user));
 
         mockMvc.perform(get("/api/auth/livreurs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].email").value("livreur@mail.com"));
-
-        System.out.println("✅ getLivreurs test passed");
     }
 }
