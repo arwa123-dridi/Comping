@@ -59,6 +59,7 @@ import {
   NouvelleDemandeTransportComponent
 } from './Demande-transport/nouvelle-demande-transport/nouvelle-demande-transport';
 import {MesTransportsComponent} from './mes-transport/mes-transports/mes-transports';
+import {SignalerIncidentComponent} from './signaler-incident/signaler-incident/signaler-incident';
 
 export const routes: Routes = [
 
@@ -106,6 +107,7 @@ export const routes: Routes = [
       { path: 'checklist-ia',    component: ChecklistIaComponent },
       { path: 'logistique/transports/nouvelle-demande', component: NouvelleDemandeTransportComponent },
       { path: 'logistique/transports', component: MesTransportsComponent },
+      { path: 'logistique/incidents/signaler', component: SignalerIncidentComponent },
     ]
   },
 

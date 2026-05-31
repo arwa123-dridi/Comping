@@ -6,10 +6,7 @@ import tn.comping.spring.backendcomping.dto.IncidentRequest;
 import tn.comping.spring.backendcomping.dto.IncidentResponse;
 import tn.comping.spring.backendcomping.entities.Incident;
 import tn.comping.spring.backendcomping.repositories.IncidentRepository;
-//import tn.comping.spring.backendcomping.services.IncidentService;
 import tn.comping.spring.backendcomping.utils.mapper.IncidentMapper;
-
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,13 +41,12 @@ public class IncidentServiceImpl implements IncidentService {
     public IncidentResponse updateIncident(String id, IncidentRequest dto) {
         Incident existing = incidentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Incident n'existe pas, id: " + id));
-
         existing.setType(dto.getType() != null ? dto.getType() : existing.getType());
         existing.setStatut(dto.getStatut() != null ? dto.getStatut() : existing.getStatut());
         existing.setDescrition(dto.getDescrition() != null ? dto.getDescrition() : existing.getDescrition());
         existing.setDateDeclaration(dto.getDateDeclaration() != null ? dto.getDateDeclaration() : existing.getDateDeclaration());
-        existing.setResolu(dto.isResolu());  // boolean primitif → pas de null check
-
+        existing.setResolu(dto.isResolu());
+        existing.setUserId(dto.getUserId() != null ? dto.getUserId() : existing.getUserId());
         return IncidentMapper.toDto(incidentRepository.save(existing));
     }
 
@@ -60,5 +56,13 @@ public class IncidentServiceImpl implements IncidentService {
             throw new RuntimeException("Incident n'existe pas, id: " + id);
         }
         incidentRepository.deleteById(id);
+    }
+
+    @Override
+    public List<IncidentResponse> getIncidentsByUserId(String userId) {
+        return incidentRepository.findByUserId(userId)
+                .stream()
+                .map(IncidentMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

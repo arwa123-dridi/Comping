@@ -17,5 +17,5 @@ public class IncidentRequest {
     private String descrition;
     private Date dateDeclaration;
     private boolean resolu;
-
+    private String userId;
 }

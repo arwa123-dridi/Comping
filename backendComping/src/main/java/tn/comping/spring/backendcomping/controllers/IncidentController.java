@@ -60,4 +60,8 @@ public class IncidentController {
         service.deleteIncident(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<IncidentResponse>> getIncidentsByUserId(@PathVariable String userId) {
+        return ResponseEntity.ok(service.getIncidentsByUserId(userId));
+    }
 }

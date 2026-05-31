@@ -9,19 +9,19 @@ public class IncidentMapper {
 
     public static Incident toEntity(IncidentRequest dto) {
         if (dto == null) return null;
-
         return Incident.builder()
                 .type(dto.getType())
                 .statut(dto.getStatut())
                 .descrition(dto.getDescrition())
-                .dateDeclaration(dto.getDateDeclaration() != null ? dto.getDateDeclaration() : new Date())
+                .dateDeclaration(dto.getDateDeclaration() != null
+                        ? dto.getDateDeclaration() : new Date())
                 .resolu(dto.isResolu())
+                .userId(dto.getUserId())
                 .build();
     }
 
     public static IncidentResponse toDto(Incident entity) {
         if (entity == null) return null;
-
         return IncidentResponse.builder()
                 .idIncident(entity.getIdIncident())
                 .type(entity.getType())
@@ -29,6 +29,7 @@ public class IncidentMapper {
                 .descrition(entity.getDescrition())
                 .dateDeclaration(entity.getDateDeclaration())
                 .resolu(entity.isResolu())
+                .userId(entity.getUserId())
                 .build();
     }
 }

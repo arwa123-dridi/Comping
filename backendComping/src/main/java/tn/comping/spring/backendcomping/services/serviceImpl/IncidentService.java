@@ -10,4 +10,5 @@ public interface IncidentService {
     IncidentResponse createIncident(IncidentRequest request);
     IncidentResponse updateIncident(String id, IncidentRequest request);
     void deleteIncident(String id);
+    List<IncidentResponse> getIncidentsByUserId(String userId);
 }

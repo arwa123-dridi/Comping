@@ -238,3 +238,6 @@
   color: #fbbf24;
   border-color: rgba(245, 158, 11, 0.3);
 }
+.sidebar-badge--danger {
+  background: #f59e0b;
+}

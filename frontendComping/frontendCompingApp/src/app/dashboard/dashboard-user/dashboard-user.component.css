@@ -62,7 +62,7 @@
   border: 1px solid rgba(74,222,128,.3); color: #4ade80;
   padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;
 }
-.du-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.du-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .du-btn-hero-ghost {
   display: flex; align-items: center; gap: 6px;
   padding: 9px 18px; border-radius: 10px; font-weight: 700; font-size: 13px;
@@ -76,6 +76,36 @@
   box-shadow: 0 4px 14px rgba(61,168,89,.4);
 }
 .du-btn-hero-solid:hover { background: #2d9248; transform: translateY(-1px); }
+
+/* ── Bouton Nouvelle demande transport ────────────── */
+.du-btn-hero-transport {
+  display: flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border-radius: 10px; font-weight: 800; font-size: 13px;
+  background: linear-gradient(135deg, #0369a1, #0ea5e9);
+  color: #fff; text-decoration: none; transition: all .2s;
+  box-shadow: 0 4px 14px rgba(14,165,233,.35); white-space: nowrap;
+}
+.du-btn-hero-transport:hover {
+  background: linear-gradient(135deg, #0284c7, #38bdf8);
+  transform: translateY(-1px); box-shadow: 0 6px 18px rgba(14,165,233,.45);
+}
+
+/* ── Bouton Signaler incident ─────────────────────── */
+.du-btn-hero-incident {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px; border-radius: 12px; font-weight: 800;
+  background: linear-gradient(135deg, #b91c1c, #ef4444);
+  border: none; color: #fff; text-decoration: none;
+  transition: all .2s; white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(239,68,68,.5);
+}
+.du-btn-hero-incident:hover {
+  background: linear-gradient(135deg, #991b1b, #dc2626);
+  transform: translateY(-1px); box-shadow: 0 6px 20px rgba(239,68,68,.6);
+}
+.du-incident-ico   { font-size: 18px; flex-shrink: 0; }
+.du-incident-title { display: block; font-size: 13px; font-weight: 800; line-height: 1.2; }
+.du-incident-sub   { display: block; font-size: 10.5px; opacity: .85; font-weight: 600; margin-top: 1px; }
 
 /* ── BODY ─────────────────────────────────────────── */
 .du-body { max-width: 1200px; margin: 0 auto; padding: 28px 28px 60px; }
@@ -95,10 +125,10 @@
 .du-kpi-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
 }
-.du-kpi-green::before { background: var(--green); }
-.du-kpi-blue::before  { background: var(--blue); }
-.du-kpi-purple::before{ background: var(--purple); }
-.du-kpi-orange::before{ background: var(--orange); }
+.du-kpi-green::before  { background: var(--green); }
+.du-kpi-blue::before   { background: var(--blue); }
+.du-kpi-purple::before { background: var(--purple); }
+.du-kpi-orange::before { background: var(--orange); }
 
 .du-kpi-icon { font-size: 28px; flex-shrink: 0; }
 .du-kpi-data { flex: 1; }
@@ -108,9 +138,9 @@
   font-size: 11px; font-weight: 700; padding: 3px 8px;
   border-radius: 20px; background: #f0fdf4; color: var(--green);
 }
-.du-kpi-blue  .du-kpi-trend { background: #eff6ff; color: var(--blue); }
-.du-kpi-purple.du-kpi-trend { background: #f5f3ff; color: var(--purple); }
-.du-kpi-orange .du-kpi-trend{ background: #fff7ed; color: var(--orange); }
+.du-kpi-blue   .du-kpi-trend { background: #eff6ff; color: var(--blue); }
+.du-kpi-purple .du-kpi-trend { background: #f5f3ff; color: var(--purple); }
+.du-kpi-orange .du-kpi-trend { background: #fff7ed; color: var(--orange); }
 
 /* ── TWO COLUMNS ──────────────────────────────────── */
 .du-two-cols { display: grid; grid-template-columns: 1fr 360px; gap: 22px; }
@@ -130,11 +160,12 @@
   margin: 0; display: flex; align-items: center; gap: 8px;
 }
 .du-title-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.du-dot-green  { background: var(--green); }
-.du-dot-blue   { background: var(--blue); }
-.du-dot-purple { background: var(--purple); }
-.du-dot-orange { background: var(--orange); }
-.du-link-more  { font-size: 12.5px; font-weight: 700; color: var(--green); text-decoration: none; }
+.du-dot-green    { background: var(--green); }
+.du-dot-blue     { background: var(--blue); }
+.du-dot-purple   { background: var(--purple); }
+.du-dot-orange   { background: var(--orange); }
+.du-dot-logistics{ background: #0ea5e9; }
+.du-link-more    { font-size: 12.5px; font-weight: 700; color: var(--green); text-decoration: none; }
 .du-link-more:hover { text-decoration: underline; }
 
 /* ── SORTIE LIST ──────────────────────────────────── */
@@ -142,21 +173,18 @@
 .du-sortie-item {
   display: flex; align-items: center; gap: 14px;
   padding: 10px 12px; border-radius: 12px; cursor: pointer;
-  border: 1px solid var(--border); transition: all .18s;
-  background: #fafbfc;
+  border: 1px solid var(--border); transition: all .18s; background: #fafbfc;
 }
 .du-sortie-item:hover { background: #f0fdf4; border-color: rgba(61,168,89,.3); transform: translateX(3px); }
-.du-sortie-img {
-  width: 70px; height: 52px; border-radius: 10px; overflow: hidden; flex-shrink: 0;
-}
+.du-sortie-img { width: 70px; height: 52px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
 .du-sortie-img img { width: 100%; height: 100%; object-fit: cover; }
 .du-sortie-info { flex: 1; min-width: 0; }
 .du-sortie-titre { font-size: 14px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.du-sortie-meta { display: flex; gap: 12px; font-size: 11.5px; color: var(--muted); margin-top: 3px; font-weight: 600; flex-wrap: wrap; }
-.du-sortie-org  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.du-sortie-meta  { display: flex; gap: 12px; font-size: 11.5px; color: var(--muted); margin-top: 3px; font-weight: 600; flex-wrap: wrap; }
+.du-sortie-org   { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .du-sortie-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
 
-.du-diff-badge { font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+.du-diff-badge    { font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
 .du-diff-facile   { background: #dcfce7; color: #166534; }
 .du-diff-moyen    { background: #fef9c3; color: #854d0e; }
 .du-diff-difficile{ background: #fee2e2; color: #991b1b; }
@@ -172,11 +200,11 @@
 
 /* ── SKELETON ─────────────────────────────────────── */
 .du-sortie-sk { pointer-events: none; }
-.sk-img-sm   { width: 70px; height: 52px; border-radius: 10px; background: #e5e7eb; animation: shimmer 1.2s infinite; }
+.sk-img-sm    { width: 70px; height: 52px; border-radius: 10px; background: #e5e7eb; animation: shimmer 1.2s infinite; }
 .sk-text-block{ flex: 1; display: flex; flex-direction: column; gap: 6px; }
-.sk-l        { height: 10px; border-radius: 6px; background: #e5e7eb; animation: shimmer 1.2s infinite; }
-.sk-l--lg    { width: 70%; }
-.sk-l--sm    { width: 45%; }
+.sk-l         { height: 10px; border-radius: 6px; background: #e5e7eb; animation: shimmer 1.2s infinite; }
+.sk-l--lg     { width: 70%; }
+.sk-l--sm     { width: 45%; }
 @keyframes shimmer { 0%,100%{opacity:1} 50%{opacity:.45} }
 
 /* ── EMPTY STATE ──────────────────────────────────── */
@@ -218,8 +246,7 @@
 .du-reco-btn:hover:not(:disabled) { background: #2d9248; }
 .du-reco-btn:disabled { background: #e5e7eb; color: var(--muted); cursor: not-allowed; }
 
-/* ── ACTIVITY BARS (chart) ────────────────────────── */
-.du-activity-card {}
+/* ── ACTIVITY BARS ────────────────────────────────── */
 .du-activity-bars {
   display: flex; justify-content: space-around; align-items: flex-end;
   height: 110px; gap: 12px; padding: 10px 0 0;
@@ -273,28 +300,46 @@
 .du-quick-planning  { background: linear-gradient(135deg, #1b2a4a, #1f73a3); }
 .du-quick-checklist { background: linear-gradient(135deg, #2d6a4f, #3da859); }
 .du-quick-profile   { background: linear-gradient(135deg, #5b21b6, #7c3aed); }
-.du-quick-ico  { font-size: 26px; }
-.du-quick-title{ font-size: 14px; font-weight: 800; }
-.du-quick-sub  { font-size: 11px; opacity: .75; font-weight: 600; margin-top: 2px; }
+.du-quick-ico   { font-size: 26px; }
+.du-quick-title { font-size: 14px; font-weight: 800; }
+.du-quick-sub   { font-size: 11px; opacity: .75; font-weight: 600; margin-top: 2px; }
 
-/* ── Bouton Nouvelle demande transport ────────────── */
-.du-btn-hero-transport {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 18px;
-  border-radius: 10px;
-  font-weight: 800;
-  font-size: 13px;
-  background: linear-gradient(135deg, #0369a1, #0ea5e9);
-  color: #fff;
-  text-decoration: none;
-  transition: all .2s;
-  box-shadow: 0 4px 14px rgba(14,165,233,.35);
-  white-space: nowrap;
+/* ── LOGISTIQUE MENU ──────────────────────────────── */
+.du-dot-logistics { background: #0ea5e9; }
+
+.du-logistics-list { display: flex; flex-direction: column; gap: 6px; }
+
+.du-logistics-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 12px; border-radius: 11px; cursor: pointer;
+  text-decoration: none; color: var(--text);
+  border: 1px solid transparent; transition: all .18s; background: #fafbfc;
 }
-.du-btn-hero-transport:hover {
-  background: linear-gradient(135deg, #0284c7, #38bdf8);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(14,165,233,.45);
+.du-logistics-item:hover {
+  background: #f0f9ff; border-color: rgba(14,165,233,.25); transform: translateX(3px);
 }
+.du-logistics-item--danger:hover {
+  background: #fff7ed; border-color: rgba(245,158,11,.3);
+}
+.du-logistics-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; flex-shrink: 0;
+}
+.du-logistics-icon--transport { background: #e0f2fe; }
+.du-logistics-icon--livraison { background: #f0fdf4; }
+.du-logistics-icon--facture   { background: #fefce8; }
+.du-logistics-icon--incident  { background: #fff7ed; }
+
+.du-logistics-info { flex: 1; min-width: 0; }
+.du-logistics-title {
+  font-size: 13.5px; font-weight: 800; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.du-logistics-sub  { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 1px; }
+
+.du-logistics-badge {
+  background: #0ea5e9; color: #fff; font-size: 10.5px; font-weight: 800;
+  padding: 2px 7px; border-radius: 20px; flex-shrink: 0;
+}
+.du-logistics-item svg { color: var(--muted); flex-shrink: 0; }

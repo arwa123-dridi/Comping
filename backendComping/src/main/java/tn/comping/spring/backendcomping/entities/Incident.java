@@ -21,5 +21,5 @@ public class Incident {
     private String descrition;
     private Date dateDeclaration;
     private boolean resolu;
-
+    private String userId;
 }
