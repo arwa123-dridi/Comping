@@ -229,3 +229,107 @@ td {
   margin-left: 8px;
   font-weight: bold;
 }
+
+/* =====================================
+   DELETE MODAL — PREMIUM TOP POPUP
+===================================== */
+
+/* Overlay */
+.delete-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* ⭐ TOP POSITION */
+  padding-top: 80px;       /* distance from top */
+  z-index: 999;
+  animation: fadeIn 0.25s ease;
+}
+
+/* Modal card */
+.delete-modal {
+  width: 380px;
+  background: white;
+  border-radius: 18px;
+  padding: 28px 30px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  animation: slideDown 0.35s ease;
+}
+
+/* Warning icon */
+.delete-icon {
+  font-size: 38px;
+  margin-bottom: 10px;
+}
+
+/* Title */
+.delete-modal h2 {
+  margin: 10px 0 6px;
+  font-size: 22px;
+  color: #0f172a;
+}
+
+/* Text */
+.delete-modal p {
+  color: #64748b;
+  margin-bottom: 22px;
+}
+
+/* Buttons container */
+.delete-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* Cancel button */
+.btn-cancel {
+  background: #f1f5f9;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #e2e8f0;
+}
+
+/* Danger button */
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
