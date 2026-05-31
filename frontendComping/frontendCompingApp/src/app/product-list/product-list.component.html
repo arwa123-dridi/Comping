@@ -176,19 +176,26 @@
 <!-- ========================= -->
 <!-- DELETE CONFIRM MODAL -->
 <!-- ========================= -->
-<div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
 
-    <h3>Confirmation</h3>
-    <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
+<div class="delete-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
 
-    <div class="actions center">
-      <button class="btn delete" (click)="deleteConfirmed()">
-        Oui
+  <div class="delete-modal" (click)="$event.stopPropagation()">
+
+    <!-- ICON -->
+    <div class="delete-icon">⚠️</div>
+
+    <!-- TEXT -->
+    <h2>Supprimer ce produit ?</h2>
+    <p>Cette action est irréversible.</p>
+
+    <!-- BUTTONS -->
+    <div class="delete-actions">
+      <button class="btn-cancel" (click)="cancelDelete()">
+        Annuler
       </button>
 
-      <button class="btn cancel" (click)="cancelDelete()">
-        Annuler
+      <button class="btn-danger" (click)="deleteConfirmed()">
+        Supprimer
       </button>
     </div>
 
