@@ -319,12 +319,12 @@
     gap: 1rem;
     align-items: flex-start;
   }
-  
+
   .reco-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .reco-card:hover {
     transform: none;
   }

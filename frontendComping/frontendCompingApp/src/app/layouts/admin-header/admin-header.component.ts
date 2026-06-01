@@ -11,6 +11,7 @@ import { SigninService } from '../../services/signin.service';
   styleUrl: './admin-header.component.css'
 })
 export class AdminHeaderComponent implements OnInit {
+
   @Output() sidebarToggle = new EventEmitter<void>();
 
   isDark = false;
@@ -18,17 +19,20 @@ export class AdminHeaderComponent implements OnInit {
   showUserMenu = false;
   notifCount = 2;
 
-  // Dynamic user info from localStorage
   userName = 'Utilisateur';
   userEmail = '';
   userRole = '';
   userInitiales = 'U';
 
-  constructor(private signinService: SigninService, private router: Router) {}
+  constructor(
+    private signinService: SigninService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     const nom    = localStorage.getItem('userNom')    ?? '';
     const prenom = localStorage.getItem('userPrenom') ?? '';
+
     this.userEmail = localStorage.getItem('userEmail') ?? '';
     this.userRole  = localStorage.getItem('userRole')  ?? '';
 
@@ -51,7 +55,9 @@ export class AdminHeaderComponent implements OnInit {
     return 'Utilisateur';
   }
 
-  toggleSidebar(): void { this.sidebarToggle.emit(); }
+  toggleSidebar(): void {
+    this.sidebarToggle.emit();
+  }
 
   toggleTheme(): void {
     this.isDark = !this.isDark;

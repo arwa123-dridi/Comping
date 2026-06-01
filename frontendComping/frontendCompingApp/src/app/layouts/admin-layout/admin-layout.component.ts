@@ -22,4 +22,8 @@ import { AdminHeaderComponent } from '../admin-header/admin-header.component';
 })
 export class AdminLayoutComponent {
   sidebarCollapsed = false;
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
 }

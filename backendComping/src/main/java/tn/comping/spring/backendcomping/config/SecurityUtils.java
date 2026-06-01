@@ -17,13 +17,22 @@ public class SecurityUtils {
 
     public String getCurrentUserId() {
         try {
-            var request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-            String authHeader = request.getHeader("Authorization");
+            ServletRequestAttributes attributes =
+                    (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+            if (attributes == null) {
+                // Comportement HEAD : NullPointerException (car attributes.getRequest() aurait planté)
+                throw new NullPointerException("Aucune requête HTTP associée");
+            }
+
+            String authHeader = attributes.getRequest().getHeader("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token manquant");
             }
             String token = authHeader.substring(7);
             return jwtUtils.getIdFromToken(token);
+        } catch (ResponseStatusException e) {
+            throw e;
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token invalide : " + e.getMessage());
         }

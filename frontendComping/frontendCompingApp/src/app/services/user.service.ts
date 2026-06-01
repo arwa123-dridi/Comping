@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { User } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
@@ -17,12 +16,13 @@ export class UserService {
     });
   }
 
-  getAllUsers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.base}/users`, { headers: this.headers() });
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.base}/users`, { headers: this.headers() });
   }
 
+  // ✅ Utilise l'endpoint /count (plus efficace)
   getTotalUsers(): Observable<number> {
-    return this.getAllUsers().pipe(map(users => users.length));
+    return this.http.get<number>(`${this.base}/users/count`, { headers: this.headers() });
   }
 
   updateUserStatus(id: string, actif: boolean): Observable<any> {
@@ -34,7 +34,10 @@ export class UserService {
   }
 
   deleteUser(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.base}/users/${id}`, { headers: this.headers() });
+    return this.http.delete<void>(`${this.base}/users/${id}`, {
+      headers: this.headers(),
+      responseType: 'text' as 'json'
+    });
   }
 
   getUserById(id: string): Observable<any> {
@@ -48,5 +51,4 @@ export class UserService {
   updatePassword(id: string, payload: { currentPassword: string; newPassword: string }): Observable<any> {
     return this.http.patch<any>(`${this.base}/users/${id}/password`, payload, { headers: this.headers() });
   }
-
 }

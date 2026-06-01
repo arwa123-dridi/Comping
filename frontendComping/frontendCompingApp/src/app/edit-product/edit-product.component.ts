@@ -14,6 +14,10 @@ interface Product {
   quantiteStock?: number;
   seuilAlerteStock?: number;
   imageUrl?: string;
+  // 🆕 PROMOTION
+  promoPrice?: number;
+  promoStart?: string;
+  promoEnd?: string;
 }
 
 @Component({
@@ -61,7 +65,11 @@ export class EditProductComponent implements OnInit, OnChanges {
     statut: 'Disponible',
     quantiteStock: 0,        // ✅ AJOUT
     seuilAlerteStock: 0,
-    imageUrl: ''
+    imageUrl: '',
+    // 🆕 PROMO INIT
+    promoPrice: undefined,
+    promoStart: undefined,
+    promoEnd: undefined
   };
 
   selectedFile!: File;
@@ -89,6 +97,10 @@ export class EditProductComponent implements OnInit, OnChanges {
           quantiteStock: data.quantiteStock ?? 0,        // ✅ AJOUT
           seuilAlerteStock: data.seuilAlerteStock ?? 0,
           statut: data.statut ?? 'Disponible',
+          // 🆕 PROMO
+          promoPrice: data.promoPrice,
+          promoStart: data.promoStart,
+          promoEnd: data.promoEnd,
           imageUrl: data.imageUrl
             ? `http://localhost:8087${data.imageUrl}`
             : this.defaultImage
@@ -138,6 +150,18 @@ export class EditProductComponent implements OnInit, OnChanges {
       return;
     }
 
+    if (this.product.promoPrice) {
+      if (!this.product.promoStart || !this.product.promoEnd) {
+        this.toastr.warning("Veuillez remplir les dates de promotion");
+        return;
+      }
+
+      if (this.product.promoPrice >= this.product.prixProduit) {
+        this.toastr.warning("Le prix promo doit être inférieur au prix normal");
+        return;
+      }
+    }
+
     const formData = new FormData();
 
     formData.append('produit', JSON.stringify({
@@ -147,7 +171,11 @@ export class EditProductComponent implements OnInit, OnChanges {
       categorieProduit: this.product.categorieProduit, // ⭐ STRING ENUM
       quantiteStock: this.product.quantiteStock,         // ✅ AJOUT
       seuilAlerteStock: this.product.seuilAlerteStock,
-      statut: this.product.statut
+      statut: this.product.statut,
+      // 🆕 PROMOTION
+      promoPrice: this.product.promoPrice,
+      promoStart: this.product.promoStart,
+      promoEnd: this.product.promoEnd
     }));
 
     if (this.selectedFile) {

@@ -1,49 +1,123 @@
 <div class="detail-page" *ngIf="product">
 
-  <!-- LEFT: IMAGE -->
-  <div class="image-section">
-    <img [src]="product.imageUrl" alt="product image" />
-  </div>
+  <!-- HEADER -->
+  <div class="top-bar">
 
-  <!-- RIGHT: INFO -->
-  <div class="info-section">
-
-    <div class="header">
+    <div class="left">
       <h1>{{ product.nomProduit }}</h1>
-      <span class="status" [ngClass]="product.statut">
-        {{ product.statut }}
-      </span>
+      <p>ID: #{{ product.id }}</p>
     </div>
 
-    <p class="description">
-      {{ product.descriptionProduit }}
-    </p>
+    <div class="right">
 
-    <div class="price">
-      {{ product.prixProduit }} TND
+      <!-- EDIT -->
+      <button class="btn edit" (click)="openEdit()">
+        ✏️ Modifier
+      </button>
+
+      <!-- DELETE -->
+      <button class="btn delete" (click)="confirmDelete(product.id)">
+        🗑 Supprimer
+      </button>
+
+      <!-- BACK -->
+      <button class="btn back" (click)="goBack()">
+        ⬅ Retour
+      </button>
+
     </div>
-
-    <div class="grid">
-      <div class="card">
-        <h4>Catégorie</h4>
-        <p>{{ product.categorieProduit }}</p>
-      </div>
-
-      <div class="card">
-        <h4>Quantité stock</h4>
-        <p>{{ product.quantiteStock }}</p>
-      </div>
-
-      <div class="card">
-        <h4>Seuil d’alerte</h4>
-        <p>{{ product.seuilAlerteStock }}</p>
-      </div>
-    </div>
-
-<button class="btn secondary" (click)="goBack()">
-  Retour
-</button>
-
   </div>
 
+  <!-- MAIN CONTENT -->
+  <div class="content">
+
+    <!-- IMAGE -->
+    <div class="image-card">
+      <img [src]="product.imageUrl" alt="product image" />
+    </div>
+
+    <!-- INFO -->
+    <div class="info">
+
+      <!-- PRICE -->
+      <div class="price">
+        {{ product.prixProduit }} TND
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="block">
+        <h3>Description</h3>
+        <p>{{ product.descriptionProduit }}</p>
+      </div>
+
+      <!-- DETAILS GRID -->
+      <div class="grid">
+
+        <div class="item">
+          <label>Catégorie</label>
+          <span>{{ product.categorieProduit }}</span>
+        </div>
+
+        <div class="item">
+          <label>Stock actuel</label>
+          <span>{{ product.quantiteStock }}</span>
+        </div>
+
+        <div class="item">
+          <label>Seuil d’alerte</label>
+          <span>{{ product.seuilAlerteStock }}</span>
+        </div>
+
+        <div class="item">
+          <label>Statut</label>
+          <span class="status small" [ngClass]="product.statut">
+            {{ product.statut }}
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ========================= -->
+<!-- EDIT MODAL -->
+<!-- ========================= -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="cancelEdit()">
+
+  <div class="modal-content large" (click)="$event.stopPropagation()">
+
+    <app-edit-product
+      [productId]="product?.id"
+      (close)="cancelEdit()"
+      (productUpdated)="onProductUpdated()">
+    </app-edit-product>
+
+  </div>
+</div>
+
+<!-- ========================= -->
+<!-- DELETE MODAL -->
+<!-- ========================= -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
+
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <h3>Confirmation</h3>
+    <p>Voulez-vous vraiment supprimer ce produit ?</p>
+
+    <div class="actions">
+
+      <button class="btn delete" (click)="deleteProduct()">
+        Oui, supprimer
+      </button>
+
+      <button class="btn back" (click)="cancelDelete()">
+          Annuler
+      </button>
+
+    </div>
+
+  </div>
 </div>

@@ -1,14 +1,9 @@
 package tn.comping.spring.backendcomping.services.serviceImpl;
 
 import lombok.RequiredArgsConstructor;
-
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,9 +11,12 @@ import tn.comping.spring.backendcomping.config.JwtUtils;
 import tn.comping.spring.backendcomping.dto.LoginDTORequest;
 import tn.comping.spring.backendcomping.dto.LoginDTOResponse;
 import tn.comping.spring.backendcomping.dto.SignupDTO;
+import tn.comping.spring.backendcomping.entities.Role;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.repositories.SignupRepository;
 import tn.comping.spring.backendcomping.utils.mapper.SignupMapper;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -47,8 +45,7 @@ public class SignupServiceImpl implements SignupService {
         SignupEntity user = signupRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-
-        if (!user.isStatut()) {
+        if (!user.isStatut() && user.getRole() != Role.ADMIN) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "ACCOUNT_DISABLED"
@@ -61,8 +58,7 @@ public class SignupServiceImpl implements SignupService {
                     "INVALID_PASSWORD"
             );
         }
-        String token = jwtUtils.generateToken(user.getEmail(),user.getId(),user.getRole());
-
+        String token = jwtUtils.generateToken(user.getEmail(), user.getId(), user.getRole());
 
         return new LoginDTOResponse(token);
     }
@@ -72,5 +68,14 @@ public class SignupServiceImpl implements SignupService {
         return signupRepository.count();
     }
 
+    // ========== MÉTHODES AJOUTÉES PAR MARIEM ==========
+    public SignupEntity getUserById(String id) {
+        return signupRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
 
+    @Override
+    public List<SignupEntity> getLivreurs() {
+        return signupRepository.findByRole(Role.LIVREUR);
+    }
 }

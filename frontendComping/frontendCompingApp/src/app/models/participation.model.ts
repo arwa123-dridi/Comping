@@ -11,5 +11,5 @@ export interface ParticipationDTO {
   dateInscription?: Date;
   statutPresence?: string;
   aValideChecklist?: boolean;
-  message?: string;   
+  message?: string;
 }

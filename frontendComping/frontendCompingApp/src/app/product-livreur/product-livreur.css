@@ -1,0 +1,433 @@
+/* ============================================================
+   CAMPING LIVRAISONS — Stylesheet
+   ============================================================ */
+ 
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap');
+ 
+
+ 
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+ 
+/* ── Base ── */
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--parchment);
+  color: var(--text);
+  min-height: 100vh;
+}
+ 
+/* ── Page wrapper ── */
+.page {
+  position: relative;
+  overflow: hidden;
+}
+ 
+/* Subtle dot-grid texture overlay */
+.page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, #c5b8a8 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 0;
+}
+ 
+/* ── Top Bar ── */
+.topbar {
+  background: var(--forest);
+  padding: 28px 32px 26px;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+ 
+/* Decorative circles inside topbar */
+.topbar::before {
+  content: '';
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: rgba(111, 168, 122, 0.12);
+}
+ 
+.topbar::after {
+  content: '';
+  position: absolute;
+  bottom: -25px;
+  left: 35%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(200, 121, 65, 0.10);
+}
+ 
+.topbar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
+}
+ 
+.topbar h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+ 
+.topbar h1 i {
+  font-size: 22px;
+  color: var(--amber-light);
+}
+ 
+.topbar p {
+  font-size: 13px;
+  color: var(--sage);
+  margin-top: 6px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+ 
+.count-pill {
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 16px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+ 
+.count-pill i {
+  color: var(--amber-light);
+  font-size: 15px;
+}
+ 
+/* ── Content area ── */
+.content {
+  padding: 28px 28px 36px;
+  position: relative;
+  z-index: 1;
+}
+ 
+/* ── Grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 20px;
+}
+ 
+/* ── Card ── */
+.card {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e8e0d5;
+  overflow: hidden;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  animation: fadeUp 0.35s ease both;
+}
+ 
+.card:nth-child(1) { animation-delay: 0.05s; }
+.card:nth-child(2) { animation-delay: 0.12s; }
+.card:nth-child(3) { animation-delay: 0.19s; }
+.card:nth-child(4) { animation-delay: 0.26s; }
+.card:nth-child(5) { animation-delay: 0.33s; }
+ 
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 44px rgba(30, 26, 22, 0.11);
+}
+ 
+/* Gradient top stripe */
+.card-accent {
+  height: 4px;
+  background: linear-gradient(90deg, var(--pine), var(--fern), var(--amber));
+}
+ 
+.card-body {
+  padding: 18px 18px 16px;
+}
+ 
+/* ── Card Header ── */
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+ 
+.order-id {
+  font-family: 'DM Serif Display', serif;
+  font-size: 17px;
+  color: var(--forest);
+  font-weight: 400;
+}
+ 
+.order-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: 400;
+}
+ 
+/* ── Trail tag (En cours pill) ── */
+.trail-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--amber-pale);
+  color: var(--amber);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid #f0d4a8;
+  margin-bottom: 10px;
+}
+ 
+.trail-tag i {
+  font-size: 12px;
+}
+ 
+/* ── Badges ── */
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+ 
+.badge.EN_PREPARATION {
+  background: #e0f0ff;
+  color: #1560a0;
+}
+ 
+.badge.EXPEDIEE {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+ 
+.badge.CONFIRMEE {
+  background: #fff3cd;
+  color: #92650a;
+}
+ 
+.badge.LIVREE {
+  background: var(--mist);
+  color: var(--pine);
+}
+ 
+/* ── Delivery box ── */
+.delivery-box {
+  background: var(--mist);
+  border-radius: 12px;
+  padding: 13px 14px;
+  margin-bottom: 14px;
+}
+ 
+.delivery-box-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  color: var(--moss);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+ 
+.delivery-box-title i {
+  font-size: 13px;
+}
+ 
+.delivery-row {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  margin-bottom: 5px;
+  color: var(--text);
+  align-items: baseline;
+  line-height: 1.45;
+}
+ 
+.delivery-row:last-child {
+  margin-bottom: 0;
+}
+ 
+.delivery-label {
+  color: var(--stone);
+  font-size: 12px;
+  font-weight: 500;
+  flex-shrink: 0;
+  width: 62px;
+}
+ 
+/* ── Info grid ── */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+ 
+.info-cell {
+  background: var(--smoke);
+  border-radius: 10px;
+  padding: 9px 11px;
+}
+ 
+.info-cell.full {
+  grid-column: 1 / -1;
+}
+ 
+.info-cell-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--stone);
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+ 
+.info-cell-label i {
+  font-size: 12px;
+}
+ 
+.info-cell-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--forest);
+}
+ 
+/* ── Button ── */
+.btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: var(--forest);
+  color: #ffffff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s ease, transform 0.15s ease;
+  letter-spacing: 0.2px;
+}
+ 
+.btn i {
+  font-size: 16px;
+}
+ 
+.btn:hover {
+  background: var(--pine);
+  transform: scale(1.015);
+}
+ 
+.btn:active {
+  transform: scale(0.99);
+}
+ 
+/* ── Done tag ── */
+.done-tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px;
+  border-radius: 12px;
+  background: var(--mist);
+  color: var(--pine);
+  font-size: 14px;
+  font-weight: 600;
+}
+ 
+.done-tag i {
+  font-size: 16px;
+}
+ 
+/* ── Empty state ── */
+.empty {
+  text-align: center;
+  padding: 100px 24px;
+  color: var(--text-muted);
+}
+ 
+.empty i {
+  font-size: 56px;
+  color: var(--sage);
+  display: block;
+  margin-bottom: 16px;
+}
+ 
+.empty p {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--stone);
+  font-weight: 400;
+}
+ 
+/* ── Animation ── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+ 
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .topbar {
+    padding: 20px 18px;
+  }
+ 
+  .topbar h1 {
+    font-size: 20px;
+  }
+ 
+  .content {
+    padding: 18px 14px 28px;
+  }
+ 
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+ 
+  .count-pill {
+    display: none;
+  }
+}

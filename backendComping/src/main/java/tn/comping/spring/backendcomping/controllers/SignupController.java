@@ -1,19 +1,15 @@
 package tn.comping.spring.backendcomping.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
 import tn.comping.spring.backendcomping.dto.SignupDTO;
 
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
-
 public class SignupController {
 
     private final SignupService signupService;
@@ -33,5 +29,15 @@ public class SignupController {
         }
     }
 
+    // Get user by ID (ajouté par Mariem)
+    @GetMapping("/getUserById/{id}")
+    public SignupEntity getUserById(@PathVariable String id) {
+        return signupService.getUserById(id);
+    }
 
+    // Get all livreurs (delivery users) (ajouté par Mariem)
+    @GetMapping("/livreurs")
+    public ResponseEntity<List<SignupEntity>> getLivreurs() {
+        return ResponseEntity.ok(signupService.getLivreurs());
+    }
 }

@@ -16,10 +16,12 @@ public interface ProduitInter {
 
     ResponseProduitDTO updateProduit(String id, RequestProduitDTO produitDTO, MultipartFile image);
 
-     ResponseProduitDTO getProduitById(String id);
-
+    ResponseProduitDTO getProduitById(String id);
 
     String deleteProduit(String id);
 
-     List<ResponseProduitDTO> searchProduitsByName(String nomProduit);
+    List<ResponseProduitDTO> searchProduitsByName(String nomProduit);
+
+    // ⭐ ADD THIS METHOD (for cart promo price)
+    Double calculateFinalPrice(Produit produit);
 }

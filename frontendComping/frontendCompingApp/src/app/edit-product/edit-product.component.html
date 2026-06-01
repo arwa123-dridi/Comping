@@ -2,65 +2,117 @@
 
   <div class="modal-card">
 
+    <!-- HEADER -->
     <div class="modal-header">
-      <h2>Modifier le produit</h2>
+      <div>
+        <h2>⛺ Modifier le produit</h2>
+        <p class="subtitle">Mettre à jour un équipement de camping</p>
+      </div>
+
       <button class="close-btn" (click)="cancel()">✖</button>
     </div>
 
     <form (ngSubmit)="saveProduct()" class="modal-form">
 
-      <label>Nom du produit</label>
-      <input type="text" [(ngModel)]="product.nomProduit" name="nomProduit" required />
+      <!-- SECTION 1 -->
+      <div class="form-section">
+        <h3>Informations générales</h3>
 
-      <label>Description</label>
-      <input type="text" [(ngModel)]="product.descriptionProduit" name="descriptionProduit" />
+        <div class="grid-2">
+          <div class="field">
+            <label>Nom du produit</label>
+            <input type="text" [(ngModel)]="product.nomProduit" name="nomProduit" required />
+          </div>
 
-      <label>Prix</label>
-      <input type="number" [(ngModel)]="product.prixProduit" name="prixProduit" required />
-
-      <label>Catégorie</label>
-      <select [(ngModel)]="product.categorieProduit" name="categorieProduit" required>
-        <option [ngValue]="null" disabled>Choisir une catégorie</option>
-        <option *ngFor="let cat of categories" [ngValue]="cat.value">
-          {{ cat.label }}
-        </option>
-      </select>
-
-      <label>Quantité en stock</label>
-      <input type="number" [(ngModel)]="product.quantiteStock" name="quantiteStock" min="0" required />
-      <label>Seuil d'alerte stock</label>
-      <input type="number" [(ngModel)]="product.seuilAlerteStock" name="seuilAlerteStock" min="0" required />
-
-      <label>Image du produit</label>
-
-      <div class="upload-box" (click)="fileInput.click()">
-        <input #fileInput type="file" (change)="onFileSelected($event)" accept="image/*" hidden />
-
-        <div *ngIf="!product.imageUrl" class="upload-placeholder">
-
-          <!-- Upload icon -->
-          <svg width="40" height="40" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24">
-            <path d="M12 16V4"></path>
-            <path d="M8 8l4-4 4 4"></path>
-            <path d="M4 20h16"></path>
-          </svg>
-
-          <p>Cliquer ou glisser une image</p>
+          <div class="field">
+            <label>Prix (TND)</label>
+            <input type="number" [(ngModel)]="product.prixProduit" name="prixProduit" required />
+          </div>
         </div>
 
-        <div *ngIf="product.imageUrl" class="image-preview">
-          <img [src]="product.imageUrl" alt="Preview" />
-          <button type="button" class="remove-btn" (click)="removeImage($event)">✖</button>
+        <div class="field">
+          <label>Description</label>
+          <textarea [(ngModel)]="product.descriptionProduit" name="descriptionProduit"></textarea>
         </div>
       </div>
 
+      <!-- SECTION 2 -->
+      <div class="form-section">
+        <h3>Classification & Stock</h3>
+
+        <div class="grid-3">
+          <div class="field">
+            <label>Catégorie</label>
+            <select [(ngModel)]="product.categorieProduit" name="categorieProduit">
+              <option [ngValue]="null">Choisir</option>
+              <option *ngFor="let cat of categories" [ngValue]="cat.value">
+                {{ cat.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Stock</label>
+            <input type="number" [(ngModel)]="product.quantiteStock" name="quantiteStock" />
+          </div>
+
+          <div class="field">
+            <label>Seuil alerte</label>
+            <input type="number" [(ngModel)]="product.seuilAlerteStock" name="seuilAlerteStock" />
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3 -->
+      <div class="form-section">
+        <h3>Image produit</h3>
+
+        <div class="upload-box" (click)="fileInput.click()">
+          <input #fileInput type="file" (change)="onFileSelected($event)" hidden />
+
+          <div *ngIf="!product.imageUrl" class="upload-placeholder">
+            ⛺
+            <p>Modifier l’image du produit</p>
+          </div>
+
+          <div *ngIf="product.imageUrl" class="image-preview">
+            <img [src]="product.imageUrl" />
+            <button type="button" class="remove-btn" (click)="removeImage($event)">✖</button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ================= SECTION 4 ================= -->
+      <div class="form-section">
+        <h3>Promotion</h3>
+
+        <div class="grid-3">
+
+          <div class="field">
+            <label>Prix promotion</label>
+            <input type="number" [(ngModel)]="product.promoPrice" name="promoPrice" />
+          </div>
+
+          <div class="field">
+            <label>Début promotion</label>
+            <input type="datetime-local" [(ngModel)]="product.promoStart" name="promoStart" />
+          </div>
+
+          <div class="field">
+            <label>Fin promotion</label>
+            <input type="datetime-local" [(ngModel)]="product.promoEnd" name="promoEnd" />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
       <div class="modal-actions">
-        <button type="submit" class="save-btn">Enregistrer</button>
+        <button type="submit" class="save-btn">✔ Enregistrer modifications</button>
         <button type="button" class="cancel-btn" (click)="cancel()">Annuler</button>
       </div>
 
     </form>
-
   </div>
-
 </div>

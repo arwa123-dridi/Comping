@@ -13,4 +13,5 @@ public class AvisRequestDTO {
     private String commentaire;
     private String cibleId;
     private TypeCible typeCible;
+    private String parentAvisId;
 }

@@ -13,11 +13,17 @@ interface Product {
   nomProduit: string;
   descriptionProduit: string;
   prixProduit: number;
+  prixFinal?: number;      // 👈 ADD
+  hasPromotion?: boolean;
   categorieProduit: string;
   statut: string;
   imageUrl?: string;
-   quantiteStock?: number;
+  quantiteStock?: number;
   seuilAlerteStock?: number;
+  promoPrice?: number;
+  promoStart?: string; // ISO string from backend
+  promoEnd?: string;
+  promotionActive?: boolean;
 }
 
 @Component({
@@ -35,27 +41,27 @@ interface Product {
   styleUrls: ['./product-list.component.css']
 })
 export class ProductListComponent implements OnInit {
-selectedCategory: string = '';
-selectedStatus: string = '';
+  selectedCategory: string = '';
+  selectedStatus: string = '';
 
-categories: string[] = [
-  'TENTES',
-  'SACS_DE_COUCHAGE',
-  'MATELAS_ET_TAPIS_DE_SOL',
-  'CUISINE_DE_CAMPING',
-  'GLACIERES',
-  'STOCKAGE_EAU',
-  'ECLAIRAGE',
-  'ENERGIE_PORTABLE',
-  'SACS_A_DOS',
-  'EQUIPEMENT_DE_RANDONNEE',
-  'SURVIE_ET_SECOURS',
-  'MOBILIER_DE_CAMPING',
-  'ABRIS_ET_TARP',
-  'VETEMENTS_DE_CAMPING',
-  'CHAUSSURES_DE_RANDONNEE',
-  'AUTRE'
-];
+  categories: string[] = [
+    'TENTES',
+    'SACS_DE_COUCHAGE',
+    'MATELAS_ET_TAPIS_DE_SOL',
+    'CUISINE_DE_CAMPING',
+    'GLACIERES',
+    'STOCKAGE_EAU',
+    'ECLAIRAGE',
+    'ENERGIE_PORTABLE',
+    'SACS_A_DOS',
+    'EQUIPEMENT_DE_RANDONNEE',
+    'SURVIE_ET_SECOURS',
+    'MOBILIER_DE_CAMPING',
+    'ABRIS_ET_TARP',
+    'VETEMENTS_DE_CAMPING',
+    'CHAUSSURES_DE_RANDONNEE',
+    'AUTRE'
+  ];
   products: Product[] = [];
   filteredProducts: Product[] = [];
   searchTerm: string = '';
@@ -75,8 +81,8 @@ categories: string[] = [
   constructor(
     private http: HttpClient,
     private toastr: ToastrService,
-      private router: Router
-  ) {}
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.loadProducts();
@@ -84,9 +90,15 @@ categories: string[] = [
 
   /** Load products */
   loadProducts() {
-    this.http.get<any[]>(`${this.baseUrl}/allProduct`).subscribe({
-      next: (data) => {
-        this.products = data.map(p => ({
+  this.http.get<any[]>(`${this.baseUrl}/allProduct`).subscribe({
+    next: (data) => {
+
+      this.products = data.map(p => {
+
+        // ⭐ CALCULATE PROMO HERE (missing part)
+        const promoActive = this.isPromotionActive(p);
+
+        return {
           id: p.id ?? p._id ?? '',
           nomProduit: p.nomProduit,
           descriptionProduit: p.descriptionProduit,
@@ -94,17 +106,28 @@ categories: string[] = [
           categorieProduit: p.categorieProduit,
           quantiteStock: p.quantiteStock,
           seuilAlerteStock: p.seuilAlerteStock,
+          promoPrice: p.promoPrice,
+          promoStart: p.promoStart,
+          promoEnd: p.promoEnd,
           statut: p.statut,
+
           imageUrl: p.imageUrl
             ? `http://localhost:8087${p.imageUrl}`
-            : this.defaultImage
-        }));
+            : this.defaultImage,
 
-        this.filteredProducts = [...this.products];
-      },
-      error: () => this.toastr.error('Erreur chargement produits ❌')
-    });
-  }
+          // 🔥 FINAL PROMO LOGIC
+          promotionActive: promoActive,
+          prixFinal: promoActive ? p.promoPrice : p.prixProduit,
+          hasPromotion: promoActive
+        };
+
+      });
+
+      this.filteredProducts = [...this.products];
+    },
+    error: () => this.toastr.error('Erreur chargement produits ❌')
+  });
+}
 
   /** Search */
   onSearchChange() {
@@ -171,24 +194,36 @@ categories: string[] = [
   }
 
   applyFilters() {
-  this.filteredProducts = this.products.filter(p => {
+    this.filteredProducts = this.products.filter(p => {
 
-    const matchSearch =
-      !this.searchTerm ||
-      p.nomProduit.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const matchSearch =
+        !this.searchTerm ||
+        p.nomProduit.toLowerCase().includes(this.searchTerm.toLowerCase());
 
-    const matchCategory =
-      !this.selectedCategory ||
-      p.categorieProduit === this.selectedCategory;
+      const matchCategory =
+        !this.selectedCategory ||
+        p.categorieProduit === this.selectedCategory;
 
-    const matchStatus =
-      !this.selectedStatus ||
-      p.statut === this.selectedStatus;
+      const matchStatus =
+        !this.selectedStatus ||
+        p.statut === this.selectedStatus;
 
-    return matchSearch && matchCategory && matchStatus;
-  });
+      return matchSearch && matchCategory && matchStatus;
+    });
+  }
+
+  viewProduct(id: string) {
+    this.router.navigate(['/products', id]);
+  }
+
+  isPromotionActive(p: any): boolean {
+  if (!p.promoPrice || !p.promoStart || !p.promoEnd) return false;
+
+  const now = new Date();
+  const start = new Date(p.promoStart);
+  const end = new Date(p.promoEnd);
+
+  return now >= start && now <= end;
 }
-viewProduct(id: string) {
-  this.router.navigate(['/products', id]);
-}
+
 }

@@ -3,6 +3,7 @@ package tn.comping.spring.backendcomping.config;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import tn.comping.spring.backendcomping.entities.Role;
 
@@ -13,29 +14,33 @@ import java.util.Set;
 
 @Component
 public class JwtUtils {
-    private final String jwtSecret="compingSecretKeyForJWTMustBe256BitsLongAtLeast!!";
 
-    //token session duration in milliseconds (10 minutes)
-    private final long jwtExpirationMs = 600000;
+    // Valeur par défaut si JWT_SECRET n'est pas définie (fallback)
+    @Value("${JWT_SECRET:compingSecretKeyForJWTMustBe256BitsLongAtLeast!!}")
+    private String jwtSecret;
+
+    // 30 jours (comme Mariem) pour rester connecté
+    private final long jwtExpirationMs = 2592000000L;
+
     private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
+
     private Key getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes();
         return Keys.hmacShaKeyFor(keyBytes);
     }
-    public String generateToken(String email,String id, Role role){
 
+    public String generateToken(String email, String id, Role role) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("id", id)
                 .claim("role", role.name())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime()+jwtExpirationMs))
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String getEmailFromToken(String token){
-
+    public String getEmailFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
@@ -43,7 +48,8 @@ public class JwtUtils {
                 .getBody()
                 .getSubject();
     }
-    public String getIdFromToken(String token){
+
+    public String getIdFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
@@ -51,18 +57,17 @@ public class JwtUtils {
                 .getBody()
                 .get("id", String.class);
     }
-    public boolean validateJwtToken(String token){
 
-        try{
+    public boolean validateJwtToken(String token) {
+        try {
             if (blacklistedTokens.contains(token)) return false;
-
             Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
             return true;
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
+
     public String getRoleFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -71,6 +76,7 @@ public class JwtUtils {
                 .getBody()
                 .get("role", String.class);
     }
+
     public void blacklistToken(String token) {
         blacklistedTokens.add(token);
     }

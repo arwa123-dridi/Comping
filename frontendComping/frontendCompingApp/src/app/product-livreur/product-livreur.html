@@ -1,0 +1,118 @@
+<div class="page">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <h1>🚚 Mes livraisons</h1>
+    <p>Commandes assignées à livrer</p>
+  </header>
+
+  <div class="content">
+
+    <!-- EMPTY STATE -->
+    <div *ngIf="!commandes || commandes.length === 0" class="empty">
+      <div class="empty-icon-wrap">
+        <i>📦</i>
+      </div>
+      <p>Aucune commande assignée</p>
+      <span>Les nouvelles livraisons apparaîtront ici</span>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid" *ngIf="commandes && commandes.length > 0">
+
+      <div class="card" *ngFor="let c of commandes">
+
+        <!-- TOP ACCENT -->
+        <div class="card-accent"></div>
+
+        <div class="card-body">
+
+          <!-- HEADER -->
+          <div class="card-head">
+
+            <div>
+              <div class="order-id">
+                Commande #{{ c.id }}
+              </div>
+
+              <div class="order-sub">
+                {{ c.dateCommande | date:'medium' }}
+              </div>
+            </div>
+
+            <span class="badge" [ngClass]="c.statutCommande">
+              {{ c.statutCommande }}
+            </span>
+
+          </div>
+
+          <!-- DELIVERY -->
+          <div class="delivery-box">
+
+            <div class="delivery-box-title">
+              📍 Point de livraison
+            </div>
+
+            <div class="delivery-row">
+              <span class="delivery-label">Nom</span>
+              <span>
+                {{ c.adresseLivraison?.prenom }} {{ c.adresseLivraison?.nom }}
+              </span>
+            </div>
+
+            <div class="delivery-row">
+              <span class="delivery-label">Téléphone</span>
+              <span>{{ c.adresseLivraison?.telephone }}</span>
+            </div>
+
+            <div class="delivery-row">
+              <span class="delivery-label">Adresse</span>
+              <span>{{ c.adresseLivraison?.adresse }}</span>
+            </div>
+
+            <div class="delivery-row">
+              <span class="delivery-label">Ville</span>
+              <span>
+                {{ c.adresseLivraison?.ville }} - {{ c.adresseLivraison?.codePostal }}
+              </span>
+            </div>
+
+          </div>
+
+          <!-- INFO -->
+          <div class="info-grid">
+
+            <div class="info-cell">
+              <div class="info-cell-label">🚚 Livraison</div>
+              <div class="info-cell-value">
+                {{ c.modeLivraison }}
+              </div>
+            </div>
+
+            <div class="info-cell">
+              <div class="info-cell-label">💰 Total</div>
+              <div class="info-cell-value">
+                {{ c.totalCommande }} TND
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ACTION -->
+          <button
+            class="btn"
+            *ngIf="c.statutCommande !== 'LIVREE'"
+            (click)="markAsLivree(c.id)">
+            ✔ Marquer comme livrée
+          </button>
+
+          <div *ngIf="c.statutCommande === 'LIVREE'" class="done-tag">
+            ✅ Livraison terminée
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

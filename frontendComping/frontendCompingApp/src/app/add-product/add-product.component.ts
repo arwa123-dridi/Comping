@@ -13,6 +13,10 @@ interface Product {
   quantiteStock?: number;
   seuilAlerteStock?: number;
   imageUrl?: string;
+  // 🆕 PROMOTION
+  promoPrice?: number;
+  promoStart?: string;
+  promoEnd?: string;
 }
 
 @Component({
@@ -56,7 +60,11 @@ export class AddProductComponent {
     categorieProduit: null,
     quantiteStock: 0,        // ✅ AJOUT
     seuilAlerteStock: 0,
-    statut: 'Disponible',
+    statut: 'DISPONIBLE',
+    // 🆕 PROMO DEFAULT
+    promoPrice: undefined,
+    promoStart: undefined,
+    promoEnd: undefined,
     imageUrl: undefined
   };
 
@@ -94,14 +102,26 @@ export class AddProductComponent {
     }
 
     if (this.product.quantiteStock! < 0) {
-    this.toastr.warning("La quantité ne peut pas être négative");
-    return;
-  }
+      this.toastr.warning("La quantité ne peut pas être négative");
+      return;
+    }
 
-  if (this.product.seuilAlerteStock! < 0) {
-    this.toastr.warning("Le seuil d'alerte ne peut pas être négatif");
-    return;
-  }
+    if (this.product.seuilAlerteStock! < 0) {
+      this.toastr.warning("Le seuil d'alerte ne peut pas être négatif");
+      return;
+    }
+
+    if (this.product.promoPrice) {
+      if (!this.product.promoStart || !this.product.promoEnd) {
+        this.toastr.warning("Veuillez compléter les dates de promotion");
+        return;
+      }
+
+      if (this.product.promoPrice >= this.product.prixProduit) {
+        this.toastr.warning("Le prix promo doit être inférieur au prix normal");
+        return;
+      }
+    }
 
     const formData = new FormData();
 
@@ -112,6 +132,10 @@ export class AddProductComponent {
       categorieProduit: this.product.categorieProduit, // ⭐ STRING ENUM
       quantiteStock: this.product.quantiteStock,         // ✅ AJOUT
       seuilAlerteStock: this.product.seuilAlerteStock,
+      // 🆕 PROMOTION
+      promoPrice: this.product.promoPrice,
+      promoStart: this.product.promoStart,
+      promoEnd: this.product.promoEnd,
       statut: this.product.statut
     }));
 

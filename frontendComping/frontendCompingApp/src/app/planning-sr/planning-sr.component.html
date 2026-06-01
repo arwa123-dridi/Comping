@@ -223,7 +223,7 @@
           </span>
           <span class="psr-prix" *ngIf="p.sortie.prixParPersonne">{{ p.sortie.prixParPersonne }} DT</span>
           <span class="psr-prix psr-prix--free" *ngIf="!p.sortie.prixParPersonne">Gratuit</span>
-          
+
           <!-- Actions organisateur (modifier, reporter, supprimer, dupliquer) -->
           <div class="org-actions" *ngIf="isOrganizer || isAdmin" (click)="$event.stopPropagation()">
             <button class="org-btn edit" title="Modifier" (click)="editSortie(p.sortie.id, $event)">✏️</button>

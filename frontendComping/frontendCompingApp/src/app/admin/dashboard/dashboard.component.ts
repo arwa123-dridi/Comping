@@ -8,12 +8,11 @@ import { SortieResponse } from '../../models/sortie.model';
 import { EquipeResponse } from '../../models/equipe.model';
 import { UserService } from '../../services/user.service';
 import { EventService } from '../../services/event.service';
-import { DashboardAdminComponent } from '../../dashboard/dashboard-admin/dashboard-admin.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, DashboardAdminComponent],
+  imports: [CommonModule, RouterModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })

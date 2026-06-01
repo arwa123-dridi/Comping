@@ -36,7 +36,7 @@ public class SecurityConfig {
                 }))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints publics (aucun token requis)
+                        // ==================== RÈGLES SPÉCIFIQUES (HEAD) ====================
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/upload/**").permitAll()
@@ -46,50 +46,56 @@ public class SecurityConfig {
                         .requestMatchers("/api/demandes-transport/**", "/api/creneaux-livraison/**", "/api/incidents/**",
                                 "/api/conventions-partenaires/**", "/api/produits/**", "/uploads/**", "/api/webhook/**").permitAll()
 
-                        // ✅ PARTICIPANTS
+                        // Participants (HEAD)
                         .requestMatchers(HttpMethod.GET, "/api/sorties/*/participants").hasAnyRole("ADMIN", "ORGANISATEUR")
                         .requestMatchers(HttpMethod.PATCH, "/api/sorties/*/participants/*/statut").hasAnyRole("ADMIN", "ORGANISATEUR")
 
-                        // Lectures publiques (GET) sur sorties et équipes
+                        // Lectures publiques GET sur sorties/equipes (HEAD)
                         .requestMatchers(HttpMethod.GET, "/api/sorties/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/equipes/**").permitAll()
 
-                        //Inscriptions / désinscriptions aux sorties et équipes : utilisateur authentifié (USER, ORGANISATEUR, ADMIN)
+                        // Inscriptions (HEAD)
                         .requestMatchers(HttpMethod.POST, "/api/sorties/*/inscription").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/sorties/*/inscription/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/equipes/*/membres/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/api/equipes/*/membres/**").authenticated()
 
-                        //  Création / modification / suppression de sorties : réservé aux ORGANISATEUR et ADMIN
+                        // Création/modification/suppression sorties (HEAD)
                         .requestMatchers(HttpMethod.POST, "/api/sorties").hasAnyRole("ORGANISATEUR", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/sorties/**").hasAnyRole("ORGANISATEUR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/sorties/**").hasAnyRole("ORGANISATEUR", "ADMIN")
 
-                        // Création / modification / suppression d'équipes : réservé aux ORGANISATEUR et ADMIN
+                        // Création/modification/suppression equipes (HEAD)
                         .requestMatchers(HttpMethod.POST, "/api/equipes").hasAnyRole("ORGANISATEUR", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/equipes/**").hasAnyRole("ORGANISATEUR", "ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/equipes/**").hasAnyRole("ORGANISATEUR", "ADMIN")
 
-                        //  Planning et recommandations : nécessite authentification (tout rôle)
+                        // Planning / recommandations (HEAD)
                         .requestMatchers("/api/planning/**").authenticated()
                         .requestMatchers("/api/recommandations/**").authenticated()
 
-                        // Routes pour les rôles spécifiques (admin, moderateur, organisateur)
+                        // Rôles (HEAD)
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/moderateur/**").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/organisateur/**").hasAnyRole("ORGANISATEUR", "ADMIN")
                         .requestMatchers("/api/avis/statut/**").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/valider").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
-
-                        // Routes utilisateurs et événements : authentifiés
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/events/**").authenticated()
                         .requestMatchers("/api/produits/**").authenticated()
-                        // ⭐ ACCÈS AUX PARTICIPANTS : réservé aux ADMIN et ORGANISATEUR
-                        .requestMatchers(HttpMethod.GET, "/api/sorties/*/participants").hasAnyRole("ADMIN", "ORGANISATEUR")
 
-                        // Toute autre requête nécessite une authentification
+                        // ==================== NOUVELLES RÈGLES (Mariem) ====================
+                        // Endpoints publics supplémentaires (panier, commandes, posts, chat, etc.)
+                        .requestMatchers("/api/panier/**", "/api/commandes/**", "/api/recommendations/**",
+                                "/api/posts/**", "/api/chat/**", "/ws-chat/**").permitAll()
+
+                        // Règles générales (Mariem) – placées APRÈS les spécifiques pour ne pas écraser
+                        // Ici on garde ses permitAll larges, mais les règles spécifiques au-dessus prennent le pas
+                        .requestMatchers("/api/sorties/**").permitAll()   // Mariem : rend tout sorties public SAUF ce qui est déjà restreint plus haut
+                        .requestMatchers("/api/equipes/**").permitAll()   // Mariem : rend tout equipes public SAUF règles spécifiques
+
+                        // Fallback
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

@@ -72,7 +72,7 @@ export class EquipeRecommandationsComponent implements OnInit {
 
   // Fallback local : équipes qui ont encore des places libres
   private getEquipesDisponibles(): EquipeResponse[] {
-    return this.allEquipes.filter(eq => 
+    return this.allEquipes.filter(eq =>
       eq.membres && eq.nbMembresMax && eq.membres.length < eq.nbMembresMax
     ).slice(0, 4);
   }

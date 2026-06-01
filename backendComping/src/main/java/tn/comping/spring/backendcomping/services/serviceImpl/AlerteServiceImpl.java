@@ -3,6 +3,9 @@ package tn.comping.spring.backendcomping.services.serviceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.comping.spring.backendcomping.dto.*;
+
+import tn.comping.spring.backendcomping.services.AlerteService;
+
 import tn.comping.spring.backendcomping.entities.Alerte;
 import tn.comping.spring.backendcomping.repositories.AlerteRepository;
 import tn.comping.spring.backendcomping.utils.mapper.AlerteMapper;

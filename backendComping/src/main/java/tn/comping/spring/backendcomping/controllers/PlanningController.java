@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.comping.spring.backendcomping.dto.SortiePlanifieeDTO;
-import tn.comping.spring.backendcomping.services.serviceImpl.IPlanningService;
+import tn.comping.spring.backendcomping.services.IPlanningService;
 
 import java.util.List;
 import java.util.Map;

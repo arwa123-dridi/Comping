@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, ViewChild, OnInit, OnDestroy, Cha
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-signup',
@@ -31,7 +31,15 @@ export class SignupComponent implements AfterViewInit, OnInit, OnDestroy {
   showPassword   = false;
   showSuccessPopup = false;
 
-  roles = ['ADMIN', 'PROPRIETAIRE_SITE', 'BOUTIQUE', 'ORGANISATEUR', 'PARTENAIRE_logistique', 'USER'];
+  roles = [
+    'ADMIN',
+    'PROPRIETAIRE_SITE',
+    'BOUTIQUE',
+    'ORGANISATEUR',
+    'PARTENAIRE_logistique',
+    'USER',
+    'LIVREUR'
+  ];
 
   constructor(
     private fb:     FormBuilder,
@@ -52,7 +60,7 @@ export class SignupComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   passwordMatchValidator(form: FormGroup) {
-    const password        = form.get('password')?.value;
+    const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
     if (!password || !confirmPassword) return;
     if (password !== confirmPassword) {
@@ -61,7 +69,9 @@ export class SignupComponent implements AfterViewInit, OnInit, OnDestroy {
       const errors = form.get('confirmPassword')?.errors;
       if (errors) {
         delete errors['mismatch'];
-        form.get('confirmPassword')?.setErrors(Object.keys(errors).length ? errors : null);
+        if (Object.keys(errors).length === 0) {
+          form.get('confirmPassword')?.setErrors(null);
+        }
       }
     }
   }
@@ -89,22 +99,27 @@ export class SignupComponent implements AfterViewInit, OnInit, OnDestroy {
   get f() { return this.signupForm.controls; }
 
   onSubmit(): void {
+    console.log('Form submitted');
+    console.log('Form value:', this.signupForm.value);
+
     if (!this.signupForm.value.role) {
       this.errorMessage = 'Veuillez sélectionner un rôle.';
-      return;
-    }
-    if (this.signupForm.invalid) {
-      this.signupForm.markAllAsTouched();
+      console.log('Error: role not selected');
       return;
     }
 
-    this.isLoading     = true;
-    this.errorMessage  = '';
+    if (this.signupForm.invalid) {
+      this.signupForm.markAllAsTouched();
+      console.log('Error: form invalid');
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
     this.successMessage = '';
 
     const formValue = this.signupForm.value;
 
-  
     const signupData = {
       firstName: formValue.firstName,
       lastName:  formValue.lastName,
@@ -115,29 +130,29 @@ export class SignupComponent implements AfterViewInit, OnInit, OnDestroy {
       role:      formValue.role
     };
 
-    this.http.post<{ id: string; email: string; role: string }>(
+    console.log('Signup data being sent to backend:', signupData);
+
+    const headers = { 'Content-Type': 'application/json' };
+    this.http.post<{ id: string, email: string, role: string }>(
       'http://localhost:8087/api/auth/registerUser',
       signupData,
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers }
     ).subscribe({
       next: (res) => {
+        console.log('Backend response:', res);
         this.isLoading = false;
 
-        //  stocker avec les bonnes valeurs (après succès backend)
         localStorage.setItem('userId',    res.id);
         localStorage.setItem('userEmail', res.email);
         localStorage.setItem('userRole',  res.role || 'USER');
         localStorage.setItem('userNom',   `${formValue.firstName} ${formValue.lastName}`.trim());
 
-        // Afficher le popup de succès
         this.showSuccessPopup = true;
         this.successMessage   = '🎉 Inscription réussie ! Redirection vers la connexion...';
         this.cd.detectChanges();
 
-        //  reset une seule fois
         this.signupForm.reset({ role: null });
 
-        //  redirect vers /login après 2 secondes
         setTimeout(() => {
           this.showSuccessPopup = false;
           this.router.navigate(['/login']);
@@ -146,13 +161,13 @@ export class SignupComponent implements AfterViewInit, OnInit, OnDestroy {
       error: (err) => {
         console.error('Signup failed', err);
         this.errorMessage = err.error?.message || err.error || 'Erreur inscription. Email existe peut-être déjà.';
-        this.isLoading    = false;
+        this.isLoading = false;
       }
     });
   }
 
   onPhoneInput(event: any) {
-    let value  = event.target.value;
+    let value = event.target.value;
     if (!value.startsWith('+216')) {
       value = '+216' + value.replace(/\D/g, '');
     }

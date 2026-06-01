@@ -78,77 +78,77 @@ interface ParticipantRow extends ParticipationDTO {
       <div class="table-container" *ngIf="!loading && !errorMsg">
         <table>
           <thead>
-            <tr>
-              <th>Participant</th>
-              <th>Email</th>
-              <th>Sortie</th>
-              <th>Difficulté</th>
-              <th>Région</th>
-              <th>Date sortie</th>
-              <th>Inscrit le</th>
-              <th>Statut présence</th>
-              <th>Checklist</th>
-              <th>Actions</th>
-            </tr>
+          <tr>
+            <th>Participant</th>
+            <th>Email</th>
+            <th>Sortie</th>
+            <th>Difficulté</th>
+            <th>Région</th>
+            <th>Date sortie</th>
+            <th>Inscrit le</th>
+            <th>Statut présence</th>
+            <th>Checklist</th>
+            <th>Actions</th>
+          </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let p of filteredRows">
-              <td>
-                <div class="participant-cell">
-                  <div class="avatar" [style.background]="getAvatarColor(p.utilisateurNom)">
-                    {{ getInitiales(p.utilisateurNom) }}
-                  </div>
-                  <span class="participant-nom">
+          <tr *ngFor="let p of filteredRows">
+            <td>
+              <div class="participant-cell">
+                <div class="avatar" [style.background]="getAvatarColor(p.utilisateurNom)">
+                  {{ getInitiales(p.utilisateurNom) }}
+                </div>
+                <span class="participant-nom">
                     {{ p.utilisateurPrenom || '' }} {{ p.utilisateurNom || '???' }}
                   </span>
-                </div>
-              </td>
-              <td class="email-cell">{{ p.utilisateurEmail || '???' }}</td>
-              <td>
+              </div>
+            </td>
+            <td class="email-cell">{{ p.utilisateurEmail || '???' }}</td>
+            <td>
                 <span class="sortie-link" [routerLink]="['/admin/sorties', p.sortieId]">
                   {{ p.sortieTitle }}
                 </span>
-              </td>
-              <td>
+            </td>
+            <td>
                 <span [class]="'badge diff-' + p.sortieDifficulte.toLowerCase()">
                   {{ p.sortieDifficulte || '???' }}
                 </span>
-              </td>
-              <td>{{ p.sortieRegion || '???' }}</td>
-              <td>{{ formatDate(p.sortieDateDebut) }}</td>
-              <td>{{ formatDate(p.dateInscription) }}</td>
-              <td>
-                <select [ngModel]="p.statutPresence || 'EN_ATTENTE'"
-                        (ngModelChange)="updateStatut(p, $event)"
-                        class="statut-select"
-                        [class]="'statut-' + (p.statutPresence || 'EN_ATTENTE').toLowerCase()">
-                  <option value="EN_ATTENTE">⏳ En attente</option>
-                  <option value="PRESENT">✅ Présent</option>
-                  <option value="ABSENT">❌ Absent</option>
-                </select>
-              </td>
-              <td>
+            </td>
+            <td>{{ p.sortieRegion || '???' }}</td>
+            <td>{{ formatDate(p.sortieDateDebut) }}</td>
+            <td>{{ formatDate(p.dateInscription) }}</td>
+            <td>
+              <select [ngModel]="p.statutPresence || 'EN_ATTENTE'"
+                      (ngModelChange)="updateStatut(p, $event)"
+                      class="statut-select"
+                      [class]="'statut-' + (p.statutPresence || 'EN_ATTENTE').toLowerCase()">
+                <option value="EN_ATTENTE">⏳ En attente</option>
+                <option value="PRESENT">✅ Présent</option>
+                <option value="ABSENT">❌ Absent</option>
+              </select>
+            </td>
+            <td>
                 <span [class]="p.aValideChecklist ? 'badge badge-ok' : 'badge badge-pending'">
                   {{ p.aValideChecklist ? '✅ Validée' : '⏳ Non faite' }}
                 </span>
-              </td>
-              <td class="actions">
-                <button class="btn-delete" title="Désinscrire ce participant"
-                        (click)="confirmDesinscription(p)">🗑️</button>
-              </td>
-            </tr>
-            <tr *ngIf="filteredRows.length === 0">
-              <td colspan="10" class="empty">
-                <div class="empty-state">
-                  <span>👥</span>
-                  <p *ngIf="allRows.length === 0 && !loading">
-                    Aucune inscription trouvée.
-                    <br><small>Vérifiez qu’un utilisateur s’est bien inscrit à une sortie.</small>
-                  </p>
-                  <p *ngIf="allRows.length > 0">Aucun résultat pour ces filtres.</p>
-                </div>
-              </td>
-            </tr>
+            </td>
+            <td class="actions">
+              <button class="btn-delete" title="Désinscrire ce participant"
+                      (click)="confirmDesinscription(p)">🗑️</button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredRows.length === 0">
+            <td colspan="10" class="empty">
+              <div class="empty-state">
+                <span>👥</span>
+                <p *ngIf="allRows.length === 0 && !loading">
+                  Aucune inscription trouvée.
+                  <br><small>Vérifiez qu’un utilisateur s’est bien inscrit à une sortie.</small>
+                </p>
+                <p *ngIf="allRows.length > 0">Aucun résultat pour ces filtres.</p>
+              </div>
+            </td>
+          </tr>
           </tbody>
         </table>
       </div>

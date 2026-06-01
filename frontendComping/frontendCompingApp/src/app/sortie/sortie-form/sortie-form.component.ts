@@ -58,7 +58,7 @@ export class SortieFormComponent implements OnInit {
     private router:       Router,
     private route:        ActivatedRoute,
     private http:         HttpClient,
-    private checklistService: ChecklistService 
+    private checklistService: ChecklistService
   ) {
     this.sortieForm = this.fb.group({
       titre:              ['', [Validators.required, Validators.minLength(3)]],
@@ -431,7 +431,7 @@ export class SortieFormComponent implements OnInit {
         clearTimeout(timeout);
         this.isLoading = false;
         const id = result.id ?? this.sortieId;
-        
+
         // ✅ Afficher la checklist IA si présente dans la réponse
         if (result.checklistRecommandee) {
           this.checklistMessage = `✅ Checklist IA générée : ${result.checklistRecommandee}`;
@@ -456,7 +456,7 @@ export class SortieFormComponent implements OnInit {
       }
     });
   }
-  
+
 
   showToast(msg: string, type: 'success' | 'error' = 'success'): void {
     this.toastMessage = msg;

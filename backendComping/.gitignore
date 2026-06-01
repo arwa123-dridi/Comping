@@ -1,4 +1,11 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+<<<<<<< ours
+=======
+<<<<<<< HEAD
+>>>>>>> theirs
+>>>>>>> mariem-local
 {
   "info": {
     "name": "Campino API - Module Randonnée",
@@ -282,6 +289,11 @@
     }
   ]
 }
+<<<<<<< HEAD
+=======
+<<<<<<< ours
+=======
+>>>>>>> mariem-local
 target/
 *.class
 =======
@@ -572,3 +584,7 @@ echo "backendComping/target/"t a r g e t /  
  
 >>>>>>> origin/amal-melki
 target/
+<<<<<<< HEAD
+=======
+>>>>>>> theirs
+>>>>>>> mariem-local

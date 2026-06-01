@@ -6,13 +6,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.comping.spring.backendcomping.dto.SortiePlanifieeDTO;
 import tn.comping.spring.backendcomping.dto.SortieResponseDTO;
-import tn.comping.spring.backendcomping.entities.*;
-import tn.comping.spring.backendcomping.repositories.*;
+import tn.comping.spring.backendcomping.entities.Participation;
+import tn.comping.spring.backendcomping.entities.SignupEntity;
+import tn.comping.spring.backendcomping.entities.Sortie;
+import tn.comping.spring.backendcomping.entities.UserProfile;
+import tn.comping.spring.backendcomping.repositories.ParticipationRepository;
+import tn.comping.spring.backendcomping.repositories.SignupRepository;
+import tn.comping.spring.backendcomping.repositories.SortieRepository;
+import tn.comping.spring.backendcomping.repositories.UserProfileRepository;
+import tn.comping.spring.backendcomping.services.IPlanningService;
 import tn.comping.spring.backendcomping.utils.mapper.SortieMapper;
-import java.time.temporal.ChronoUnit;
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 

@@ -17,17 +17,14 @@ export class SigninService {
       headers: { 'Content-Type': 'application/json' }
     }).pipe(tap(res => {
       this.saveSession(res, dto.email);
-      // ✅ AJOUT : redirect vers l'URL stockée avant login (ex: après "Participer")
       this.handleRedirectAfterLogin();
     }));
   }
 
-  // ✅ NOUVEAU : stocke l'URL cible avant de rediriger vers login
   saveRedirectUrl(url: string): void {
     localStorage.setItem('redirect_after_login', url);
   }
 
-  // ✅ NOUVEAU : consomme l'URL et redirige
   private handleRedirectAfterLogin(): void {
     const role = localStorage.getItem('userRole') ?? '';
     const redirect = localStorage.getItem('redirect_after_login');
@@ -46,6 +43,7 @@ export class SigninService {
 
   saveSession(res: LoginDTOResponse, loginEmail = ''): void {
     if (!res?.token) return;
+
     const payload   = this.decodeJwt(res.token);
     const userId    = payload?.['id']        ?? '';
     const userRole  = payload?.['role']      ?? 'USER';
@@ -66,6 +64,8 @@ export class SigninService {
     const expiry = new Date();
     expiry.setHours(expiry.getHours() + 24);
     localStorage.setItem('tokenExpiry', expiry.toISOString());
+
+    console.log('[Auth] userId:', userId, '| role:', userRole, '| nom:', userNom);
   }
 
   decodeJwt(token: string): Record<string, any> | null {

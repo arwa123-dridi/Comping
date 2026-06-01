@@ -16,13 +16,14 @@ public class AvisMapper {
 
         return Avis.builder()
                 .note(dto.getNote())
-                .commentaire(dto.getCommentaire())
+                .commentaire(dto.getCommentaire().trim())
                 .datePublication(new Date())
                 .statut(StatutAvis.EN_ATTENTE)
                 .valide(false)
                 .utilisateurId(utilisateurId)
                 .cibleId(dto.getCibleId())
                 .typeCible(dto.getTypeCible())
+                .parentAvisId(dto.getParentAvisId())
                 .build();
     }
 
@@ -49,7 +50,7 @@ public class AvisMapper {
                 .cibleId(avis.getCibleId())
                 .typeCible(avis.getTypeCible())
                 .dateModification(avis.getDateModification())
-                .reponse(null)
+                .parentAvisId(avis.getParentAvisId())
                 .build();
     }
 
@@ -57,7 +58,7 @@ public class AvisMapper {
         if (avis == null || dto == null) return;
 
         avis.setNote(dto.getNote());
-        avis.setCommentaire(dto.getCommentaire());
+        avis.setCommentaire(dto.getCommentaire().trim());
         avis.setDateModification(new Date());
         avis.setStatut(StatutAvis.EN_ATTENTE);
         avis.setValide(false);

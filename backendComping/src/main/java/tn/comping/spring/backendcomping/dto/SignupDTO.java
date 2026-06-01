@@ -22,13 +22,9 @@ public class SignupDTO {
 
     //public SignupDTO() {}
 
-
     public String getlastName() {
-       return lastName;
-   }
-
-
-
+        return lastName;
+    }
 
     //public String getEmail() {
     //   return email;

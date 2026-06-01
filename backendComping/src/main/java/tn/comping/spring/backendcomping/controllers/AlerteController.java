@@ -4,8 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.comping.spring.backendcomping.dto.*;
-import tn.comping.spring.backendcomping.services.serviceImpl.AlerteService;
+import tn.comping.spring.backendcomping.services.AlerteService;
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/alertes")

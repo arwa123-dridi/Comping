@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import tn.comping.spring.backendcomping.config.JwtUtils;
+
 import tn.comping.spring.backendcomping.config.SecurityUtils;
 import tn.comping.spring.backendcomping.dto.EventRequestDTO;
 import tn.comping.spring.backendcomping.dto.EventResponseDTO;
@@ -18,29 +18,34 @@ import tn.comping.spring.backendcomping.utils.mapper.ActivityMapper;
 import tn.comping.spring.backendcomping.utils.mapper.EventMapper;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EventServiceImpl implements  EventService{
+public class EventServiceImpl implements EventService {
+
     private final EventRepository eventRepository;
     private final ActivityRepository activityRepository;
     private final SecurityUtils securityUtils;
-    private  final CarteFideliteService carteFideliteService;
+    private final CarteFideliteService carteFideliteService;
+
     @Override
     public EventResponseDTO createEvent(EventRequestDTO dto) {
         String userId = securityUtils.getCurrentUserId();
+
         Event event = EventMapper.toEntity(dto);
         event.setOrganisateurId(userId);
         event.setStatut(StatutEvent.EN_ATTENTE);
+
         return EventMapper.toDto(eventRepository.save(event));
     }
 
     @Override
     public EventResponseDTO getEventById(String id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+
         return EventMapper.toDto(event);
     }
 
@@ -49,7 +54,6 @@ public class EventServiceImpl implements  EventService{
         return eventRepository.findAll()
                 .stream()
                 .map(event -> {
-
                     EventResponseDTO dto = EventMapper.toDto(event);
 
                     dto.setActivities(
@@ -67,14 +71,18 @@ public class EventServiceImpl implements  EventService{
     @Override
     public EventResponseDTO updateEvent(String id, EventRequestDTO dto) {
         Event existing = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event not found with id: " + id));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+
         existing.setTitre(dto.getTitre());
         existing.setDescription(dto.getDescription());
         existing.setPrix(dto.getPrix());
         existing.setCapacite(dto.getCapacite());
+
         if (dto.getStatut() != null) {
             existing.setStatut(dto.getStatut());
         }
+
         existing.setNiveauDifficulte(dto.getNiveauDifficulte());
         existing.setTrancheAge(dto.getTrancheAge());
         existing.setLatitude(dto.getLatitude());
@@ -83,16 +91,16 @@ public class EventServiceImpl implements  EventService{
         existing.setDureeEnHeures(dto.getDureeEnHeures());
         existing.setTags(dto.getTags());
         existing.setActivityIds(dto.getActivityIds());
+
         return EventMapper.toDto(eventRepository.save(existing));
     }
 
     @Override
     public void deleteEvent(String id) {
-            if (!eventRepository.existsById(id)) {
-                throw new RuntimeException("Event not found with id: " + id);
-            }
-            eventRepository.deleteById(id);
-
+        if (!eventRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found");
+        }
+        eventRepository.deleteById(id);
     }
 
     @Override
@@ -102,6 +110,7 @@ public class EventServiceImpl implements  EventService{
 
     @Override
     public EventResponseDTO participate(String eventId) {
+
         String userId = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
@@ -124,19 +133,19 @@ public class EventServiceImpl implements  EventService{
 
         event.getParticipantIds().add(userId);
 
-        Event saved = eventRepository.save(event);
-
-        return EventMapper.toDto(saved);
+        return EventMapper.toDto(eventRepository.save(event));
     }
 
     @Override
     public EventResponseDTO cancelParticipation(String eventId) {
+
         String userId = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Event introuvable"));
 
         if (event.getParticipantIds() != null) {
             event.getParticipantIds().remove(userId);
@@ -148,7 +157,8 @@ public class EventServiceImpl implements  EventService{
     @Override
     public EventResponseDTO validerEvent(String id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Event introuvable"));
 
         event.setStatut(StatutEvent.VALIDE);
 
@@ -156,17 +166,18 @@ public class EventServiceImpl implements  EventService{
     }
 
     @Override
-    public long countEvents() {
-        return eventRepository.count();
-    }
-
-    @Override
     public EventResponseDTO rejectEvent(String id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Event introuvable"));
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Event introuvable"));
 
         event.setStatut(StatutEvent.REJETE);
 
         return EventMapper.toDto(eventRepository.save(event));
+    }
+
+    @Override
+    public long countEvents() {
+        return eventRepository.count();
     }
 }

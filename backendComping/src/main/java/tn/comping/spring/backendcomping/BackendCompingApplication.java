@@ -14,11 +14,11 @@ public class BackendCompingApplication {
     public static void main(String[] args) {
         SpringApplication.run(BackendCompingApplication.class, args);
     }
+
     @Bean
-    CommandLineRunner showDb(MongoTemplate mongoTemplate){
+    CommandLineRunner showDb(MongoTemplate mongoTemplate) {
         return args -> {
             System.out.println("DATABASE USED : " + mongoTemplate.getDb().getName());
         };
     }
-
 }

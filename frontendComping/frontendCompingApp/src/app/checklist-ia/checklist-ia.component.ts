@@ -130,7 +130,7 @@ export class ChecklistIaComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.userId = localStorage.getItem('userId');
-    
+
     // Charger les sorties passées de l'utilisateur
     if (this.userId) {
       this.loadSortiesParticipees();

@@ -9,12 +9,12 @@ import { provideToastr } from 'ngx-toastr';
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
-     provideHttpClient() ,
-     provideAnimations(),
+    provideHttpClient(),
+    provideAnimations(),
     provideToastr({
       positionClass: 'toast-top-right',
       timeOut: 3000,
       preventDuplicates: true
-      })
+    })
   ]
 }).catch(err => console.error(err));

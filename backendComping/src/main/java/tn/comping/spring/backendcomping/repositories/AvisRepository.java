@@ -25,11 +25,12 @@ public interface AvisRepository extends MongoRepository<Avis, String> {
 
 
 
-    List<Avis> findByCibleIdAndTypeCibleAndValideOrderByDatePublicationDesc(
+    List<Avis> findByCibleIdAndTypeCibleAndValideAndParentAvisIdIsNullOrderByDatePublicationDesc(
             String cibleId, TypeCible typeCible, boolean valide);
 
-    List<Avis> findByUtilisateurIdOrderByDatePublicationDesc(String utilisateurId);
+    List<Avis> findByParentAvisIdOrderByDatePublicationDesc(String parentAvisId);
 
+    List<Avis> findByUtilisateurIdOrderByDatePublicationDesc(String utilisateurId);
 
     List<Avis> findByStatutOrderByDatePublicationDesc(StatutAvis statut);
 
@@ -37,8 +38,9 @@ public interface AvisRepository extends MongoRepository<Avis, String> {
 
     List<Avis> findByCibleIdAndTypeCible(String cibleId, TypeCible typeCible);
 
+    void deleteByParentAvisId(String parentAvisId);
 
+    List<Avis> findByStatutAndParentAvisIdIsNullOrderByDatePublicationDesc(StatutAvis statut);
 
-
-
+    List<Avis> findByUtilisateurIdInAndValideOrderByDatePublicationDesc(List<String> utilisateurIds, boolean valide);
 }

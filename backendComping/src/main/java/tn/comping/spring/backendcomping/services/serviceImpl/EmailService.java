@@ -13,6 +13,38 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
+    // Méthode ajoutée par Mariem pour la réinitialisation du mot de passe
+    public void sendPasswordResetEmail(String email, String token, String userName) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(email);
+            helper.setSubject("🔑 Réinitialisation mot de passe Campino");
+            String resetUrl = "http://localhost:4200/reset-password?token=" + token;
+            helper.setText(
+                    "<!DOCTYPE html>" +
+                            "<html>" +
+                            "<body style='font-family: Arial, sans-serif;'>" +
+                            "<h2>Bonjour " + userName + ",</h2>" +
+                            "<p>Vous avez demandé une réinitialisation de mot de passe.</p>" +
+                            "<a href='" + resetUrl + "' style='background-color: #4CAF50; color: white; padding: 14px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;'>🔑 RÉINITIALISER MON MOT DE PASSE</a>" +
+                            "<p>Le lien expire dans 1 heure.</p>" +
+                            "<p>Si vous n'avez pas demandé cela, ignorez cet email.</p>" +
+                            "</body>" +
+                            "</html>",
+                    true
+            );
+
+            mailSender.send(message);
+            System.out.println("✅ Email reset envoyé à " + email);
+
+        } catch (Exception e) {
+            System.err.println("⚠️ Erreur envoi email reset: " + e.getMessage());
+        }
+    }
+
+    // Méthode existante pour la confirmation de réservation
     public void envoyerConfirmation(Reservation reservation) {
         try {
             MimeMessage message = mailSender.createMimeMessage();

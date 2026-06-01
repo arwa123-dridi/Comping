@@ -1,0 +1,17 @@
+:root {
+  --forest:       #1a3a2a;
+  --pine:         #2d5a3d;
+  --moss:         #4a7c5a;
+  --fern:         #6fa87a;
+  --sage:         #a8c9a5;
+  --mist:         #e8f0e5;
+  --amber:        #c87941;
+  --amber-light:  #f0c080;
+  --amber-pale:   #fdf3e3;
+  --stone:        #8b7d6b;
+  --parchment:    #faf7f2;
+  --bark:         #3d2f20;
+  --smoke:        #f0ede8;
+  --text:         #1e1a16;
+  --text-muted:   #6b5f52;
+}

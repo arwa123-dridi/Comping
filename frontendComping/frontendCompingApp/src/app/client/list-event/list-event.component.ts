@@ -4,13 +4,14 @@ import { PaymentEvent } from '../../services/payment-event';
 import { CommonModule } from '@angular/common';
 import { Event as AppEvent } from '../../models/event.model';
 import { Router, RouterLink } from '@angular/router';
+import { EditeEventComponent } from '../edite-event/edite-event.component';
 import { FormsModule } from '@angular/forms';
 import { FideliteComponent } from '../fidelite-component/fidelite-component';
 
 @Component({
   selector: 'app-list-event',
    standalone: true,
-  imports: [CommonModule,RouterLink, FormsModule,FideliteComponent],
+  imports: [CommonModule, EditeEventComponent,RouterLink, FormsModule,FideliteComponent],
   templateUrl: './list-event.component.html',
   styleUrl: './list-event.component.css'
 })
@@ -38,7 +39,7 @@ popupType: 'success' | 'error' | 'warning' = 'success';
      private paymentService: PaymentEvent,
      private router: Router
   ) {}
- 
+
   ngOnInit(): void {
     const token = localStorage.getItem('authToken');
 
@@ -58,7 +59,7 @@ if (token) {
       error: (err) => console.error('Erreur chargement événements', err)
     });
      this.loadCounts();
-     
+
   }
 loadEvents(): void {
   this.eventService.getAllEvents().subscribe({
@@ -84,7 +85,7 @@ loadEvents(): void {
     next: (val) => this.annuleCount = val,
     error: (err) => console.error('Erreur countAnnule', err)
   });}
- 
+
  getStatutClass(statut: string): string {
   switch (statut) {
     case 'VALIDE': return 'badge-actif';
@@ -93,7 +94,7 @@ loadEvents(): void {
     default: return '';
   }
 }
- 
+
 getTopBarClass(statut: string): string {
   switch (statut) {
     case 'VALIDE': return 'top-actif';

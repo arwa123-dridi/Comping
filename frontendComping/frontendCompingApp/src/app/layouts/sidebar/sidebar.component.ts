@@ -2,6 +2,7 @@
 import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { SigninService } from '../../services/signin.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -19,7 +20,10 @@ export class SidebarComponent implements OnInit {
   userInitiales = '';
   userPhoto = '';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private signinService: SigninService
+  ) {}
 
   ngOnInit(): void {
     this.loadUserInfo();
@@ -65,8 +69,6 @@ export class SidebarComponent implements OnInit {
   }
 
   logout(): void {
-    ['authToken','userId','userEmail','userNom','userPrenom',
-     'userRole','tokenExpiry','userPhoto'].forEach(k => localStorage.removeItem(k));
-    this.router.navigate(['/login']);
+    this.signinService.logout();
   }
 }

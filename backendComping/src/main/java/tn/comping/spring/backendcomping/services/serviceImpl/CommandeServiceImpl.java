@@ -1,0 +1,269 @@
+package tn.comping.spring.backendcomping.services.serviceImpl;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import tn.comping.spring.backendcomping.dto.CommandeRequestDTO;
+import tn.comping.spring.backendcomping.dto.CommandeResponseDTO;
+import tn.comping.spring.backendcomping.entities.*;
+import tn.comping.spring.backendcomping.repositories.CommandeRepository;
+import tn.comping.spring.backendcomping.repositories.PanierRepository;
+import tn.comping.spring.backendcomping.repositories.ProduitRepository;
+import tn.comping.spring.backendcomping.repositories.SignupRepository;
+import tn.comping.spring.backendcomping.utils.mapper.CommandeMapper;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class CommandeServiceImpl implements CommandeService {
+
+        private final CommandeRepository commandeRepository;
+        private final PanierRepository panierRepository;
+        private final ProduitRepository produitRepository;
+        private final DeliveryFeeService deliveryFeeService;
+        private final PricingService pricingService;
+        private final ProduitServiceImpl produitService;
+        private final SignupRepository signupRepository;
+        private final CommandeMapper commandeMapper;
+
+        // =========================================================
+        // 🟢 CREATE ORDER FROM ACTIVE PANIER (CHECKOUT)
+        // =========================================================
+        @Override
+        public CommandeResponseDTO createCommande(CommandeRequestDTO dto) {
+
+                // 1️⃣ GET ACTIVE PANIER
+                Panier panier = panierRepository
+                                .findByUserIdAndStatut(dto.getUserId(), PanierStatut.ACTIVE)
+                                .orElseThrow(() -> new RuntimeException("Panier actif introuvable"));
+
+                // 2️⃣ CREATE COMMANDE ENTITY
+                CommandeProduct commande = new CommandeProduct();
+                commande.setUserId(dto.getUserId());
+
+                // ADDRESS
+                commande.setAdresseLivraison(dto.getAdresseLivraison());
+
+                // 3️⃣ BUILD LIGNES AVEC PRICING ENGINE
+                List<CommandeLigne> lignesCommande = panier.getLignes()
+                                .stream()
+                                .map(p -> {
+
+                                        Produit produit = produitRepository.findById(p.getProduitId())
+                                                        .orElseThrow(() -> new RuntimeException("Produit introuvable"));
+
+                                        // 🔥 FINAL PRICE (PROMO + NORMAL PRICE)
+                                        double prixFinal = pricingService.calculateFinalPrice(produit);
+
+                                        return CommandeLigne.builder()
+                                                        .produitId(produit.getId())
+                                                        .nomProduit(produit.getNomProduit())
+                                                        .imageUrl(produit.getImageUrl())
+                                                        .prixUnitaire(prixFinal)
+                                                        .quantite(p.getQuantite())
+                                                        .sousTotal(prixFinal * p.getQuantite())
+                                                        .build();
+                                })
+                                .collect(Collectors.toList());
+
+                commande.setLignes(lignesCommande);
+
+                // 4️⃣ TOTAL PRODUITS (BASED ON LIGNES ❗ IMPORTANT FIX)
+                double totalProduits = lignesCommande.stream()
+                                .mapToDouble(CommandeLigne::getSousTotal)
+                                .sum();
+
+                // 5️⃣ DELIVERY FEE (FROM SERVICE)
+                String ville = dto.getAdresseLivraison().getVille();
+                ModeLivraison modeLivraison = dto.getModeLivraison();
+
+                double fraisLivraison = deliveryFeeService.calculateFee(ville, modeLivraison);
+
+                // 6️⃣ SET PRICING
+                commande.setTotalProduits(totalProduits);
+                commande.setFraisLivraison(fraisLivraison);
+                commande.setTotalCommande(totalProduits + fraisLivraison);
+
+                // 7️⃣ PAYMENT + SHIPPING DEFAULTS
+                commande.setModePaiement(dto.getModePaiement()); // 🔥 FIX: use frontend value
+                commande.setModeLivraison(modeLivraison);
+                commande.setStatutCommande(StatutCommande.CONFIRMEE);
+                commande.setDateCommande(LocalDateTime.now());
+
+                /* 🚚 AUTO ASSIGN LIVREUR BY CITY */
+                String villeCommande = dto.getAdresseLivraison().getVille();
+                String livreurId = findLivreurByCity(villeCommande);
+                SignupEntity livreur = signupRepository.findById(livreurId)
+                                .orElseThrow(() -> new RuntimeException("Livreur introuvable"));
+
+                commande.setLivreurId(livreur.getId());
+                commande.setStatutCommande(StatutCommande.EXPEDIEE);
+
+                // 8️⃣ SAVE ORDER
+                CommandeProduct savedCommande = commandeRepository.save(commande);
+
+                // 9️⃣ UPDATE PANIER
+                panier.setStatut(PanierStatut.ORDERED);
+                panierRepository.save(panier);
+
+                // 🔟 RETURN DTO
+                return commandeMapper.toResponse(savedCommande);
+        }
+
+        // =========================================================
+        // 🟢 GET ALL COMMANDES (ADMIN)
+        // =========================================================
+        @Override
+        public List<CommandeResponseDTO> getAllCommandes() {
+
+                return commandeRepository.findAll()
+                                .stream()
+                                .map(commandeMapper::toResponse)
+                                .collect(Collectors.toList());
+        }
+
+        // =========================================================
+        // 🟢 GET COMMANDES BY USER
+        // =========================================================
+        @Override
+        public List<CommandeResponseDTO> getCommandesByUser(String userId) {
+                return commandeRepository.findByUserId(userId)
+                                .stream()
+                                .map(commandeMapper::toResponse)
+                                .collect(Collectors.toList());
+        }
+
+        // =========================================================
+        // 🟢 UPDATE COMMANDE STATUS (ADMIN)
+        // =========================================================
+        @Override
+        public CommandeResponseDTO updateStatut(String commandeId, String statut) {
+
+                CommandeProduct commande = commandeRepository.findById(commandeId)
+                                .orElseThrow(() -> new RuntimeException("Commande introuvable"));
+
+                StatutCommande nouveauStatut = StatutCommande.valueOf(statut);
+
+                // ⭐ IF ORDER BECOMES DELIVERED → DECREMENT STOCK
+                if (nouveauStatut == StatutCommande.LIVREE &&
+                                commande.getStatutCommande() != StatutCommande.LIVREE) {
+
+                        for (CommandeLigne ligne : commande.getLignes()) {
+
+                                Produit produit = produitRepository.findById(ligne.getProduitId())
+                                                .orElseThrow(() -> new RuntimeException(
+                                                                "Produit introuvable: " + ligne.getProduitId()));
+
+                                int nouveauStock = produit.getQuantiteStock() - ligne.getQuantite();
+
+                                if (nouveauStock < 0) {
+                                        throw new RuntimeException(
+                                                        "Stock insuffisant pour le produit: "
+                                                                        + produit.getNomProduit());
+                                }
+
+                                produit.setQuantiteStock(nouveauStock);
+
+                                // ⭐ VERY IMPORTANT: update stock status (DISPONIBLE / FAIBLE / RUPTURE)
+                                produitService.updateStatutProduit(produit);
+
+                                // ⭐ SAVE AFTER STATUS UPDATE
+                                produitRepository.save(produit);
+                        }
+                }
+
+                // update status after stock update
+                commande.setStatutCommande(nouveauStatut);
+
+                CommandeProduct updated = commandeRepository.save(commande);
+                return commandeMapper.toResponse(updated);
+        }
+
+        // =========================================================
+        // 🟢 DELETE COMMANDE
+        // =========================================================
+        @Override
+        public void deleteCommande(String id) {
+                commandeRepository.deleteById(id);
+        }
+
+        // =========================================================
+        // 🟢 GET COMMANDE BY ID
+        // =========================================================
+        @Override
+        public CommandeResponseDTO getCommandeById(String id) {
+
+                CommandeProduct commande = commandeRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Commande introuvable"));
+
+                return commandeMapper.toResponse(commande);
+        }
+
+        @Override
+        public List<CommandeResponseDTO> getCommandesByLivreur(String livreurId) {
+
+                return commandeRepository.findByLivreurId(livreurId)
+                                .stream()
+                                .map(commandeMapper::toResponse)
+                                .collect(Collectors.toList());
+        }
+
+        @Override
+        public CommandeResponseDTO assignLivreurToCommande(String commandeId, String livreurId) {
+
+                CommandeProduct commande = commandeRepository.findById(commandeId)
+                                .orElseThrow(() -> new RuntimeException("Commande introuvable"));
+
+                commande.setLivreurId(livreurId);
+                commande.setStatutCommande(StatutCommande.EXPEDIEE);
+
+                CommandeProduct saved = commandeRepository.save(commande);
+
+                return commandeMapper.toResponse(saved);
+        }
+
+        @Override
+        public List<CommandeResponseDTO> getCommandesNonLivreesByLivreur(String livreurId) {
+
+                return commandeRepository
+                                .findByLivreurIdAndStatutCommandeNot(livreurId, StatutCommande.LIVREE)
+                                .stream()
+                                .map(commandeMapper::toResponse)
+                                .collect(Collectors.toList());
+        }
+
+        @Override
+        public CommandeResponseDTO markAsLivree(String commandeId, String livreurId) {
+
+                CommandeProduct commande = commandeRepository.findById(commandeId)
+                                .orElseThrow(() -> new RuntimeException("Commande introuvable"));
+
+                // security check
+                if (commande.getLivreurId() == null ||
+                                !commande.getLivreurId().equals(livreurId)) {
+                        throw new RuntimeException("Vous n'êtes pas assigné à cette commande");
+                }
+
+                commande.setStatutCommande(StatutCommande.LIVREE);
+
+                CommandeProduct updated = commandeRepository.save(commande);
+
+                return commandeMapper.toResponse(updated);
+        }
+
+        private String findLivreurByCity(String villeCommande) {
+
+                List<SignupEntity> livreurs = signupRepository.findByRoleAndAddressContainingIgnoreCase(
+                                Role.LIVREUR, villeCommande);
+
+                if (livreurs.isEmpty()) {
+                        throw new RuntimeException(
+                                        "Aucun livreur disponible pour la ville: " + villeCommande);
+                }
+
+                return livreurs.get(0).getId(); // choose first
+        }
+
+}

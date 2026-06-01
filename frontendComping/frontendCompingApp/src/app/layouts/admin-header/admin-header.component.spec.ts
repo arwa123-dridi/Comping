@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { AdminHeaderComponent } from './admin-header.component';
 
 describe('AdminHeaderComponent', () => {
@@ -10,7 +9,7 @@ describe('AdminHeaderComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AdminHeaderComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AdminHeaderComponent);
     component = fixture.componentInstance;

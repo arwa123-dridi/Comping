@@ -64,9 +64,9 @@ export class EquipeFormComponent implements OnInit {
         });
         this.loading = false;
       },
-      error: () => { 
-        this.error = 'Erreur lors du chargement.'; 
-        this.loading = false; 
+      error: () => {
+        this.error = 'Erreur lors du chargement.';
+        this.loading = false;
       }
     });
   }
@@ -113,5 +113,5 @@ export class EquipeFormComponent implements OnInit {
     }
   });
 }
-    
+
 }

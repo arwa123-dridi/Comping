@@ -4,7 +4,9 @@ import lombok.*;
 import tn.comping.spring.backendcomping.entities.Avis;
 import tn.comping.spring.backendcomping.entities.StatutAvis;
 import tn.comping.spring.backendcomping.entities.TypeCible;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -24,7 +26,9 @@ public class AvisResponseDTO {
     private String cibleId;
     private TypeCible typeCible;
 
-    private ReponseAvisDTO reponse;
+    private String parentAvisId;
     private Date dateModification;
+    @Builder.Default
+    private List<AvisResponseDTO> enfants = new ArrayList<>();
     
 }

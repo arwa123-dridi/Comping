@@ -27,6 +27,7 @@ export class SigninComponent {
 
   onSubmit(): void {
     this.errorMsg = '';
+
     if (!this.email || !this.password) {
       this.errorMsg = 'Veuillez remplir tous les champs.';
       return;

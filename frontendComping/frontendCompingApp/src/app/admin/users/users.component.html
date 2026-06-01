@@ -106,7 +106,6 @@
               <div class="avatar-wrap">
                 <img *ngIf="user.photo" [src]="user.photo" alt="photo" class="avatar" />
                 <div *ngIf="!user.photo" class="avatar-fallback" [style.background]="getAvatarColor(user)">
-                  {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
                 </div>
                 <span class="status-ring" [class.sr-active]="user.statut" [class.sr-inactive]="!user.statut"></span>
               </div>
@@ -196,7 +195,6 @@
         </svg>
       </div>
       <h3>Confirmer la suppression</h3>
-      <p>Voulez-vous vraiment supprimer <strong>{{ userToDelete.firstName }} {{ userToDelete.lastName }}</strong> ? Cette action est irréversible.</p>
       <div class="modal-actions">
         <button class="btn-cancel" (click)="cancelDelete()">Annuler</button>
         <button class="btn-confirm-delete" (click)="confirmDelete()">Supprimer</button>

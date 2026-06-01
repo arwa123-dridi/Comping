@@ -1,0 +1,291 @@
+<section class="campino-chat-shell" [class.sidebar-collapsed]="sidebarCollapsed">
+
+  <!-- ═══════════ SIDEBAR COMMUNAUTÉ ═══════════ -->
+  <app-community-sidebar
+    [unreadMessages]="unreadTotal"
+    (collapsedChange)="sidebarCollapsed = $event">
+  </app-community-sidebar>
+
+  <!-- ═══════════ PANNEAU CONVERSATION LIST ═══════════ -->
+  <main class="conv-panel">
+
+    <!-- Header -->
+    <header class="panel-header">
+      <div class="panel-title">
+        <h1>Messages</h1>
+        <span class="unread-pill" *ngIf="unreadTotal > 0">{{ unreadTotal }}</span>
+      </div>
+      <div class="panel-actions">
+        <button class="icon-action-btn" type="button" title="Nouveau groupe"
+                (click)="toggleGroupForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <line x1="23" y1="11" x2="17" y2="11"/>
+            <line x1="20" y1="8" x2="20" y2="14"/>
+          </svg>
+        </button>
+        <button class="icon-action-btn" type="button" title="Nouvelle conversation"
+                (click)="toggleNewConvForm()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <line x1="12" y1="8" x2="12" y2="16"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Search -->
+    <div class="panel-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input [(ngModel)]="search" placeholder="Rechercher..." autocomplete="off" />
+    </div>
+
+    <!-- Alertes -->
+    <div class="alerts">
+      <div class="alert error"   *ngIf="error">{{ error }}</div>
+      <div class="alert success" *ngIf="success">{{ success }}</div>
+    </div>
+
+    <!-- Formulaire nouvelle conversation -->
+    <div class="inline-form" *ngIf="showNewConvForm">
+      <p class="form-label">Choisir un ami</p>
+      <div class="no-friends-hint" *ngIf="followingList.length === 0">
+        Suivez des campeurs pour leur envoyer un message.
+      </div>
+      <select *ngIf="followingList.length > 0" [(ngModel)]="selectedFriendId" class="friend-select">
+        <option value="" disabled>Sélectionner un ami…</option>
+        <option *ngFor="let f of followingList" [value]="f.suiviId">
+          {{ f.suiviNom }} ({{ f.suiviEmail }})
+        </option>
+      </select>
+      <div class="inline-form-actions">
+        <button class="cancel-form-btn" (click)="showNewConvForm = false; selectedFriendId = ''">Annuler</button>
+        <button class="start-conv-btn" (click)="createConversation()"
+                [disabled]="creating || !selectedFriendId">
+          {{ creating ? '...' : 'Démarrer' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulaire nouveau groupe -->
+    <div class="inline-form" *ngIf="showGroupForm">
+      <input [(ngModel)]="groupName" placeholder="Nom du groupe" autocomplete="off" />
+      <p class="form-label">Participants</p>
+      <div class="no-friends-hint" *ngIf="followingList.length === 0">
+        Suivez des campeurs pour créer un groupe.
+      </div>
+      <div class="friend-checklist" *ngIf="followingList.length > 0">
+        <label class="friend-check-item" *ngFor="let f of followingList"
+               [class.selected]="isGroupMemberSelected(f.suiviId)"
+               (click)="toggleGroupMember(f.suiviId); $event.preventDefault()">
+          <input type="checkbox" [checked]="isGroupMemberSelected(f.suiviId)" (click)="$event.stopPropagation()" readonly />
+          <span class="friend-check-av">{{ (f.suiviNom || 'C')[0].toUpperCase() }}</span>
+          <span class="friend-check-name">{{ f.suiviNom }}</span>
+        </label>
+      </div>
+      <p class="form-hint" *ngIf="followingList.length > 0">
+        {{ selectedGroupMemberIds.length }} / {{ followingList.length }} sélectionné(s) — minimum 2
+      </p>
+      <div class="inline-form-actions">
+        <button class="cancel-form-btn" (click)="showGroupForm = false; selectedGroupMemberIds = []">Annuler</button>
+        <button class="start-conv-btn" (click)="createGroup()"
+                [disabled]="creating || !groupName.trim() || selectedGroupMemberIds.length < 2">
+          {{ creating ? '...' : 'Créer' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── GROUPES ─── -->
+    <div *ngIf="groupConversations.length > 0">
+      <p class="section-label">GROUPES</p>
+      <div class="conv-row" *ngFor="let conv of groupConversations" (click)="openConversation(conv)">
+        <div class="conv-avatar group-av">{{ initials(conv) }}</div>
+        <div class="conv-info">
+          <div class="conv-head">
+            <span class="conv-name">{{ title(conv) }}</span>
+            <span class="conv-time">{{ timeAgo(conv.dateDernierMessage) }}</span>
+          </div>
+          <div class="conv-preview">
+            <span class="participants-preview">{{ participantPreview(conv) }}</span>
+            <span *ngIf="conv.dernierMessageContenu"> · </span>
+            <span class="preview-text">{{ conv.dernierMessageContenu || 'Aucun message' }}</span>
+          </div>
+        </div>
+        <span class="unread-badge" *ngIf="conv.messagesNonLus > 0">{{ conv.messagesNonLus }}</span>
+      </div>
+    </div>
+
+    <!-- ─── PERSONNES ─── -->
+    <div *ngIf="directConversations.length > 0">
+      <p class="section-label">PERSONNES</p>
+      <div class="conv-row" *ngFor="let conv of directConversations" (click)="openConversation(conv)">
+        <div class="conv-avatar-wrap">
+          <div class="conv-avatar">{{ initials(conv) }}</div>
+          <span class="presence-dot" [class.online]="isOnline(conv)"></span>
+        </div>
+        <div class="conv-info">
+          <div class="conv-head">
+            <span class="conv-name">{{ title(conv) }}</span>
+            <span class="conv-time">{{ timeAgo(conv.dateDernierMessage) }}</span>
+          </div>
+          <div class="conv-preview">
+            <span class="online-label" [class.online]="isOnline(conv)">
+              {{ isOnline(conv) ? 'En ligne' : '' }}
+            </span>
+            <span class="preview-text" *ngIf="conv.dernierMessageContenu">
+              <span *ngIf="isOnline(conv)"> · </span>{{ conv.dernierMessageContenu }}
+            </span>
+            <span class="preview-text muted" *ngIf="!conv.dernierMessageContenu && !isOnline(conv)">
+              {{ timeAgo(conv.dateDernierMessage) }}
+            </span>
+          </div>
+        </div>
+        <span class="unread-badge" *ngIf="conv.messagesNonLus > 0">{{ conv.messagesNonLus }}</span>
+      </div>
+    </div>
+
+    <!-- État vide -->
+    <div class="empty-conv-state" *ngIf="!loading && filteredConversations.length === 0">
+      <div class="empty-icon">💬</div>
+      <p>Aucune conversation</p>
+      <span>Démarrez un échange ou créez un groupe</span>
+    </div>
+
+  </main>
+
+  <!-- ═══════════ PANNEAU DROIT ═══════════ -->
+  <aside class="chat-right-panel">
+
+    <!-- ── ÉCRAN D'ACCUEIL (aucune conversation sélectionnée) ── -->
+    <div class="chat-info-panel" *ngIf="!convOpen">
+
+    <!-- HERO -->
+    <div class="info-hero">
+      <svg class="hero-deco" viewBox="0 0 200 200" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="8" width="132" height="88" rx="22" opacity=".18"/>
+        <polygon points="24,96 24,124 56,96" opacity=".18"/>
+        <rect x="52" y="70" width="118" height="80" rx="20" opacity=".11"/>
+        <polygon points="148,150 148,178 118,150" opacity=".11"/>
+      </svg>
+      <div class="hero-glow"></div>
+      <div class="info-hero-content">
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          <span>{{ onlineUsers.length }} campeur{{ onlineUsers.length !== 1 ? 's' : '' }} en ligne</span>
+        </div>
+        <h2>Vos campeurs<br>vous attendent !</h2>
+        <p>Connectez, échangez, planifiez ensemble</p>
+      </div>
+    </div>
+
+    <!-- CAMPEURS EN LIGNE -->
+    <div class="online-strip" *ngIf="onlineUsers.length > 0">
+      <span class="strip-label">EN LIGNE MAINTENANT</span>
+      <div class="online-avatars">
+        <div class="online-av"
+             *ngFor="let u of onlineUsers | slice:0:7"
+             [title]="u.nom || u.userId">
+          {{ userInitials(u.nom || u.userId) }}
+          <span class="av-dot"></span>
+        </div>
+        <div class="online-av more" *ngIf="onlineUsers.length > 7">
+          +{{ onlineUsers.length - 7 }}
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURE GRID -->
+    <div class="feature-grid">
+
+      <article class="feat-card">
+        <span class="feat-icon voice">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </span>
+        <strong>Messages vocaux</strong>
+        <span>Transcription IA · Vosk</span>
+      </article>
+
+      <article class="feat-card">
+        <span class="feat-icon call">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10 19.79 19.79 0 0 1 1.61 1.36 2 2 0 0 1 3.58 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6.18 6.18l.97-.97a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+          </svg>
+        </span>
+        <strong>Appels intégrés</strong>
+        <span>Audio &amp; vidéo WebRTC</span>
+      </article>
+
+      <article class="feat-card">
+        <span class="feat-icon group">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </span>
+        <strong>Groupes campeurs</strong>
+        <span>Tribu communautaire</span>
+      </article>
+
+      <article class="feat-card">
+        <span class="feat-icon media">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+        </span>
+        <strong>Partage de médias</strong>
+        <span>Photos, docs, audio</span>
+      </article>
+
+    </div>
+
+    <!-- STATS -->
+    <div class="panel-stats">
+      <div class="pstat">
+        <strong>{{ conversations.length }}</strong>
+        <span>Conversations</span>
+      </div>
+      <div class="pstat">
+        <strong>{{ groupConversations.length }}</strong>
+        <span>Groupes</span>
+      </div>
+      <div class="pstat accent">
+        <strong>{{ unreadTotal }}</strong>
+        <span>Non lus</span>
+      </div>
+    </div>
+
+    <!-- TIP -->
+    <div class="camp-tip">
+      <span class="tip-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </span>
+      <span>Depuis un avis, cliquez <strong>Contacter</strong> pour démarrer une conversation liée directement.</span>
+    </div>
+
+    </div><!-- /chat-info-panel -->
+
+    <!-- ── CONVERSATION EMBARQUÉE ── -->
+    <router-outlet
+      (activate)="convOpen = true"
+      (deactivate)="convOpen = false">
+    </router-outlet>
+
+  </aside>
+
+</section>

@@ -11,6 +11,8 @@ import tn.comping.spring.backendcomping.dto.UpdatePasswordDTO;
 import tn.comping.spring.backendcomping.dto.UpdateProfileDTO;
 import tn.comping.spring.backendcomping.entities.SignupEntity;
 import tn.comping.spring.backendcomping.services.serviceImpl.IProfileService;
+import tn.comping.spring.backendcomping.services.serviceImpl.SignupService;
+import tn.comping.spring.backendcomping.utils.Constants;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -23,11 +25,10 @@ public class ProfileController {
 
     private final IProfileService profileService;
     private final SecurityUtils   securityUtils;
+    private final SignupService   signupService; // utilisé pour getTotalUsers
 
-    // ─────────────────────────────────────────────────────────────
-    //  Helper : l'utilisateur courant peut-il agir sur cet userId ?
-    //  ✅ Oui si c'est lui-même OU s'il est ADMIN
-    // ─────────────────────────────────────────────────────────────
+    // Helper : l'utilisateur courant peut-il agir sur cet userId ?
+    // ✅ Oui si c'est lui-même OU s'il est ADMIN
     private boolean canActOn(String userId) {
         String currentId   = securityUtils.getCurrentUserId();
         String currentRole = securityUtils.getCurrentUserRole();
@@ -45,9 +46,15 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.getProfile(userId));
     }
 
-    // ── PUT profil ────────────────────────────────────────────────
-    // ✅ CORRIGÉ : endpoint était /profile mais frontend appelle PUT /{userId}
-    @PutMapping("/{userId}")
+    // ── GET by email (ajouté par Mariem) ─────────────────────────
+    @GetMapping("/by-email/{email}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<SignupEntity> getUserByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(profileService.getUserByEmail(email));
+    }
+
+    // ── PUT profil (alias /profile) ───────────────────────────────
+    @PutMapping("/{userId}/profile")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<SignupEntity> updateProfile(
             @PathVariable String userId,
@@ -59,17 +66,7 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.updateProfile(userId, dto));
     }
 
-    // ── Alias /profile pour compatibilité ─────────────────────────
-    @PutMapping("/{userId}/profile")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<SignupEntity> updateProfileAlias(
-            @PathVariable String userId,
-            @Valid @RequestBody UpdateProfileDTO dto) {
-        return updateProfile(userId, dto);
-    }
-
     // ── PUT mot de passe ──────────────────────────────────────────
-    // ✅ CORRIGÉ : admin peut aussi changer son propre mot de passe
     @PutMapping("/{userId}/password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> updatePassword(
@@ -83,7 +80,6 @@ public class ProfileController {
     }
 
     // ── PUT photo ─────────────────────────────────────────────────
-    // ✅ CORRIGÉ : admin peut changer sa propre photo (403 résolu)
     @PutMapping("/{userId}/photo")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<String> updatePhoto(
@@ -100,26 +96,36 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.updatePhoto(userId, photoUrl));
     }
 
-    // ── ADMIN uniquement ──────────────────────────────────────────
-    @GetMapping
+    // ── ADMIN : liste de tous les utilisateurs ────────────────────
+    @GetMapping(Constants.GET_ALL_USERS)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<SignupEntity>> getAllUsers() {
         return ResponseEntity.ok(profileService.getAllUsers());
     }
 
-    @DeleteMapping("/{userId}")
+    // ── ADMIN : suppression d'un utilisateur ──────────────────────
+    @DeleteMapping(Constants.DELETE_USER)
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable String userId) {
         profileService.deleteUser(userId);
         return ResponseEntity.ok("Utilisateur supprimé");
     }
 
+    // ── ADMIN : activation/désactivation d'un compte ──────────────
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<SignupEntity> updateStatus(
             @PathVariable String id,
             @RequestBody Map<String, Boolean> body) {
         boolean statut = Boolean.TRUE.equals(body.get("statut"));
-        return ResponseEntity.ok(profileService.updateStatus(id, statut));
+        SignupEntity updatedUser = profileService.updateStatus(id, statut);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    // ── ADMIN : nombre total d'utilisateurs (ajouté par Mariem) ───
+    @GetMapping("/count")
+    @PreAuthorize("hasRole('ADMIN')")
+    public long getTotalUsers() {
+        return signupService.getTotalUsers();
     }
 }
