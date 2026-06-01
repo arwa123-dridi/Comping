@@ -1,5 +1,5 @@
-
 services:
+
   mongo:
     image: mongo:6
     restart: unless-stopped
@@ -10,8 +10,8 @@ services:
 
   backend:
     build:
-      context: .
-      dockerfile: dockerfile.backend
+      context: ./backendComping
+      dockerfile: Dockerfile.backend
     image: backendcomping:latest
     restart: unless-stopped
     depends_on:
@@ -24,8 +24,8 @@ services:
 
   frontend:
     build:
-      context: .
-      dockerfile: dockerfile.frontend
+      context: ./frontendComping
+      dockerfile: Dockerfile.frontend
     image: frontendcomping:latest
     restart: unless-stopped
     depends_on:
