@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo:6
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: .
+      dockerfile: dockerfile.backend
+    image: backendComping:latest
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/Comping
+      SPRING_DATA_MONGODB_DATABASE: Comping
+
+  frontend:
+    build:
+      context: .
+      dockerfile: dockerfile.frontend
+    image: frontendComping:latest
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+
+volumes:
+  mongo_data:
