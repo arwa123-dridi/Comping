@@ -196,6 +196,7 @@
             <scope>test</scope>
         </dependency>
 
+
     </dependencies>
 
     <build>
@@ -224,6 +225,17 @@
                             <version>${spring-boot.version}</version>
                         </path>
                     </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Surefire : Windows Certificate Store pour résoudre les problèmes SSL flapdoodle -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <javax.net.ssl.trustStoreType>Windows-ROOT</javax.net.ssl.trustStoreType>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
 

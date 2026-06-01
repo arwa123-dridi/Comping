@@ -4,10 +4,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import tn.comping.spring.backendcomping.Testunitaire.repositories.*;
 import tn.comping.spring.backendcomping.dto.EquipeScoreDTO;
 import tn.comping.spring.backendcomping.dto.SortieScoreDTO;
 import tn.comping.spring.backendcomping.entities.*;
-import tn.comping.spring.backendcomping.repositories.*;
+import tn.comping.spring.backendcomping.repositories.EquipeRepository;
+import tn.comping.spring.backendcomping.repositories.ParticipationRepository;
+import tn.comping.spring.backendcomping.repositories.SignupRepository;
+import tn.comping.spring.backendcomping.repositories.SortieRepository;
+import tn.comping.spring.backendcomping.repositories.UserProfileRepository;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.*;
