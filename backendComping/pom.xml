@@ -209,6 +209,53 @@
                 </configuration>
             </plugin>
 
+
+
+            <plugin>
+              <groupId>org.jacoco</groupId>
+              <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.12</version>
+
+            <executions>
+
+        <!-- Initialise l'agent avant les tests -->
+        <execution>
+            <id>prepare-agent</id>
+            <goals>
+                <goal>prepare-agent</goal>
+            </goals>
+        </execution>
+
+        <!-- Génère le rapport après les tests -->
+        <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+                <goal>report</goal>
+            </goals>
+        </execution>
+
+        <!-- Génère aussi le rapport à la phase verify (important pour Jenkins) -->
+        <execution>
+            <id>report-verify</id>
+            <phase>verify</phase>
+            <goals>
+                <goal>report</goal>
+            </goals>
+        </execution>
+
+    </executions>
+
+    <configuration>
+        <outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+
+        <reports>
+            <xml enabled="true"/>
+            <html enabled="true"/>
+        </reports>
+        </configuration>
+
+        </plugin>
             <!-- Spring Boot Maven Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
