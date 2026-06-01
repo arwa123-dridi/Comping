@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import tn.comping.spring.backendcomping.Testunitaire.repositories.*;
 import tn.comping.spring.backendcomping.dto.EquipeScoreDTO;
 import tn.comping.spring.backendcomping.dto.SortieScoreDTO;
 import tn.comping.spring.backendcomping.entities.*;
