@@ -6,31 +6,33 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
+@Data
+// MongoDB collection name
+
 @Document(collection = "produit")
 public class Produit {
 
     @Id
-    private String id;
+    private String id; // MongoDB ObjectId, String is typical
 
     private String nomProduit;
     private String descriptionProduit;
     private Double prixProduit;
-
     private categorieProduit categorieProduit;
     private statutProduit statut;
-
-    // STOCK MANAGEMENT
-    private Integer quantiteStock;
-    private Integer seuilAlerteStock;
-
+    // 🆕 STOCK MANAGEMENT
+    private Integer quantiteStock; // current quantity in stock
+    private Integer seuilAlerteStock; // low stock threshold
     private String imageUrl;
-
-    // PROMOTION
     private Double promoPrice;
+
     private LocalDateTime promoStart;
     private LocalDateTime promoEnd;
+    
 }

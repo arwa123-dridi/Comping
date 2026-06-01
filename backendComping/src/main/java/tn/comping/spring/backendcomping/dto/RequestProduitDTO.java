@@ -1,6 +1,9 @@
 package tn.comping.spring.backendcomping.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import tn.comping.spring.backendcomping.entities.categorieProduit;
 import tn.comping.spring.backendcomping.entities.statutProduit;
 
@@ -11,23 +14,18 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class RequestProduitDTO {
+  private String nomProduit;
+  private String descriptionProduit;
+  private Double prixProduit;
+  private categorieProduit categorieProduit;
+  // 🆕 STOCK MANAGEMENT
+  private Integer quantiteStock; // current quantity in stock
+  private Integer seuilAlerteStock; // low stock threshold
+  private statutProduit statut;
+  private String imageUrl;
 
-    private String nomProduit;
-    private String descriptionProduit;
-    private Double prixProduit;
+  private Double promoPrice;
+  private LocalDateTime promoStart;
+  private LocalDateTime promoEnd;
 
-    private categorieProduit categorieProduit;
-
-    // STOCK MANAGEMENT
-    private Integer quantiteStock;
-    private Integer seuilAlerteStock;
-
-    private statutProduit statut;
-
-    private String imageUrl;
-
-    // PROMOTION (from theirs branch - kept and integrated)
-    private Double promoPrice;
-    private LocalDateTime promoStart;
-    private LocalDateTime promoEnd;
 }

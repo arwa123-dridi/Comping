@@ -1,12 +1,13 @@
 package tn.comping.spring.backendcomping.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import tn.comping.spring.backendcomping.entities.categorieProduit;
 import tn.comping.spring.backendcomping.entities.statutProduit;
 
 import java.time.LocalDateTime;
-
-
-import lombok.*;
 
 @Data
 @NoArgsConstructor

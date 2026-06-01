@@ -46,9 +46,35 @@ public class SecurityConfig {
                         .requestMatchers("/api/demandes-transport/**", "/api/creneaux-livraison/**", "/api/incidents/**",
                                 "/api/conventions-partenaires/**", "/api/produits/**", "/uploads/**", "/api/webhook/**").permitAll()
 
+
                         // Participants (HEAD)
                         .requestMatchers(HttpMethod.GET, "/api/sorties/*/participants").hasAnyRole("ADMIN", "ORGANISATEUR")
                         .requestMatchers(HttpMethod.PATCH, "/api/sorties/*/participants/*/statut").hasAnyRole("ADMIN", "ORGANISATEUR")
+
+                        // Routes publiques
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/sorties/**",
+                                "/api/equipes/**",
+                                "/api/upload/**",
+                                "/api/weather/**",
+                                "/api/checklist/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/api/demandes-transport/**",
+                                "/api/creneaux-livraison/**",
+                                "/api/incidents/**",
+                                "/api/conventions-partenaires/**",
+
+                                "/api/produits/**",
+                                "/api/panier/**",
+                                "/api/commandes/**",
+                                "/api/recommendations/**",
+                                "/uploads/**" ,
+                                "/api/webhook/**"
+                        ).permitAll()
+
 
                         // Lectures publiques GET sur sorties/equipes (HEAD)
                         .requestMatchers(HttpMethod.GET, "/api/sorties/**").permitAll()
@@ -83,7 +109,13 @@ public class SecurityConfig {
                         .requestMatchers("/api/avis/*/rejeter").hasAnyRole("MODERATEUR", "ADMIN")
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/events/**").authenticated()
+
                         .requestMatchers("/api/produits/**").authenticated()
+
+                        .requestMatchers("/api/panier/**").authenticated()
+                        .requestMatchers("/api/commandes/**").authenticated()
+                        // Tout le reste nécessite authentification
+
 
                         // ==================== NOUVELLES RÈGLES (Mariem) ====================
                         // Endpoints publics supplémentaires (panier, commandes, posts, chat, etc.)
