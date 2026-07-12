@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx ng *)",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 27017,8087 -ErrorAction SilentlyContinue | Select-Object LocalPort,State,OwningProcess\")",
+      "Bash(powershell -Command 'Get-Process | Where-Object {$_.ProcessName -match '\\\\''mongo|java|docker'\\\\''} | Select-Object ProcessName,Id')",
+      "Bash(powershell -Command \"Get-Process -Id 22884 -ErrorAction SilentlyContinue | Select-Object ProcessName,Id,Path\")",
+      "Bash(powershell -Command \"Get-Process -Id 24060 -ErrorAction SilentlyContinue | Select-Object ProcessName,Id,Path\")",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:8087/api/sorties --max-time 5)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:8087/actuator/health --max-time 5)",
+      "Bash(curl -s http://localhost:8087/actuator/health --max-time 5)",
+      "Bash(kubectl get *)",
+      "Bash(curl -s http://localhost:8087/actuator/health/liveness --max-time 5)",
+      "Bash(curl -s http://localhost:8087/actuator/health/readiness --max-time 5)",
+      "Bash(kubectl logs *)",
+      "Bash(docker build *)",
+      "Bash(kubectl rollout *)",
+      "Bash(curl -s -o /dev/null -w \"sorties HTTP %{http_code}\\\\n\" http://localhost:8087/api/sorties --max-time 5)",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 8087 -ErrorAction SilentlyContinue | Select-Object LocalPort,State,OwningProcess\")",
+      "Bash(kubectl port-forward *)",
+      "Bash(disown)",
+      "Read(//tmp/**)",
+      "Bash(powershell -Command \"Get-Service -Name '*jenkins*' -ErrorAction SilentlyContinue\")",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:8080 --max-time 3)",
+      "Bash(kubectl config *)",
+      "Bash(python3 -)",
+      "Bash(rm -f \"d:/personal/ghoz/Comping/frontendComping/frontendCompingApp/src/app/core/google-maps.config.ts\" \\\\ *)"
+    ],
+    "additionalDirectories": [
+      "d:\\personal\\ghoz\\Comping\\frontendComping\\frontendCompingApp\\src\\app\\core"
+    ]
+  }
+}

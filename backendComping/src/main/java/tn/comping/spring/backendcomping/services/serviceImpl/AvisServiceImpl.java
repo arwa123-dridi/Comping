@@ -22,6 +22,7 @@ public class AvisServiceImpl implements AvisService {
     private final AvisRepository avisRepository;
     private final ReponseAvisRepository reponseAvisRepository;
     private final SignupRepository signupRepository;
+    private final DemandeTransportRepository demandeTransportRepository;
 
     @Override
     public AvisResponseDTO creerAvis(AvisRequestDTO dto, String
@@ -38,6 +39,27 @@ public class AvisServiceImpl implements AvisService {
         }
 
         Avis avis = AvisMapper.toEntity(dto, utilisateur.getId());
+
+        if (dto.getTypeCible() == TypeCible.TRANSPORT) {
+            DemandeTransport demande = demandeTransportRepository.findById(dto.getCibleId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "DemandeTransport non trouvee"));
+            if (!demande.getUserId().equals(utilisateur.getId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous n'etes pas autorise a noter cette demande");
+            }
+            if (demande.getStatut() != StatutDemandeTransport.LIVREE) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seule une demande LIVREE peut etre notee");
+            }
+            if (demande.isNoteAttribuee()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cette demande a deja ete notee");
+            }
+            // notation d'un service transport : pas de moderation necessaire, validee immediatement
+            avis.setStatut(StatutAvis.VALIDE);
+            avis.setValide(true);
+
+            demande.setNoteAttribuee(true);
+            demandeTransportRepository.save(demande);
+        }
+
         avis = avisRepository.save(avis);
 
         log.info("Avis créé - ID: {}", avis.getId());

@@ -78,6 +78,22 @@
         </div>
         <div class="du-kpi-trend">Voir →</div>
       </div>
+      <div class="du-kpi-card du-kpi-blue" routerLink="/dashboard/logistique/transports" style="cursor:pointer">
+        <div class="du-kpi-icon">🚚</div>
+        <div class="du-kpi-data">
+          <div class="du-kpi-val">{{ totalTransportsEnCours }}</div>
+          <div class="du-kpi-lbl">Transports en cours</div>
+        </div>
+        <div class="du-kpi-trend">{{ totalTransportsLivres }} livré(s)</div>
+      </div>
+      <div class="du-kpi-card du-kpi-orange" routerLink="/dashboard/logistique/incidents" style="cursor:pointer">
+        <div class="du-kpi-icon">⚠️</div>
+        <div class="du-kpi-data">
+          <div class="du-kpi-val">{{ totalIncidentsOuverts }}</div>
+          <div class="du-kpi-lbl">Incidents ouverts</div>
+        </div>
+        <div class="du-kpi-trend">Voir →</div>
+      </div>
     </div>
 
     <!-- ══ DEUX COLONNES PRINCIPALES ══ -->
@@ -244,6 +260,38 @@
           </div>
         </div>
 
+
+        <!-- Logistique -->
+        <div class="du-card-section">
+          <div class="du-section-header">
+            <h2 class="du-section-title">
+              <span class="du-title-dot du-dot-blue"></span>
+              Logistique
+            </h2>
+            <a routerLink="/dashboard/logistique/transports" class="du-link-more">Voir →</a>
+          </div>
+          <div *ngIf="!loading.logistique && mesTransports.length === 0 && mesIncidents.length === 0" class="du-empty-state">
+            <p>Aucune demande de transport ni incident.</p>
+          </div>
+          <div *ngIf="mesTransports.length > 0" class="du-equipe-list">
+            <div *ngFor="let t of mesTransports.slice(0, 3)" class="du-equipe-row" routerLink="/dashboard/logistique/transports">
+              <div class="du-eq-avatar">🚚</div>
+              <div class="du-eq-info">
+                <div class="du-eq-nom">{{ t.typeService }}</div>
+                <div class="du-eq-meta">{{ t.statut }}</div>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="mesIncidents.length > 0" class="du-equipe-list">
+            <div *ngFor="let i of mesIncidents.slice(0, 3)" class="du-equipe-row" routerLink="/dashboard/logistique/incidents">
+              <div class="du-eq-avatar">⚠️</div>
+              <div class="du-eq-info">
+                <div class="du-eq-nom">{{ i.type }}</div>
+                <div class="du-eq-meta">{{ i.statut }} · {{ i.priorite }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Liens rapides -->
         <div class="du-quick-links">

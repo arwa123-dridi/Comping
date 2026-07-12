@@ -40,24 +40,19 @@
       <div class="dropdown notif-dropdown" *ngIf="showNotif">
         <div class="dropdown-header">
           <span>Notifications</span>
-          <button class="mark-all" (click)="clearNotifs()">Tout lire</button>
+          <button class="mark-all" (click)="clearNotifs()" *ngIf="notifCount > 0">Tout lire</button>
         </div>
-        <div class="notif-item unread">
+        <div class="notif-item" *ngFor="let n of notifications" [class.unread]="!n.lu" (click)="selectNotif(n)">
           <div class="notif-dot"></div>
           <div class="notif-content">
-            <p>Nouvelle participation à valider</p>
-            <span>Il y a 5 min</span>
+            <p>{{ n.titre }}</p>
+            <span>{{ n.dateCreation | date:'short' }}</span>
           </div>
         </div>
-        <div class="notif-item unread">
-          <div class="notif-dot"></div>
+        <div class="notif-item" *ngIf="notifications.length === 0">
           <div class="notif-content">
-            <p>Randonnée complète — Zaghouan</p>
-            <span>Il y a 22 min</span>
+            <p>Aucune notification</p>
           </div>
-        </div>
-        <div class="dropdown-footer" routerLink="/admin/dashboard" (click)="closeAll()">
-          Voir toutes les notifications
         </div>
       </div>
     </div>

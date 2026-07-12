@@ -1,0 +1,115 @@
+<div class="at-page">
+
+  <div class="at-header">
+    <h1>Demandes de transport</h1>
+    <p>{{ filtered.length }} demande(s)</p>
+  </div>
+
+  <div class="at-filters">
+    <input type="text" placeholder="🔍 Rechercher..." [(ngModel)]="searchText" (input)="applyFilters()" />
+    <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+      <option value="">Tous les statuts</option>
+      <option value="EN_ATTENTE">EN_ATTENTE</option>
+      <option value="PLANIFIEE">PLANIFIEE</option>
+      <option value="EN_COURS">EN_COURS</option>
+      <option value="LIVREE">LIVREE</option>
+      <option value="ANNULEE">ANNULEE</option>
+    </select>
+  </div>
+
+  <div class="at-loading" *ngIf="loading">Chargement...</div>
+
+  <div class="at-table-card" *ngIf="!loading">
+    <table class="at-table" *ngIf="filtered.length > 0">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Trajet</th>
+          <th>Date souhaitee</th>
+          <th>Statut</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let d of filtered">
+          <td>{{ d.typeService }}</td>
+          <td>{{ d.adresseDepart }} → {{ d.adresseArrivee }}</td>
+          <td>{{ d.dateSouhaitee || '—' }}</td>
+          <td><span class="at-badge" [ngClass]="statutClass(d.statut)">{{ d.statut }}</span></td>
+          <td class="actions">
+            <button class="btn view" (click)="voirDetail(d)">👁</button>
+            <button class="btn treat" (click)="ouvrirTraitement(d)" [disabled]="estTerminal(d.statut)">⚙️ Traiter</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="at-empty" *ngIf="filtered.length === 0">
+      <div class="icon">🚚</div>
+      <p>Aucune demande trouvee</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" *ngIf="modalType === 'DETAIL' && selected as d">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>🚚 Detail de la demande</h2>
+      <button class="close-btn" (click)="closeModal()">✖</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-row"><span>Type :</span><b>{{ d.typeService }}</b></div>
+      <div class="detail-row"><span>Statut :</span><span class="at-badge" [ngClass]="statutClass(d.statut)">{{ d.statut }}</span></div>
+      <div class="detail-row"><span>Depart :</span><b>{{ d.adresseDepart }}</b></div>
+      <div class="detail-row"><span>Arrivee :</span><b>{{ d.adresseArrivee }}</b></div>
+      <div class="detail-row" *ngIf="d.description"><span>Description :</span><b>{{ d.description }}</b></div>
+      <hr>
+      <h4>Historique</h4>
+      <div class="history-item" *ngFor="let h of d.historique">
+        <span class="history-date">{{ h.date | date:'short' }}</span>
+        <span>{{ h.statutPrecedent || 'Creation' }} → {{ h.statutNouveau }}</span>
+        <p *ngIf="h.commentaire">{{ h.commentaire }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TRAITEMENT MODAL -->
+<div class="modal-overlay" *ngIf="modalType === 'TRAITEMENT' && selected as d">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>⚙️ Traiter la demande</h2>
+      <button class="close-btn" (click)="closeModal()">✖</button>
+    </div>
+    <div class="modal-body">
+      <p><b>{{ d.typeService }}</b> — {{ d.adresseDepart }} → {{ d.adresseArrivee }}</p>
+
+      <label class="label">Nouveau statut</label>
+      <select class="select-input" [(ngModel)]="traitementStatut">
+        <option value="" disabled>-- Choisir --</option>
+        <option *ngFor="let s of statutsDisponibles()" [value]="s">{{ s }}</option>
+      </select>
+
+      <label class="label">Commentaire</label>
+      <textarea class="select-input" rows="3" [(ngModel)]="traitementCommentaire" placeholder="Commentaire pour le campeur..."></textarea>
+
+      <label class="label">Creneau de livraison</label>
+      <div class="creneau-row">
+        <select class="select-input" [(ngModel)]="traitementCreneauId">
+          <option value="">-- Aucun --</option>
+          <option *ngFor="let c of creneaux" [value]="c.idCreneauLivraison" [disabled]="!c.disponible && c.idCreneauLivraison !== d.creneauLivraisonId">
+            {{ c.heureDebut }} - {{ c.heureFin }} {{ c.disponible ? '' : '(indisponible)' }}
+          </option>
+        </select>
+        <button type="button" class="btn-suggest" (click)="suggererCreneau()">🤖 Suggerer</button>
+      </div>
+      <p class="suggestion-hint" *ngIf="suggestion">{{ suggestion.raison }}</p>
+
+      <button class="btn-confirm" (click)="confirmerTraitement()" [disabled]="!traitementStatut">
+        Confirmer
+      </button>
+    </div>
+  </div>
+</div>

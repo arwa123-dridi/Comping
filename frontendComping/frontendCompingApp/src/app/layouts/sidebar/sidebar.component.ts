@@ -2,6 +2,8 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { SigninService } from '../../services/signin.service';
+import { DemandeTransportService } from '../../services/demande-transport.service';
+import { IncidentService } from '../../services/incident.service';
 
 
 
@@ -20,11 +22,46 @@ export class SidebarComponent implements OnInit {
   isCollapsed = false;
   role = 'USER';
 
-  constructor(private signinService: SigninService, private router: Router) {}
+  mesTransportsCount = 0;
+  demandesEnAttenteCount = 0;
+  incidentsOuvertsCount = 0;
+
+  constructor(
+    private signinService: SigninService,
+    private router: Router,
+    private demandeTransportService: DemandeTransportService,
+    private incidentService: IncidentService
+  ) {}
 
 
   ngOnInit(): void {
     this.role = localStorage.getItem('userRole') ?? 'USER';
+    this.loadCounters();
+  }
+
+  loadCounters(): void {
+    if (this.isUser()) {
+      this.demandeTransportService.getMine().subscribe({
+        next: (data) => {
+          this.mesTransportsCount = data.filter(d => d.statut !== 'LIVREE' && d.statut !== 'ANNULEE').length;
+        },
+        error: () => {}
+      });
+    }
+    if (this.isOrga()) {
+      this.demandeTransportService.getAll().subscribe({
+        next: (data) => {
+          this.demandesEnAttenteCount = data.filter(d => d.statut === 'EN_ATTENTE').length;
+        },
+        error: () => {}
+      });
+      this.incidentService.getAll().subscribe({
+        next: (data) => {
+          this.incidentsOuvertsCount = data.filter(i => i.statut === 'OUVERT' || i.statut === 'EN_COURS').length;
+        },
+        error: () => {}
+      });
+    }
   }
 
   isAdmin(): boolean {

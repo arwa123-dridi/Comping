@@ -1,0 +1,68 @@
+<div class="al-page">
+
+  <div class="al-header">
+    <div>
+      <h1>Creneaux de livraison</h1>
+      <p>{{ creneaux.length }} creneau(x)</p>
+    </div>
+    <button class="al-btn-new" (click)="openCreate()">+ Nouveau creneau</button>
+  </div>
+
+  <div class="al-loading" *ngIf="loading">Chargement...</div>
+
+  <div class="al-table-card" *ngIf="!loading">
+    <table class="al-table" *ngIf="creneaux.length > 0">
+      <thead>
+        <tr>
+          <th>Heure debut</th>
+          <th>Heure fin</th>
+          <th>Disponibilite</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of creneaux">
+          <td>{{ c.heureDebut }}</td>
+          <td>{{ c.heureFin }}</td>
+          <td>
+            <span class="al-badge" [ngClass]="c.disponible ? 'al-available' : 'al-unavailable'">
+              {{ c.disponible ? 'Disponible' : 'Indisponible' }}
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn edit" (click)="openEdit(c)">✏️</button>
+            <button class="btn delete" (click)="supprimer(c)">🗑</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="al-empty" *ngIf="creneaux.length === 0">
+      <div class="icon">🕐</div>
+      <p>Aucun creneau defini</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" *ngIf="formOpen">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>{{ editingId ? 'Modifier' : 'Nouveau' }} creneau</h2>
+      <button class="close-btn" (click)="closeForm()">✖</button>
+    </div>
+    <div class="modal-body">
+      <label class="label">Heure de debut</label>
+      <input type="time" class="select-input" [(ngModel)]="heureDebut" step="1">
+
+      <label class="label">Heure de fin</label>
+      <input type="time" class="select-input" [(ngModel)]="heureFin" step="1">
+
+      <label class="label checkbox-label">
+        <input type="checkbox" [(ngModel)]="disponible"> Disponible
+      </label>
+
+      <button class="btn-confirm" (click)="save()">Enregistrer</button>
+    </div>
+  </div>
+</div>

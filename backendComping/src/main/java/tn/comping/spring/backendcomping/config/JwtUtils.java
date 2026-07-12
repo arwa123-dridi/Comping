@@ -3,6 +3,7 @@ package tn.comping.spring.backendcomping.config;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import tn.comping.spring.backendcomping.entities.Role;
 
@@ -13,10 +14,11 @@ import java.util.Set;
 
 @Component
 public class JwtUtils {
-    private final String jwtSecret="compingSecretKeyForJWTMustBe256BitsLongAtLeast!!";
+    @Value("${jwt.secret:compingSecretKeyForJWTMustBe256BitsLongAtLeast!!}")
+    private String jwtSecret;
 
-    //token session duration in milliseconds (10 minutes)
-    private final long jwtExpirationMs = 600000;
+    //token session duration in milliseconds (24 hours)
+    private final long jwtExpirationMs = 86400000;
     private final Set<String> blacklistedTokens = ConcurrentHashMap.newKeySet();
     private Key getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes();

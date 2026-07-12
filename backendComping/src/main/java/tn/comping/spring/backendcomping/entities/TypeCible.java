@@ -4,6 +4,7 @@ public enum TypeCible {
     SITE_CAMPING,
     PRODUIT,
     EVENEMENT,
-    ACTIVITE
+    ACTIVITE,
+    TRANSPORT
 
 }

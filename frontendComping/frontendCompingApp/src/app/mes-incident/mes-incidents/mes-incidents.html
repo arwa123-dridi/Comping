@@ -1,0 +1,62 @@
+<div class="mi-page">
+
+  <div class="mi-header">
+    <div>
+      <h1>Mes incidents</h1>
+      <p>{{ incidents.length }} incident(s)</p>
+    </div>
+    <a routerLink="/dashboard/logistique/incidents/signaler" class="mi-btn-new">+ Signaler un incident</a>
+  </div>
+
+  <div class="mi-loading" *ngIf="loading">Chargement...</div>
+
+  <div class="mi-empty" *ngIf="!loading && incidents.length === 0">
+    <div class="mi-empty-icon">✅</div>
+    <p>Aucun incident signale</p>
+  </div>
+
+  <div class="mi-grid" *ngIf="!loading && incidents.length > 0">
+    <div class="mi-card" *ngFor="let i of incidents">
+      <div class="mi-card-top">
+        <span class="mi-badge" [ngClass]="statutClass(i.statut)">{{ i.statut }}</span>
+        <span class="mi-priorite" [ngClass]="prioriteClass(i.priorite)">{{ i.priorite }}</span>
+      </div>
+      <h3 class="mi-card-title">{{ i.type }}</h3>
+      <p class="mi-card-desc">{{ i.description }}</p>
+      <p class="mi-card-date">{{ i.dateDeclaration | date:'short' }}</p>
+
+      <div class="mi-card-actions">
+        <button class="mi-btn-detail" (click)="voirDetail(i)">Voir detail</button>
+        <button class="mi-btn-edit" *ngIf="peutModifier(i)" (click)="modifier(i)">Modifier</button>
+        <button class="mi-btn-delete" *ngIf="peutModifier(i)" (click)="supprimer(i)">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" *ngIf="selected as i">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>⚠️ Detail de l'incident</h2>
+      <button class="close-btn" (click)="closeModal()">✖</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-row"><span>Type :</span><b>{{ i.type }}</b></div>
+      <div class="detail-row"><span>Statut :</span><span class="mi-badge" [ngClass]="statutClass(i.statut)">{{ i.statut }}</span></div>
+      <div class="detail-row"><span>Priorite :</span><span class="mi-priorite" [ngClass]="prioriteClass(i.priorite)">{{ i.priorite }}</span></div>
+      <div class="detail-row"><span>Description :</span><b>{{ i.description }}</b></div>
+      <div class="detail-row" *ngIf="i.commentaireOrganisateur">
+        <span>Commentaire organisateur :</span><b>{{ i.commentaireOrganisateur }}</b>
+      </div>
+
+      <hr>
+      <h4>Historique</h4>
+      <div class="history-item" *ngFor="let h of i.historique">
+        <span class="history-date">{{ h.date | date:'short' }}</span>
+        <span>{{ h.statutPrecedent || 'Creation' }} → {{ h.statutNouveau }}</span>
+        <p *ngIf="h.commentaire">{{ h.commentaire }}</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -410,6 +410,13 @@
 .act-icon.red   { background: #fee2e2; }
 .act-icon.red svg   { stroke: #dc2626; }
 
+.empty-state {
+  padding: 24px 16px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
 .act-body {
   flex: 1;
 }

@@ -1,0 +1,17 @@
+<div class="aa-wrapper">
+  <input type="text"
+         class="aa-input"
+         [placeholder]="placeholder"
+         [value]="value"
+         [disabled]="disabled"
+         (input)="onInput($any($event.target).value)"
+         (focus)="onFocusInput()"
+         (blur)="onBlurInput()"
+         autocomplete="off">
+
+  <span class="aa-loading" *ngIf="loading">Recherche...</span>
+
+  <ul class="aa-suggestions" *ngIf="showSuggestions">
+    <li *ngFor="let s of suggestions" (mousedown)="selectSuggestion(s)">{{ s.display_name }}</li>
+  </ul>
+</div>

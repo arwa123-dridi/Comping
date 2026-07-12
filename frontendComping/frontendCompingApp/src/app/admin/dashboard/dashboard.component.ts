@@ -5,6 +5,10 @@ import { SortieService } from '../../services/sortie.service';
 import { EquipeService } from '../../services/equipe.service';
 import { SortieResponse } from '../../models/sortie.model';
 import { EquipeResponse } from '../../models/equipe.model';
+import { DemandeTransportService } from '../../services/demande-transport.service';
+import { IncidentService } from '../../services/incident.service';
+import { DemandeTransportResponse } from '../../models/demande-transport.model';
+import { IncidentResponse } from '../../models/incident.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,20 +33,98 @@ export class DashboardComponent implements OnInit {
   sortiesRecentes: SortieResponse[] = [];
   sortiesCompletes = 0;
   placesDisponibles = 0;
+  sortiesFaciles = 0;
+  sortiesMoyennes = 0;
+  sortiesDifficiles = 0;
+  tauxRemplissage = 0;
 
   // User infos
   userName = 'Organisateur';
   userRole = '';
   userInitiales = 'O';
 
+  // Logistique (donnees reelles)
+  demandesTransport: DemandeTransportResponse[] = [];
+  incidents: IncidentResponse[] = [];
+  totalDemandesEnAttente = 0;
+  totalIncidentsOuverts = 0;
+  totalIncidentsCritiques = 0;
+
+  // Fil d'activité (calculé à partir des vraies données ci-dessus)
+  activitesRecentes: { iconClass: string; icon: 'sortie' | 'transport' | 'incident' | 'equipe'; text: string; date: Date }[] = [];
+
   constructor(
     private sortieService: SortieService,
-    private equipeService: EquipeService
+    private equipeService: EquipeService,
+    private demandeTransportService: DemandeTransportService,
+    private incidentService: IncidentService
   ) {}
 
   ngOnInit(): void {
     this.loadUserInfo();
     this.loadData();
+    this.loadLogistique();
+  }
+
+  loadLogistique(): void {
+    this.demandeTransportService.getAll().subscribe({
+      next: (data) => {
+        this.demandesTransport = data;
+        this.totalDemandesEnAttente = data.filter(d => d.statut === 'EN_ATTENTE').length;
+        this.updateActivitesRecentes();
+      },
+      error: () => {}
+    });
+    this.incidentService.getAll().subscribe({
+      next: (data) => {
+        this.incidents = data;
+        this.totalIncidentsOuverts = data.filter(i => i.statut === 'OUVERT' || i.statut === 'EN_COURS').length;
+        this.totalIncidentsCritiques = data.filter(i => i.priorite === 'CRITIQUE' && (i.statut === 'OUVERT' || i.statut === 'EN_COURS')).length;
+        this.updateActivitesRecentes();
+      },
+      error: () => {}
+    });
+  }
+
+  updateActivitesRecentes(): void {
+    const items: { iconClass: string; icon: 'sortie' | 'transport' | 'incident' | 'equipe'; text: string; date: Date }[] = [];
+
+    this.sorties.forEach(s => items.push({
+      icon: 'sortie', iconClass: 'green',
+      text: `Sortie "${s.titre}" créée`,
+      date: new Date(s.dateCreation)
+    }));
+    this.equipes.forEach(e => items.push({
+      icon: 'equipe', iconClass: 'blue',
+      text: `Équipe "${e.nom}" créée`,
+      date: new Date(e.dateCreation)
+    }));
+    this.demandesTransport.forEach(d => items.push({
+      icon: 'transport', iconClass: 'blue',
+      text: `Demande de transport (${d.typeService}) — ${d.statut === 'EN_ATTENTE' ? 'en attente' : d.statut.toLowerCase()}`,
+      date: new Date(d.dateCreation)
+    }));
+    this.incidents.forEach(i => items.push({
+      icon: 'incident', iconClass: i.priorite === 'CRITIQUE' ? 'red' : 'amber',
+      text: `Incident "${i.type}" déclaré`,
+      date: new Date(i.dateDeclaration)
+    }));
+
+    this.activitesRecentes = items
+      .filter(it => !isNaN(it.date.getTime()))
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .slice(0, 6);
+  }
+
+  timeAgo(date: Date): string {
+    const diffMs = Date.now() - date.getTime();
+    const minutes = Math.floor(diffMs / 60000);
+    if (minutes < 1) return "à l'instant";
+    if (minutes < 60) return `il y a ${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `il y a ${hours}h`;
+    const days = Math.floor(hours / 24);
+    return `il y a ${days}j`;
   }
 
   loadUserInfo(): void {
@@ -87,7 +169,13 @@ export class DashboardComponent implements OnInit {
         this.placesDisponibles = this.sorties.reduce(
           (sum, s) => sum + Math.max(0, s.capaciteMax - (s.participantIds?.length ?? s.nombreParticipants ?? 0)), 0
         );
+        this.sortiesFaciles = this.sorties.filter(s => s.difficulte === 'FACILE').length;
+        this.sortiesMoyennes = this.sorties.filter(s => s.difficulte === 'MOYEN').length;
+        this.sortiesDifficiles = this.sorties.filter(s => s.difficulte === 'DIFFICILE').length;
+        const capaciteTotale = this.totalParticipants + this.placesDisponibles;
+        this.tauxRemplissage = capaciteTotale > 0 ? Math.round((this.totalParticipants / capaciteTotale) * 100) : 0;
         this.loading = false;
+        this.updateActivitesRecentes();
       },
       error: () => { this.loading = false; }
     });
@@ -102,6 +190,7 @@ export class DashboardComponent implements OnInit {
         this.totalMembres = this.equipes.reduce(
           (sum, e) => sum + (e.membres?.length ?? e.nbMembresActuels ?? 0), 0
         );
+        this.updateActivitesRecentes();
       },
       error: () => {}
     });

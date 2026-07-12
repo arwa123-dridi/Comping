@@ -1,0 +1,71 @@
+<div class="mt-page">
+
+  <div class="mt-header">
+    <div>
+      <h1>Mes transports</h1>
+      <p>{{ demandes.length }} demande(s)</p>
+    </div>
+    <a routerLink="/dashboard/logistique/transports/nouvelle-demande" class="mt-btn-new">+ Nouvelle demande</a>
+  </div>
+
+  <div class="mt-loading" *ngIf="loading">Chargement...</div>
+
+  <div class="mt-empty" *ngIf="!loading && demandes.length === 0">
+    <div class="mt-empty-icon">🚚</div>
+    <p>Aucune demande de transport pour l'instant</p>
+    <a routerLink="/dashboard/logistique/transports/nouvelle-demande" class="mt-cta">Faire une demande →</a>
+  </div>
+
+  <div class="mt-grid" *ngIf="!loading && demandes.length > 0">
+    <div class="mt-card" *ngFor="let d of demandes">
+      <div class="mt-card-top">
+        <span class="mt-badge" [ngClass]="statutClass(d.statut)">{{ d.statut }}</span>
+        <span class="mt-date">{{ d.dateCreation | date:'short' }}</span>
+      </div>
+      <h3 class="mt-card-title">{{ d.typeService }}</h3>
+      <p class="mt-card-route">📍 {{ d.adresseDepart }} → {{ d.adresseArrivee }}</p>
+      <p class="mt-card-date" *ngIf="d.dateSouhaitee">📅 Souhaitee : {{ d.dateSouhaitee }}</p>
+
+      <div class="mt-card-actions">
+        <button class="mt-btn-detail" (click)="voirDetail(d)">Voir detail</button>
+        <button class="mt-btn-edit" *ngIf="peutModifier(d)" (click)="modifier(d)">Modifier</button>
+        <button class="mt-btn-cancel" *ngIf="peutModifier(d)" (click)="annuler(d)">Annuler</button>
+      </div>
+
+      <div class="mt-rating-cta" *ngIf="peutNoter(d)">
+        <span>Notez ce service :</span>
+        <app-star-rating (rate)="noter(d, $event)"></app-star-rating>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" *ngIf="selected as d">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>🚚 Detail de la demande</h2>
+      <button class="close-btn" (click)="closeModal()">✖</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-row"><span>Type :</span><b>{{ d.typeService }}</b></div>
+      <div class="detail-row"><span>Statut :</span><span class="mt-badge" [ngClass]="statutClass(d.statut)">{{ d.statut }}</span></div>
+      <div class="detail-row"><span>Depart :</span><b>{{ d.adresseDepart }}</b></div>
+      <div class="detail-row"><span>Arrivee :</span><b>{{ d.adresseArrivee }}</b></div>
+      <div class="detail-row" *ngIf="d.dateSouhaitee"><span>Date souhaitee :</span><b>{{ d.dateSouhaitee }}</b></div>
+      <div class="detail-row" *ngIf="d.description"><span>Description :</span><b>{{ d.description }}</b></div>
+      <div class="detail-row" *ngIf="d.commentaireOrganisateur">
+        <span>Commentaire organisateur :</span><b>{{ d.commentaireOrganisateur }}</b>
+      </div>
+
+      <hr>
+      <h4>Historique</h4>
+      <div class="history-item" *ngFor="let h of d.historique">
+        <span class="history-date">{{ h.date | date:'short' }}</span>
+        <span>{{ h.statutPrecedent || 'Creation' }} → {{ h.statutNouveau }}</span>
+        <p *ngIf="h.commentaire">{{ h.commentaire }}</p>
+      </div>
+    </div>
+  </div>
+</div>

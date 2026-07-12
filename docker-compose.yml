@@ -1,0 +1,75 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: comping-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build:
+      context: ./backendComping
+    container_name: comping-backend
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    ports:
+      - "8087:8087"
+    environment:
+      # Defaults below mirror application.properties so the stack works out of the box;
+      # set real values in .env (copied from .env.example) to override for a real deployment.
+      MONGO_URI: mongodb://mongo:27017/Comping
+      MAIL_USERNAME: ${MAIL_USERNAME:-barranifatma18@gmail.com}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-lhwgbvdeqllljozj}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_51TTnat3yzK2yC5XtLjU9F3EIphXjIQtoLdBkws1ndCJip1nUCwMYYcplzQX6GLEGHCMJ5djX2xB2vR7n8LY72rYV00uz9aSJ46}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_3kirM25PDdUffMOpuMpmmtJc4Ry2Umz0}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-dyeyeeb49}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-666697511622323}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
+      JWT_SECRET: ${JWT_SECRET:-compingSecretKeyForJWTMustBe256BitsLongAtLeast!!}
+      IA_API_URL: ${IA_API_URL:-http://localhost:5000/predict}
+    volumes:
+      - backend-uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontendComping/frontendCompingApp
+    container_name: comping-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: comping-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - backend
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: comping-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+
+volumes:
+  mongo-data:
+  backend-uploads:
+  grafana-data:

@@ -59,7 +59,12 @@ import {
   NouvelleDemandeTransportComponent
 } from './Demande-transport/nouvelle-demande-transport/nouvelle-demande-transport';
 import {MesTransportsComponent} from './mes-transport/mes-transports/mes-transports';
+import {MesLivraisonsComponent} from './mes-transport/mes-livraisons/mes-livraisons';
 import {SignalerIncidentComponent} from './signaler-incident/signaler-incident/signaler-incident';
+import {MesIncidentsComponent} from './mes-incident/mes-incidents/mes-incidents';
+import {AdminTransportsComponent} from './admin-logistique/admin-transports/admin-transports';
+import {AdminIncidentsComponent} from './admin-logistique/admin-incidents/admin-incidents';
+import {AdminLivraisonsComponent} from './admin-logistique/admin-livraisons/admin-livraisons';
 
 export const routes: Routes = [
 
@@ -106,8 +111,12 @@ export const routes: Routes = [
       { path: 'planning',        component: PlanningSrComponent },
       { path: 'checklist-ia',    component: ChecklistIaComponent },
       { path: 'logistique/transports/nouvelle-demande', component: NouvelleDemandeTransportComponent },
+      { path: 'logistique/transports/edit/:id', component: NouvelleDemandeTransportComponent },
       { path: 'logistique/transports', component: MesTransportsComponent },
+      { path: 'logistique/livraisons', component: MesLivraisonsComponent },
       { path: 'logistique/incidents/signaler', component: SignalerIncidentComponent },
+      { path: 'logistique/incidents/edit/:id', component: SignalerIncidentComponent },
+      { path: 'logistique/incidents', component: MesIncidentsComponent },
     ]
   },
 
@@ -175,6 +184,11 @@ export const routes: Routes = [
       { path: 'users',     component: UsersComponent     },
       { path: 'events',    component: EventComponent     },
       { path: 'activities', component: ActivityComponent },
+
+      // --- Logistique (organisateur) ---
+      { path: 'logistique/transports', component: AdminTransportsComponent },
+      { path: 'logistique/livraisons', component: AdminLivraisonsComponent },
+      { path: 'logistique/incidents',  component: AdminIncidentsComponent },
     ]
   },
 

@@ -1,0 +1,107 @@
+<div class="ai-page">
+
+  <div class="ai-header">
+    <h1>Incidents</h1>
+    <p>{{ filtered.length }} incident(s)</p>
+  </div>
+
+  <div class="ai-filters">
+    <input type="text" placeholder="🔍 Rechercher..." [(ngModel)]="searchText" (input)="applyFilters()" />
+    <select [(ngModel)]="selectedStatus" (change)="applyFilters()">
+      <option value="">Tous les statuts</option>
+      <option value="OUVERT">OUVERT</option>
+      <option value="EN_COURS">EN_COURS</option>
+      <option value="RESOLU">RESOLU</option>
+      <option value="REJETE">REJETE</option>
+    </select>
+    <select [(ngModel)]="selectedPriorite" (change)="applyFilters()">
+      <option value="">Toutes priorites</option>
+      <option value="FAIBLE">FAIBLE</option>
+      <option value="MOYENNE">MOYENNE</option>
+      <option value="HAUTE">HAUTE</option>
+      <option value="CRITIQUE">CRITIQUE</option>
+    </select>
+  </div>
+
+  <div class="ai-loading" *ngIf="loading">Chargement...</div>
+
+  <div class="ai-table-card" *ngIf="!loading">
+    <table class="ai-table" *ngIf="filtered.length > 0">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Priorite</th>
+          <th>Statut</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let i of filtered">
+          <td>{{ i.type }}</td>
+          <td class="desc-cell">{{ i.description }}</td>
+          <td><span class="ai-badge" [ngClass]="prioriteClass(i.priorite)">{{ i.priorite }}</span></td>
+          <td><span class="ai-badge" [ngClass]="statutClass(i.statut)">{{ i.statut }}</span></td>
+          <td class="actions">
+            <button class="btn view" (click)="voirDetail(i)">👁</button>
+            <button class="btn treat" (click)="ouvrirTraitement(i)">⚙️ Traiter</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="ai-empty" *ngIf="filtered.length === 0">
+      <div class="icon">✅</div>
+      <p>Aucun incident trouve</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" *ngIf="modalType === 'DETAIL' && selected as i">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>⚠️ Detail de l'incident</h2>
+      <button class="close-btn" (click)="closeModal()">✖</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-row"><span>Type :</span><b>{{ i.type }}</b></div>
+      <div class="detail-row"><span>Statut :</span><span class="ai-badge" [ngClass]="statutClass(i.statut)">{{ i.statut }}</span></div>
+      <div class="detail-row"><span>Priorite :</span><span class="ai-badge" [ngClass]="prioriteClass(i.priorite)">{{ i.priorite }}</span></div>
+      <div class="detail-row"><span>Description :</span><b>{{ i.description }}</b></div>
+      <hr>
+      <h4>Historique</h4>
+      <div class="history-item" *ngFor="let h of i.historique">
+        <span class="history-date">{{ h.date | date:'short' }}</span>
+        <span>{{ h.statutPrecedent || 'Creation' }} → {{ h.statutNouveau }}</span>
+        <p *ngIf="h.commentaire">{{ h.commentaire }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalType === 'TRAITEMENT' && selected as i">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>⚙️ Traiter l'incident</h2>
+      <button class="close-btn" (click)="closeModal()">✖</button>
+    </div>
+    <div class="modal-body">
+      <p><b>{{ i.type }}</b> — <span class="ai-badge" [ngClass]="prioriteClass(i.priorite)">{{ i.priorite }}</span></p>
+      <p class="desc-preview">{{ i.description }}</p>
+
+      <label class="label">Nouveau statut</label>
+      <select class="select-input" [(ngModel)]="traitementStatut">
+        <option value="" disabled>-- Choisir --</option>
+        <option *ngFor="let s of statutsDisponibles()" [value]="s">{{ s }}</option>
+      </select>
+
+      <label class="label">Commentaire</label>
+      <textarea class="select-input" rows="3" [(ngModel)]="traitementCommentaire" placeholder="Commentaire pour le campeur..."></textarea>
+
+      <button class="btn-confirm" (click)="confirmerTraitement()" [disabled]="!traitementStatut">
+        Confirmer
+      </button>
+    </div>
+  </div>
+</div>

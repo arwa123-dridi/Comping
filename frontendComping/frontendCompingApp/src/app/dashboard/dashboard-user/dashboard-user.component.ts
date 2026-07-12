@@ -6,6 +6,10 @@ import { SortieService } from '../../services/sortie.service';
 import { EquipeService } from '../../services/equipe.service';
 import { SortieResponse } from '../../models/sortie.model';
 import { EquipeResponse } from '../../models/equipe.model';
+import { DemandeTransportService } from '../../services/demande-transport.service';
+import { IncidentService } from '../../services/incident.service';
+import { DemandeTransportResponse } from '../../models/demande-transport.model';
+import { IncidentResponse } from '../../models/incident.model';
 
 @Component({
   selector: 'app-dashboard-user',
@@ -29,7 +33,13 @@ export class DashboardUserComponent implements OnInit {
   mesEquipes:          EquipeResponse[] = [];
   recommandations:     SortieResponse[] = [];
 
-  loading = { sorties: false, equipes: false, reco: false };
+  mesTransports: DemandeTransportResponse[] = [];
+  mesIncidents:  IncidentResponse[] = [];
+  totalTransportsEnCours = 0;
+  totalTransportsLivres = 0;
+  totalIncidentsOuverts = 0;
+
+  loading = { sorties: false, equipes: false, reco: false, logistique: false };
   errors  = { sorties: '', equipes: '' };
 
   readonly skeletons = [1,2,3];
@@ -46,6 +56,8 @@ export class DashboardUserComponent implements OnInit {
   constructor(
     private sortieService: SortieService,
     private equipeService: EquipeService,
+    private demandeTransportService: DemandeTransportService,
+    private incidentService: IncidentService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
@@ -64,7 +76,31 @@ export class DashboardUserComponent implements OnInit {
     if (this.userId && this.userId !== 'undefined') {
       this.loadMesSorties();
       this.loadMesEquipes();
+      this.loadMesLogistique();
     }
+  }
+
+  // ── Logistique (transports + incidents) ────────────────────
+  loadMesLogistique(): void {
+    this.loading.logistique = true;
+    this.demandeTransportService.getMine().subscribe({
+      next: (data) => {
+        this.mesTransports = data;
+        this.totalTransportsEnCours = data.filter(d => d.statut === 'EN_ATTENTE' || d.statut === 'PLANIFIEE' || d.statut === 'EN_COURS').length;
+        this.totalTransportsLivres = data.filter(d => d.statut === 'LIVREE').length;
+        this.loading.logistique = false;
+        this.cdr.markForCheck();
+      },
+      error: () => { this.loading.logistique = false; this.cdr.markForCheck(); }
+    });
+    this.incidentService.getMine().subscribe({
+      next: (data) => {
+        this.mesIncidents = data;
+        this.totalIncidentsOuverts = data.filter(i => i.statut === 'OUVERT' || i.statut === 'EN_COURS').length;
+        this.cdr.markForCheck();
+      },
+      error: () => {}
+    });
   }
 
   // ── Sorties inscrites ──────────────────────────────────────

@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -13,8 +13,9 @@ import java.util.Date;
 @Builder
 public class DemandeTransportRequest {
 
-    private Date dateCreation;
-    private String statut;
     private String typeService;
-    private String userId;
+    private String adresseDepart;
+    private String adresseArrivee;
+    private LocalDate dateSouhaitee;
+    private String description;
 }

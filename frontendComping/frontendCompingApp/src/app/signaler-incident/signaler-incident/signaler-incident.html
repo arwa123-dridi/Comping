@@ -1,0 +1,48 @@
+<div class="si-form-page">
+
+  <div class="si-hero">
+    <div class="si-hero-badge">{{ isEdit ? '✏️ Modification' : '⚠️ Signalement' }} · Logistique</div>
+    <h1 class="si-hero-title">{{ isEdit ? 'Modifier' : 'Signaler' }} un <span class="si-hero-accent">incident</span></h1>
+    <p class="si-hero-sub">Decrivez le probleme rencontre, l'equipe Campino le traite au plus vite</p>
+  </div>
+
+  <form [formGroup]="incidentForm" (ngSubmit)="onSubmit()" class="si-form">
+
+    <div *ngIf="error" class="si-error-banner">⚠️ {{ error }}</div>
+
+    <div class="si-field">
+      <label>Type d'incident *</label>
+      <select formControlName="type" class="si-input">
+        <option value="" disabled>Choisir un type</option>
+        <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+      </select>
+    </div>
+
+    <div class="si-field" *ngIf="mesTransports.length > 0">
+      <label>Lie a une demande de transport (optionnel)</label>
+      <select formControlName="demandeTransportId" class="si-input">
+        <option value="">-- Aucune --</option>
+        <option *ngFor="let t of mesTransports" [value]="t.idDemandeTransport">
+          {{ t.typeService }} — {{ t.adresseDepart }} → {{ t.adresseArrivee }}
+        </option>
+      </select>
+    </div>
+
+    <div class="si-field">
+      <label>Description *</label>
+      <textarea formControlName="description" class="si-input si-textarea" rows="5"
+                placeholder="Decrivez precisement ce qui s'est passe..."></textarea>
+      <div class="si-field-error" *ngIf="incidentForm.get('description')?.invalid && incidentForm.get('description')?.touched">
+        Minimum 10 caracteres
+      </div>
+    </div>
+
+    <div class="si-actions">
+      <button type="button" routerLink="/dashboard/logistique/incidents" class="si-btn-cancel">← Annuler</button>
+      <button type="submit" class="si-btn-submit" [disabled]="loading || incidentForm.invalid">
+        {{ loading ? 'Envoi...' : (isEdit ? 'Enregistrer' : 'Signaler') }}
+      </button>
+    </div>
+
+  </form>
+</div>

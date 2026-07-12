@@ -1,0 +1,70 @@
+<div class="dt-form-page">
+
+  <div class="dt-hero">
+    <div class="dt-hero-icon">🚐</div>
+    <div class="dt-hero-text">
+      <h1 class="dt-hero-title">{{ isEdit ? 'Modifier la' : 'Nouvelle' }} demande de transport</h1>
+      <p class="dt-hero-sub">Réservez votre moyen de déplacement pour votre prochaine aventure Campino</p>
+    </div>
+  </div>
+
+  <form [formGroup]="demandeForm" (ngSubmit)="onSubmit()" class="dt-form">
+
+    <div *ngIf="error" class="dt-error-banner">⚠️ {{ error }}</div>
+
+    <div class="dt-field">
+      <label>Type de service *</label>
+      <div class="dt-type-grid">
+        <button type="button" *ngFor="let t of typesService"
+                class="dt-type-card"
+                [class.selected]="demandeForm.get('typeService')?.value === t.value"
+                (click)="selectType(t.value)">
+          <span class="dt-type-icon">{{ t.icon }}</span>
+          <span class="dt-type-label">{{ t.label }}</span>
+        </button>
+      </div>
+      <div class="dt-field-error" *ngIf="demandeForm.get('typeService')?.invalid && demandeForm.get('typeService')?.touched">
+        Type de service obligatoire
+      </div>
+    </div>
+
+    <div class="dt-field">
+      <label>Statut</label>
+      <div class="dt-status-box">
+        <span class="dt-status-icon">⏳</span>
+        <span class="dt-status-label">{{ statutLabels[currentStatut] || 'En attente' }}</span>
+      </div>
+      <p class="dt-status-hint">Le statut est automatiquement défini et sera mis à jour par notre équipe.</p>
+    </div>
+
+    <div class="dt-field-row">
+      <div class="dt-field">
+        <label>Adresse de depart *</label>
+        <app-address-autocomplete formControlName="adresseDepart" placeholder="Ex : Site de camping Zaghouan"></app-address-autocomplete>
+      </div>
+      <div class="dt-field">
+        <label>Adresse d'arrivee *</label>
+        <app-address-autocomplete formControlName="adresseArrivee" placeholder="Ex : Gare routiere Tunis"></app-address-autocomplete>
+      </div>
+    </div>
+
+    <div class="dt-field">
+      <label>Date souhaitee *</label>
+      <input type="date" formControlName="dateSouhaitee" class="dt-input">
+    </div>
+
+    <div class="dt-field">
+      <label>Description</label>
+      <textarea formControlName="description" class="dt-input dt-textarea" rows="4"
+                placeholder="Precisez votre besoin (quantite, contraintes, horaires...)"></textarea>
+    </div>
+
+    <div class="dt-actions">
+      <button type="button" routerLink="/dashboard/logistique/transports" class="dt-btn-cancel">← Annuler</button>
+      <button type="submit" class="dt-btn-submit" [disabled]="loading || demandeForm.invalid">
+        {{ loading ? 'Enregistrement...' : (isEdit ? 'Enregistrer' : 'Envoyer la demande') }}
+      </button>
+    </div>
+
+  </form>
+</div>

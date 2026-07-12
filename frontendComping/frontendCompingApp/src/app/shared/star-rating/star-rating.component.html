@@ -1,0 +1,8 @@
+<div class="star-rating" [class.read-only]="readOnly">
+  <span *ngFor="let n of stars"
+        class="star"
+        [class.filled]="n <= (hovered || value)"
+        (click)="select(n)"
+        (mouseenter)="!readOnly && (hovered = n)"
+        (mouseleave)="!readOnly && (hovered = 0)">★</span>
+</div>

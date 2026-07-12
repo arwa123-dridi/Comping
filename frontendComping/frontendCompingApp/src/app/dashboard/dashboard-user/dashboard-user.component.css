@@ -111,7 +111,7 @@
 .du-body { max-width: 1200px; margin: 0 auto; padding: 28px 28px 60px; }
 
 /* ── KPI CARDS ────────────────────────────────────── */
-.du-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.du-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
 @media(max-width:900px){ .du-kpis { grid-template-columns: repeat(2,1fr); } }
 @media(max-width:560px){ .du-kpis { grid-template-columns: 1fr; } }
 

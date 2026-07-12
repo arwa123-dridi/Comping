@@ -1,0 +1,29 @@
+<div class="ml-page">
+
+  <div class="ml-header">
+    <h1>Mes livraisons</h1>
+    <p>Creneaux assignes a vos demandes de transport</p>
+  </div>
+
+  <div class="ml-loading" *ngIf="loading">Chargement...</div>
+
+  <div class="ml-empty" *ngIf="!loading && livraisons.length === 0">
+    <div class="ml-empty-icon">📦</div>
+    <p>Aucune livraison programmee pour le moment</p>
+    <a routerLink="/dashboard/logistique/transports" class="ml-cta">Voir mes transports →</a>
+  </div>
+
+  <div class="ml-list" *ngIf="!loading && livraisons.length > 0">
+    <div class="ml-row" *ngFor="let l of livraisons">
+      <div class="ml-row-main">
+        <div class="ml-row-title">{{ l.demande.typeService }}</div>
+        <div class="ml-row-route">{{ l.demande.adresseDepart }} → {{ l.demande.adresseArrivee }}</div>
+      </div>
+      <div class="ml-row-creneau" *ngIf="l.creneau">
+        🕐 {{ l.creneau.heureDebut }} - {{ l.creneau.heureFin }}
+      </div>
+      <span class="ml-badge">{{ l.demande.statut }}</span>
+    </div>
+  </div>
+
+</div>

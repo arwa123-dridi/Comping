@@ -38,7 +38,9 @@ public class Constants {
     public static final String GET_DEMANDE_TRANSPORT_BY_ID = "/{id}";
     public static final String UPDATE_DEMANDE_TRANSPORT = "/{id}";
     public static final String DELETE_DEMANDE_TRANSPORT = "/{id}";
-    public static final String GET_DEMANDES_BY_USER = "/user/{userId}";
+    public static final String GET_MES_DEMANDES_TRANSPORT = "/me";
+    public static final String TRAITER_DEMANDE_TRANSPORT = "/{id}/traitement";
+    public static final String SUGGESTION_CRENEAU_DEMANDE_TRANSPORT = "/{id}/suggestion-creneau";
 
     //api Users
     public static final String GET_ALL_USERS = "";
@@ -59,6 +61,16 @@ public class Constants {
     public static final String GET_INCIDENT_BY_ID = "/{id}";
     public static final String UPDATE_INCIDENT = "/{id}";
     public static final String DELETE_INCIDENT = "/{id}";
+    public static final String GET_MES_INCIDENTS = "/me";
+    public static final String TRAITER_INCIDENT = "/{id}/traitement";
+    public static final String RECLASSIFIER_INCIDENT = "/{id}/reclassifier";
+
+    // api notifications
+    public static final String BASE_URL_NOTIFICATION = "/api/notifications";
+    public static final String GET_MES_NOTIFICATIONS = "/me";
+    public static final String GET_UNREAD_COUNT_NOTIFICATIONS = "/me/unread-count";
+    public static final String MARK_READ_NOTIFICATION = "/{id}/lu";
+    public static final String MARK_ALL_READ_NOTIFICATIONS = "/me/lu";
 
     // api conventions partenaire
     public static final String BASE_URL_CONVENTION_PARTENAIRE = "/api/conventions-partenaires";

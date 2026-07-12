@@ -1,7 +1,10 @@
-import { Component, EventEmitter, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { Subscription, interval, startWith, switchMap } from 'rxjs';
 import { SigninService } from '../../services/signin.service';
+import { NotificationService } from '../../services/notification.service';
+import { NotificationResponse } from '../../models/notification.model';
 
 @Component({
   selector: 'app-admin-header',
@@ -10,13 +13,15 @@ import { SigninService } from '../../services/signin.service';
   templateUrl: './admin-header.component.html',
   styleUrl: './admin-header.component.css'
 })
-export class AdminHeaderComponent implements OnInit {
+export class AdminHeaderComponent implements OnInit, OnDestroy {
   @Output() sidebarToggle = new EventEmitter<void>();
 
   isDark = false;
   showNotif = false;
   showUserMenu = false;
-  notifCount = 2;
+  notifCount = 0;
+  notifications: NotificationResponse[] = [];
+  private pollSub?: Subscription;
 
   // Dynamic user info from localStorage
   userName = 'Utilisateur';
@@ -24,7 +29,11 @@ export class AdminHeaderComponent implements OnInit {
   userRole = '';
   userInitiales = 'U';
 
-  constructor(private signinService: SigninService, private router: Router) {}
+  constructor(
+    private signinService: SigninService,
+    private router: Router,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit(): void {
     const nom    = localStorage.getItem('userNom')    ?? '';
@@ -42,6 +51,18 @@ export class AdminHeaderComponent implements OnInit {
       .join('')
       .toUpperCase()
       .slice(0, 2) || 'U';
+
+    this.pollSub = interval(30000).pipe(
+      startWith(0),
+      switchMap(() => this.notificationService.unreadCount())
+    ).subscribe({
+      next: (res) => this.notifCount = res.count,
+      error: () => {}
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.pollSub?.unsubscribe();
   }
 
   getRoleLabel(): string {
@@ -61,6 +82,12 @@ export class AdminHeaderComponent implements OnInit {
   toggleNotif(): void {
     this.showNotif = !this.showNotif;
     this.showUserMenu = false;
+    if (this.showNotif) {
+      this.notificationService.getMine().subscribe({
+        next: (data) => this.notifications = data,
+        error: () => {}
+      });
+    }
   }
 
   toggleUserMenu(): void {
@@ -68,9 +95,22 @@ export class AdminHeaderComponent implements OnInit {
     this.showNotif = false;
   }
 
+  selectNotif(n: NotificationResponse): void {
+    if (!n.lu) {
+      this.notificationService.markRead(n.id).subscribe(() => {
+        n.lu = true;
+        this.notifCount = Math.max(0, this.notifCount - 1);
+      });
+    }
+    this.closeAll();
+    if (n.lien) this.router.navigateByUrl(n.lien);
+  }
+
   clearNotifs(): void {
-    this.notifCount = 0;
-    this.showNotif = false;
+    this.notificationService.markAllRead().subscribe(() => {
+      this.notifications.forEach(n => n.lu = true);
+      this.notifCount = 0;
+    });
   }
 
   closeAll(): void {
